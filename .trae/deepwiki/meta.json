@@ -1,0 +1,472 @@
+{
+  "current_version_id": 1,
+  "versions": [
+    {
+      "version_id": 1,
+      "status": {
+        "session_id": "6a99500c8ddb2c1a5f85da2a",
+        "commit_id": "f861128a4cdaa8448b9adae0b806b827d0317da6",
+        "generate_type": "full"
+      },
+      "catalogs": {
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式/延迟加载与运行时所有权模式.md": {
+          "content_hash": "80f1577f509d9b2025be76e726c1fa0794e639a7d7a0c4ad38214ad2c2ec7d42",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式/延迟加载与运行时所有权模式.md",
+          "chapter_number": "2.3.2"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/仿真编排与比赛逻辑.md": {
+          "content_hash": "3948fd681a1e6ec73017acf5a24b8c7a643c4e65ccf74c9c26888303a19ff2b7",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/仿真编排与比赛逻辑.md",
+          "chapter_number": "3.6"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/后处理与视觉特效系统.md": {
+          "content_hash": "2e4d4fd529c5dd083846a3268af498dcf3db96b5a63e8d56f0eec5fab8b54205",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/后处理与视觉特效系统.md",
+          "chapter_number": "4.3"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/弹道学与飞行物理.md": {
+          "content_hash": "b1bbe9e3620e615a20b411f4de59d411e0dcf30a36056c119b78c8a06bf5c083",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/弹道学与飞行物理.md",
+          "chapter_number": "3.1"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期/战斗生命周期与准入控制.md": {
+          "content_hash": "1b6e00cefb48a953ab130d06c8d6ec4a824d79f64068c8343c744bf5c9637711",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期/战斗生命周期与准入控制.md",
+          "chapter_number": "2.2.3"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式/契约式接口定义与集成检查.md": {
+          "content_hash": "379b48f3c9b243a830eeef8275a234193358e90c2b78f237a38466629fa53883",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式/契约式接口定义与集成检查.md",
+          "chapter_number": "2.3.1"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/自适应画质与性能优化策略.md": {
+          "content_hash": "7bf4ae43720a54752415cbc1bfc87879ef7741eea8e138759d1f04b1c427f7c5",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/自适应画质与性能优化策略.md",
+          "chapter_number": "4.4"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/坦克展厅 (Tank Gallery).md": {
+          "content_hash": "22f57365223368998af7377e26f45712135d431601e9beffbb5294b74e4fbdb4",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/坦克展厅 (Tank Gallery).md",
+          "chapter_number": "7.5"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/渲染器核心与生命周期.md": {
+          "content_hash": "daa49cdcf421c45682bab0e7d52c4b9fcf8f488c26377097529235d683244090",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/渲染器核心与生命周期.md",
+          "chapter_number": "4.1"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式.md": {
+          "content_hash": "d1d6dfc340e7ac912da77533a12d0a04706cc9c949aaddf30373121c92d394c8",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式.md",
+          "chapter_number": "2.3"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/权威服务器与 WebSocket 通信.md": {
+          "content_hash": "6a2ad697201411c85d9718cb110f9958983cf2363cd46e3121a5ab11f5c6d0fa",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/权威服务器与 WebSocket 通信.md",
+          "chapter_number": "5.2"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/调试、性能追踪与回放工具.md": {
+          "content_hash": "1f5ff9ff4b366c03803806c13e7e8998b82b08172c45693420fb3fbf31abfcf7",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/调试、性能追踪与回放工具.md",
+          "chapter_number": "7.6"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/状态同步与协议定义.md": {
+          "content_hash": "6e1f8b982b6d83788f20d4286bc17bedcb96166f422aef08ad8c8608ccaea693",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/状态同步与协议定义.md",
+          "chapter_number": "5.3"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构/帧同步与状态插值机制分析.md": {
+          "content_hash": "6ecf8924a9725cad9cf66a5cffa35d1a59cf54e8095f2b62a9bc3027b03b968a",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构/帧同步与状态插值机制分析.md",
+          "chapter_number": "2.1.3"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期/全局状态树与数据流.md": {
+          "content_hash": "707cec56d5861f1bb68b6166e124cb6f4cb60aa3644b2fc711d916657e414e58",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期/全局状态树与数据流.md",
+          "chapter_number": "2.2.1"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/Geometry Gate 程序化建模引擎.md": {
+          "content_hash": "d09b858a6c19d9fbe4c495891f11fb00e0c0b328c855a55f27533fe9cacc9e5e",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/Geometry Gate 程序化建模引擎.md",
+          "chapter_number": "6.1"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/开发规范、测试与性能优化.md": {
+          "content_hash": "ad5fcdb89fcadd753c3da06f3a1e8a9382e06d175264085bfc8357a76667e4bb",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/开发规范、测试与性能优化.md",
+          "chapter_number": "8"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/战斗 HUD 与实时交互.md": {
+          "content_hash": "71e4830e15d3814fea3fda616dae48710e9325f07ccfb1fa976ad7d1b65a6ef7",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/战斗 HUD 与实时交互.md",
+          "chapter_number": "7.3"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/匹配系统与房间生命周期.md": {
+          "content_hash": "6fd2438049697c1bc4d902d56172991184062fbed3d324013c431ee0196d8a09",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/匹配系统与房间生命周期.md",
+          "chapter_number": "5.5"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构/渲染引擎抽象与观察者模式.md": {
+          "content_hash": "fe3b8b0301791956d5611307c792202668ce2b105746c27eab058a7feb440be4",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构/渲染引擎抽象与观察者模式.md",
+          "chapter_number": "2.1.2"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念.md": {
+          "content_hash": "40629d085178c63ec4af0b33408ba273853a1d46c380734fd99a52e9469d61c4",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念.md",
+          "chapter_number": "2"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步.md": {
+          "content_hash": "4e2a5e19067e6f1878f7571ef8358a54eda6a9b0b7441105fda95facb92fb8fd",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步.md",
+          "chapter_number": "5"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/场景工作室 (Scene Studio).md": {
+          "content_hash": "d66a896861829e8425e0cd12082d31c2c0fd075b51ea3c729c10ef7f142b44b9",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/场景工作室 (Scene Studio).md",
+          "chapter_number": "7.4"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期.md": {
+          "content_hash": "dea7cd103f7a167ccbc370e591293c0c0bc52dfdb68a2b283724b144008f0d15",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期.md",
+          "chapter_number": "2.2"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具.md": {
+          "content_hash": "f5c281c36e307ff8c4eabd3ef5f3cd9e989a7031eddebbfde825c9121c916169",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具.md",
+          "chapter_number": "7"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/基础 UI 框架与通用组件.md": {
+          "content_hash": "7c103706dbb95cc02cccfea60ecef7aab88d374befccf69716ad98dc086b14f5",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/基础 UI 框架与通用组件.md",
+          "chapter_number": "7.1"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/确定性物理与地形移动.md": {
+          "content_hash": "9e344fef74085381bd0146d503468fea5c13a6408fc41eb78ff6f6846e4dac60",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/确定性物理与地形移动.md",
+          "chapter_number": "3.4"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/地图资产与场景生成.md": {
+          "content_hash": "",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/地图资产与场景生成.md",
+          "chapter_number": "6.4"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/车库界面与环境系统.md": {
+          "content_hash": "bb338cc0167a3b68826162098cf0cd0843d9c08422ac439d1e1d124282d292f9",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/车库界面与环境系统.md",
+          "chapter_number": "7.2"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析.md": {
+          "content_hash": "9038cc6f86f751f13a5b230fab6c541ebd1c474fa12e66ed2bb9d7af021fa6c2",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析.md",
+          "chapter_number": "3"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/损伤模型与模块化破坏.md": {
+          "content_hash": "4bf577bd931d8a3e1165e8eaf09133065eed5fb87edcc890f8636bebbd5408e6",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/损伤模型与模块化破坏.md",
+          "chapter_number": "3.3"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/装甲等效与穿深计算.md": {
+          "content_hash": "8f35b3af4317a164232bf4127d711fee8d10de4d97339d37572b36bee2f5aa2f",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/装甲等效与穿深计算.md",
+          "chapter_number": "3.2"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期/运行时切换与加载流.md": {
+          "content_hash": "183c536f51414fc4b18ab6ce531f26ac40dbb82aafcf072be46e79c799e241c5",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期/运行时切换与加载流.md",
+          "chapter_number": "2.2.2"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式/组合式逻辑与生命周期管理.md": {
+          "content_hash": "39dec8f631eff6ae879055a0773ffd9450019a2ab2e9f25414557627fb796166",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式/组合式逻辑与生命周期管理.md",
+          "chapter_number": "2.3.3"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构.md": {
+          "content_hash": "4e29819ce5cc6d45901e1e880a569d0aa0dbcf7adbfbeee6927f33a7c39a910b",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构.md",
+          "chapter_number": "2.1"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/项目概览与快速入门.md": {
+          "content_hash": "a2e0b34e5c435f3e01df11837c24f95a525383ebab4107a7f906e3bb2d7142e1",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/项目概览与快速入门.md",
+          "chapter_number": "1"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线.md": {
+          "content_hash": "14c3ec46faf5d8c4e04d0ec9540b27fb6453ca8aaef330f68000f36b5acb9dd7",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线.md",
+          "chapter_number": "6"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/坦克配置与家族系统.md": {
+          "content_hash": "0ec1d483eefab9bae54ffa046f8dd947acc23696efc9ee2ece85905d168eb805",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/坦克配置与家族系统.md",
+          "chapter_number": "6.2"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/战斗解剖学与内部模块.md": {
+          "content_hash": "ecc9800f23e73821b05fbc3b540e13fc1bcab568f130f223fb5091f70d84abea",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/战斗解剖学与内部模块.md",
+          "chapter_number": "6.3"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构/确定性仿真核心架构.md": {
+          "content_hash": "fc61165be973cebe742a264e7839692e015839cddbee176cb84bb9ec8d85e595",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构/确定性仿真核心架构.md",
+          "chapter_number": "2.1.1"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/客户端预测与延迟补偿.md": {
+          "content_hash": "932fe3621b9e5b6df47f29e44b37b74170ed74d44f65df05b017474ec05d2bb2",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/客户端预测与延迟补偿.md",
+          "chapter_number": "5.4"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果.md": {
+          "content_hash": "fe15e156952c110dc91145becae2fa685b12c557598a94f4fcc427d1facb20af",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果.md",
+          "chapter_number": "4"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/视野、隐蔽与 AI 逻辑.md": {
+          "content_hash": "a2689213b613b65545b82fbd435a1b1f0e6a657c09ed9efac63bf4e65cfd1dd8",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/视野、隐蔽与 AI 逻辑.md",
+          "chapter_number": "3.5"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/WebRTC P2P 联网与传输层.md": {
+          "content_hash": "6a167e7dea166b3f97139a1112c7bf7b1c78233cbd9c94e60587b995050b5b4b",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/WebRTC P2P 联网与传输层.md",
+          "chapter_number": "5.1"
+        },
+        "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/光照、阴影与环境渲染.md": {
+          "content_hash": "9de917ec1c116e42ac69537c303b5a52c4532f72319f1a7d0989fd406ed93ceb",
+          "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/光照、阴影与环境渲染.md",
+          "chapter_number": "4.2"
+        }
+      }
+    }
+  ],
+  "status": {
+    "session_id": "6a99500c8ddb2c1a5f85da2a",
+    "commit_id": "f861128a4cdaa8448b9adae0b806b827d0317da6",
+    "generate_type": "full"
+  },
+  "catalogs": {
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式/延迟加载与运行时所有权模式.md": {
+      "content_hash": "80f1577f509d9b2025be76e726c1fa0794e639a7d7a0c4ad38214ad2c2ec7d42",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式/延迟加载与运行时所有权模式.md",
+      "chapter_number": "2.3.2"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/仿真编排与比赛逻辑.md": {
+      "content_hash": "3948fd681a1e6ec73017acf5a24b8c7a643c4e65ccf74c9c26888303a19ff2b7",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/仿真编排与比赛逻辑.md",
+      "chapter_number": "3.6"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/后处理与视觉特效系统.md": {
+      "content_hash": "2e4d4fd529c5dd083846a3268af498dcf3db96b5a63e8d56f0eec5fab8b54205",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/后处理与视觉特效系统.md",
+      "chapter_number": "4.3"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/弹道学与飞行物理.md": {
+      "content_hash": "b1bbe9e3620e615a20b411f4de59d411e0dcf30a36056c119b78c8a06bf5c083",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/弹道学与飞行物理.md",
+      "chapter_number": "3.1"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期/战斗生命周期与准入控制.md": {
+      "content_hash": "1b6e00cefb48a953ab130d06c8d6ec4a824d79f64068c8343c744bf5c9637711",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期/战斗生命周期与准入控制.md",
+      "chapter_number": "2.2.3"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式/契约式接口定义与集成检查.md": {
+      "content_hash": "379b48f3c9b243a830eeef8275a234193358e90c2b78f237a38466629fa53883",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式/契约式接口定义与集成检查.md",
+      "chapter_number": "2.3.1"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/自适应画质与性能优化策略.md": {
+      "content_hash": "7bf4ae43720a54752415cbc1bfc87879ef7741eea8e138759d1f04b1c427f7c5",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/自适应画质与性能优化策略.md",
+      "chapter_number": "4.4"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/坦克展厅 (Tank Gallery).md": {
+      "content_hash": "22f57365223368998af7377e26f45712135d431601e9beffbb5294b74e4fbdb4",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/坦克展厅 (Tank Gallery).md",
+      "chapter_number": "7.5"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/渲染器核心与生命周期.md": {
+      "content_hash": "daa49cdcf421c45682bab0e7d52c4b9fcf8f488c26377097529235d683244090",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/渲染器核心与生命周期.md",
+      "chapter_number": "4.1"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式.md": {
+      "content_hash": "d1d6dfc340e7ac912da77533a12d0a04706cc9c949aaddf30373121c92d394c8",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式.md",
+      "chapter_number": "2.3"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/权威服务器与 WebSocket 通信.md": {
+      "content_hash": "6a2ad697201411c85d9718cb110f9958983cf2363cd46e3121a5ab11f5c6d0fa",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/权威服务器与 WebSocket 通信.md",
+      "chapter_number": "5.2"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/调试、性能追踪与回放工具.md": {
+      "content_hash": "1f5ff9ff4b366c03803806c13e7e8998b82b08172c45693420fb3fbf31abfcf7",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/调试、性能追踪与回放工具.md",
+      "chapter_number": "7.6"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/状态同步与协议定义.md": {
+      "content_hash": "6e1f8b982b6d83788f20d4286bc17bedcb96166f422aef08ad8c8608ccaea693",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/状态同步与协议定义.md",
+      "chapter_number": "5.3"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构/帧同步与状态插值机制分析.md": {
+      "content_hash": "6ecf8924a9725cad9cf66a5cffa35d1a59cf54e8095f2b62a9bc3027b03b968a",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构/帧同步与状态插值机制分析.md",
+      "chapter_number": "2.1.3"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期/全局状态树与数据流.md": {
+      "content_hash": "707cec56d5861f1bb68b6166e124cb6f4cb60aa3644b2fc711d916657e414e58",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期/全局状态树与数据流.md",
+      "chapter_number": "2.2.1"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/Geometry Gate 程序化建模引擎.md": {
+      "content_hash": "d09b858a6c19d9fbe4c495891f11fb00e0c0b328c855a55f27533fe9cacc9e5e",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/Geometry Gate 程序化建模引擎.md",
+      "chapter_number": "6.1"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/开发规范、测试与性能优化.md": {
+      "content_hash": "ad5fcdb89fcadd753c3da06f3a1e8a9382e06d175264085bfc8357a76667e4bb",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/开发规范、测试与性能优化.md",
+      "chapter_number": "8"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/战斗 HUD 与实时交互.md": {
+      "content_hash": "71e4830e15d3814fea3fda616dae48710e9325f07ccfb1fa976ad7d1b65a6ef7",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/战斗 HUD 与实时交互.md",
+      "chapter_number": "7.3"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/匹配系统与房间生命周期.md": {
+      "content_hash": "6fd2438049697c1bc4d902d56172991184062fbed3d324013c431ee0196d8a09",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/匹配系统与房间生命周期.md",
+      "chapter_number": "5.5"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构/渲染引擎抽象与观察者模式.md": {
+      "content_hash": "fe3b8b0301791956d5611307c792202668ce2b105746c27eab058a7feb440be4",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构/渲染引擎抽象与观察者模式.md",
+      "chapter_number": "2.1.2"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念.md": {
+      "content_hash": "40629d085178c63ec4af0b33408ba273853a1d46c380734fd99a52e9469d61c4",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念.md",
+      "chapter_number": "2"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步.md": {
+      "content_hash": "4e2a5e19067e6f1878f7571ef8358a54eda6a9b0b7441105fda95facb92fb8fd",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步.md",
+      "chapter_number": "5"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/场景工作室 (Scene Studio).md": {
+      "content_hash": "d66a896861829e8425e0cd12082d31c2c0fd075b51ea3c729c10ef7f142b44b9",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/场景工作室 (Scene Studio).md",
+      "chapter_number": "7.4"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期.md": {
+      "content_hash": "dea7cd103f7a167ccbc370e591293c0c0bc52dfdb68a2b283724b144008f0d15",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期.md",
+      "chapter_number": "2.2"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具.md": {
+      "content_hash": "f5c281c36e307ff8c4eabd3ef5f3cd9e989a7031eddebbfde825c9121c916169",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具.md",
+      "chapter_number": "7"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/基础 UI 框架与通用组件.md": {
+      "content_hash": "7c103706dbb95cc02cccfea60ecef7aab88d374befccf69716ad98dc086b14f5",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/基础 UI 框架与通用组件.md",
+      "chapter_number": "7.1"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/确定性物理与地形移动.md": {
+      "content_hash": "9e344fef74085381bd0146d503468fea5c13a6408fc41eb78ff6f6846e4dac60",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/确定性物理与地形移动.md",
+      "chapter_number": "3.4"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/地图资产与场景生成.md": {
+      "content_hash": "",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/地图资产与场景生成.md",
+      "chapter_number": "6.4"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/车库界面与环境系统.md": {
+      "content_hash": "bb338cc0167a3b68826162098cf0cd0843d9c08422ac439d1e1d124282d292f9",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/用户界面与内置创作工具/车库界面与环境系统.md",
+      "chapter_number": "7.2"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析.md": {
+      "content_hash": "9038cc6f86f751f13a5b230fab6c541ebd1c474fa12e66ed2bb9d7af021fa6c2",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析.md",
+      "chapter_number": "3"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/损伤模型与模块化破坏.md": {
+      "content_hash": "4bf577bd931d8a3e1165e8eaf09133065eed5fb87edcc890f8636bebbd5408e6",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/损伤模型与模块化破坏.md",
+      "chapter_number": "3.3"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/装甲等效与穿深计算.md": {
+      "content_hash": "8f35b3af4317a164232bf4127d711fee8d10de4d97339d37572b36bee2f5aa2f",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/装甲等效与穿深计算.md",
+      "chapter_number": "3.2"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期/运行时切换与加载流.md": {
+      "content_hash": "183c536f51414fc4b18ab6ce531f26ac40dbb82aafcf072be46e79c799e241c5",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/状态驱动与运行时生命周期/运行时切换与加载流.md",
+      "chapter_number": "2.2.2"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式/组合式逻辑与生命周期管理.md": {
+      "content_hash": "39dec8f631eff6ae879055a0773ffd9450019a2ab2e9f25414557627fb796166",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/契约式设计与模块化模式/组合式逻辑与生命周期管理.md",
+      "chapter_number": "2.3.3"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构.md": {
+      "content_hash": "4e29819ce5cc6d45901e1e880a569d0aa0dbcf7adbfbeee6927f33a7c39a910b",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构.md",
+      "chapter_number": "2.1"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/项目概览与快速入门.md": {
+      "content_hash": "a2e0b34e5c435f3e01df11837c24f95a525383ebab4107a7f906e3bb2d7142e1",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/项目概览与快速入门.md",
+      "chapter_number": "1"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线.md": {
+      "content_hash": "14c3ec46faf5d8c4e04d0ec9540b27fb6453ca8aaef330f68000f36b5acb9dd7",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线.md",
+      "chapter_number": "6"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/坦克配置与家族系统.md": {
+      "content_hash": "0ec1d483eefab9bae54ffa046f8dd947acc23696efc9ee2ece85905d168eb805",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/坦克配置与家族系统.md",
+      "chapter_number": "6.2"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/战斗解剖学与内部模块.md": {
+      "content_hash": "ecc9800f23e73821b05fbc3b540e13fc1bcab568f130f223fb5091f70d84abea",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/坦克资产与程序化生成流水线/战斗解剖学与内部模块.md",
+      "chapter_number": "6.3"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构/确定性仿真核心架构.md": {
+      "content_hash": "fc61165be973cebe742a264e7839692e015839cddbee176cb84bb9ec8d85e595",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/架构设计与核心理念/仿真与渲染分离架构/确定性仿真核心架构.md",
+      "chapter_number": "2.1.1"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/客户端预测与延迟补偿.md": {
+      "content_hash": "932fe3621b9e5b6df47f29e44b37b74170ed74d44f65df05b017474ec05d2bb2",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/客户端预测与延迟补偿.md",
+      "chapter_number": "5.4"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果.md": {
+      "content_hash": "fe15e156952c110dc91145becae2fa685b12c557598a94f4fcc427d1facb20af",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果.md",
+      "chapter_number": "4"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/视野、隐蔽与 AI 逻辑.md": {
+      "content_hash": "a2689213b613b65545b82fbd435a1b1f0e6a657c09ed9efac63bf4e65cfd1dd8",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/仿真引擎深度解析/视野、隐蔽与 AI 逻辑.md",
+      "chapter_number": "3.5"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/WebRTC P2P 联网与传输层.md": {
+      "content_hash": "6a167e7dea166b3f97139a1112c7bf7b1c78233cbd9c94e60587b995050b5b4b",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/网络架构与多玩家同步/WebRTC P2P 联网与传输层.md",
+      "chapter_number": "5.1"
+    },
+    "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/光照、阴影与环境渲染.md": {
+      "content_hash": "9de917ec1c116e42ac69537c303b5a52c4532f72319f1a7d0989fd406ed93ceb",
+      "file_path": "/Users/bytedance/Documents/Claude-of-Tanks/.trae/deepwiki/图形渲染与视觉效果/光照、阴影与环境渲染.md",
+      "chapter_number": "4.2"
+    }
+  }
+}
