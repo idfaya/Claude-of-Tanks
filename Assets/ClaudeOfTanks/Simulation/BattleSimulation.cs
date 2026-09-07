@@ -7,14 +7,17 @@ namespace ClaudeOfTanks.Simulation
     {
         private readonly BattleState _state;
         private readonly Func<float> _nextRandom;
+        private readonly MatchModeSimulation _matchMode;
 
-        public BattleSimulation(BattleState state)
+        public BattleSimulation(BattleState state, GameModeId gameMode = GameModeId.Standard)
         {
             _state = state ?? throw new ArgumentNullException(nameof(state));
             _nextRandom = _state.Random.NextFloat;
+            _matchMode = new MatchModeSimulation(_state, gameMode);
         }
 
         public BattleState State => _state;
+        public MatchModeState MatchMode => _matchMode.State;
 
         public void Step(IReadOnlyDictionary<string, TankInput> inputs, float dt)
         {
@@ -52,6 +55,7 @@ namespace ClaudeOfTanks.Simulation
 
             StepShells(dt);
             _state.TimeS += dt;
+            _matchMode.Step(dt);
         }
 
         private void TryFire(TankState tank, Float3 aimPoint)

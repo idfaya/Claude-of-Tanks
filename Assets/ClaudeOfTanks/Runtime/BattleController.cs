@@ -24,6 +24,7 @@ namespace ClaudeOfTanks.Runtime
         private ContentCatalog _catalog;
         private MapRuntime _mapRuntime;
         [SerializeField] private string mapId = "verdant";
+        [SerializeField] private GameModeId gameMode = GameModeId.Standard;
         private float _accumulator;
         private string _status = "BATTLE";
         private float _statusUntil;
@@ -123,7 +124,7 @@ namespace ClaudeOfTanks.Runtime
                 AddTank(state, "bravo-" + (i + 1), Team.Bravo, enemies[i],
                     SpawnPosition(state, spawn.x, spawn.z), MathUtil.Pi);
             }
-            _simulation = new BattleSimulation(state);
+            _simulation = new BattleSimulation(state, gameMode);
             _botController = new BotController(new SpottingSimulation());
             _player = state.Tanks[0];
             for (int i = 0; i < state.Tanks.Count; i++)
@@ -306,31 +307,22 @@ namespace ClaudeOfTanks.Runtime
 
         private void CheckResult()
         {
-            bool alphaAlive = false;
-            bool bravoAlive = false;
-            List<TankState> tanks = _simulation.State.Tanks;
-            for (int i = 0; i < tanks.Count; i++)
+            Team? winner = _simulation.MatchMode.Winner;
+            if (winner.HasValue)
             {
-                if (tanks[i].Destroyed) continue;
-                alphaAlive |= tanks[i].Team == Team.Alpha;
-                bravoAlive |= tanks[i].Team == Team.Bravo;
-            }
-
-            if (!alphaAlive)
-            {
-                _status = "DEFEAT";
+                _status = winner.Value == Team.Alpha ? "VICTORY" : "DEFEAT";
                 _statusUntil = float.PositiveInfinity;
             }
-            else if (!bravoAlive)
+            else if (_simulation.MatchMode.Draw)
             {
-                _status = "VICTORY";
+                _status = "DRAW";
                 _statusUntil = float.PositiveInfinity;
             }
         }
 
         private bool IsBattleOver()
         {
-            return _status == "VICTORY" || _status == "DEFEAT";
+            return _status == "VICTORY" || _status == "DEFEAT" || _status == "DRAW";
         }
 
         private void BuildEnvironment()
@@ -403,6 +395,14 @@ namespace ClaudeOfTanks.Runtime
 
             GUI.color = Color.white;
             GUI.Label(new Rect(Screen.width * 0.5f - 8f, Screen.height * 0.5f - 16f, 20f, 30f), "+", _statusStyle);
+            if (_simulation != null && gameMode != GameModeId.Standard)
+            {
+                MatchModeState mode = _simulation.MatchMode;
+                string objective = gameMode == GameModeId.EndlessHorde
+                    ? "WAVE " + mode.HordeWave
+                    : string.Format("{0:0}  -  {1:0}", mode.AlphaScore, mode.BravoScore);
+                GUI.Label(new Rect(0f, 8f, Screen.width, 32f), objective, _statusStyle);
+            }
             if (Time.unscaledTime < _statusUntil)
             {
                 GUI.Label(new Rect(0f, 30f, Screen.width, 48f), _status, _statusStyle);
