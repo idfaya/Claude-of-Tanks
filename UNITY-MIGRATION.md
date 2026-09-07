@@ -88,6 +88,9 @@ The port preserves the source project's runtime units and conventions:
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
   replay-safe Battle Again and return-to-garage actions
+- Responsive 20-map tactical minimap with source road/water/soft-ground
+  cartography, ten-by-ten grid, player/allied headings, spotting-gated enemy
+  markers, and CTF/zone/Turbo Ball objective markers
 - Renderer-free multiplayer authority baseline with bounded 60 Hz catch-up,
   validated sequenced input, deduplicated action edges, 20 Hz snapshot cadence,
   spectator views, and pre-serialization spotting filters
@@ -131,7 +134,7 @@ These systems still use the TypeScript implementation as their specification:
 - full terrain height-field rendering, authored buildings/landmarks,
   destructibles, complete vegetation recipes, and world streaming for all 20 maps;
 - progression, loadout editing, replay browser, and production garage;
-- input rebinding, settings, minimap, damage panel, and production UI polish;
+- input rebinding, settings, touch-control layout, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
 - Unity headless build/bootstrap, ranked HTTP matchmaking endpoints,
   WebRTC private-room transport, and signaling deployment;

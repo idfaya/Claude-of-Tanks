@@ -21,6 +21,7 @@ namespace ClaudeOfTanks.Runtime
         private BattleSimulation _simulation;
         private BattleReplayRecorder _replayRecorder;
         private BotController _botController;
+        private readonly SpottingSimulation _hudSpotting = new SpottingSimulation();
         private TankState _player;
         private Camera _camera;
         private ContentCatalog _catalog;
@@ -89,6 +90,7 @@ namespace ClaudeOfTanks.Runtime
             StartBattle();
             _hud = BattleHud.Create(StartBattle, _returnToGarage);
             _hud.transform.SetParent(transform, false);
+            _hud.SetMap(_catalog.GetMap(mapId));
             _effects = BattleEffects.Create();
             _effects.transform.SetParent(transform, false);
         }
@@ -131,6 +133,11 @@ namespace ClaudeOfTanks.Runtime
                     TimeS = _simulation.State.TimeS
                 });
             _hud.SetCamera(_cameraRig.Mode, _cameraRig.Zoom);
+            _hud.SetMinimap(
+                _player,
+                _simulation.State.Tanks,
+                _simulation.MatchMode,
+                _hudSpotting);
             if (Input.GetKeyDown(KeyCode.Return) && IsBattleOver())
             {
                 StartBattle();

@@ -29,6 +29,7 @@ namespace ClaudeOfTanks.Runtime
         private GameObject _scopeRoot;
         private Text _scopeZoom;
         private Text _damageDetails;
+        private BattleMinimap _minimap;
         private GameObject _resultRoot;
         private Text _resultTitle;
         private Text _resultStats;
@@ -47,6 +48,10 @@ namespace ClaudeOfTanks.Runtime
         public string DamageSummary => _damageDetails != null ? _damageDetails.text : string.Empty;
         public string ResultSummary => _resultStats != null ? _resultStats.text : string.Empty;
         public bool ResultVisible => _resultRoot != null && _resultRoot.activeSelf;
+        public int MinimapTankMarkers => _minimap != null ? _minimap.VisibleTankMarkerCount : 0;
+        public int MinimapEnemyMarkers => _minimap != null ? _minimap.VisibleEnemyMarkerCount : 0;
+        public int MinimapObjectiveMarkers =>
+            _minimap != null ? _minimap.VisibleObjectiveMarkerCount : 0;
 
         public static BattleHud Create(Action restart, Action garage = null)
         {
@@ -89,6 +94,21 @@ namespace ClaudeOfTanks.Runtime
         public void SetTouchVisible(bool visible)
         {
             _touchRoot.SetActive(visible);
+            _minimap?.SetTouchLayout(visible);
+        }
+
+        public void SetMap(MapDefinition map)
+        {
+            _minimap.SetMap(map);
+        }
+
+        public void SetMinimap(
+            TankState player,
+            System.Collections.Generic.IList<TankState> tanks,
+            MatchModeState mode,
+            SpottingSimulation spotting)
+        {
+            _minimap.Update(player, tanks, mode, spotting);
         }
 
         public void SetCamera(BattleCameraMode mode, float zoom)
@@ -155,8 +175,14 @@ namespace ClaudeOfTanks.Runtime
             CreateButton("Garage", "GARAGE", new Vector2(20f, -48f), _garage,
                 new Vector2(90f, 34f), new Vector2(0f, 1f));
             BuildDamagePanel(font);
+            _minimap = BattleMinimap.Create(transform, font);
             BuildTouchControls(font);
             BuildResultScreen(font);
+        }
+
+        private void OnDestroy()
+        {
+            _minimap?.Dispose();
         }
 
         private void BuildDamagePanel(Font font)
