@@ -30,12 +30,20 @@ namespace ClaudeOfTanks.Runtime
         private Text _scopeZoom;
         private Text _damageDetails;
         private BattleMinimap _minimap;
+        private readonly RectTransform[] _consumableButtons = new RectTransform[3];
         private GameObject _resultRoot;
         private Text _resultTitle;
         private Text _resultStats;
         private readonly StringBuilder _damageText = new StringBuilder(160);
         private Vector2 _touchDrive;
+        private Vector2 _touchAimPosition;
+        private readonly bool[] _driveHeld = new bool[4];
         private bool _fireHeld;
+        private bool _brakeHeld;
+        private bool _touchAimActive;
+        private bool _sniperToggleQueued;
+        private int _touchLayoutWidth;
+        private int _touchLayoutHeight;
         private readonly bool[] _consumables = new bool[3];
         private BattleCameraMode _cameraMode = (BattleCameraMode)(-1);
         private float _cameraZoom = -1f;
@@ -45,6 +53,7 @@ namespace ClaudeOfTanks.Runtime
 
         public Vector2 TouchDrive => _touchDrive;
         public bool FireHeld => _fireHeld;
+        public bool BrakeHeld => _brakeHeld;
         public string DamageSummary => _damageDetails != null ? _damageDetails.text : string.Empty;
         public string ResultSummary => _resultStats != null ? _resultStats.text : string.Empty;
         public bool ResultVisible => _resultRoot != null && _resultRoot.activeSelf;
@@ -68,6 +77,19 @@ namespace ClaudeOfTanks.Runtime
             bool value = _consumables[slot];
             _consumables[slot] = false;
             return value;
+        }
+
+        public bool ConsumeSniperToggle()
+        {
+            bool value = _sniperToggleQueued;
+            _sniperToggleQueued = false;
+            return value;
+        }
+
+        public bool TryGetTouchAimPosition(out Vector2 position)
+        {
+            position = _touchAimPosition;
+            return _touchAimActive;
         }
 
         public void SetState(
@@ -95,6 +117,26 @@ namespace ClaudeOfTanks.Runtime
         {
             _touchRoot.SetActive(visible);
             _minimap?.SetTouchLayout(visible);
+            if (visible) SetTouchLayoutForViewport(Screen.width, Screen.height);
+        }
+
+        public void SetTouchLayoutForViewport(int width, int height)
+        {
+            if (width < 1 || height < 1) throw new ArgumentOutOfRangeException();
+            _touchLayoutWidth = width;
+            _touchLayoutHeight = height;
+            bool portrait = height > width;
+            for (int i = 0; i < _consumableButtons.Length; i++)
+            {
+                Vector2 position = portrait
+                    ? new Vector2(420f + i * 56f, 250f)
+                    : new Vector2(430f + i * 56f, 20f);
+                Rect(
+                    _consumableButtons[i],
+                    position,
+                    position + new Vector2(48f, 48f),
+                    Vector2.zero);
+            }
         }
 
         public void SetMap(MapDefinition map)
@@ -169,9 +211,15 @@ namespace ClaudeOfTanks.Runtime
             Rect(reticle.rectTransform, new Vector2(-20f, -20f), new Vector2(20f, 20f), new Vector2(0.5f, 0.5f));
             BuildScopeOverlay(font);
 
-            CreateButton("Repair", "4", new Vector2(430f, 20f), () => _consumables[0] = true);
-            CreateButton("FirstAid", "5", new Vector2(486f, 20f), () => _consumables[1] = true);
-            CreateButton("Extinguish", "6", new Vector2(542f, 20f), () => _consumables[2] = true);
+            _consumableButtons[0] = CreateButton(
+                "Repair", "4", new Vector2(430f, 20f), () => _consumables[0] = true)
+                .GetComponent<RectTransform>();
+            _consumableButtons[1] = CreateButton(
+                "FirstAid", "5", new Vector2(486f, 20f), () => _consumables[1] = true)
+                .GetComponent<RectTransform>();
+            _consumableButtons[2] = CreateButton(
+                "Extinguish", "6", new Vector2(542f, 20f), () => _consumables[2] = true)
+                .GetComponent<RectTransform>();
             CreateButton("Garage", "GARAGE", new Vector2(20f, -48f), _garage,
                 new Vector2(90f, 34f), new Vector2(0f, 1f));
             BuildDamagePanel(font);
@@ -183,6 +231,16 @@ namespace ClaudeOfTanks.Runtime
         private void OnDestroy()
         {
             _minimap?.Dispose();
+        }
+
+        private void Update()
+        {
+            if (_touchRoot != null &&
+                _touchRoot.activeSelf &&
+                (_touchLayoutWidth != Screen.width || _touchLayoutHeight != Screen.height))
+            {
+                SetTouchLayoutForViewport(Screen.width, Screen.height);
+            }
         }
 
         private void BuildDamagePanel(Font font)
@@ -351,24 +409,56 @@ namespace ClaudeOfTanks.Runtime
 
         private void BuildTouchControls(Font font)
         {
-            _touchRoot = new GameObject("TouchControls");
+            _touchRoot = new GameObject("TouchControls", typeof(RectTransform));
             _touchRoot.transform.SetParent(transform, false);
-            HoldButton(_touchRoot.transform, "Forward", "^", new Vector2(112f, 132f), value => SetDrive(1, value));
-            HoldButton(_touchRoot.transform, "Reverse", "v", new Vector2(112f, 36f), value => SetDrive(2, value));
-            HoldButton(_touchRoot.transform, "Left", "<", new Vector2(32f, 52f), value => SetDrive(3, value));
-            HoldButton(_touchRoot.transform, "Right", ">", new Vector2(192f, 52f), value => SetDrive(4, value));
-            HoldButton(_touchRoot.transform, "Fire", "FIRE", new Vector2(-120f, 65f),
-                value => _fireHeld = value, new Vector2(104f, 104f), new Vector2(1f, 0f));
+            RectTransform root = _touchRoot.GetComponent<RectTransform>();
+            Rect(root, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.one);
+
+            Image aimSurface = Image("AimSurface", _touchRoot.transform, Color.clear);
+            Rect(
+                aimSurface.rectTransform,
+                Vector2.zero,
+                Vector2.zero,
+                new Vector2(0.35f, 0.18f),
+                new Vector2(1f, 0.88f));
+            TouchAimControl aim = aimSurface.gameObject.AddComponent<TouchAimControl>();
+            aim.SetAction((active, position) =>
+            {
+                _touchAimActive = active;
+                _touchAimPosition = position;
+            });
+
+            GameObject drivePad = new GameObject("DrivePad", typeof(RectTransform));
+            drivePad.transform.SetParent(_touchRoot.transform, false);
+            Rect(
+                drivePad.GetComponent<RectTransform>(),
+                new Vector2(24f, 112f),
+                new Vector2(242f, 330f),
+                Vector2.zero);
+            HoldButton(drivePad.transform, "Forward", "^", new Vector2(75f, 146f),
+                value => SetDrive(0, value), new Vector2(68f, 68f));
+            HoldButton(drivePad.transform, "Reverse", "v", new Vector2(75f, 4f),
+                value => SetDrive(1, value), new Vector2(68f, 68f));
+            HoldButton(drivePad.transform, "Left", "<", new Vector2(4f, 75f),
+                value => SetDrive(2, value), new Vector2(68f, 68f));
+            HoldButton(drivePad.transform, "Right", ">", new Vector2(146f, 75f),
+                value => SetDrive(3, value), new Vector2(68f, 68f));
+
+            HoldButton(_touchRoot.transform, "Fire", "FIRE", new Vector2(-144f, 32f),
+                value => _fireHeld = value, new Vector2(112f, 112f), new Vector2(1f, 0f));
+            HoldButton(_touchRoot.transform, "Brake", "BRAKE", new Vector2(-244f, 40f),
+                value => _brakeHeld = value, new Vector2(84f, 84f), new Vector2(1f, 0f));
+            CreateButton("Sniper", "SCOPE", new Vector2(-144f, 160f),
+                () => _sniperToggleQueued = true,
+                new Vector2(112f, 52f), new Vector2(1f, 0f), _touchRoot.transform);
             _touchRoot.SetActive(Application.isMobilePlatform || Input.touchSupported);
         }
 
         private void SetDrive(int direction, bool held)
         {
-            float value = held ? 1f : 0f;
-            if (direction == 1) _touchDrive.y = value;
-            else if (direction == 2) _touchDrive.y = -value;
-            else if (direction == 3) _touchDrive.x = -value;
-            else _touchDrive.x = value;
+            _driveHeld[direction] = held;
+            _touchDrive.x = (_driveHeld[3] ? 1f : 0f) - (_driveHeld[2] ? 1f : 0f);
+            _touchDrive.y = (_driveHeld[0] ? 1f : 0f) - (_driveHeld[1] ? 1f : 0f);
         }
 
         private void HoldButton(
@@ -441,5 +531,29 @@ namespace ClaudeOfTanks.Runtime
         public void OnPointerDown(PointerEventData eventData) { _action?.Invoke(true); }
         public void OnPointerUp(PointerEventData eventData) { _action?.Invoke(false); }
         private void OnDisable() { _action?.Invoke(false); }
+    }
+
+    public sealed class TouchAimControl :
+        MonoBehaviour,
+        IPointerDownHandler,
+        IDragHandler,
+        IPointerUpHandler
+    {
+        private Action<bool, Vector2> _action;
+
+        public void SetAction(Action<bool, Vector2> action) { _action = action; }
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            _action?.Invoke(true, eventData.position);
+        }
+        public void OnDrag(PointerEventData eventData)
+        {
+            _action?.Invoke(true, eventData.position);
+        }
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            _action?.Invoke(false, eventData.position);
+        }
+        private void OnDisable() { _action?.Invoke(false, Vector2.zero); }
     }
 }

@@ -3,6 +3,7 @@ using ClaudeOfTanks.Runtime;
 using ClaudeOfTanks.Simulation;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace ClaudeOfTanks.Tests
@@ -125,6 +126,73 @@ namespace ClaudeOfTanks.Tests
                         BattleMinimap.TextureSize / 2));
                 }
                 Assert.That(centerColors.Count, Is.GreaterThan(8));
+            }
+            finally
+            {
+                Object.DestroyImmediate(hud.gameObject);
+            }
+        }
+
+        [Test]
+        public void TouchControlsUseSafeAnchorsAndIndependentHeldState()
+        {
+            BattleHud hud = BattleHud.Create(() => { }, () => { });
+            try
+            {
+                hud.SetTouchVisible(true);
+                RectTransform root = hud.transform.Find("TouchControls")
+                    .GetComponent<RectTransform>();
+                Assert.That(root.anchorMin, Is.EqualTo(Vector2.zero));
+                Assert.That(root.anchorMax, Is.EqualTo(Vector2.one));
+
+                RectTransform drive = root.Find("DrivePad").GetComponent<RectTransform>();
+                RectTransform fire = root.Find("Fire").GetComponent<RectTransform>();
+                RectTransform brake = root.Find("Brake").GetComponent<RectTransform>();
+                RectTransform scope = root.Find("Sniper").GetComponent<RectTransform>();
+                RectTransform aim = root.Find("AimSurface").GetComponent<RectTransform>();
+                Assert.That(drive.anchorMin, Is.EqualTo(Vector2.zero));
+                Assert.That(fire.anchorMin, Is.EqualTo(new Vector2(1f, 0f)));
+                Assert.That(brake.anchorMin, Is.EqualTo(new Vector2(1f, 0f)));
+                Assert.That(scope.anchorMin, Is.EqualTo(new Vector2(1f, 0f)));
+                Assert.That(aim.anchorMin.x, Is.GreaterThanOrEqualTo(0.35f));
+                Assert.That(aim.anchorMin.y, Is.GreaterThanOrEqualTo(0.18f));
+                RectTransform repair = hud.transform.Find("Repair").GetComponent<RectTransform>();
+                hud.SetTouchLayoutForViewport(720, 1280);
+                Assert.That(repair.offsetMin.y, Is.EqualTo(250f));
+                hud.SetTouchLayoutForViewport(1280, 720);
+                Assert.That(repair.offsetMin.y, Is.EqualTo(20f));
+
+                HoldControl forward = drive.Find("Forward").GetComponent<HoldControl>();
+                HoldControl left = drive.Find("Left").GetComponent<HoldControl>();
+                forward.OnPointerDown(null);
+                left.OnPointerDown(null);
+                Assert.That(hud.TouchDrive, Is.EqualTo(new Vector2(-1f, 1f)));
+                forward.OnPointerUp(null);
+                Assert.That(hud.TouchDrive, Is.EqualTo(new Vector2(-1f, 0f)));
+                left.OnPointerUp(null);
+                Assert.That(hud.TouchDrive, Is.EqualTo(Vector2.zero));
+
+                HoldControl brakeHold = brake.GetComponent<HoldControl>();
+                brakeHold.OnPointerDown(null);
+                Assert.That(hud.BrakeHeld, Is.True);
+                brakeHold.OnPointerUp(null);
+                Assert.That(hud.BrakeHeld, Is.False);
+
+                scope.GetComponent<Button>().onClick.Invoke();
+                Assert.That(hud.ConsumeSniperToggle(), Is.True);
+                Assert.That(hud.ConsumeSniperToggle(), Is.False);
+
+                TouchAimControl aimControl = aim.GetComponent<TouchAimControl>();
+                PointerEventData pointer = new PointerEventData(EventSystem.current)
+                {
+                    position = new Vector2(900f, 420f)
+                };
+                aimControl.OnPointerDown(pointer);
+                Vector2 aimPosition;
+                Assert.That(hud.TryGetTouchAimPosition(out aimPosition), Is.True);
+                Assert.That(aimPosition, Is.EqualTo(pointer.position));
+                aimControl.OnPointerUp(pointer);
+                Assert.That(hud.TryGetTouchAimPosition(out aimPosition), Is.False);
             }
             finally
             {

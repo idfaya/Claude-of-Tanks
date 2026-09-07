@@ -278,7 +278,8 @@ namespace ClaudeOfTanks.Runtime
             {
                 Throttle = Mathf.Clamp(throttle, -1f, 1f),
                 Steer = Mathf.Clamp(steer, -1f, 1f),
-                Brake = gamepadBrake || IsKeyPressed(KeyCode.LeftControl) || IsKeyPressed(KeyCode.RightControl),
+                Brake = gamepadBrake || (_hud != null && _hud.BrakeHeld) ||
+                    IsKeyPressed(KeyCode.LeftControl) || IsKeyPressed(KeyCode.RightControl),
                 Fire = gamepadFire || (_hud != null && _hud.FireHeld) ||
                     IsPrimaryButtonPressed() || IsKeyPressed(KeyCode.Space),
                 UseRepairKit = Input.GetKeyDown(KeyCode.Alpha4) ||
@@ -333,7 +334,8 @@ namespace ClaudeOfTanks.Runtime
         private void UpdateCameraControls()
         {
             if (IsKeyPressedThisFrame(KeyCode.LeftShift) ||
-                IsKeyPressedThisFrame(KeyCode.RightShift))
+                IsKeyPressedThisFrame(KeyCode.RightShift) ||
+                (_hud != null && _hud.ConsumeSniperToggle()))
             {
                 _cameraRig.ToggleSniper();
                 _aimHoldOwnsSniper = false;
@@ -404,8 +406,13 @@ namespace ClaudeOfTanks.Runtime
             return scroll > 0.01f ? 1 : scroll < -0.01f ? -1 : 0;
         }
 
-        private static Vector2 PointerPosition()
+        private Vector2 PointerPosition()
         {
+            Vector2 touchPosition;
+            if (_hud != null && _hud.TryGetTouchAimPosition(out touchPosition))
+            {
+                return touchPosition;
+            }
 #if ENABLE_INPUT_SYSTEM
             if (Mouse.current != null)
             {
