@@ -1,0 +1,16 @@
+{
+  "name": "ClaudeOfTanks.Network",
+  "rootNamespace": "ClaudeOfTanks.Network",
+  "references": [
+    "ClaudeOfTanks.Simulation"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": true
+}

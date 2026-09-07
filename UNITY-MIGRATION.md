@@ -39,6 +39,7 @@ Once the Editor is open, every other `tools/uloop.sh` command is supported.
 | Assembly | Responsibility |
 | --- | --- |
 | `ClaudeOfTanks.Simulation` | Deterministic fixed-step movement, ballistics, penetration, damage, entities, and seeded RNG. It has `noEngineReferences: true`. |
+| `ClaudeOfTanks.Network` | Transport-independent input admission, authoritative match ticking, and viewer-filtered snapshots. It has `noEngineReferences: true`. |
 | `ClaudeOfTanks.Runtime` | Unity input, procedural rendering, camera, HUD, scene lifecycle, and simulation-to-view synchronization. |
 | `ClaudeOfTanks.Simulation.Tests` | Unity EditMode tests for coordinate conventions, determinism, movement, penetration, and swept shell hits. |
 
@@ -80,6 +81,9 @@ The port preserves the source project's runtime units and conventions:
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
   replay-safe Battle Again and return-to-garage actions
+- Renderer-free multiplayer authority baseline with bounded 60 Hz catch-up,
+  validated sequenced input, deduplicated action edges, 20 Hz snapshot cadence,
+  spectator views, and pre-serialization spotting filters
 - `npm run unity:content:update` / `unity:content:check` drift gate
 
 ## Remaining parity work
@@ -92,7 +96,7 @@ These systems still use the TypeScript implementation as their specification:
 - progression, loadout editing, replay browser, and production garage;
 - input rebinding, settings, minimap, damage panel, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
-- authoritative multiplayer transport, snapshots, prediction, and persistence;
+- multiplayer transports, delta codec, client prediction, rooms, and persistence;
 - procedural vehicle geometry parity and generated technical assets.
 
 Migrate these by extending the simulation contracts rather than moving

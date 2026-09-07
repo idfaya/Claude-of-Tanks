@@ -3,7 +3,8 @@
   "rootNamespace": "ClaudeOfTanks.Tests",
   "references": [
     "ClaudeOfTanks.Simulation",
-    "ClaudeOfTanks.Runtime"
+    "ClaudeOfTanks.Runtime",
+    "ClaudeOfTanks.Network"
   ],
   "includePlatforms": [
     "Editor"

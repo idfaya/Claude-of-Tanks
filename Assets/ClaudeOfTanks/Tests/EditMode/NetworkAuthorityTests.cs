@@ -1,0 +1,132 @@
+using ClaudeOfTanks.Network;
+using ClaudeOfTanks.Simulation;
+using NUnit.Framework;
+
+namespace ClaudeOfTanks.Tests
+{
+    public sealed class NetworkAuthorityTests
+    {
+        [Test]
+        public void HostRejectsStaleAndFutureInputThenAdvancesAuthority()
+        {
+            BattleState state = new BattleState(new FlatHeightField(), 91u);
+            TankState player = Tank("entity-alpha", Team.Alpha, Float3.Zero, 0f);
+            state.Tanks.Add(player);
+            AuthoritativeMatchHost host =
+                new AuthoritativeMatchHost(new BattleSimulation(state));
+            host.RegisterPlayer("peer-alpha", player.Id);
+            int initialAmmo = player.Combat.Ammo[0];
+            NetworkInputCommand command = Command("peer-alpha", 0u, 0);
+            command.Throttle = 1f;
+            command.Actions = NetworkActionBits.Fire;
+            command.ActionSequence = 7u;
+
+            Assert.That(host.SubmitInput(command), Is.EqualTo(InputAdmission.Accepted));
+            Assert.That(host.SubmitInput(command), Is.EqualTo(InputAdmission.Stale));
+
+            NetworkInputCommand future = Command(
+                "peer-alpha", 1u, NetworkProtocol.MaximumFutureTicks + 1);
+            Assert.That(host.SubmitInput(future), Is.EqualTo(InputAdmission.TooFarAhead));
+            Assert.That(host.AdvanceTicks(20), Is.EqualTo(AuthoritativeMatchHost.MaximumCatchUpTicks));
+            Assert.That(host.Tick, Is.EqualTo(AuthoritativeMatchHost.MaximumCatchUpTicks));
+            Assert.That(player.Position.Z, Is.GreaterThan(0f));
+            Assert.That(player.Combat.Ammo[0], Is.EqualTo(initialAmmo - 1));
+
+            NetworkWorldSnapshot snapshot = host.CreateSnapshot("peer-alpha");
+            Assert.That(snapshot.AcknowledgedInputSequence, Is.EqualTo(0u));
+            Assert.That(snapshot.Tick, Is.EqualTo(host.Tick));
+        }
+
+        [Test]
+        public void SnapshotFiltersHiddenEnemiesBeforeSerialization()
+        {
+            BattleState state = new BattleState(new FlatHeightField(), 92u);
+            TankState viewer = Tank("entity-viewer", Team.Alpha, Float3.Zero, 0f);
+            TankState ally = Tank("entity-ally", Team.Alpha, new Float3(30f, 0f, 0f), 0f);
+            TankState hidden = Tank("entity-hidden", Team.Bravo, new Float3(0f, 0f, -100f), 0f);
+            state.Tanks.Add(viewer);
+            state.Tanks.Add(ally);
+            state.Tanks.Add(hidden);
+            state.Events.Add(new BattleEvent
+            {
+                Type = BattleEventType.ShellFired,
+                SourceId = hidden.Id,
+                Position = hidden.Position
+            });
+            AuthoritativeMatchHost host =
+                new AuthoritativeMatchHost(new BattleSimulation(state));
+            host.RegisterPlayer("peer-viewer", viewer.Id);
+            host.RegisterSpectator("observer");
+
+            NetworkWorldSnapshot filtered = host.CreateSnapshot("peer-viewer");
+            Assert.That(filtered.Entities, Has.Length.EqualTo(2));
+            Assert.That(ContainsEntity(filtered, hidden.Id), Is.False);
+            Assert.That(filtered.Events, Is.Empty);
+
+            NetworkWorldSnapshot observer = host.CreateSnapshot("observer");
+            Assert.That(observer.Entities, Has.Length.EqualTo(3));
+            Assert.That(ContainsEntity(observer, hidden.Id), Is.True);
+            Assert.That(observer.Events, Has.Length.EqualTo(1));
+
+            hidden.Position = new Float3(0f, 0f, 100f);
+            filtered = host.CreateSnapshot("peer-viewer");
+            Assert.That(ContainsEntity(filtered, hidden.Id), Is.True);
+        }
+
+        [Test]
+        public void EntityIdentityDoesNotAliasDuplicateVehicleSelections()
+        {
+            BattleState state = new BattleState(new FlatHeightField(), 93u);
+            TankSpec sharedVehicle = TankSpec.Medium();
+            state.Tanks.Add(new TankState(
+                "commander-one", Team.Alpha, sharedVehicle, new Float3(-5f, 0f, 0f), 0f));
+            state.Tanks.Add(new TankState(
+                "commander-two", Team.Alpha, sharedVehicle, new Float3(5f, 0f, 0f), 0f));
+            AuthoritativeMatchHost host =
+                new AuthoritativeMatchHost(new BattleSimulation(state));
+            host.RegisterPlayer("peer-one", "commander-one");
+            host.RegisterPlayer("peer-two", "commander-two");
+
+            NetworkWorldSnapshot snapshot = host.CreateSnapshot("peer-one");
+
+            Assert.That(snapshot.Entities, Has.Length.EqualTo(2));
+            Assert.That(snapshot.Entities[0].EntityId, Is.Not.EqualTo(snapshot.Entities[1].EntityId));
+            Assert.That(snapshot.Entities[0].VehicleSpecId, Is.EqualTo(snapshot.Entities[1].VehicleSpecId));
+        }
+
+        [Test]
+        public void SequenceComparisonSupportsUnsignedWraparound()
+        {
+            Assert.That(NetworkProtocol.IsSequenceNewer(0u, uint.MaxValue), Is.True);
+            Assert.That(NetworkProtocol.IsSequenceNewer(uint.MaxValue, 0u), Is.False);
+        }
+
+        private static NetworkInputCommand Command(
+            string playerId,
+            uint sequence,
+            long clientTick)
+        {
+            return new NetworkInputCommand
+            {
+                PlayerId = playerId,
+                Sequence = sequence,
+                ClientTick = clientTick,
+                AimYawRad = 0f,
+                AimPitchRad = 0f,
+                AimDistanceM = 100f
+            };
+        }
+
+        private static TankState Tank(string id, Team team, Float3 position, float yaw)
+        {
+            return new TankState(id, team, TankSpec.Medium(), position, yaw);
+        }
+
+        private static bool ContainsEntity(NetworkWorldSnapshot snapshot, string entityId)
+        {
+            for (int i = 0; i < snapshot.Entities.Length; i++)
+                if (snapshot.Entities[i].EntityId == entityId) return true;
+            return false;
+        }
+    }
+}
