@@ -111,7 +111,10 @@ namespace ClaudeOfTanks.Simulation
             {
                 Type = BattleEventType.ShellFired,
                 SourceId = tank.Id,
-                Position = muzzle
+                Position = muzzle,
+                Direction = direction,
+                ShellType = tank.Spec.Shell.Type,
+                CaliberMm = tank.Spec.Shell.CaliberMm
             });
         }
 
@@ -212,6 +215,10 @@ namespace ClaudeOfTanks.Simulation
                 SourceId = shell.ShooterId,
                 TargetId = target.Id,
                 Position = shell.Position,
+                Direction = travel,
+                Normal = outwardNormal,
+                ShellType = shell.Spec.Type,
+                CaliberMm = shell.Spec.CaliberMm,
                 Value = damage,
                 Penetrated = penetrated
             });
@@ -230,7 +237,11 @@ namespace ClaudeOfTanks.Simulation
                     Type = BattleEventType.TankDestroyed,
                     SourceId = shell.ShooterId,
                     TargetId = target.Id,
-                    Position = target.Position
+                    Position = target.Position,
+                    Direction = travel,
+                    Normal = outwardNormal,
+                    ShellType = shell.Spec.Type,
+                    CaliberMm = shell.Spec.CaliberMm
                 });
             }
         }

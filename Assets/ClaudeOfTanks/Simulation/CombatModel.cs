@@ -153,6 +153,10 @@ namespace ClaudeOfTanks.Simulation
         public string SourceId;
         public string TargetId;
         public Float3 Position;
+        public Float3 Direction;
+        public Float3 Normal;
+        public string ShellType;
+        public float CaliberMm;
         public float Value;
         public bool Penetrated;
     }

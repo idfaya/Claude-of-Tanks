@@ -72,7 +72,8 @@ The port preserves the source project's runtime units and conventions:
 - Standard, Capture the Flag, Zone Control, Turbo Ball, and Endless Horde modes
 - Equipment, consumables, deterministic replay recording, responsive HUD,
   keyboard, gamepad, and touch input
-- Pooled battle audio and impact/destruction effects
+- Bounded battle feedback with 24 pooled spatial audio/particle voices, two
+  dynamic lights, and 48 target-attached penetration/ricochet decals
 - Garage-first lifecycle with all 126 production vehicles, 20 maps, and five
   modes selectable before deployment, plus complete return-to-garage cleanup
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,

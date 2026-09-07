@@ -141,6 +141,7 @@ namespace ClaudeOfTanks.Runtime
 
         private void StartBattle()
         {
+            _effects?.ResetAll();
             foreach (TankView view in _tankViews.Values)
             {
                 view.Destroy();
@@ -412,7 +413,13 @@ namespace ClaudeOfTanks.Runtime
                     battleEvent.Type == BattleEventType.ShellHit ||
                     battleEvent.Type == BattleEventType.TankDestroyed)
                 {
-                    _effects.Play(battleEvent);
+                    TankView target;
+                    Transform targetTransform =
+                        !string.IsNullOrEmpty(battleEvent.TargetId) &&
+                        _tankViews.TryGetValue(battleEvent.TargetId, out target)
+                            ? target.Root
+                            : null;
+                    _effects.Play(battleEvent, targetTransform);
                 }
                 if (battleEvent.Type == BattleEventType.ShellHit)
                 {

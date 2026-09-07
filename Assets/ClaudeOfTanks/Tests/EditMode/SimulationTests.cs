@@ -81,6 +81,21 @@ namespace ClaudeOfTanks.Tests
             };
 
             simulation.Step(inputs, BattleState.FixedDeltaTime);
+            BattleEvent hit = default;
+            bool foundHit = false;
+            for (int i = 0; i < state.Events.Count; i++)
+            {
+                if (state.Events[i].Type != BattleEventType.ShellHit) continue;
+                hit = state.Events[i];
+                foundHit = true;
+                break;
+            }
+            Assert.That(foundHit, Is.True);
+            Assert.That(hit.Direction.Magnitude, Is.EqualTo(1f).Within(0.0001f));
+            Assert.That(hit.Normal.Magnitude, Is.EqualTo(1f).Within(0.0001f));
+            Assert.That(hit.CaliberMm, Is.EqualTo(shooter.Spec.Shell.CaliberMm));
+            Assert.That(hit.ShellType, Is.EqualTo(shooter.Spec.Shell.Type));
+
             inputs["shooter"] = new TankInput
             {
                 AimPoint = target.Position + new Float3(0f, 1.25f, 0f)
