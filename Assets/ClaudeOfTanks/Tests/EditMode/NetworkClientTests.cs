@@ -74,6 +74,25 @@ namespace ClaudeOfTanks.Tests
             Assert.That(predictor.PresentedPosition, Is.EqualTo(authority.Position));
         }
 
+        [Test]
+        public void LocalPredictionAppliesAuthoritativeEquipmentModifiers()
+        {
+            LocalTankPredictor predictor = new LocalTankPredictor(
+                "peer",
+                "entity",
+                Team.Alpha,
+                TankSpec.Medium(),
+                new FlatHeightField(),
+                new[] { "rotation", "rammer" });
+
+            Assert.That(
+                predictor.State.TraverseMultiplier,
+                Is.EqualTo(1.1f).Within(0.001f));
+            Assert.That(
+                predictor.State.DamageSpec.Gun.ReloadS,
+                Is.EqualTo(4.95f).Within(0.001f));
+        }
+
         private static NetworkInputCommand Command(uint sequence)
         {
             return new NetworkInputCommand

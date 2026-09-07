@@ -89,6 +89,7 @@ namespace ClaudeOfTanks.Network
         public uint Seed;
         public string MapId;
         public GameModeId GameMode;
+        public int TeamSize;
         public RoomMatchSeat[] Seats;
         public string[] SpectatorPlayerIds;
     }
@@ -428,6 +429,7 @@ namespace ClaudeOfTanks.Network
                 Seed = matchSeed,
                 MapId = MapId,
                 GameMode = GameMode,
+                TeamSize = TeamSize,
                 Seats = seats.ToArray(),
                 SpectatorPlayerIds = spectators.ToArray()
             };

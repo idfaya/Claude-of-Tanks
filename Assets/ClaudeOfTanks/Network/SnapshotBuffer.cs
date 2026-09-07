@@ -19,6 +19,7 @@ namespace ClaudeOfTanks.Network
         public bool Destroyed;
         public bool Burning;
         public int ShellSlot;
+        public int Kills;
         public bool Extrapolated;
     }
 
@@ -160,7 +161,8 @@ namespace ClaudeOfTanks.Network
                 ReloadRemainingS = source.ReloadRemainingS,
                 Destroyed = source.Destroyed,
                 Burning = source.Burning,
-                ShellSlot = source.ShellSlot
+                ShellSlot = source.ShellSlot,
+                Kills = source.Kills
             };
         }
 

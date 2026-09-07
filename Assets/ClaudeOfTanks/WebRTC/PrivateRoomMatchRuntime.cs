@@ -123,6 +123,7 @@ namespace ClaudeOfTanks.WebRTC
             _rtc.TransportReady -= AttachRemote;
             _rtc.PeerLeft -= DetachRemote;
             _rtc.Dispose();
+            _retainedRoom?.Dispose();
             _disposed = true;
             PeerAttached = null;
             PeerDetached = null;

@@ -37,6 +37,8 @@ namespace ClaudeOfTanks.Runtime
         private Text _resultTitle;
         private Text _resultStats;
         private Text _replayStatus;
+        private Button _killcamButton;
+        private Button _fullReplayButton;
         private readonly StringBuilder _damageText = new StringBuilder(160);
         private Vector2 _touchDrive;
         private Vector2 _touchAimPosition;
@@ -132,6 +134,12 @@ namespace ClaudeOfTanks.Runtime
             _killcam = killcam;
             _fullReplay = fullReplay;
             _exitReplay = exitReplay;
+        }
+
+        public void SetReplayActionsAvailable(bool available)
+        {
+            _killcamButton?.gameObject.SetActive(available);
+            _fullReplayButton?.gameObject.SetActive(available);
         }
 
         public void SetReplayState(
@@ -318,10 +326,12 @@ namespace ClaudeOfTanks.Runtime
             _resultStats = Label("Summary", shade.transform, font, 18, TextAnchor.MiddleCenter);
             Rect(_resultStats.rectTransform, new Vector2(-430f, -30f), new Vector2(430f, 65f),
                 new Vector2(0.5f, 0.5f));
-            CreateButton("Killcam", "KILLCAM", new Vector2(-390f, -112f),
+            _killcamButton = CreateButton(
+                "Killcam", "KILLCAM", new Vector2(-390f, -112f),
                 () => _killcam?.Invoke(),
                 new Vector2(180f, 48f), new Vector2(0.5f, 0.5f), shade.transform);
-            CreateButton("FullReplay", "FULL REPLAY", new Vector2(-190f, -112f),
+            _fullReplayButton = CreateButton(
+                "FullReplay", "FULL REPLAY", new Vector2(-190f, -112f),
                 () => _fullReplay?.Invoke(),
                 new Vector2(180f, 48f), new Vector2(0.5f, 0.5f), shade.transform);
             CreateButton("BattleAgain", "BATTLE AGAIN", new Vector2(10f, -112f), _restart,

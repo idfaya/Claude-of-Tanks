@@ -173,12 +173,33 @@ namespace ClaudeOfTanks.Network
                 GameMode = source.GameMode,
                 Winner = source.Winner,
                 Draw = source.Draw,
+                MatchMode = Copy(source.MatchMode),
                 StaticObstacleRevision = source.StaticObstacleRevision,
                 DestroyedStaticObstacleIndices =
                     (ushort[])destroyedStaticObstacleIndices.Clone(),
                 Entities = (NetworkEntitySnapshot[])entities.Clone(),
                 Shells = (NetworkShellSnapshot[])source.Shells.Clone(),
                 Events = (BattleEvent[])source.Events.Clone()
+            };
+        }
+
+        private static NetworkMatchModeSnapshot Copy(
+            NetworkMatchModeSnapshot source)
+        {
+            return new NetworkMatchModeSnapshot
+            {
+                AlphaScore = source.AlphaScore,
+                BravoScore = source.BravoScore,
+                Zones = (Float3[])source.Zones.Clone(),
+                ZoneControl = (float[])source.ZoneControl.Clone(),
+                ZoneOwners = (Team?[])source.ZoneOwners.Clone(),
+                AlphaFlag = source.AlphaFlag,
+                BravoFlag = source.BravoFlag,
+                AlphaFlagCarrier = source.AlphaFlagCarrier,
+                BravoFlagCarrier = source.BravoFlagCarrier,
+                BallPosition = source.BallPosition,
+                BallVelocity = source.BallVelocity,
+                HordeWave = source.HordeWave
             };
         }
 
@@ -286,7 +307,8 @@ namespace ClaudeOfTanks.Network
                 a.ReloadRemainingS == b.ReloadRemainingS &&
                 a.Destroyed == b.Destroyed &&
                 a.Burning == b.Burning &&
-                a.ShellSlot == b.ShellSlot;
+                a.ShellSlot == b.ShellSlot &&
+                a.Kills == b.Kills;
         }
 
         private static void RequireSnapshot(NetworkWorldSnapshot snapshot, string argument)
@@ -296,6 +318,13 @@ namespace ClaudeOfTanks.Network
                 snapshot.Entities == null ||
                 snapshot.Shells == null ||
                 snapshot.Events == null ||
+                snapshot.MatchMode == null ||
+                snapshot.MatchMode.Zones == null ||
+                snapshot.MatchMode.Zones.Length != 3 ||
+                snapshot.MatchMode.ZoneControl == null ||
+                snapshot.MatchMode.ZoneControl.Length != 3 ||
+                snapshot.MatchMode.ZoneOwners == null ||
+                snapshot.MatchMode.ZoneOwners.Length != 3 ||
                 snapshot.DestroyedStaticObstacleIndices == null)
             {
                 throw new ArgumentException("Snapshot is incomplete.", argument);

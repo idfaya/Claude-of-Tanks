@@ -77,6 +77,23 @@ Dedicated Node matches inflate collision from the generated
 `server/world-collision-manifests.json`; browser hosts use the live `World`
 collision facade.
 
+The Unity 2022.3 port follows the same ownership split. `GameFlowController`
+hands a canonical lobby plan to `NetworkBattleController`;
+`RoomMatchBattleFactory` builds the same map collision, loadout, and game-mode
+simulation used by the Unity dedicated server. Only the host advances that
+simulation. `NetworkBattlePresenter` consumes filtered snapshots for tank,
+shell, destructible, objective, HUD, minimap, audio, and FX presentation.
+The v2 Unity lobby plan preserves team size; `RoomMatchBattleFactory`
+deterministically fills open team slots with authority-owned bots and creates
+the Bravo wave pool for Endless Horde.
+Returning from battle transfers the existing RTC channels back to
+`PrivateRoomCoordinator`, so a rematch creates a fresh authority without
+rejoining signaling.
+
+Unity snapshot codec v3 adds the complete mode state (scores, flags, zones,
+ball, and Horde wave) and authoritative kill counts. Its decoder retains v1
+and v2 compatibility; client presentation never derives those facts locally.
+
 ## Protocol and authority
 
 Protocol v4 uses validated envelopes with a finite message vocabulary,

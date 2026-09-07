@@ -24,7 +24,7 @@ namespace ClaudeOfTanks.Runtime
         Client
     }
 
-    public sealed class PrivateRoomCoordinator : MonoBehaviour
+    public sealed partial class PrivateRoomCoordinator : MonoBehaviour
     {
         private readonly HashSet<string> _vehicleIds =
             new HashSet<string>(StringComparer.Ordinal);
@@ -191,30 +191,6 @@ namespace ClaudeOfTanks.Runtime
                     MatchSeed = seed
                 });
             return plan != null;
-        }
-
-        public PrivateRoomHostMatchHandoff TakeHostHandoff()
-        {
-            if (_hostLobby == null || !_hostLobby.CanReleaseForMatch)
-                throw new InvalidOperationException(
-                    "Host match handoff is not ready.");
-            PrivateRoomHostMatchHandoff handoff =
-                _hostLobby.ReleaseForMatch();
-            UnsubscribeHost();
-            _hostLobby = null;
-            return handoff;
-        }
-
-        public PrivateRoomClientMatchHandoff TakeClientHandoff()
-        {
-            if (_clientLobby == null || _clientLobby.MatchPlan == null)
-                throw new InvalidOperationException(
-                    "Client match handoff is not ready.");
-            PrivateRoomClientMatchHandoff handoff =
-                _clientLobby.ReleaseForMatch();
-            UnsubscribeClient();
-            _clientLobby = null;
-            return handoff;
         }
 
         public void Leave()

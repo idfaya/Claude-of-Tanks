@@ -19,6 +19,30 @@ namespace ClaudeOfTanks.Tests
                 AcknowledgedInputSequence = 19u,
                 GameMode = GameModeId.ZoneControl,
                 Winner = Team.Alpha,
+                MatchMode = new NetworkMatchModeSnapshot
+                {
+                    AlphaScore = 64f,
+                    BravoScore = 27f,
+                    Zones = new[]
+                    {
+                        new Float3(-20f, 0f, 0f),
+                        Float3.Zero,
+                        new Float3(20f, 0f, 0f)
+                    },
+                    ZoneControl = new[] { -0.5f, 0.25f, 1f },
+                    ZoneOwners = new Team?[]
+                    {
+                        Team.Bravo,
+                        null,
+                        Team.Alpha
+                    },
+                    AlphaFlag = new Float3(0f, 0f, -180f),
+                    BravoFlag = new Float3(0f, 0f, 180f),
+                    AlphaFlagCarrier = "entity-a",
+                    BallPosition = new Float3(4f, 2f, 8f),
+                    BallVelocity = new Float3(1f, 0f, 2f),
+                    HordeWave = 4
+                },
                 StaticObstacleRevision = 2u,
                 DestroyedStaticObstacleIndices = new ushort[] { 3, 8 },
                 Entities = new[]
@@ -36,7 +60,8 @@ namespace ClaudeOfTanks.Tests
                         MaxHealth = 2600f,
                         ReloadRemainingS = 2.4f,
                         Burning = true,
-                        ShellSlot = 1
+                        ShellSlot = 1,
+                        Kills = 3
                     }
                 },
                 Shells = new[]
@@ -75,11 +100,18 @@ namespace ClaudeOfTanks.Tests
             Assert.That(decoded.ViewerEntityId, Is.EqualTo(source.ViewerEntityId));
             Assert.That(decoded.AcknowledgedInputSequence, Is.EqualTo(19u));
             Assert.That(decoded.GameMode, Is.EqualTo(GameModeId.ZoneControl));
+            Assert.That(decoded.MatchMode.AlphaScore, Is.EqualTo(64f));
+            Assert.That(decoded.MatchMode.ZoneControl, Is.EqualTo(
+                new[] { -0.5f, 0.25f, 1f }));
+            Assert.That(decoded.MatchMode.ZoneOwners[2], Is.EqualTo(Team.Alpha));
+            Assert.That(decoded.MatchMode.AlphaFlagCarrier, Is.EqualTo("entity-a"));
+            Assert.That(decoded.MatchMode.HordeWave, Is.EqualTo(4));
             Assert.That(decoded.StaticObstacleRevision, Is.EqualTo(2u));
             Assert.That(decoded.DestroyedStaticObstacleIndices, Is.EqualTo(new ushort[] { 3, 8 }));
             Assert.That(decoded.Entities[0].EntityId, Is.EqualTo("entity-a"));
             Assert.That(decoded.Entities[0].VehicleSpecId, Is.EqualTo("m1a2"));
             Assert.That(decoded.Entities[0].Position, Is.EqualTo(source.Entities[0].Position));
+            Assert.That(decoded.Entities[0].Kills, Is.EqualTo(3));
             Assert.That(decoded.Shells[0].Velocity, Is.EqualTo(source.Shells[0].Velocity));
             Assert.That(decoded.Events[0].ShellType, Is.EqualTo("APFSDS"));
             Assert.That(decoded.Events[0].Penetrated, Is.True);
@@ -130,6 +162,39 @@ namespace ClaudeOfTanks.Tests
             Assert.That(decoded.Tick, Is.EqualTo(7));
             Assert.That(decoded.StaticObstacleRevision, Is.Zero);
             Assert.That(decoded.DestroyedStaticObstacleIndices, Is.Empty);
+        }
+
+        [Test]
+        public void CodecReadsVersionTwoWithDefaultMatchModeState()
+        {
+            byte[] packet;
+            using (MemoryStream stream = new MemoryStream())
+            using (BinaryWriter writer = new BinaryWriter(stream))
+            {
+                writer.Write(0x4e544f43u);
+                writer.Write((ushort)2);
+                writer.Write((long)9);
+                writer.Write(150.0);
+                writer.Write((byte)0);
+                writer.Write(false);
+                writer.Write((byte)GameModeId.EndlessHorde);
+                writer.Write((sbyte)-1);
+                writer.Write(false);
+                writer.Write((uint)0);
+                writer.Write((ushort)0);
+                writer.Write((ushort)0);
+                writer.Write((ushort)0);
+                writer.Write((ushort)0);
+                writer.Flush();
+                packet = stream.ToArray();
+            }
+
+            NetworkWorldSnapshot decoded =
+                SnapshotWireCodec.Decode(packet);
+
+            Assert.That(decoded.Tick, Is.EqualTo(9));
+            Assert.That(decoded.MatchMode, Is.Not.Null);
+            Assert.That(decoded.MatchMode.HordeWave, Is.EqualTo(1));
         }
 
         [Test]

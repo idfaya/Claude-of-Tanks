@@ -171,6 +171,7 @@ namespace ClaudeOfTanks.Network
                 GameMode = _simulation.MatchMode.Id,
                 Winner = _simulation.MatchMode.Winner,
                 Draw = _simulation.MatchMode.Draw,
+                MatchMode = Capture(_simulation.MatchMode),
                 StaticObstacleRevision = _simulation.State.StaticObstacleRevision,
                 DestroyedStaticObstacleIndices = destroyedStaticObstacles.ToArray(),
                 Entities = entities.ToArray(),
@@ -260,7 +261,27 @@ namespace ClaudeOfTanks.Network
                 ReloadRemainingS = tank.ReloadRemainingS,
                 Destroyed = tank.Destroyed,
                 Burning = tank.Combat.Fire.Burning,
-                ShellSlot = tank.Combat.ShellSlot
+                ShellSlot = tank.Combat.ShellSlot,
+                Kills = tank.Kills
+            };
+        }
+
+        private static NetworkMatchModeSnapshot Capture(MatchModeState mode)
+        {
+            return new NetworkMatchModeSnapshot
+            {
+                AlphaScore = mode.AlphaScore,
+                BravoScore = mode.BravoScore,
+                Zones = (Float3[])mode.Zones.Clone(),
+                ZoneControl = (float[])mode.ZoneControl.Clone(),
+                ZoneOwners = (Team?[])mode.ZoneOwners.Clone(),
+                AlphaFlag = mode.AlphaFlag,
+                BravoFlag = mode.BravoFlag,
+                AlphaFlagCarrier = mode.AlphaFlagCarrier,
+                BravoFlagCarrier = mode.BravoFlagCarrier,
+                BallPosition = mode.BallPosition,
+                BallVelocity = mode.BallVelocity,
+                HordeWave = mode.HordeWave
             };
         }
 

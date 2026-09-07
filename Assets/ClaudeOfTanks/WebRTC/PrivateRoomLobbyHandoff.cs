@@ -3,7 +3,7 @@ using ClaudeOfTanks.Network;
 
 namespace ClaudeOfTanks.WebRTC
 {
-    public sealed class PrivateRoomHostMatchHandoff
+    public sealed class PrivateRoomHostMatchHandoff : IDisposable
     {
         private readonly PrivateRoomHostRtcSession _rtc;
         private bool _consumed;
@@ -47,6 +47,14 @@ namespace ClaudeOfTanks.WebRTC
             return runtime;
         }
 
+        public void Dispose()
+        {
+            if (_consumed) return;
+            _consumed = true;
+            Room.Dispose();
+            _rtc.Dispose();
+        }
+
         private static void RegisterPlan(
             AuthoritativeMatchHost authority,
             RoomMatchPlan plan)
@@ -79,7 +87,7 @@ namespace ClaudeOfTanks.WebRTC
         }
     }
 
-    public sealed class PrivateRoomClientMatchHandoff
+    public sealed class PrivateRoomClientMatchHandoff : IDisposable
     {
         private readonly PrivateRoomClientRtcSession _rtc;
         private readonly string _playerId;
@@ -101,6 +109,17 @@ namespace ClaudeOfTanks.WebRTC
 
         public RoomMatchPlan Plan { get; }
         public bool IsSpectator => FindSeat(Plan, _playerId) == null;
+        public string PlayerId => _playerId;
+        public string EntityId
+        {
+            get
+            {
+                RoomMatchSeat seat = FindSeat(Plan, _playerId);
+                return seat != null
+                    ? seat.EntityId
+                    : "spectator-" + _playerId;
+            }
+        }
 
         public PrivateRoomNetworkClientRuntime CreateMatchRuntime(
             LocalTankPredictor predictor = null)
@@ -108,18 +127,21 @@ namespace ClaudeOfTanks.WebRTC
             if (_consumed)
                 throw new InvalidOperationException(
                     "Client match handoff was already consumed.");
-            RoomMatchSeat seat = FindSeat(Plan, _playerId);
-            string entityId = seat != null
-                ? seat.EntityId
-                : "spectator-" + _playerId;
             PrivateRoomNetworkClientRuntime runtime =
                 new PrivateRoomNetworkClientRuntime(
                 _rtc,
                 _playerId,
-                entityId,
+                    EntityId,
                 predictor);
             _consumed = true;
             return runtime;
+        }
+
+        public void Dispose()
+        {
+            if (_consumed) return;
+            _consumed = true;
+            _rtc.Dispose();
         }
 
         private static RoomMatchSeat FindSeat(

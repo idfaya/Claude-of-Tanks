@@ -18,6 +18,8 @@ namespace ClaudeOfTanks.Tests
                 6,
                 Entity("alpha", 2f, 800f),
                 Entity("newly-spotted", 30f, 700f));
+            current.MatchMode.AlphaScore = 2f;
+            current.MatchMode.HordeWave = 3;
 
             NetworkSnapshotFrame frame = SnapshotDelta.Create(current, baseline);
 
@@ -36,6 +38,8 @@ namespace ClaudeOfTanks.Tests
             Assert.That(Find(reconstructed, "alpha").Position.X, Is.EqualTo(2f));
             Assert.That(Find(reconstructed, "alpha").Health, Is.EqualTo(800f));
             Assert.That(Find(reconstructed, "newly-spotted"), Is.Not.Null);
+            Assert.That(reconstructed.MatchMode.AlphaScore, Is.EqualTo(2f));
+            Assert.That(reconstructed.MatchMode.HordeWave, Is.EqualTo(3));
         }
 
         [Test]

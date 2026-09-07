@@ -26,7 +26,8 @@ namespace ClaudeOfTanks.Network
             string entityId,
             Team team,
             TankSpec spec,
-            IHeightField heightField)
+            IHeightField heightField,
+            IEnumerable<string> equipment = null)
         {
             if (string.IsNullOrEmpty(playerId))
                 throw new ArgumentException("Player id is required.", nameof(playerId));
@@ -36,6 +37,7 @@ namespace ClaudeOfTanks.Network
             _heightField = heightField ?? throw new ArgumentNullException(nameof(heightField));
             _state = new TankState(entityId, team, spec ??
                 throw new ArgumentNullException(nameof(spec)), Float3.Zero, 0f);
+            LoadoutSimulation.ApplyEquipment(_state, equipment);
         }
 
         public TankState State => _state;
@@ -139,6 +141,7 @@ namespace ClaudeOfTanks.Network
             _state.Health = authority.Health;
             _state.ReloadRemainingS = authority.ReloadRemainingS;
             _state.Destroyed = authority.Destroyed;
+            _state.Kills = authority.Kills;
             _state.Combat.Health = authority.Health;
             _state.Combat.Destroyed = authority.Destroyed;
             _state.Combat.Fire.Burning = authority.Burning;

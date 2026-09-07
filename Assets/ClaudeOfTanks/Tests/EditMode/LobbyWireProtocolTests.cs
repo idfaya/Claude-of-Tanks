@@ -42,6 +42,7 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(start.Kind, Is.EqualTo(
                     LobbyWireMessageKind.MatchStart));
                 Assert.That(start.MatchPlan.Seed, Is.EqualTo(7701u));
+                Assert.That(start.MatchPlan.TeamSize, Is.EqualTo(2));
                 Assert.That(start.MatchPlan.Seats, Has.Length.EqualTo(2));
                 Assert.That(
                     start.MatchPlan.Seats[1].EntityId,
@@ -79,6 +80,48 @@ namespace ClaudeOfTanks.Tests
             ready[12] = 2;
             Assert.Throws<FormatException>(() =>
                 LobbyWireCodec.Decode(ready));
+        }
+
+        [Test]
+        public void VersionOneMatchPlanInfersTeamSize()
+        {
+            using (AuthoritativeRoom room = Room())
+            {
+                room.Join(
+                    "guest",
+                    "Guest",
+                    RoomTeam.Bravo,
+                    "t90m");
+                room.SelectVehicle("host", "m1a2");
+                room.SetReady("host", true);
+                room.SetReady("guest", true);
+                byte[] versionTwo = LobbyWireCodec.EncodeMatchStart(
+                    19u,
+                    room.Start("host", 882u));
+                int cursor = 11 + 4 + 4;
+                int mapBytes =
+                    versionTwo[cursor] |
+                    versionTwo[cursor + 1] << 8;
+                cursor += 2 + mapBytes + 4;
+                byte[] versionOne =
+                    new byte[versionTwo.Length - 1];
+                Array.Copy(versionTwo, 0, versionOne, 0, cursor);
+                Array.Copy(
+                    versionTwo,
+                    cursor + 1,
+                    versionOne,
+                    cursor,
+                    versionTwo.Length - cursor - 1);
+                versionOne[4] = 1;
+                versionOne[5] = 0;
+
+                LobbyWireMessage decoded =
+                    LobbyWireCodec.Decode(versionOne);
+
+                Assert.That(
+                    decoded.MatchPlan.TeamSize,
+                    Is.EqualTo(1));
+            }
         }
 
         [Test]

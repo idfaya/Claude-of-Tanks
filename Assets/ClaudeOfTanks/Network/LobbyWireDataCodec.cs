@@ -117,6 +117,15 @@ namespace ClaudeOfTanks.Network
             {
                 throw new FormatException("Match seat count is invalid.");
             }
+            int teamSize = plan.TeamSize > 0
+                ? plan.TeamSize
+                : InferTeamSize(seats);
+            if (teamSize < 1 ||
+                teamSize > AuthoritativeRoom.MaximumTeamSize)
+            {
+                throw new FormatException("Match team size is invalid.");
+            }
+            writer.Write((byte)teamSize);
             writer.Write((byte)seats.Length);
             for (int i = 0; i < seats.Length; i++)
                 WriteSeat(writer, seats[i]);
@@ -129,17 +138,25 @@ namespace ClaudeOfTanks.Network
                 WriteString(writer, spectators[i], 64, false);
         }
 
-        public static RoomMatchPlan ReadMatchPlan(BinaryReader reader)
+        public static RoomMatchPlan ReadMatchPlan(
+            BinaryReader reader,
+            bool includesTeamSize)
         {
             RoomMatchPlan plan = new RoomMatchPlan
             {
                 Round = reader.ReadInt32(),
                 Seed = reader.ReadUInt32(),
                 MapId = ReadString(reader, 64, false),
-                GameMode = (GameModeId)reader.ReadInt32()
+                GameMode = (GameModeId)reader.ReadInt32(),
+                TeamSize = includesTeamSize
+                    ? reader.ReadByte()
+                    : 0
             };
             if (plan.Round < 1 ||
-                !Enum.IsDefined(typeof(GameModeId), plan.GameMode))
+                !Enum.IsDefined(typeof(GameModeId), plan.GameMode) ||
+                (includesTeamSize &&
+                 (plan.TeamSize < 1 ||
+                  plan.TeamSize > AuthoritativeRoom.MaximumTeamSize)))
             {
                 throw new FormatException("Match plan metadata is invalid.");
             }
@@ -165,6 +182,8 @@ namespace ClaudeOfTanks.Network
                 }
                 plan.Seats[i] = seat;
             }
+            if (!includesTeamSize)
+                plan.TeamSize = InferTeamSize(plan.Seats);
             int spectatorCount = reader.ReadByte();
             if (spectatorCount > AuthoritativeRoom.MaximumSpectators)
                 throw new FormatException("Spectator count is invalid.");
@@ -178,6 +197,18 @@ namespace ClaudeOfTanks.Network
                         "Match participant identity is duplicated.");
             }
             return plan;
+        }
+
+        private static int InferTeamSize(RoomMatchSeat[] seats)
+        {
+            int alpha = 0;
+            int bravo = 0;
+            for (int i = 0; i < seats.Length; i++)
+            {
+                if (seats[i].Team == Team.Alpha) alpha++;
+                else bravo++;
+            }
+            return Math.Max(1, Math.Max(alpha, bravo));
         }
 
         private static void WritePlayer(

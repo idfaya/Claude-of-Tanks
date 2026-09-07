@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ClaudeOfTanks.Network;
 using ClaudeOfTanks.Simulation;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -17,6 +18,7 @@ namespace ClaudeOfTanks.Runtime
         private Dropdown _mode;
         private Camera _camera;
         private BattleController _battle;
+        private NetworkBattleController _networkBattle;
         private GameSettingsPanel _settingsPanel;
         private ReplayBrowserPanel _replayBrowser;
         private PrivateRoomCoordinator _privateRoom;
@@ -26,6 +28,7 @@ namespace ClaudeOfTanks.Runtime
 
         public bool IsGarageVisible => _garage != null;
         public BattleController ActiveBattle => _battle;
+        public NetworkBattleController ActiveNetworkBattle => _networkBattle;
         public PrivateRoomCoordinator PrivateRoom => _privateRoom;
         public PrivateRoomPanel PrivateRoomPanel => _privateRoomPanel;
         public int VehicleOptionCount => _catalog.ProductionVehicleIds.Length;
@@ -53,6 +56,8 @@ namespace ClaudeOfTanks.Runtime
             _privateRoom.ConfigureContent(
                 _catalog.ProductionVehicleIds,
                 MapIds());
+            _privateRoom.MatchHandoffReady += StartNetworkBattle;
+            _privateRoom.Changed += OnPrivateRoomChanged;
             EnsureEventSystem();
             ShowGarage();
         }
@@ -66,7 +71,7 @@ namespace ClaudeOfTanks.Runtime
             _garage.transform.SetParent(transform, false);
             BuildGarageStage();
             BuildGarageUi();
-            RefreshPreview(0);
+            if (!SyncGarageFromRoom()) RefreshPreview(0);
         }
 
         private void StartBattle()
@@ -120,7 +125,74 @@ namespace ClaudeOfTanks.Runtime
 
         public void ReturnToGarage()
         {
+            if (_networkBattle != null)
+            {
+                _networkBattle.ReturnToRoom();
+                return;
+            }
             ShowGarage();
+        }
+
+        private void StartNetworkBattle()
+        {
+            if (_networkBattle != null) return;
+            DestroyGarage();
+            GameObject battleObject = new GameObject("NetworkBattle");
+            battleObject.transform.SetParent(transform, false);
+            battleObject.SetActive(false);
+            _networkBattle =
+                battleObject.AddComponent<NetworkBattleController>();
+            try
+            {
+                if (_privateRoom.IsHost)
+                {
+                    _networkBattle.ConfigureHost(
+                        _privateRoom.TakeHostHandoff(),
+                        ResumeHostLobby);
+                }
+                else
+                {
+                    _networkBattle.ConfigureClient(
+                        _privateRoom.TakeClientHandoff(),
+                        ResumeClientLobby);
+                }
+                battleObject.SetActive(true);
+            }
+            catch (Exception error)
+            {
+                Debug.LogError(
+                    "Private room battle failed: " + error.Message);
+                _privateRoom.Leave();
+                _networkBattle = null;
+                ReleaseObject(battleObject);
+                ShowGarage();
+            }
+        }
+
+        private void ResumeHostLobby(
+            ClaudeOfTanks.WebRTC.PrivateRoomHostLobbyRuntime lobby)
+        {
+            _privateRoom.ResumeHostLobby(lobby);
+            FinishNetworkBattle();
+        }
+
+        private void ResumeClientLobby(
+            ClaudeOfTanks.WebRTC.PrivateRoomClientLobbyRuntime lobby)
+        {
+            _privateRoom.ResumeClientLobby(lobby);
+            FinishNetworkBattle();
+        }
+
+        private void FinishNetworkBattle()
+        {
+            GameObject battleObject =
+                _networkBattle != null
+                    ? _networkBattle.gameObject
+                    : null;
+            _networkBattle = null;
+            ReleaseObject(battleObject);
+            ShowGarage();
+            _privateRoomPanel.Open();
         }
 
         public void PlayReplay(string replayId)
@@ -255,6 +327,36 @@ namespace ClaudeOfTanks.Runtime
                 yield return map.id;
         }
 
+        private bool SyncGarageFromRoom()
+        {
+            RoomStateSnapshot state = _privateRoom?.LobbyState;
+            if (_garage == null || state == null) return false;
+            int mapIndex = Array.FindIndex(
+                _catalog.Maps,
+                map => map.id == state.MapId);
+            if (mapIndex >= 0) _map.SetValueWithoutNotify(mapIndex);
+            _mode.SetValueWithoutNotify((int)state.GameMode);
+            RoomPlayerSnapshot local = Array.Find(
+                state.Players,
+                player => player.PlayerId == _privateRoom.LocalPlayerId);
+            int vehicleIndex = local != null
+                ? Array.IndexOf(
+                    _catalog.ProductionVehicleIds,
+                    local.VehicleSpecId)
+                : -1;
+            if (vehicleIndex >= 0)
+            {
+                _vehicle.SetValueWithoutNotify(vehicleIndex);
+                RefreshPreview(vehicleIndex);
+            }
+            return true;
+        }
+
+        private void OnPrivateRoomChanged()
+        {
+            SyncGarageFromRoom();
+        }
+
         private static void Fill(Dropdown dropdown, IEnumerable<string> values)
         {
             dropdown.ClearOptions();
@@ -341,6 +443,11 @@ namespace ClaudeOfTanks.Runtime
 
         private void OnDestroy()
         {
+            if (_privateRoom != null)
+            {
+                _privateRoom.MatchHandoffReady -= StartNetworkBattle;
+                _privateRoom.Changed -= OnPrivateRoomChanged;
+            }
             if (_preview != null)
             {
                 _preview.Destroy();

@@ -10,7 +10,8 @@ namespace ClaudeOfTanks.Network
         public const int MaximumPacketBytes = 32 * 1024;
         public const int MaximumEquipment = 3;
         private const uint Magic = 0x4c544f43u;
-        private const ushort Version = 1;
+        private const ushort Version = 2;
+        private const ushort MinimumSupportedVersion = 1;
         private const ushort NullString = ushort.MaxValue;
         private static readonly UTF8Encoding StrictUtf8 =
             new UTF8Encoding(false, true);
@@ -111,7 +112,9 @@ namespace ClaudeOfTanks.Network
                 {
                     if (reader.ReadUInt32() != Magic)
                         throw new FormatException("Lobby packet magic is invalid.");
-                    if (reader.ReadUInt16() != Version)
+                    ushort version = reader.ReadUInt16();
+                    if (version < MinimumSupportedVersion ||
+                        version > Version)
                         throw new FormatException(
                             "Lobby protocol version is unsupported.");
                     LobbyWireMessageKind kind =
@@ -124,7 +127,7 @@ namespace ClaudeOfTanks.Network
                         Kind = kind,
                         Sequence = reader.ReadUInt32()
                     };
-                    ReadPayload(reader, message);
+                    ReadPayload(reader, message, version);
                     if (stream.Position != stream.Length)
                         throw new FormatException(
                             "Lobby packet contains trailing bytes.");
@@ -168,7 +171,8 @@ namespace ClaudeOfTanks.Network
 
         private static void ReadPayload(
             BinaryReader reader,
-            LobbyWireMessage message)
+            LobbyWireMessage message,
+            ushort version)
         {
             switch (message.Kind)
             {
@@ -188,7 +192,9 @@ namespace ClaudeOfTanks.Network
                     return;
                 case LobbyWireMessageKind.MatchStart:
                     message.MatchPlan =
-                        LobbyWireDataCodec.ReadMatchPlan(reader);
+                        LobbyWireDataCodec.ReadMatchPlan(
+                            reader,
+                            version >= 2);
                     return;
                 case LobbyWireMessageKind.Ping:
                 case LobbyWireMessageKind.Pong:

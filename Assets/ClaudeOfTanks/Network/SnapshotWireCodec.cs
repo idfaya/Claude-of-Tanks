@@ -14,8 +14,8 @@ namespace ClaudeOfTanks.Network
         public const int MaximumDestroyedStaticObstacles =
             BattleState.MaximumStaticObstacles;
         private const uint Magic = 0x4e544f43u;
-        private const ushort Version = 2;
-        private const ushort PreviousVersion = 1;
+        private const ushort Version = 3;
+        private const ushort MinimumSupportedVersion = 1;
 
         public static byte[] Encode(NetworkWorldSnapshot snapshot)
         {
@@ -34,6 +34,7 @@ namespace ClaudeOfTanks.Network
                 writer.Write((byte)snapshot.GameMode);
                 writer.Write(snapshot.Winner.HasValue ? (sbyte)snapshot.Winner.Value : (sbyte)-1);
                 writer.Write(snapshot.Draw);
+                WriteMatchMode(writer, snapshot.MatchMode);
                 writer.Write(snapshot.StaticObstacleRevision);
                 writer.Write((ushort)snapshot.DestroyedStaticObstacleIndices.Length);
                 for (int i = 0; i < snapshot.DestroyedStaticObstacleIndices.Length; i++)
@@ -67,7 +68,7 @@ namespace ClaudeOfTanks.Network
                     if (reader.ReadUInt32() != Magic)
                         throw new FormatException("Snapshot magic is invalid.");
                     ushort version = reader.ReadUInt16();
-                    if (version != Version && version != PreviousVersion)
+                    if (version < MinimumSupportedVersion || version > Version)
                         throw new FormatException("Snapshot protocol version is unsupported.");
 
                     NetworkWorldSnapshot snapshot = new NetworkWorldSnapshot
@@ -83,6 +84,9 @@ namespace ClaudeOfTanks.Network
                     sbyte winner = reader.ReadSByte();
                     snapshot.Winner = winner < 0 ? (Team?)null : (Team)winner;
                     snapshot.Draw = reader.ReadBoolean();
+                    snapshot.MatchMode = version >= 3
+                        ? ReadMatchMode(reader)
+                        : new NetworkMatchModeSnapshot();
                     if (version >= 2)
                     {
                         snapshot.StaticObstacleRevision = reader.ReadUInt32();
@@ -101,7 +105,8 @@ namespace ClaudeOfTanks.Network
 
                     int entityCount = ReadCount(reader, MaximumEntities, "entity");
                     snapshot.Entities = new NetworkEntitySnapshot[entityCount];
-                    for (int i = 0; i < entityCount; i++) snapshot.Entities[i] = ReadEntity(reader);
+                    for (int i = 0; i < entityCount; i++)
+                        snapshot.Entities[i] = ReadEntity(reader, version >= 3);
                     int shellCount = ReadCount(reader, MaximumShells, "shell");
                     snapshot.Shells = new NetworkShellSnapshot[shellCount];
                     for (int i = 0; i < shellCount; i++) snapshot.Shells[i] = ReadShell(reader);
@@ -140,9 +145,60 @@ namespace ClaudeOfTanks.Network
             writer.Write(entity.Destroyed);
             writer.Write(entity.Burning);
             writer.Write((byte)entity.ShellSlot);
+            writer.Write(entity.Kills);
         }
 
-        private static NetworkEntitySnapshot ReadEntity(BinaryReader reader)
+        private static void WriteMatchMode(
+            BinaryWriter writer,
+            NetworkMatchModeSnapshot mode)
+        {
+            writer.Write(mode.AlphaScore);
+            writer.Write(mode.BravoScore);
+            for (int i = 0; i < 3; i++)
+            {
+                WriteFloat3(writer, mode.Zones[i]);
+                writer.Write(mode.ZoneControl[i]);
+                writer.Write(mode.ZoneOwners[i].HasValue
+                    ? (sbyte)mode.ZoneOwners[i].Value
+                    : (sbyte)-1);
+            }
+            WriteFloat3(writer, mode.AlphaFlag);
+            WriteFloat3(writer, mode.BravoFlag);
+            WriteString(writer, mode.AlphaFlagCarrier);
+            WriteString(writer, mode.BravoFlagCarrier);
+            WriteFloat3(writer, mode.BallPosition);
+            WriteFloat3(writer, mode.BallVelocity);
+            writer.Write(mode.HordeWave);
+        }
+
+        private static NetworkMatchModeSnapshot ReadMatchMode(
+            BinaryReader reader)
+        {
+            NetworkMatchModeSnapshot mode = new NetworkMatchModeSnapshot
+            {
+                AlphaScore = reader.ReadSingle(),
+                BravoScore = reader.ReadSingle()
+            };
+            for (int i = 0; i < 3; i++)
+            {
+                mode.Zones[i] = ReadFloat3(reader);
+                mode.ZoneControl[i] = reader.ReadSingle();
+                sbyte owner = reader.ReadSByte();
+                mode.ZoneOwners[i] = owner < 0 ? (Team?)null : (Team)owner;
+            }
+            mode.AlphaFlag = ReadFloat3(reader);
+            mode.BravoFlag = ReadFloat3(reader);
+            mode.AlphaFlagCarrier = ReadString(reader);
+            mode.BravoFlagCarrier = ReadString(reader);
+            mode.BallPosition = ReadFloat3(reader);
+            mode.BallVelocity = ReadFloat3(reader);
+            mode.HordeWave = reader.ReadInt32();
+            return mode;
+        }
+
+        private static NetworkEntitySnapshot ReadEntity(
+            BinaryReader reader,
+            bool includesKills)
         {
             return new NetworkEntitySnapshot
             {
@@ -158,7 +214,8 @@ namespace ClaudeOfTanks.Network
                 ReloadRemainingS = reader.ReadSingle(),
                 Destroyed = reader.ReadBoolean(),
                 Burning = reader.ReadBoolean(),
-                ShellSlot = reader.ReadByte()
+                ShellSlot = reader.ReadByte(),
+                Kills = includesKills ? reader.ReadInt32() : 0
             };
         }
 
@@ -268,6 +325,7 @@ namespace ClaudeOfTanks.Network
                 snapshot.DestroyedStaticObstacleIndices == null ||
                 snapshot.DestroyedStaticObstacleIndices.Length >
                     MaximumDestroyedStaticObstacles ||
+                !IsValid(snapshot.MatchMode) ||
                 !Enum.IsDefined(typeof(GameModeId), snapshot.GameMode) ||
                 (snapshot.Winner.HasValue &&
                  !Enum.IsDefined(typeof(Team), snapshot.Winner.Value)))
@@ -302,7 +360,8 @@ namespace ClaudeOfTanks.Network
                     !IsFinite(entity.MaxHealth) ||
                     !IsFinite(entity.ReloadRemainingS) ||
                     entity.ShellSlot < 0 ||
-                    entity.ShellSlot > 15)
+                    entity.ShellSlot > 15 ||
+                    entity.Kills < 0)
                 {
                     throw new FormatException("Snapshot entity is invalid.");
                 }
@@ -331,6 +390,37 @@ namespace ClaudeOfTanks.Network
                     throw new FormatException("Snapshot event is invalid.");
                 }
             }
+        }
+
+        private static bool IsValid(NetworkMatchModeSnapshot mode)
+        {
+            if (mode == null ||
+                mode.Zones == null || mode.Zones.Length != 3 ||
+                mode.ZoneControl == null || mode.ZoneControl.Length != 3 ||
+                mode.ZoneOwners == null || mode.ZoneOwners.Length != 3 ||
+                !IsFinite(mode.AlphaScore) ||
+                !IsFinite(mode.BravoScore) ||
+                !IsFinite(mode.AlphaFlag) ||
+                !IsFinite(mode.BravoFlag) ||
+                !IsFinite(mode.BallPosition) ||
+                !IsFinite(mode.BallVelocity) ||
+                mode.HordeWave < 1)
+            {
+                return false;
+            }
+            for (int i = 0; i < 3; i++)
+            {
+                if (!IsFinite(mode.Zones[i]) ||
+                    !IsFinite(mode.ZoneControl[i]) ||
+                    mode.ZoneControl[i] < -1f ||
+                    mode.ZoneControl[i] > 1f ||
+                    (mode.ZoneOwners[i].HasValue &&
+                     !Enum.IsDefined(typeof(Team), mode.ZoneOwners[i].Value)))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
 
         private static bool IsFinite(Float3 value)
