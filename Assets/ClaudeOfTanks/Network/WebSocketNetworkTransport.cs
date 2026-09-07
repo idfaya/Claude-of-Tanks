@@ -48,6 +48,12 @@ namespace ClaudeOfTanks.Network
     {
         private readonly ClientWebSocket _socket = new ClientWebSocket();
 
+        public ClientWebSocketConnection(string origin = null)
+        {
+            if (!string.IsNullOrEmpty(origin))
+                _socket.Options.SetRequestHeader("Origin", origin);
+        }
+
         public WebSocketState State => _socket.State;
 
         public Task ConnectAsync(Uri endpoint, CancellationToken cancellationToken)
