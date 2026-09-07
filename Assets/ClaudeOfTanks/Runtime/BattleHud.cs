@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using ClaudeOfTanks.Simulation;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -6,6 +7,17 @@ using UnityEngine.UI;
 
 namespace ClaudeOfTanks.Runtime
 {
+    public struct BattleHudStats
+    {
+        public int ShotsFired;
+        public int Hits;
+        public int Penetrations;
+        public int Kills;
+        public float DamageDealt;
+        public float DamageReceived;
+        public float TimeS;
+    }
+
     public sealed class BattleHud : MonoBehaviour
     {
         private Text _vehicle;
@@ -16,16 +28,25 @@ namespace ClaudeOfTanks.Runtime
         private GameObject _touchRoot;
         private GameObject _scopeRoot;
         private Text _scopeZoom;
+        private Text _damageDetails;
+        private GameObject _resultRoot;
+        private Text _resultTitle;
+        private Text _resultStats;
+        private readonly StringBuilder _damageText = new StringBuilder(160);
         private Vector2 _touchDrive;
         private bool _fireHeld;
         private readonly bool[] _consumables = new bool[3];
         private BattleCameraMode _cameraMode = (BattleCameraMode)(-1);
         private float _cameraZoom = -1f;
+        private bool _resultShown;
         private Action _restart;
         private Action _garage;
 
         public Vector2 TouchDrive => _touchDrive;
         public bool FireHeld => _fireHeld;
+        public string DamageSummary => _damageDetails != null ? _damageDetails.text : string.Empty;
+        public string ResultSummary => _resultStats != null ? _resultStats.text : string.Empty;
+        public bool ResultVisible => _resultRoot != null && _resultRoot.activeSelf;
 
         public static BattleHud Create(Action restart, Action garage = null)
         {
@@ -45,7 +66,8 @@ namespace ClaudeOfTanks.Runtime
         }
 
         public void SetState(
-            TankState player, MatchModeState mode, string status, bool battleOver)
+            TankState player, MatchModeState mode, string status, bool battleOver,
+            BattleHudStats stats)
         {
             if (player == null) return;
             _vehicle.text = player.Spec.DisplayName;
@@ -60,8 +82,8 @@ namespace ClaudeOfTanks.Runtime
                 : mode.Id == GameModeId.EndlessHorde ? "WAVE " + mode.HordeWave
                 : string.Format("{0:0}  {1}  {2:0}", mode.AlphaScore, ModeLabel(mode.Id), mode.BravoScore);
             _status.text = status;
-            Transform restart = transform.Find("Restart");
-            if (restart != null) restart.gameObject.SetActive(battleOver);
+            UpdateDamagePanel(player.Combat);
+            UpdateResult(status, battleOver, stats);
         }
 
         public void SetTouchVisible(bool visible)
@@ -96,6 +118,7 @@ namespace ClaudeOfTanks.Runtime
             if (FindObjectOfType<EventSystem>() == null)
             {
                 GameObject events = new GameObject("EventSystem");
+                events.transform.SetParent(transform, false);
                 events.AddComponent<EventSystem>();
                 events.AddComponent<StandaloneInputModule>();
             }
@@ -129,11 +152,46 @@ namespace ClaudeOfTanks.Runtime
             CreateButton("Repair", "4", new Vector2(430f, 20f), () => _consumables[0] = true);
             CreateButton("FirstAid", "5", new Vector2(486f, 20f), () => _consumables[1] = true);
             CreateButton("Extinguish", "6", new Vector2(542f, 20f), () => _consumables[2] = true);
-            CreateButton("Restart", "RESTART", new Vector2(-70f, -50f), _restart, new Vector2(140f, 42f), new Vector2(0.5f, 0.5f));
-            transform.Find("Restart").gameObject.SetActive(false);
             CreateButton("Garage", "GARAGE", new Vector2(20f, -48f), _garage,
                 new Vector2(90f, 34f), new Vector2(0f, 1f));
+            BuildDamagePanel(font);
             BuildTouchControls(font);
+            BuildResultScreen(font);
+        }
+
+        private void BuildDamagePanel(Font font)
+        {
+            Image panel = Image("DamagePanel", transform, new Color(0.035f, 0.045f, 0.04f, 0.88f));
+            Rect(panel.rectTransform, new Vector2(-248f, -146f), new Vector2(-20f, -20f),
+                Vector2.one);
+            Text title = Label("Title", panel.transform, font, 13, TextAnchor.UpperLeft);
+            title.text = "VEHICLE STATUS";
+            title.color = new Color(0.72f, 0.78f, 0.8f);
+            Rect(title.rectTransform, new Vector2(12f, -30f), new Vector2(-12f, -8f),
+                new Vector2(0f, 1f), new Vector2(1f, 1f));
+            _damageDetails = Label("DamageDetails", panel.transform, font, 12, TextAnchor.UpperLeft);
+            _damageDetails.supportRichText = true;
+            Rect(_damageDetails.rectTransform, new Vector2(12f, 10f), new Vector2(-12f, -36f),
+                Vector2.zero, Vector2.one);
+        }
+
+        private void BuildResultScreen(Font font)
+        {
+            Image shade = Image("BattleResult", transform, new Color(0.015f, 0.02f, 0.025f, 0.94f));
+            _resultRoot = shade.gameObject;
+            Rect(shade.rectTransform, Vector2.zero, Vector2.zero, Vector2.zero, Vector2.one);
+
+            _resultTitle = Label("Verdict", shade.transform, font, 48, TextAnchor.MiddleCenter);
+            Rect(_resultTitle.rectTransform, new Vector2(-360f, 76f), new Vector2(360f, 144f),
+                new Vector2(0.5f, 0.5f));
+            _resultStats = Label("Summary", shade.transform, font, 18, TextAnchor.MiddleCenter);
+            Rect(_resultStats.rectTransform, new Vector2(-430f, -30f), new Vector2(430f, 65f),
+                new Vector2(0.5f, 0.5f));
+            CreateButton("BattleAgain", "BATTLE AGAIN", new Vector2(-190f, -112f), _restart,
+                new Vector2(180f, 48f), new Vector2(0.5f, 0.5f), shade.transform);
+            CreateButton("ReturnToGarage", "GARAGE", new Vector2(10f, -112f), _garage,
+                new Vector2(180f, 48f), new Vector2(0.5f, 0.5f), shade.transform);
+            _resultRoot.SetActive(false);
         }
 
         private void BuildScopeOverlay(Font font)
@@ -166,6 +224,103 @@ namespace ClaudeOfTanks.Runtime
             Rect(_scopeZoom.rectTransform, new Vector2(-60f, -126f), new Vector2(60f, -96f),
                 new Vector2(0.5f, 1f));
             _scopeRoot.SetActive(false);
+        }
+
+        private void UpdateDamagePanel(DamageCombatState combat)
+        {
+            _damageText.Clear();
+            if (combat.Fire.Burning)
+            {
+                _damageText.Append("<color=#ff633f>FIRE</color>");
+            }
+
+            AppendModule(combat, "gun", "GUN");
+            AppendModule(combat, "turretRing", "TURRET");
+            AppendModule(combat, "engine", "ENGINE");
+            AppendModule(combat, "transmission", "TRANS");
+            AppendModule(combat, "fuelTank", "FUEL");
+            AppendModule(combat, "ammoRack", "AMMO");
+            AppendModule(combat, "optics", "OPTICS");
+            AppendModule(combat, "radio", "RADIO");
+            AppendModule(combat, "trackL", "TRACK L");
+            AppendModule(combat, "trackR", "TRACK R");
+
+            foreach (var crew in combat.Crew)
+            {
+                if (crew.Value) continue;
+                AppendLine("<color=#f05a5a>" + crew.Key.ToUpperInvariant() + " OUT</color>");
+            }
+
+            if (_damageText.Length == 0)
+            {
+                _damageText.Append("<color=#8fa29a>SYSTEMS NOMINAL</color>");
+            }
+            _damageDetails.text = _damageText.ToString();
+        }
+
+        private void AppendModule(DamageCombatState combat, string id, string label)
+        {
+            DamageModuleState module;
+            if (!combat.Modules.TryGetValue(id, out module) ||
+                module.Condition == DamageModuleCondition.Ok)
+            {
+                return;
+            }
+
+            string color = module.Condition == DamageModuleCondition.Red
+                ? "#f05a5a"
+                : "#f0b04a";
+            AppendLine("<color=" + color + ">" + label + " " +
+                module.Condition.ToString().ToUpperInvariant() + "</color>");
+        }
+
+        private void AppendLine(string value)
+        {
+            if (_damageText.Length > 0) _damageText.Append("   ");
+            _damageText.Append(value);
+        }
+
+        private void UpdateResult(string status, bool battleOver, BattleHudStats stats)
+        {
+            if (!battleOver)
+            {
+                if (_resultShown)
+                {
+                    _resultShown = false;
+                    _resultRoot.SetActive(false);
+                }
+                return;
+            }
+            if (_resultShown)
+            {
+                return;
+            }
+
+            _resultShown = true;
+            _resultRoot.SetActive(true);
+            _resultTitle.text = status;
+            _resultTitle.color = status == "VICTORY"
+                ? new Color(0.5f, 0.9f, 0.55f)
+                : status == "DEFEAT"
+                    ? new Color(0.95f, 0.38f, 0.34f)
+                    : new Color(0.78f, 0.82f, 0.85f);
+            float accuracy = stats.ShotsFired > 0
+                ? stats.Hits * 100f / stats.ShotsFired
+                : 0f;
+            int minutes = Mathf.FloorToInt(stats.TimeS / 60f);
+            int seconds = Mathf.FloorToInt(stats.TimeS) % 60;
+            _resultStats.text = string.Format(
+                "DAMAGE {0:0}     KILLS {1}     HITS {2}/{3} ({4:0}%)\n" +
+                "PENETRATIONS {5}     RECEIVED {6:0}     TIME {7:00}:{8:00}",
+                stats.DamageDealt,
+                stats.Kills,
+                stats.Hits,
+                stats.ShotsFired,
+                accuracy,
+                stats.Penetrations,
+                stats.DamageReceived,
+                minutes,
+                seconds);
         }
 
         private void BuildTouchControls(Font font)

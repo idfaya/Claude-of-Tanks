@@ -78,6 +78,8 @@ The port preserves the source project's runtime units and conventions:
   modes selectable before deployment, plus complete return-to-garage cleanup
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
+- Authoritative module/crew/fire damage status and battle result summary with
+  replay-safe Battle Again and return-to-garage actions
 - `npm run unity:content:update` / `unity:content:check` drift gate
 
 ## Remaining parity work
@@ -87,7 +89,7 @@ These systems still use the TypeScript implementation as their specification:
 
 - complete 126-vehicle production fleet and authored armor/module geometry;
 - all 20 terrain/map recipes, destructibles, vegetation, and streaming;
-- progression, results, loadout editing, replay browser, and production garage;
+- progression, loadout editing, replay browser, and production garage;
 - input rebinding, settings, minimap, damage panel, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
 - authoritative multiplayer transport, snapshots, prediction, and persistence;

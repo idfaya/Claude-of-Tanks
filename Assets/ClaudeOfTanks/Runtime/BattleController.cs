@@ -34,6 +34,11 @@ namespace ClaudeOfTanks.Runtime
         private Vector3 _cameraAimPoint;
         private bool _aimHeldLastFrame;
         private bool _aimHoldOwnsSniper;
+        private int _shotsFired;
+        private int _hits;
+        private int _penetrations;
+        private float _damageDealt;
+        private float _damageReceived;
         private float _accumulator;
         private string _status = "BATTLE";
         private float _statusUntil;
@@ -44,6 +49,8 @@ namespace ClaudeOfTanks.Runtime
         public string MapId => mapId;
         public GameModeId GameMode => gameMode;
         public TankState Player => _player;
+        public BattleState State => _simulation?.State;
+        public MatchModeState MatchMode => _simulation?.MatchMode;
 
         public void Configure(
             string selectedVehicleId, string selectedMapId, GameModeId selectedMode,
@@ -112,7 +119,17 @@ namespace ClaudeOfTanks.Runtime
                 _player,
                 _simulation.MatchMode,
                 Time.unscaledTime < _statusUntil || IsBattleOver() ? _status : string.Empty,
-                IsBattleOver());
+                IsBattleOver(),
+                new BattleHudStats
+                {
+                    ShotsFired = _shotsFired,
+                    Hits = _hits,
+                    Penetrations = _penetrations,
+                    DamageDealt = _damageDealt,
+                    DamageReceived = _damageReceived,
+                    Kills = _player.Kills,
+                    TimeS = _simulation.State.TimeS
+                });
             _hud.SetCamera(_cameraRig.Mode, _cameraRig.Zoom);
             if (Input.GetKeyDown(KeyCode.Return) && IsBattleOver())
             {
@@ -180,6 +197,11 @@ namespace ClaudeOfTanks.Runtime
                 new Vector3(0f, 1.6f, 100f);
             _aimHeldLastFrame = false;
             _aimHoldOwnsSniper = false;
+            _shotsFired = 0;
+            _hits = 0;
+            _penetrations = 0;
+            _damageDealt = 0f;
+            _damageReceived = 0f;
             for (int i = 0; i < state.Tanks.Count; i++)
             {
                 TankState tank = state.Tanks[i];
@@ -409,6 +431,24 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 0; i < events.Count; i++)
             {
                 BattleEvent battleEvent = events[i];
+                if (battleEvent.Type == BattleEventType.ShellFired &&
+                    battleEvent.SourceId == _player.Id)
+                {
+                    _shotsFired++;
+                }
+                else if (battleEvent.Type == BattleEventType.ShellHit)
+                {
+                    if (battleEvent.SourceId == _player.Id)
+                    {
+                        _hits++;
+                        if (battleEvent.Penetrated) _penetrations++;
+                        _damageDealt += battleEvent.Value;
+                    }
+                    if (battleEvent.TargetId == _player.Id)
+                    {
+                        _damageReceived += battleEvent.Value;
+                    }
+                }
                 if (battleEvent.Type == BattleEventType.ShellFired ||
                     battleEvent.Type == BattleEventType.ShellHit ||
                     battleEvent.Type == BattleEventType.TankDestroyed)
