@@ -40,7 +40,8 @@ namespace ClaudeOfTanks.WebRTC
                 authority,
                 Room.HostPlayerId,
                 hostEntityId,
-                hostPredictor);
+                hostPredictor,
+                Room);
             Room.MarkPlaying();
             _consumed = true;
             return runtime;

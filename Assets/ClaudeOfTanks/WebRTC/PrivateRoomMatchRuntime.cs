@@ -8,6 +8,7 @@ namespace ClaudeOfTanks.WebRTC
     {
         private readonly PrivateRoomHostRtcSession _rtc;
         private readonly AuthoritativeMatchHost _authority;
+        private readonly AuthoritativeRoom _retainedRoom;
         private readonly LoopbackNetworkTransportPair _localTransport;
         private readonly AuthoritativeHostPump _localHostPump;
         private readonly Dictionary<string, RemotePeerRuntime> _remote =
@@ -19,11 +20,13 @@ namespace ClaudeOfTanks.WebRTC
             AuthoritativeMatchHost authority,
             string hostPlayerId,
             string hostEntityId,
-            LocalTankPredictor predictor = null)
+            LocalTankPredictor predictor = null,
+            AuthoritativeRoom retainedRoom = null)
         {
             _rtc = rtc ?? throw new ArgumentNullException(nameof(rtc));
             _authority = authority ??
                 throw new ArgumentNullException(nameof(authority));
+            _retainedRoom = retainedRoom;
             ValidateRegisteredPeer(authority, hostPlayerId);
             if (string.IsNullOrEmpty(hostEntityId))
                 throw new ArgumentException(
@@ -49,6 +52,7 @@ namespace ClaudeOfTanks.WebRTC
 
         public NetworkClientPump LocalClient { get; }
         public int RemotePeerCount => _remote.Count;
+        public bool CanReturnToLobby => _retainedRoom != null;
 
         public event Action<string, WebRtcNetworkEndpoint> PeerAttached;
         public event Action<string, string> PeerDetached;
@@ -98,23 +102,44 @@ namespace ClaudeOfTanks.WebRTC
             return LocalClient.SendInput(command);
         }
 
+        public PrivateRoomHostLobbyRuntime FinishToLobby(
+            string result,
+            string reason = null)
+        {
+            ThrowIfDisposed();
+            if (_retainedRoom == null)
+                throw new InvalidOperationException(
+                    "Match runtime does not own a retained room.");
+            ReleaseMatchPumps();
+            _retainedRoom.Finish(result, reason);
+            _disposed = true;
+            return new PrivateRoomHostLobbyRuntime(_rtc, _retainedRoom);
+        }
+
         public void Dispose()
         {
             if (_disposed) return;
-            _disposed = true;
+            ReleaseMatchPumps();
             _rtc.TransportReady -= AttachRemote;
             _rtc.PeerLeft -= DetachRemote;
-            List<string> peerIds = new List<string>(_remote.Keys);
-            for (int i = 0; i < peerIds.Count; i++)
-                DetachRemote(peerIds[i], "host_runtime_disposed");
+            _rtc.Dispose();
+            _disposed = true;
+            PeerAttached = null;
+            PeerDetached = null;
+            Failed = null;
+        }
+
+        private void ReleaseMatchPumps()
+        {
+            _rtc.TransportReady -= AttachRemote;
+            _rtc.PeerLeft -= DetachRemote;
+            foreach (RemotePeerRuntime peer in _remote.Values)
+                peer.Pump.Dispose();
+            _remote.Clear();
             LocalClient.Dispose();
             _localHostPump.Dispose();
             _localTransport.Client.Dispose();
             _localTransport.Host.Dispose();
-            _rtc.Dispose();
-            PeerAttached = null;
-            PeerDetached = null;
-            Failed = null;
         }
 
         private void AttachRemote(PrivateRoomPeerTransport connection)
@@ -254,6 +279,17 @@ namespace ClaudeOfTanks.WebRTC
             ThrowIfDisposed();
             int signalingEvents = _rtc.Pump();
             return signalingEvents + (_client?.Pump() ?? 0);
+        }
+
+        public PrivateRoomClientLobbyRuntime ReturnToLobby()
+        {
+            ThrowIfDisposed();
+            _rtc.TransportReady -= AttachTransport;
+            _client?.Dispose();
+            _client = null;
+            _disposed = true;
+            TransportAttached = null;
+            return new PrivateRoomClientLobbyRuntime(_rtc);
         }
 
         public void Dispose()

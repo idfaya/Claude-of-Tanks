@@ -200,6 +200,75 @@ namespace ClaudeOfTanks.Tests
                     Is.EqualTo(FindSeat(
                         hostPlan,
                         "lobby-client").EntityId));
+
+                clientLobby = clientMatch.ReturnToLobby();
+                clientMatch = null;
+                hostLobby = hostMatch.FinishToLobby(
+                    "alpha",
+                    "test_round_complete");
+                hostMatch = null;
+                yield return PumpLobbyUntil(
+                    hostLobby,
+                    clientLobby,
+                    () => clientLobby.State != null &&
+                        clientLobby.State.Phase == RoomPhase.Waiting &&
+                        clientLobby.State.Round == 1,
+                    TimeSpan.FromSeconds(5));
+                Assert.That(
+                    Player(clientLobby.State, "lobby-host").Ready,
+                    Is.False);
+                Assert.That(
+                    Player(clientLobby.State, "lobby-client").Ready,
+                    Is.False);
+                Assert.That(
+                    clientLobby.State.LastResult,
+                    Is.EqualTo("alpha"));
+
+                Assert.That(clientLobby.Submit(new LobbyCommand
+                {
+                    Kind = LobbyCommandKind.SetReady,
+                    BoolValue = true
+                }), Is.True);
+                hostLobby.SubmitHostCommand(new LobbyCommand
+                {
+                    Kind = LobbyCommandKind.SetReady,
+                    BoolValue = true
+                });
+                yield return PumpLobbyUntil(
+                    hostLobby,
+                    clientLobby,
+                    () => Player(clientLobby.State, "lobby-client").Ready &&
+                        Player(clientLobby.State, "lobby-host").Ready,
+                    TimeSpan.FromSeconds(3));
+
+                RoomMatchPlan secondPlan =
+                    hostLobby.SubmitHostCommand(new LobbyCommand
+                    {
+                        Kind = LobbyCommandKind.Start,
+                        MatchSeed = 8802u
+                    });
+                yield return PumpLobbyUntil(
+                    hostLobby,
+                    clientLobby,
+                    () => clientLobby.MatchPlan != null &&
+                        clientLobby.MatchPlan.Round == 2 &&
+                        hostLobby.CanReleaseForMatch,
+                    TimeSpan.FromSeconds(5));
+                Assert.That(secondPlan.Round, Is.EqualTo(2));
+
+                clientHandoff = clientLobby.ReleaseForMatch();
+                hostHandoff = hostLobby.ReleaseForMatch();
+                authority = new AuthoritativeMatchHost(
+                    new BattleSimulation(BuildBattle(secondPlan)));
+                hostMatch = hostHandoff.CreateMatchRuntime(authority);
+                clientMatch = clientHandoff.CreateMatchRuntime();
+                yield return PumpMatchUntil(
+                    hostMatch,
+                    clientMatch,
+                    () => clientMatch.LatestSnapshot != null &&
+                        clientMatch.LatestSnapshot.Tick >= 3,
+                    TimeSpan.FromSeconds(5));
+                Assert.That(room.Phase, Is.EqualTo(RoomPhase.Playing));
             }
             finally
             {
