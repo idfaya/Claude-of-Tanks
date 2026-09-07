@@ -98,6 +98,9 @@ The port preserves the source project's runtime units and conventions:
   readiness and selection locks, host-owned rules, round retention, reserved
   disconnect seats, hashed rotating resume tokens, and deterministic host
   migration
+- Server-owned anonymous ranked identities, SHA-256 bearer authentication,
+  bounded Elo and rank tiers, idempotent match settlement, secret-free
+  leaderboards, and strict atomically replaced binary persistence
 - `npm run unity:content:update` / `unity:content:check` drift gate
 
 ## Remaining parity work
@@ -110,7 +113,7 @@ These systems still use the TypeScript implementation as their specification:
 - progression, loadout editing, replay browser, and production garage;
 - input rebinding, settings, minimap, damage panel, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
-- WebSocket/WebRTC transports, signaling, matchmaking, and rating persistence;
+- WebSocket/WebRTC transports, signaling, and expanding-band matchmaking;
 - procedural vehicle geometry parity and generated technical assets.
 
 Migrate these by extending the simulation contracts rather than moving
