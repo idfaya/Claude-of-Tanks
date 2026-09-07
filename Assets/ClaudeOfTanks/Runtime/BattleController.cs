@@ -24,6 +24,7 @@ namespace ClaudeOfTanks.Runtime
         private Camera _camera;
         private ContentCatalog _catalog;
         private MapRuntime _mapRuntime;
+        private BattleHud _hud;
         [SerializeField] private string mapId = "verdant";
         [SerializeField] private GameModeId gameMode = GameModeId.Standard;
         private float _accumulator;
@@ -47,6 +48,7 @@ namespace ClaudeOfTanks.Runtime
             _catalog = ContentCatalog.Load();
             BuildEnvironment();
             StartBattle();
+            _hud = BattleHud.Create(StartBattle);
         }
 
         private void Update()
@@ -70,6 +72,11 @@ namespace ClaudeOfTanks.Runtime
 
             SyncViews();
             CheckResult();
+            _hud.SetState(
+                _player,
+                _simulation.MatchMode,
+                Time.unscaledTime < _statusUntil || IsBattleOver() ? _status : string.Empty,
+                IsBattleOver());
             if (Input.GetKeyDown(KeyCode.Return) && IsBattleOver())
             {
                 StartBattle();
@@ -157,6 +164,23 @@ namespace ClaudeOfTanks.Runtime
             if (IsKeyPressed(KeyCode.S) || IsKeyPressed(KeyCode.DownArrow)) throttle -= 1f;
             if (IsKeyPressed(KeyCode.D) || IsKeyPressed(KeyCode.RightArrow)) steer += 1f;
             if (IsKeyPressed(KeyCode.A) || IsKeyPressed(KeyCode.LeftArrow)) steer -= 1f;
+            bool gamepadFire = false;
+            bool gamepadBrake = false;
+#if ENABLE_INPUT_SYSTEM
+            if (Gamepad.current != null)
+            {
+                Vector2 stick = Gamepad.current.leftStick.ReadValue();
+                steer += stick.x;
+                throttle += stick.y;
+                gamepadFire = Gamepad.current.rightTrigger.isPressed;
+                gamepadBrake = Gamepad.current.buttonSouth.isPressed;
+            }
+#endif
+            if (_hud != null)
+            {
+                steer += _hud.TouchDrive.x;
+                throttle += _hud.TouchDrive.y;
+            }
 
             Float3 aimPoint = _player.Position + Float3.Forward(_player.Yaw + _player.TurretYaw) * 100f;
             if (_camera != null)
@@ -172,13 +196,17 @@ namespace ClaudeOfTanks.Runtime
 
             return new TankInput
             {
-                Throttle = throttle,
-                Steer = steer,
-                Brake = IsKeyPressed(KeyCode.LeftShift) || IsKeyPressed(KeyCode.RightShift),
-                Fire = IsPrimaryButtonPressed() || IsKeyPressed(KeyCode.Space),
-                UseRepairKit = Input.GetKeyDown(KeyCode.Alpha4),
-                UseFirstAidKit = Input.GetKeyDown(KeyCode.Alpha5),
-                UseFireExtinguisher = Input.GetKeyDown(KeyCode.Alpha6),
+                Throttle = Mathf.Clamp(throttle, -1f, 1f),
+                Steer = Mathf.Clamp(steer, -1f, 1f),
+                Brake = gamepadBrake || IsKeyPressed(KeyCode.LeftShift) || IsKeyPressed(KeyCode.RightShift),
+                Fire = gamepadFire || (_hud != null && _hud.FireHeld) ||
+                    IsPrimaryButtonPressed() || IsKeyPressed(KeyCode.Space),
+                UseRepairKit = Input.GetKeyDown(KeyCode.Alpha4) ||
+                    (_hud != null && _hud.ConsumeConsumable(0)),
+                UseFirstAidKit = Input.GetKeyDown(KeyCode.Alpha5) ||
+                    (_hud != null && _hud.ConsumeConsumable(1)),
+                UseFireExtinguisher = Input.GetKeyDown(KeyCode.Alpha6) ||
+                    (_hud != null && _hud.ConsumeConsumable(2)),
                 AimPoint = aimPoint
             };
         }
@@ -381,6 +409,7 @@ namespace ClaudeOfTanks.Runtime
 
         private void OnGUI()
         {
+            if (_hud != null) return;
             EnsureStyles();
             float hpRatio = _player == null ? 0f : _player.Health / _player.Spec.MaxHealth;
             GUI.color = new Color(0.05f, 0.06f, 0.055f, 0.88f);
