@@ -20,6 +20,7 @@ Command-line verification:
 ```bash
 tools/uloop.sh compile
 tools/uloop.sh run-tests --test-mode EditMode
+tools/uloop.sh run-tests --test-mode PlayMode
 tools/uloop.sh control-play-mode --action Play
 tools/uloop.sh screenshot --window-name Game --capture-mode GameView
 ```
@@ -64,6 +65,7 @@ Once the Editor is open, every other `tools/uloop.sh` command is supported.
 | `ClaudeOfTanks.Network` | Transport-independent input admission, authoritative match ticking, and viewer-filtered snapshots. It has `noEngineReferences: true`. |
 | `ClaudeOfTanks.Runtime` | Unity input, procedural rendering, camera, HUD, scene lifecycle, and simulation-to-view synchronization. |
 | `ClaudeOfTanks.Server` | Headless composition root for generated match content, ranked HTTP matchmaking, persistent ratings, and dedicated WebSocket sessions. |
+| `ClaudeOfTanks.WebRTC` | Native WebRTC peer transport adapter with reliable control and replaceable zero-retransmit state channels. |
 | `ClaudeOfTanks.Simulation.Tests` | Unity EditMode tests for coordinate conventions, determinism, movement, penetration, and swept shell hits. |
 
 The port preserves the source project's runtime units and conventions:
@@ -180,6 +182,11 @@ The port preserves the source project's runtime units and conventions:
 - Same-origin ranked HTTP and dedicated WebSocket transport with bounded
   headers, JSON bodies, concurrent admissions and per-client request rates;
   CORS policy applies before either transport is admitted
+- Official Unity WebRTC `3.0.0-pre.8` native transport for Editor, macOS,
+  Windows, Linux, Android, and iOS. Private matches use reliable ordered
+  `cot-match-v1` control and unordered zero-retransmit `cot-state-v1` state
+  channels behind the shared `INetworkTransportEndpoint`; control queues are
+  bounded and congested state packets coalesce to the latest packet.
 - Persistent authoritative room policy for 1v1 through 7v7, spectators,
   readiness and selection locks, host-owned rules, round retention, reserved
   disconnect seats, hashed rotating resume tokens, and deterministic host
@@ -204,8 +211,8 @@ These systems still use the TypeScript implementation as their specification:
 - progression, loadout editing, and production garage;
 - controller glyph polish, accessibility options, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
-- installable build-target release artifacts, WebRTC private-room transport,
-  and signaling deployment;
+- installable build-target release artifacts, WebRTC signaling/private-room
+  session composition, and signaling deployment;
 - per-family procedural vehicle geometry/pattern parity and generated technical assets.
 
 Migrate these by extending the simulation contracts rather than moving

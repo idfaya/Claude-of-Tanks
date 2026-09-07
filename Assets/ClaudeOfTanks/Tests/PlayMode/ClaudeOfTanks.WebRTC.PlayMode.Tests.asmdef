@@ -1,0 +1,24 @@
+{
+  "name": "ClaudeOfTanks.WebRTC.PlayMode.Tests",
+  "rootNamespace": "ClaudeOfTanks.Tests",
+  "references": [
+    "ClaudeOfTanks.Simulation",
+    "ClaudeOfTanks.Network",
+    "ClaudeOfTanks.WebRTC",
+    "Unity.WebRTC"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
