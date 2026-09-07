@@ -13,6 +13,7 @@ MemoryCaptures/
 .unity-cache/
 .unity-tools/
 .uloop/tools.json
+.uloop/outputs/
 *.csproj
 *.sln
 *.unityproj

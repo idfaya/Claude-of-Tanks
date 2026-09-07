@@ -8,6 +8,8 @@ namespace ClaudeOfTanks.Runtime
         private readonly Transform _root;
         private readonly Transform _turret;
         private readonly Renderer[] _renderers;
+        private readonly Mesh[] _meshes;
+        private readonly Material[] _materials;
         private readonly Color _aliveColor;
 
         private TankView(Transform root, Transform turret, Renderer[] renderers, Color aliveColor)
@@ -15,6 +17,17 @@ namespace ClaudeOfTanks.Runtime
             _root = root;
             _turret = turret;
             _renderers = renderers;
+            MeshFilter[] filters = root.GetComponentsInChildren<MeshFilter>();
+            int generatedCount = 0;
+            for (int i = 0; i < filters.Length; i++)
+                if (filters[i].name.StartsWith("Armor-")) generatedCount++;
+            _meshes = new Mesh[generatedCount];
+            int generatedIndex = 0;
+            for (int i = 0; i < filters.Length; i++)
+                if (filters[i].name.StartsWith("Armor-"))
+                    _meshes[generatedIndex++] = filters[i].sharedMesh;
+            _materials = new Material[renderers.Length];
+            for (int i = 0; i < renderers.Length; i++) _materials[i] = renderers[i].sharedMaterial;
             _aliveColor = aliveColor;
         }
 
@@ -130,7 +143,7 @@ namespace ClaudeOfTanks.Runtime
                     : plate.kind == "spaced" ? baseColor * 0.82f : baseColor * 1.04f;
                 Material material = new Material(Shader.Find("Standard")) { color = color };
                 material.SetInt("_Cull", 0);
-                renderer.material = material;
+                renderer.sharedMaterial = material;
             }
         }
 
@@ -213,7 +226,7 @@ namespace ClaudeOfTanks.Runtime
                     _renderers[i].gameObject.name == "UpperHull" ||
                     _renderers[i].gameObject.name == "Turret")
                 {
-                    _renderers[i].material.color = color;
+                    _renderers[i].sharedMaterial.color = color;
                 }
             }
         }
@@ -221,6 +234,8 @@ namespace ClaudeOfTanks.Runtime
         public void Destroy()
         {
             Object.Destroy(_root.gameObject);
+            for (int i = 0; i < _meshes.Length; i++) Object.Destroy(_meshes[i]);
+            for (int i = 0; i < _materials.Length; i++) Object.Destroy(_materials[i]);
         }
 
         private static Transform CreatePart(
@@ -237,8 +252,7 @@ namespace ClaudeOfTanks.Runtime
             part.transform.localPosition = localPosition;
             part.transform.localScale = localScale;
             Renderer renderer = part.GetComponent<Renderer>();
-            renderer.material = new Material(Shader.Find("Standard"));
-            renderer.material.color = color;
+            renderer.sharedMaterial = new Material(Shader.Find("Standard")) { color = color };
             return part.transform;
         }
     }
