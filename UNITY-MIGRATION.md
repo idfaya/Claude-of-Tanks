@@ -87,6 +87,8 @@ The port preserves the source project's runtime units and conventions:
 - Bounded client snapshot buffering with shortest-angle interpolation, 250 ms
   extrapolation ceiling, immediate visibility removal, and shared-movement
   local prediction with acknowledged-input replay and presentation correction
+- Versioned binary full-snapshot codec with 64 KiB packet, entity, shell, event,
+  string, enum, finite-number, truncation, and trailing-data validation
 - `npm run unity:content:update` / `unity:content:check` drift gate
 
 ## Remaining parity work
