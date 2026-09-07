@@ -93,6 +93,65 @@ namespace ClaudeOfTanks.Tests
             Assert.That(RankedMatchmaker.SearchBand(long.MaxValue), Is.EqualTo(600));
         }
 
+        [Test]
+        public void PumpSettlesAuthoritativeSimulationResultExactlyOnce()
+        {
+            int identity = 0;
+            int token = 0;
+            BattleState matchState = null;
+            AuthoritativeMatchHost matchHost = null;
+            using (RankedRatingStore ratings = new RankedRatingStore(
+                identityFactory: () => "r_result_player_" + (++identity).ToString("D3"),
+                tokenFactory: () => "identity_token_value_" + (++token).ToString("D8")))
+            using (DedicatedMatchRegistry registry = new DedicatedMatchRegistry())
+            using (RankedMatchmaker matchmaker = new RankedMatchmaker(
+                ratings,
+                registry,
+                plan =>
+                {
+                    matchHost = Host(plan, out matchState);
+                    return matchHost;
+                },
+                new[] { "verdant" },
+                id => id == "m1a1"))
+            {
+                RatingIdentity alpha = ratings.CreateIdentity("Alpha");
+                RatingIdentity bravo = ratings.CreateIdentity("Bravo");
+                RankedQueueJoin alphaQueue = matchmaker.Join(
+                    alpha.Profile.PlayerId,
+                    alpha.BearerToken,
+                    "m1a1",
+                    Array.Empty<string>(),
+                    "factory",
+                    1,
+                    1000);
+                matchmaker.Join(
+                    bravo.Profile.PlayerId,
+                    bravo.BearerToken,
+                    "m1a1",
+                    Array.Empty<string>(),
+                    "factory",
+                    1,
+                    1000);
+
+                TankState defeated = matchState.Tanks.Find(
+                    tank => tank.Team == Team.Bravo);
+                defeated.Health = 0f;
+                defeated.Destroyed = true;
+                matchHost.AdvanceTicks(1);
+                matchmaker.Pump(1001);
+                RankedQueueView result = matchmaker.Poll(
+                    alphaQueue.QueueId,
+                    alphaQueue.QueueToken);
+
+                Assert.That(result.Status, Is.EqualTo(RankedQueueStatus.Finished));
+                Assert.That(result.Result, Is.EqualTo(RatedResult.Alpha));
+                Assert.That(result.Profile.Matches, Is.EqualTo(1));
+                matchmaker.Pump(1002);
+                Assert.That(ratings.SettledMatchCount, Is.EqualTo(1));
+            }
+        }
+
         private static int CountTeam(RoomMatchSeat[] roster, Team team)
         {
             int count = 0;
@@ -112,7 +171,15 @@ namespace ClaudeOfTanks.Tests
 
         private static AuthoritativeMatchHost Host(RoomMatchPlan plan)
         {
-            BattleState state = new BattleState(new FlatHeightField(), plan.Seed);
+            BattleState state;
+            return Host(plan, out state);
+        }
+
+        private static AuthoritativeMatchHost Host(
+            RoomMatchPlan plan,
+            out BattleState state)
+        {
+            state = new BattleState(new FlatHeightField(), plan.Seed);
             for (int i = 0; i < plan.Seats.Length; i++)
             {
                 RoomMatchSeat seat = plan.Seats[i];

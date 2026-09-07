@@ -82,6 +82,16 @@ namespace ClaudeOfTanks.Network
         }
 
         public int MatchCount => _matches.Count;
+        public int ConnectedPlayerCount
+        {
+            get
+            {
+                int count = 0;
+                foreach (DedicatedMatchRecord match in _matches.Values)
+                    count += match.ConnectedPlayerCount;
+                return count;
+            }
+        }
 
         public DedicatedMatchTicket[] CreateMatch(
             RoomMatchPlan plan,

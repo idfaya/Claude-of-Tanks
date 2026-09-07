@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using ClaudeOfTanks.Network;
+using ClaudeOfTanks.Runtime;
 using ClaudeOfTanks.Simulation;
 using UnityEngine;
 
@@ -13,6 +15,7 @@ namespace ClaudeOfTanks.Server
         public string BindAddress { get; private set; } = "127.0.0.1";
         public int Port { get; private set; } = 18791;
         public string[] AllowedOrigins { get; private set; } = Array.Empty<string>();
+        public string RatingFile { get; private set; }
 
         public string ListenPrefix =>
             "http://" + BindAddress + ":" + Port + "/";
@@ -27,6 +30,8 @@ namespace ClaudeOfTanks.Server
             string bind = Value(args, "--cot-bind") ?? env("COT_SERVER_BIND");
             string port = Value(args, "--cot-port") ?? env("COT_SERVER_PORT");
             string origins = Value(args, "--cot-origins") ?? env("COT_ALLOWED_ORIGINS");
+            string ratingFile =
+                Value(args, "--cot-rating-file") ?? env("COT_RATING_FILE");
             if (!string.IsNullOrEmpty(bind)) result.BindAddress = bind;
             IPAddress parsedAddress;
             if (result.BindAddress != "localhost" &&
@@ -60,6 +65,8 @@ namespace ClaudeOfTanks.Server
                 }
                 result.AllowedOrigins = normalized.ToArray();
             }
+            if (!string.IsNullOrWhiteSpace(ratingFile))
+                result.RatingFile = Path.GetFullPath(ratingFile);
             Uri listen;
             if (!Uri.TryCreate(result.ListenPrefix, UriKind.Absolute, out listen))
                 throw new ArgumentException("Dedicated server bind address is invalid.");
@@ -110,6 +117,7 @@ namespace ClaudeOfTanks.Server
         private DedicatedServerOptions _options;
         private DedicatedMatchRegistry _registry;
         private DedicatedMatchWebSocketService _service;
+        private RankedHttpApi _httpApi;
         private readonly DedicatedServerTickScheduler _scheduler =
             new DedicatedServerTickScheduler();
         private double _lastTimeS;
@@ -136,11 +144,26 @@ namespace ClaudeOfTanks.Server
             Application.runInBackground = true;
             Application.targetFrameRate = NetworkProtocol.TickRate;
             _registry = new DedicatedMatchRegistry();
+            ContentCatalog catalog = ContentCatalog.Load();
+            DedicatedServerMatchFactory factory =
+                new DedicatedServerMatchFactory(catalog);
+            RankedRatingStore ratings = new RankedRatingStore(
+                _options.RatingFile ?? Path.Combine(
+                    Application.persistentDataPath,
+                    "ranked-ratings.bin"));
+            RankedMatchmaker matchmaker = new RankedMatchmaker(
+                ratings,
+                _registry,
+                factory.Create,
+                factory.MapRotation,
+                factory.IsVehicleAllowed);
+            _httpApi = new RankedHttpApi(ratings, matchmaker, _registry);
             _service = new DedicatedMatchWebSocketService(
                 _registry,
                 _options.ListenPrefix,
                 UnixTimeMs,
-                _options.AllowedOrigins);
+                _options.AllowedOrigins,
+                _httpApi);
             _service.Start();
             _lastTimeS = Time.realtimeSinceStartupAsDouble;
             Debug.Log("Dedicated server listening at " + _options.ListenPrefix);
@@ -158,8 +181,10 @@ namespace ClaudeOfTanks.Server
         private void OnDestroy()
         {
             _service?.Dispose();
+            _httpApi?.Dispose();
             _registry?.Dispose();
             _service = null;
+            _httpApi = null;
             _registry = null;
         }
 

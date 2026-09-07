@@ -3,7 +3,8 @@
   "rootNamespace": "ClaudeOfTanks.Server",
   "references": [
     "ClaudeOfTanks.Network",
-    "ClaudeOfTanks.Simulation"
+    "ClaudeOfTanks.Simulation",
+    "ClaudeOfTanks.Runtime"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

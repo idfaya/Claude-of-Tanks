@@ -31,8 +31,15 @@ npm run unity:server:build -- linux
 ./Build/Server/Linux/ClaudeOfTanksServer \
   -batchmode -nographics --cot-server \
   --cot-bind=0.0.0.0 --cot-port=18791 \
-  --cot-origins=https://game.example
+  --cot-origins=https://game.example \
+  --cot-rating-file=/var/lib/claude-of-tanks/ratings.bin
 ```
+
+The same listener serves `/match` WebSocket upgrades and the browser-compatible
+`/healthz`, `/ranked/identity`, `/ranked/profile/:id`,
+`/ranked/leaderboard`, and `/ranked/queue/:id` HTTP API. Environment
+equivalents are `COT_SERVER_BIND`, `COT_SERVER_PORT`,
+`COT_ALLOWED_ORIGINS`, and `COT_RATING_FILE`.
 
 Install the matching Unity Linux Dedicated Server Build Support module before
 running the build command. `tools/build-unity-server.sh macos <output> player`
@@ -56,6 +63,7 @@ Once the Editor is open, every other `tools/uloop.sh` command is supported.
 | `ClaudeOfTanks.Simulation` | Deterministic fixed-step movement, ballistics, penetration, damage, entities, and seeded RNG. It has `noEngineReferences: true`. |
 | `ClaudeOfTanks.Network` | Transport-independent input admission, authoritative match ticking, and viewer-filtered snapshots. It has `noEngineReferences: true`. |
 | `ClaudeOfTanks.Runtime` | Unity input, procedural rendering, camera, HUD, scene lifecycle, and simulation-to-view synchronization. |
+| `ClaudeOfTanks.Server` | Headless composition root for generated match content, ranked HTTP matchmaking, persistent ratings, and dedicated WebSocket sessions. |
 | `ClaudeOfTanks.Simulation.Tests` | Unity EditMode tests for coordinate conventions, determinism, movement, penetration, and swept shell hits. |
 
 The port preserves the source project's runtime units and conventions:
@@ -169,6 +177,9 @@ The port preserves the source project's runtime units and conventions:
 - Unity headless bootstrap with strict bind/port/origin configuration, a
   bounded 60 Hz service pump, UI-free Server builds, and reproducible
   Linux/macOS command-line build tooling
+- Same-origin ranked HTTP and dedicated WebSocket transport with bounded
+  headers, JSON bodies, concurrent admissions and per-client request rates;
+  CORS policy applies before either transport is admitted
 - Persistent authoritative room policy for 1v1 through 7v7, spectators,
   readiness and selection locks, host-owned rules, round retention, reserved
   disconnect seats, hashed rotating resume tokens, and deterministic host
@@ -193,8 +204,8 @@ These systems still use the TypeScript implementation as their specification:
 - progression, loadout editing, and production garage;
 - controller glyph polish, accessibility options, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
-- installable build-target release artifacts, ranked HTTP matchmaking
-  endpoints, WebRTC private-room transport, and signaling deployment;
+- installable build-target release artifacts, WebRTC private-room transport,
+  and signaling deployment;
 - per-family procedural vehicle geometry/pattern parity and generated technical assets.
 
 Migrate these by extending the simulation contracts rather than moving

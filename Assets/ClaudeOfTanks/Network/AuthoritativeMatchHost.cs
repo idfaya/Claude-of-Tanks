@@ -29,6 +29,8 @@ namespace ClaudeOfTanks.Network
         }
 
         public long Tick { get; private set; }
+        public Team? Winner => _simulation.MatchMode.Winner;
+        public bool Draw => _simulation.MatchMode.Draw;
         public bool ShouldPublishSnapshot =>
             Tick > 0 && Tick % (NetworkProtocol.TickRate / NetworkProtocol.SnapshotRate) == 0;
 

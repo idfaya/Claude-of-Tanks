@@ -98,6 +98,7 @@ namespace ClaudeOfTanks.Network
                 return count;
             }
         }
+        public int RatedMatchCount => _matches.Count;
 
         public RankedQueueJoin Join(
             string playerId,
@@ -217,6 +218,26 @@ namespace ClaudeOfTanks.Network
                 if (match.Settled && !hasTicket) finishedMatches.Add(pair.Key);
             }
             for (int i = 0; i < finishedMatches.Count; i++) _matches.Remove(finishedMatches[i]);
+            List<KeyValuePair<string, RatedResult>> results =
+                new List<KeyValuePair<string, RatedResult>>();
+            foreach (KeyValuePair<string, MatchRecord> pair in _matches)
+            {
+                if (pair.Value.Settled) continue;
+                DedicatedMatchRecord record = _registry.Get(pair.Key);
+                if (record == null) continue;
+                if (record.Host.Draw)
+                    results.Add(new KeyValuePair<string, RatedResult>(
+                        pair.Key,
+                        RatedResult.Draw));
+                else if (record.Host.Winner.HasValue)
+                    results.Add(new KeyValuePair<string, RatedResult>(
+                        pair.Key,
+                        record.Host.Winner.Value == Team.Alpha
+                            ? RatedResult.Alpha
+                            : RatedResult.Bravo));
+            }
+            for (int i = 0; i < results.Count; i++)
+                Finish(results[i].Key, results[i].Value, nowMs);
             for (int i = 0; i < TeamSizes.Length; i++) MatchSize(TeamSizes[i], nowMs);
         }
 
