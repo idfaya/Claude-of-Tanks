@@ -77,6 +77,9 @@ The port preserves the source project's runtime units and conventions:
   dynamic lights, and 48 target-attached penetration/ricochet decals
 - Garage-first lifecycle with all 126 production vehicles, 20 maps, and five
   modes selectable before deployment, plus complete return-to-garage cleanup
+- Shared production-fleet running gear with closed discrete-link track meshes,
+  road-wheel hubs, sprockets, idlers, return rollers, and inboard suspension
+  arms/joints derived from each vehicle's dimensions and track width
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
@@ -118,7 +121,7 @@ These systems still use the TypeScript implementation as their specification:
 - input rebinding, settings, minimap, damage panel, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
 - WebSocket/WebRTC transports and signaling service deployment;
-- procedural vehicle geometry parity and generated technical assets.
+- per-family procedural vehicle geometry/pattern parity and generated technical assets.
 
 Migrate these by extending the simulation contracts rather than moving
 authority into MonoBehaviours or PhysX. The TypeScript project should remain
