@@ -85,6 +85,25 @@ namespace ClaudeOfTanks.Network
         }
     }
 
+    public sealed class DedicatedSocketConnection : IDisposable
+    {
+        internal DedicatedSocketConnection(
+            WebSocketNetworkEndpoint transport,
+            DedicatedSocketAuthResponse admission)
+        {
+            Transport = transport;
+            Admission = admission;
+        }
+
+        public WebSocketNetworkEndpoint Transport { get; }
+        public DedicatedSocketAuthResponse Admission { get; }
+
+        public void Dispose()
+        {
+            Transport.Dispose();
+        }
+    }
+
     public static class WebSocketLaneCodec
     {
         public const int HeaderBytes = 5;
@@ -213,7 +232,7 @@ namespace ClaudeOfTanks.Network
             ClientWebSocketConnection connection = new ClientWebSocketConnection();
             try
             {
-                await connection.ConnectAsync(endpoint, cancellationToken);
+                await connection.ConnectAsync(endpoint, cancellationToken).ConfigureAwait(false);
                 if (!string.IsNullOrEmpty(authenticationJson))
                 {
                     byte[] authentication = Encoding.UTF8.GetBytes(authenticationJson);
@@ -223,7 +242,7 @@ namespace ClaudeOfTanks.Network
                         new ArraySegment<byte>(authentication),
                         WebSocketMessageType.Text,
                         true,
-                        cancellationToken);
+                        cancellationToken).ConfigureAwait(false);
                 }
                 return Attach(connection, maximumControlQueue);
             }
@@ -231,6 +250,55 @@ namespace ClaudeOfTanks.Network
             {
                 connection.Dispose();
                 throw;
+            }
+        }
+
+        public static async Task<DedicatedSocketConnection> ConnectDedicatedAsync(
+            Uri endpoint,
+            DedicatedSocketAuthRequest request,
+            int maximumControlQueue = DefaultMaximumControlQueue,
+            int timeoutMs = 8000,
+            CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (endpoint == null) throw new ArgumentNullException(nameof(endpoint));
+            if (endpoint.Scheme != "ws" && endpoint.Scheme != "wss")
+                throw new ArgumentException("WebSocket endpoint must use ws or wss.", nameof(endpoint));
+            if (timeoutMs < 1) throw new ArgumentOutOfRangeException(nameof(timeoutMs));
+
+            ClientWebSocketConnection connection = new ClientWebSocketConnection();
+            using (CancellationTokenSource timeout =
+                CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+            {
+                timeout.CancelAfter(timeoutMs);
+                try
+                {
+                    await connection.ConnectAsync(endpoint, timeout.Token).ConfigureAwait(false);
+                    byte[] requestPacket = DedicatedSocketProtocol.EncodeRequest(request);
+                    await connection.SendAsync(
+                        new ArraySegment<byte>(requestPacket),
+                        WebSocketMessageType.Binary,
+                        true,
+                        timeout.Token).ConfigureAwait(false);
+                    byte[] responsePacket = await ReceiveSingleBinaryMessageAsync(
+                        connection,
+                        DedicatedSocketProtocol.MaximumHandshakeBytes,
+                        timeout.Token).ConfigureAwait(false);
+                    DedicatedSocketAuthResponse response =
+                        DedicatedSocketProtocol.DecodeResponse(responsePacket);
+                    if (!string.Equals(response.MatchId, request.MatchId, StringComparison.Ordinal) ||
+                        !string.Equals(response.PlayerId, request.PlayerId, StringComparison.Ordinal))
+                    {
+                        throw new FormatException("Dedicated auth response identity does not match.");
+                    }
+                    return new DedicatedSocketConnection(
+                        Attach(connection, maximumControlQueue),
+                        response);
+                }
+                catch
+                {
+                    connection.Dispose();
+                    throw;
+                }
             }
         }
 
@@ -339,7 +407,7 @@ namespace ClaudeOfTanks.Network
                         await _connection.CloseAsync(
                             WebSocketCloseStatus.NormalClosure,
                             closeReason,
-                            CancellationToken.None);
+                            CancellationToken.None).ConfigureAwait(false);
                     }
                 }
                 catch
@@ -365,7 +433,7 @@ namespace ClaudeOfTanks.Network
             {
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    await _outgoingSignal.WaitAsync(cancellationToken);
+                    await _outgoingSignal.WaitAsync(cancellationToken).ConfigureAwait(false);
                     while (TryTakeOutgoing(out NetworkTransportLane lane, out byte[] packet))
                     {
                         byte[] frame = WebSocketLaneCodec.Encode(lane, packet);
@@ -373,7 +441,7 @@ namespace ClaudeOfTanks.Network
                             new ArraySegment<byte>(frame),
                             WebSocketMessageType.Binary,
                             true,
-                            cancellationToken);
+                            cancellationToken).ConfigureAwait(false);
                         if (lane == NetworkTransportLane.Control) Stats.ControlSent++;
                         else Stats.StateSent++;
                     }
@@ -403,7 +471,7 @@ namespace ClaudeOfTanks.Network
                             throw new FormatException("WebSocket transport frame exceeds its bound.");
                         result = await _connection.ReceiveAsync(
                             new ArraySegment<byte>(message, length, message.Length - length),
-                            cancellationToken);
+                            cancellationToken).ConfigureAwait(false);
                         if (result.MessageType == WebSocketMessageType.Close)
                         {
                             FinishClose("remote_closed");
@@ -524,6 +592,34 @@ namespace ClaudeOfTanks.Network
         {
             string value = string.IsNullOrEmpty(reason) ? "closed" : reason;
             return value.Length <= 120 ? value : value.Substring(0, 120);
+        }
+
+        internal static async Task<byte[]> ReceiveSingleBinaryMessageAsync(
+            IWebSocketConnection connection,
+            int maximumBytes,
+            CancellationToken cancellationToken)
+        {
+            byte[] message = new byte[maximumBytes];
+            int length = 0;
+            WebSocketReceiveResult result;
+            do
+            {
+                if (length >= message.Length)
+                    throw new FormatException("WebSocket message exceeds its size limit.");
+                result = await connection.ReceiveAsync(
+                    new ArraySegment<byte>(message, length, message.Length - length),
+                    cancellationToken).ConfigureAwait(false);
+                if (result.MessageType == WebSocketMessageType.Close)
+                    throw new InvalidOperationException("WebSocket closed during handshake.");
+                if (result.MessageType != WebSocketMessageType.Binary)
+                    throw new FormatException("Dedicated handshake must be binary.");
+                length += result.Count;
+            }
+            while (!result.EndOfMessage);
+            if (length == 0) throw new FormatException("WebSocket message is empty.");
+            byte[] packet = new byte[length];
+            Buffer.BlockCopy(message, 0, packet, 0, length);
+            return packet;
         }
     }
 }

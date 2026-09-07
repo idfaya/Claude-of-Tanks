@@ -13,6 +13,7 @@ namespace ClaudeOfTanks.Network
         private readonly Dictionary<long, NetworkWorldSnapshot> _snapshots =
             new Dictionary<long, NetworkWorldSnapshot>();
         private readonly Queue<long> _snapshotOrder = new Queue<long>();
+        private long _lastPublishedTick = -1;
         private bool _disposed;
 
         public AuthoritativeHostPump(
@@ -37,16 +38,32 @@ namespace ClaudeOfTanks.Network
         public int Update(int requestedTicks)
         {
             ThrowIfDisposed();
-            _transport.Pump();
+            PumpIncoming();
             int count = Math.Max(
                 0,
                 Math.Min(requestedTicks, AuthoritativeMatchHost.MaximumCatchUpTicks));
             for (int i = 0; i < count; i++)
             {
                 _host.AdvanceTicks(1);
-                if (_host.ShouldPublishSnapshot) PublishSnapshot();
+                PublishSnapshotIfDue();
             }
             return count;
+        }
+
+        public int PumpIncoming(int maximumControlMessages = int.MaxValue)
+        {
+            ThrowIfDisposed();
+            return _transport.Pump(maximumControlMessages);
+        }
+
+        public bool PublishSnapshotIfDue()
+        {
+            ThrowIfDisposed();
+            if (!_host.ShouldPublishSnapshot || _lastPublishedTick == _host.Tick)
+                return false;
+            PublishSnapshot();
+            _lastPublishedTick = _host.Tick;
+            return true;
         }
 
         public void Dispose()

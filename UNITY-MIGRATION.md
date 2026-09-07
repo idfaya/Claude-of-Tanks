@@ -105,6 +105,10 @@ The port preserves the source project's runtime units and conventions:
   adapter with versioned binary lane framing, bounded control queues,
   replaceable state backpressure, fragmented-frame assembly, strict rejection,
   and main-thread event dispatch
+- Native C# dedicated WebSocket session service with bounded RFC 6455 upgrade,
+  exact origin policy, one-time ticket and rotating reconnect authentication,
+  stale-generation isolation, per-viewer snapshots, and one authoritative tick
+  per match regardless of connected player count
 - Persistent authoritative room policy for 1v1 through 7v7, spectators,
   readiness and selection locks, host-owned rules, round retention, reserved
   disconnect seats, hashed rotating resume tokens, and deterministic host
@@ -129,7 +133,7 @@ These systems still use the TypeScript implementation as their specification:
 - progression, loadout editing, replay browser, and production garage;
 - input rebinding, settings, minimap, damage panel, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
-- Unity headless dedicated-service hosting, ranked HTTP/session wiring,
+- Unity headless build/bootstrap, ranked HTTP matchmaking endpoints,
   WebRTC private-room transport, and signaling deployment;
 - per-family procedural vehicle geometry/pattern parity and generated technical assets.
 
