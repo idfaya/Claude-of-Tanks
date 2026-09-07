@@ -22,6 +22,12 @@ function canonical(value) {
 
 function vehicleRecord(spec) {
   const armor = spec.armor || {};
+  const point = (v) => ({ x: v?.[0] || 0, y: v?.[1] || 0, z: v?.[2] || 0 });
+  const plate = (value) => ({
+    name: value.name, kind: value.kind, physicalMm: value.physicalMm,
+    keMm: value.keMm, ceMm: value.ceMm,
+    verts: (value.verts || []).map(point),
+  });
   return {
     id: spec.id, name: spec.name, nation: spec.nation, era: spec.era, role: spec.role,
     variantOf: spec.variantOf, hp: spec.hp, enginePowerHp: spec.enginePowerHp,
@@ -34,8 +40,10 @@ function vehicleRecord(spec) {
     hydropneumaticAim: spec.hydropneumaticAim, gun: spec.gun, dims: spec.dims,
     armor: {
       boundingRadiusM: armor.boundingRadiusM, turretless: armor.turretless,
-      turretPivot: armor.turretPivot, gunPivot: armor.gunPivot, gunBarrel: armor.gunBarrel,
-      hullPlates: armor.hullPlates, turretPlates: armor.turretPlates,
+      turretPivot: point(armor.turretPivot), gunPivot: point(armor.gunPivot),
+      gunBarrel: armor.gunBarrel,
+      hullPlates: (armor.hullPlates || []).map(plate),
+      turretPlates: (armor.turretPlates || []).map(plate),
       modules: armor.modules, crew: armor.crew, trackShapes: armor.trackShapes,
       bodyContactPoints: armor.bodyContactPoints,
     },

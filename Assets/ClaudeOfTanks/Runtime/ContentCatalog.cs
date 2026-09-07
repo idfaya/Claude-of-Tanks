@@ -121,6 +121,7 @@ namespace ClaudeOfTanks.Runtime
         public VehicleDimensions dims;
         public VehicleGun gun;
         public VehicleVisual visual;
+        public VehicleArmor armor;
 
         public TankSpec ToTankSpec()
         {
@@ -195,6 +196,32 @@ namespace ClaudeOfTanks.Runtime
 
         public Color Color => ColorUtility.TryParseHtmlString(@base, out Color color)
             ? color : new Color(0.28f, 0.32f, 0.24f);
+    }
+
+    [Serializable] public sealed class VehicleArmor
+    {
+        public CatalogPoint turretPivot;
+        public CatalogPoint gunPivot;
+        public ArmorPlateDefinition[] hullPlates;
+        public ArmorPlateDefinition[] turretPlates;
+    }
+
+    [Serializable] public sealed class CatalogPoint
+    {
+        public float x;
+        public float y;
+        public float z;
+        public Vector3 ToVector3() { return new Vector3(x, y, z); }
+    }
+
+    [Serializable] public sealed class ArmorPlateDefinition
+    {
+        public string name;
+        public string kind;
+        public float physicalMm;
+        public float keMm;
+        public float ceMm;
+        public CatalogPoint[] verts;
     }
 
     [Serializable] public sealed class MapDefinition

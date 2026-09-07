@@ -77,12 +77,61 @@ namespace ClaudeOfTanks.Runtime
                 new Vector3(gunRadius, gunRadius, gunLength),
                 new Color(0.12f, 0.14f, 0.12f));
             barrel.localRotation = Quaternion.identity;
+            CreateArmorSurfaces(root.transform, turretRoot.transform, definition, teamColor);
             AddFamilyDetails(root.transform, turretRoot.transform, definition, teamColor, width, height, length);
 
             Renderer[] renderers = root.GetComponentsInChildren<Renderer>();
             TankView view = new TankView(root.transform, turretRoot.transform, renderers, teamColor);
             view.Sync(tank);
             return view;
+        }
+
+        private static void CreateArmorSurfaces(
+            Transform hull, Transform turret, VehicleDefinition definition, Color color)
+        {
+            if (definition?.armor == null) return;
+            CreatePlateSet(hull, definition.armor.hullPlates, color);
+            CreatePlateSet(turret, definition.armor.turretPlates, color * 0.94f);
+        }
+
+        private static void CreatePlateSet(
+            Transform parent, ArmorPlateDefinition[] plates, Color baseColor)
+        {
+            if (plates == null) return;
+            for (int i = 0; i < plates.Length; i++)
+            {
+                ArmorPlateDefinition plate = plates[i];
+                if (plate.verts == null || plate.verts.Length < 3) continue;
+                Mesh mesh = new Mesh { name = plate.name };
+                Vector3[] vertices = new Vector3[plate.verts.Length];
+                for (int vertex = 0; vertex < vertices.Length; vertex++)
+                {
+                    vertices[vertex] = plate.verts[vertex].ToVector3();
+                }
+                int faceTriangles = (vertices.Length - 2) * 3;
+                int[] triangles = new int[faceTriangles];
+                int cursor = 0;
+                for (int triangle = 1; triangle < vertices.Length - 1; triangle++)
+                {
+                    triangles[cursor++] = 0;
+                    triangles[cursor++] = triangle;
+                    triangles[cursor++] = triangle + 1;
+                }
+                mesh.vertices = vertices;
+                mesh.triangles = triangles;
+                mesh.RecalculateNormals();
+                mesh.RecalculateBounds();
+                GameObject surface = new GameObject("Armor-" + plate.name);
+                surface.transform.SetParent(parent, false);
+                surface.AddComponent<MeshFilter>().sharedMesh = mesh;
+                MeshRenderer renderer = surface.AddComponent<MeshRenderer>();
+                Color color = plate.kind == "era"
+                    ? Color.Lerp(baseColor, new Color(0.2f, 0.24f, 0.16f), 0.45f)
+                    : plate.kind == "spaced" ? baseColor * 0.82f : baseColor * 1.04f;
+                Material material = new Material(Shader.Find("Standard")) { color = color };
+                material.SetInt("_Cull", 0);
+                renderer.material = material;
+            }
         }
 
         private static void AddFamilyDetails(

@@ -167,6 +167,9 @@ namespace ClaudeOfTanks.Tests
             Assert.That(spec.Shell.Type, Is.EqualTo("APFSDS"));
             Assert.That(spec.Shell.Pen2000Mm, Is.EqualTo(750f));
             Assert.That(spec.TopSpeedKmh, Is.EqualTo(67f));
+            Assert.That(abrams.armor.hullPlates, Has.Length.GreaterThan(10));
+            Assert.That(abrams.armor.turretPlates, Has.Length.GreaterThan(10));
+            Assert.That(abrams.armor.hullPlates[0].verts, Has.Length.GreaterThanOrEqualTo(3));
         }
 
         [Test]
