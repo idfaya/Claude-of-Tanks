@@ -75,10 +75,12 @@ namespace ClaudeOfTanks.Network
     {
         public string PlayerId;
         public string EntityId;
+        public string DisplayName;
         public Team Team;
         public string VehicleSpecId;
         public string[] Equipment;
         public string CamoId;
+        public int? Rating;
     }
 
     public sealed class RoomMatchPlan
@@ -404,10 +406,12 @@ namespace ClaudeOfTanks.Network
                 {
                     PlayerId = player.PlayerId,
                     EntityId = player.EntityId,
+                    DisplayName = player.DisplayName,
                     Team = player.Team == RoomTeam.Alpha ? Team.Alpha : Team.Bravo,
                     VehicleSpecId = player.VehicleSpecId,
                     Equipment = (string[])player.Equipment.Clone(),
-                    CamoId = player.CamoId
+                    CamoId = player.CamoId,
+                    Rating = player.Rating
                 });
             }
             if (seats.Count == 0) throw Policy("players_not_ready", "No active players are ready.");
