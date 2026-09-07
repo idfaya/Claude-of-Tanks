@@ -2,6 +2,27 @@ node_modules/
 dist/
 shots/
 .DS_Store
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+MemoryCaptures/
+.unity-cache/
+.unity-tools/
+.uloop/tools.json
+*.csproj
+*.sln
+*.unityproj
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
 public/models/community-candidates/user-drops-recovered/
 
 # Model sourcing staging area — candidates judged then discarded; shipped

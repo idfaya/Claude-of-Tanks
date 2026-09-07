@@ -1,0 +1,80 @@
+# Unity 2022.3 migration
+
+This branch adds a native C# runtime that opens in Unity `2022.3.62f3`. The
+existing TypeScript source remains as the behavior and content reference during
+the incremental port.
+
+## Run
+
+1. In Unity Hub, choose **Open** and select this repository root.
+2. Use Unity `2022.3.62f3`.
+3. Open `Assets/Scenes/Battle.unity`, then enter Play Mode.
+
+`GameBootstrap` creates the battlefield automatically. The current desktop
+controls are WASD or arrow keys to drive, Shift to brake, mouse to aim, and
+left mouse or Space to fire.
+
+Command-line verification:
+
+```bash
+tools/uloop.sh compile
+tools/uloop.sh run-tests --test-mode EditMode
+tools/uloop.sh control-play-mode --action Play
+tools/uloop.sh screenshot --window-name Game --capture-mode GameView
+```
+
+Unity CLI Loop `3.4.0` and Input System `1.7.0` are project dependencies.
+The CLI is installed at `~/.local/bin/uloop`; `tools/uloop.sh` binds it to this
+project and uses the locally cached project runner when GitHub API rate limits
+prevent automatic runner acquisition.
+
+When running inside an IDE sandbox, launch Unity from Unity Hub or macOS
+LaunchServices first. Do not use `uloop launch` from the sandbox: Unity's
+`bee_backend` requires process and semaphore behavior that the sandbox blocks.
+Once the Editor is open, every other `tools/uloop.sh` command is supported.
+
+## Architecture
+
+| Assembly | Responsibility |
+| --- | --- |
+| `ClaudeOfTanks.Simulation` | Deterministic fixed-step movement, ballistics, penetration, damage, entities, and seeded RNG. It has `noEngineReferences: true`. |
+| `ClaudeOfTanks.Runtime` | Unity input, procedural rendering, camera, HUD, scene lifecycle, and simulation-to-view synchronization. |
+| `ClaudeOfTanks.Simulation.Tests` | Unity EditMode tests for coordinate conventions, determinism, movement, penetration, and swept shell hits. |
+
+The port preserves the source project's runtime units and conventions:
+
+- meters, seconds, and radians;
+- world `+Y` is up;
+- tank local `+Z` is forward;
+- fixed authoritative simulation step is `1/60` second;
+- authoritative randomness is seeded and does not use `UnityEngine.Random`;
+- simulation code does not depend on `UnityEngine`, GameObjects, PhysX, or wall-clock time.
+
+## Implemented
+
+- Unity 2022.3 project/package metadata
+- Pure C# deterministic simulation assembly
+- Acceleration, braking, reverse, pivot steering, turret traverse, reloads
+- Swept projectile collision, gravity, distance penetration, directional armor
+- Health, destruction, teams, score events, deterministic AI input
+- Programmatic battlefield, first-party primitive tank rigs, shell visuals
+- Chase camera, mouse aim, HUD, battle result, restart
+- EditMode simulation tests
+
+## Remaining parity work
+
+The original release is substantially larger than this first playable port.
+These systems still use the TypeScript implementation as their specification:
+
+- complete 126-vehicle production fleet and authored armor/module geometry;
+- all 20 terrain/map recipes, destructibles, vegetation, and streaming;
+- component/crew/fire/ammunition-rack damage and repair;
+- spotting, match modes, equipment, consumables, replays, and garage;
+- touch/gamepad rebinding and production UI;
+- audio, particles, decals, postprocessing, and adaptive quality;
+- authoritative multiplayer transport, snapshots, prediction, and persistence;
+- procedural vehicle geometry parity and generated technical assets.
+
+Migrate these by extending the simulation contracts rather than moving
+authority into MonoBehaviours or PhysX. The TypeScript project should remain
+buildable until each replacement has parity tests.

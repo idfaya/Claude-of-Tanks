@@ -1,3 +1,9 @@
+> **Unity 2022.3 port:** this branch is directly openable as a Unity project.
+> The playable C# vertical slice and migration status are documented in
+> [UNITY-MIGRATION.md](UNITY-MIGRATION.md). The original TypeScript/WebGL
+> implementation remains in the repository as the behavioral reference while
+> systems are migrated incrementally.
+
 <p align="center">
   <a href="https://cot.kevinliu.studio">
     <img src="public/brand/og-image.png" alt="Claude of Tanks armored battle with the crest badge and wordmark">
