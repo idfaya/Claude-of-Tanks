@@ -23,6 +23,10 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(Object.FindObjectsOfType<EventSystem>(), Has.Length.EqualTo(1));
                 Assert.That(flow.PrivateRoom, Is.Not.Null);
                 Assert.That(flow.PrivateRoomPanel, Is.Not.Null);
+                Assert.That(flow.LoadoutPanel, Is.Not.Null);
+                Assert.That(
+                    flow.LoadoutPanel.EquipmentToggleCount,
+                    Is.EqualTo(14));
                 flow.PrivateRoomPanel.Open();
                 Assert.That(flow.PrivateRoomPanel.IsVisible, Is.True);
                 flow.PrivateRoomPanel.Close();
@@ -30,6 +34,15 @@ namespace ClaudeOfTanks.Tests
                 flow.Select(125, 19, GameModeId.EndlessHorde);
                 string vehicleId = flow.SelectedVehicleId;
                 string mapId = flow.SelectedMapId;
+                Assert.That(
+                    flow.LoadoutPanel.SetEquipment(
+                        "toolbox",
+                        true),
+                    Is.True);
+                Assert.That(
+                    flow.LoadoutPanel.SetCamouflage(
+                        "winter"),
+                    Is.True);
 
                 flow.DeploySelected();
 
@@ -39,6 +52,9 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(flow.ActiveBattle.MapId, Is.EqualTo(mapId));
                 Assert.That(flow.ActiveBattle.GameMode, Is.EqualTo(GameModeId.EndlessHorde));
                 Assert.That(flow.ActiveBattle.Player.Spec.Id, Is.EqualTo(vehicleId));
+                Assert.That(
+                    flow.ActiveBattle.Player.Combat.Equipment.RepairRate,
+                    Is.EqualTo(1.25f));
                 Assert.That(Object.FindObjectsOfType<EventSystem>(), Has.Length.EqualTo(1));
 
                 flow.ReturnToGarage();
@@ -49,6 +65,11 @@ namespace ClaudeOfTanks.Tests
             }
             finally
             {
+                if (flow.Loadout != null &&
+                    flow.Loadout.VehicleId != null)
+                {
+                    flow.Loadout.Reset();
+                }
                 Object.DestroyImmediate(root);
             }
         }

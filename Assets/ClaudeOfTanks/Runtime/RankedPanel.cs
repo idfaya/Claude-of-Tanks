@@ -13,6 +13,8 @@ namespace ClaudeOfTanks.Runtime
             "cot.ranked.commanderName";
         private RankedCoordinator _coordinator;
         private Func<string> _vehicleId;
+        private Func<string[]> _equipment;
+        private Func<string> _camouflageId;
         private GameObject _surface;
         private InputField _endpoint;
         private InputField _displayName;
@@ -34,7 +36,9 @@ namespace ClaudeOfTanks.Runtime
         public static RankedPanel Create(
             Transform parent,
             RankedCoordinator coordinator,
-            Func<string> vehicleId)
+            Func<string> vehicleId,
+            Func<string[]> equipment = null,
+            Func<string> camouflageId = null)
         {
             if (parent == null)
                 throw new ArgumentNullException(nameof(parent));
@@ -48,6 +52,10 @@ namespace ClaudeOfTanks.Runtime
                 throw new ArgumentNullException(nameof(coordinator));
             panel._vehicleId = vehicleId ??
                 throw new ArgumentNullException(nameof(vehicleId));
+            panel._equipment = equipment ??
+                (() => Array.Empty<string>());
+            panel._camouflageId = camouflageId ??
+                (() => "factory");
             panel.Build();
             panel.Subscribe();
             panel.Close();
@@ -76,8 +84,8 @@ namespace ClaudeOfTanks.Runtime
                 _endpoint.text,
                 name,
                 _vehicleId(),
-                Array.Empty<string>(),
-                "factory",
+                _equipment(),
+                _camouflageId(),
                 TeamSize());
         }
 

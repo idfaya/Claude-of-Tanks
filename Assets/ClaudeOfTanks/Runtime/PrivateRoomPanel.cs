@@ -13,6 +13,8 @@ namespace ClaudeOfTanks.Runtime
         private Func<string> _vehicleId;
         private Func<string> _mapId;
         private Func<GameModeId> _gameMode;
+        private Func<string[]> _equipment;
+        private Func<string> _camouflageId;
         private GameObject _surface;
         private InputField _endpoint, _displayName, _roomCode;
         private Text _status, _roster;
@@ -29,7 +31,9 @@ namespace ClaudeOfTanks.Runtime
             PrivateRoomCoordinator coordinator,
             Func<string> vehicleId,
             Func<string> mapId,
-            Func<GameModeId> gameMode)
+            Func<GameModeId> gameMode,
+            Func<string[]> equipment = null,
+            Func<string> camouflageId = null)
         {
             if (parent == null) throw new ArgumentNullException(nameof(parent));
             GameObject root = new GameObject(
@@ -47,6 +51,10 @@ namespace ClaudeOfTanks.Runtime
                 throw new ArgumentNullException(nameof(mapId));
             panel._gameMode = gameMode ??
                 throw new ArgumentNullException(nameof(gameMode));
+            panel._equipment = equipment ??
+                (() => Array.Empty<string>());
+            panel._camouflageId = camouflageId ??
+                (() => "factory");
             panel.Build();
             panel.Subscribe();
             panel.Close();
@@ -72,7 +80,9 @@ namespace ClaudeOfTanks.Runtime
                 _displayName.text,
                 _vehicleId(),
                 _mapId(),
-                _gameMode());
+                _gameMode(),
+                equipment: _equipment(),
+                camoId: _camouflageId());
         }
 
         public bool JoinRoom()
@@ -81,7 +91,9 @@ namespace ClaudeOfTanks.Runtime
                 _endpoint.text,
                 _roomCode.text,
                 _displayName.text,
-                _vehicleId());
+                _vehicleId(),
+                equipment: _equipment(),
+                camoId: _camouflageId());
         }
 
         public bool ToggleReady()

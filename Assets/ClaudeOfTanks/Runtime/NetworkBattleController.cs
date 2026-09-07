@@ -48,6 +48,19 @@ namespace ClaudeOfTanks.Runtime
         public string MapId => _plan?.MapId;
         public GameModeId GameMode =>
             _plan != null ? _plan.GameMode : GameModeId.Standard;
+        public string[] LocalEquipment
+        {
+            get
+            {
+                RoomMatchSeat seat =
+                    FindSeat(_plan, _localPlayerId);
+                return seat?.Equipment == null
+                    ? Array.Empty<string>()
+                    : (string[])seat.Equipment.Clone();
+            }
+        }
+        public string LocalCamouflageId =>
+            FindSeat(_plan, _localPlayerId)?.CamoId;
         public NetworkWorldSnapshot LatestSnapshot =>
             _host != null
                 ? _host.LocalClient.LatestSnapshot

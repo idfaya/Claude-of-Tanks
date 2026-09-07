@@ -13,11 +13,14 @@ namespace ClaudeOfTanks.Runtime
         private readonly BattleState _state;
         private readonly MatchModeState _matchMode;
         private readonly MapRuntime _map;
+        private readonly string _mapId;
         private readonly BattleEffects _effects;
         private readonly Dictionary<string, TankState> _tanks =
             new Dictionary<string, TankState>(StringComparer.Ordinal);
         private readonly Dictionary<string, TankView> _views =
             new Dictionary<string, TankView>(StringComparer.Ordinal);
+        private readonly Dictionary<string, string> _camouflageIds =
+            new Dictionary<string, string>(StringComparer.Ordinal);
         private readonly Dictionary<int, GameObject> _shells =
             new Dictionary<int, GameObject>();
         private readonly List<TankState> _visibleTanks =
@@ -37,6 +40,7 @@ namespace ClaudeOfTanks.Runtime
                 throw new ArgumentNullException(nameof(catalog));
             if (plan == null) throw new ArgumentNullException(nameof(plan));
             MapDefinition map = catalog.GetMap(plan.MapId);
+            _mapId = plan.MapId;
             IHeightField heightField =
                 MapSimulationAdapter.BuildHeightField(map);
             _state = new BattleState(
@@ -47,6 +51,20 @@ namespace ClaudeOfTanks.Runtime
                     map,
                     heightField));
             _matchMode = new MatchModeState(plan.GameMode);
+            RoomMatchSeat[] seats =
+                plan.Seats ?? Array.Empty<RoomMatchSeat>();
+            for (int i = 0; i < seats.Length; i++)
+            {
+                RoomMatchSeat seat = seats[i];
+                if (seat != null &&
+                    !string.IsNullOrEmpty(seat.EntityId))
+                {
+                    _camouflageIds[seat.EntityId] =
+                        string.IsNullOrEmpty(seat.CamoId)
+                            ? "factory"
+                            : seat.CamoId;
+                }
+            }
             _map = MapRuntime.Create(map);
             _map.Root.SetParent(parent, false);
             _effects = BattleEffects.Create();
@@ -146,6 +164,7 @@ namespace ClaudeOfTanks.Runtime
             foreach (GameObject shell in _shells.Values) DestroyShell(shell);
             _views.Clear();
             _tanks.Clear();
+            _camouflageIds.Clear();
             _shells.Clear();
             _map.Dispose();
             Release(_effects.gameObject);
@@ -167,7 +186,20 @@ namespace ClaudeOfTanks.Runtime
                 entity.Yaw);
             _state.Tanks.Add(tank);
             _tanks.Add(tank.Id, tank);
-            _views.Add(tank.Id, TankView.Create(tank, definition));
+            string camouflageId;
+            if (!_camouflageIds.TryGetValue(
+                    tank.Id,
+                    out camouflageId))
+            {
+                camouflageId = "auto";
+            }
+            _views.Add(
+                tank.Id,
+                TankView.Create(
+                    tank,
+                    definition,
+                    camouflageId,
+                    _mapId));
             return tank;
         }
 

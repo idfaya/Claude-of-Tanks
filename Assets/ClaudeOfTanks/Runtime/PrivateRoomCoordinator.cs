@@ -37,6 +37,8 @@ namespace ClaudeOfTanks.Runtime
         private PrivateRoomClientLobbyRuntime _clientLobby;
         private Task<SignalingRoomInfo> _acquireTask;
         private string _displayName, _desiredVehicleId;
+        private string[] _desiredEquipment = Array.Empty<string>();
+        private string _desiredCamoId = "factory";
         private string _playerId, _configuredPlayerId;
 
         public PrivateRoomUiState State { get; private set; } = PrivateRoomUiState.Idle;
@@ -86,7 +88,9 @@ namespace ClaudeOfTanks.Runtime
             string vehicleId,
             string mapId,
             GameModeId gameMode,
-            string playerId = null)
+            string playerId = null,
+            string[] equipment = null,
+            string camoId = null)
         {
             if (!BeginAcquire(
                 endpoint,
@@ -104,6 +108,7 @@ namespace ClaudeOfTanks.Runtime
                 AuthoritativeRoom.MaximumPlayers);
             _pendingMapId = mapId;
             _pendingMode = gameMode;
+            SetDesiredLoadout(equipment, camoId);
             return true;
         }
 
@@ -112,7 +117,9 @@ namespace ClaudeOfTanks.Runtime
             string roomCode,
             string displayName,
             string vehicleId,
-            string playerId = null)
+            string playerId = null,
+            string[] equipment = null,
+            string camoId = null)
         {
             if (!BeginAcquire(
                 endpoint,
@@ -130,6 +137,7 @@ namespace ClaudeOfTanks.Runtime
                     roomCode,
                     _playerId,
                     _displayName);
+                SetDesiredLoadout(equipment, camoId);
                 return true;
             }
             catch (Exception error)
@@ -158,6 +166,32 @@ namespace ClaudeOfTanks.Runtime
             {
                 Kind = LobbyCommandKind.SetMap,
                 Text = mapId
+            });
+        }
+
+        public bool SelectEquipment(params string[] equipment)
+        {
+            _desiredEquipment = equipment == null
+                ? Array.Empty<string>()
+                : (string[])equipment.Clone();
+            if (!IsInLobby) return false;
+            return Submit(new LobbyCommand
+            {
+                Kind = LobbyCommandKind.SelectEquipment,
+                Equipment = (string[])_desiredEquipment.Clone()
+            });
+        }
+
+        public bool SelectCamo(string camoId)
+        {
+            _desiredCamoId = string.IsNullOrEmpty(camoId)
+                ? "factory"
+                : camoId;
+            if (!IsInLobby) return false;
+            return Submit(new LobbyCommand
+            {
+                Kind = LobbyCommandKind.SelectCamo,
+                Text = _desiredCamoId
             });
         }
 
@@ -315,6 +349,8 @@ namespace ClaudeOfTanks.Runtime
                 mapId: _pendingMapId,
                 vehicleAllowed: IsVehicleAllowed,
                 mapAllowed: IsMapAllowed);
+            room.SelectEquipment(_playerId, _desiredEquipment);
+            room.SelectCamo(_playerId, _desiredCamoId);
             _hostLobby = new PrivateRoomHostLobbyRuntime(_hostRtc, room);
             _hostLobby.StateChanged += OnLobbyState;
             _hostLobby.MatchStarting += OnMatchStarting;
@@ -353,10 +389,18 @@ namespace ClaudeOfTanks.Runtime
             {
                 RoomPlayerSnapshot local = FindPlayer(state, _playerId);
                 if (local != null &&
-                    !local.Ready &&
-                    local.VehicleSpecId != _desiredVehicleId)
+                    !local.Ready)
                 {
-                    SelectVehicle(_desiredVehicleId);
+                    if (local.VehicleSpecId != _desiredVehicleId)
+                        SelectVehicle(_desiredVehicleId);
+                    if (!SameEquipment(
+                            local.Equipment,
+                            _desiredEquipment))
+                    {
+                        SelectEquipment(_desiredEquipment);
+                    }
+                    if (local.CamoId != _desiredCamoId)
+                        SelectCamo(_desiredCamoId);
                 }
             }
             Changed?.Invoke();
@@ -454,6 +498,32 @@ namespace ClaudeOfTanks.Runtime
         private bool IsMapAllowed(string id)
         {
             return _mapIds.Contains(id);
+        }
+
+        private void SetDesiredLoadout(
+            string[] equipment,
+            string camoId)
+        {
+            _desiredEquipment = equipment == null
+                ? Array.Empty<string>()
+                : (string[])equipment.Clone();
+            _desiredCamoId = string.IsNullOrEmpty(camoId)
+                ? "factory"
+                : camoId;
+        }
+
+        private static bool SameEquipment(
+            string[] left,
+            string[] right)
+        {
+            left = left ?? Array.Empty<string>();
+            right = right ?? Array.Empty<string>();
+            if (left.Length != right.Length) return false;
+            for (int i = 0; i < left.Length; i++)
+            {
+                if (left[i] != right[i]) return false;
+            }
+            return true;
         }
 
         private static RoomPlayerSnapshot FindPlayer(

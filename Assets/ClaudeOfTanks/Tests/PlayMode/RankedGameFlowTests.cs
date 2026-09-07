@@ -90,6 +90,24 @@ namespace ClaudeOfTanks.Tests
                             7,
                             1,
                             GameModeId.EndlessHorde);
+                        Assert.That(
+                            alpha.Loadout.SetEquipment(
+                                "toolbox",
+                                true),
+                            Is.True);
+                        Assert.That(
+                            alpha.Loadout.SetCamouflage(
+                                "winter"),
+                            Is.True);
+                        Assert.That(
+                            bravo.Loadout.SetEquipment(
+                                "optics",
+                                true),
+                            Is.True);
+                        Assert.That(
+                            bravo.Loadout.SetCamouflage(
+                                "desert"),
+                            Is.True);
                         string alphaVehicle =
                             alpha.SelectedVehicleId;
                         string bravoVehicle =
@@ -141,6 +159,22 @@ namespace ClaudeOfTanks.Tests
                             bravo.ActiveNetworkBattle.IsHost,
                             Is.False);
                         Assert.That(
+                            alpha.ActiveNetworkBattle
+                                .LocalEquipment,
+                            Is.EqualTo(new[] { "toolbox" }));
+                        Assert.That(
+                            alpha.ActiveNetworkBattle
+                                .LocalCamouflageId,
+                            Is.EqualTo("winter"));
+                        Assert.That(
+                            bravo.ActiveNetworkBattle
+                                .LocalEquipment,
+                            Is.EqualTo(new[] { "optics" }));
+                        Assert.That(
+                            bravo.ActiveNetworkBattle
+                                .LocalCamouflageId,
+                            Is.EqualTo("desert"));
+                        Assert.That(
                             alpha.ActiveNetworkBattle.MapId,
                             Is.EqualTo("verdant"));
                         Assert.That(
@@ -174,6 +208,10 @@ namespace ClaudeOfTanks.Tests
             }
             finally
             {
+                alphaRoot?.GetComponent<GameFlowController>()
+                    ?.Loadout.Reset();
+                bravoRoot?.GetComponent<GameFlowController>()
+                    ?.Loadout.Reset();
                 if (alphaRoot != null)
                     UnityEngine.Object.DestroyImmediate(alphaRoot);
                 if (bravoRoot != null)

@@ -41,13 +41,26 @@ namespace ClaudeOfTanks.Runtime
 
         public static TankView Create(TankState tank)
         {
-            return Create(tank, null);
+            return Create(tank, null, "factory", null);
         }
 
         public static TankView Create(TankState tank, VehicleDefinition definition)
         {
+            return Create(tank, definition, "factory", null);
+        }
+
+        public static TankView Create(
+            TankState tank,
+            VehicleDefinition definition,
+            string camouflageId,
+            string mapId)
+        {
             Color authored = definition != null && definition.visual != null
-                ? definition.visual.Color : new Color(0.28f, 0.32f, 0.24f);
+                ? TankCamouflage.ResolveColor(
+                    definition,
+                    camouflageId,
+                    mapId)
+                : new Color(0.28f, 0.32f, 0.24f);
             Color teamColor = tank.Team == Team.Alpha
                 ? Color.Lerp(authored, new Color(0.16f, 0.55f, 0.25f), 0.35f)
                 : Color.Lerp(authored, new Color(0.68f, 0.18f, 0.12f), 0.48f);

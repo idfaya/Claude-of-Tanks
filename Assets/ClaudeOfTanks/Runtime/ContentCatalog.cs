@@ -7,7 +7,7 @@ namespace ClaudeOfTanks.Runtime
     public sealed class ContentCatalog
     {
         private const string ResourcePath = "Generated/content-catalog";
-        private const int SupportedSchemaVersion = 4;
+        private const int SupportedSchemaVersion = 5;
         private readonly CatalogData _data;
 
         private ContentCatalog(CatalogData data)
@@ -22,6 +22,9 @@ namespace ClaudeOfTanks.Runtime
         public string[] ProductionVehicleIds => _data.catalogs.production;
         public VehicleDefinition[] Vehicles => _data.vehicles;
         public MapDefinition[] Maps => _data.maps;
+        public EquipmentDefinition[] Equipment => _data.loadout.equipment;
+        public CamouflageDefinition[] Camouflage =>
+            _data.loadout.camouflage;
 
         public static ContentCatalog Load()
         {
@@ -76,12 +79,33 @@ namespace ClaudeOfTanks.Runtime
             throw new ArgumentException("Unknown map id: " + id, nameof(id));
         }
 
+        public EquipmentDefinition GetEquipment(string id)
+        {
+            for (int i = 0; i < Equipment.Length; i++)
+            {
+                if (Equipment[i].id == id) return Equipment[i];
+            }
+            throw new ArgumentException(
+                "Unknown equipment id: " + id,
+                nameof(id));
+        }
+
+        public bool ContainsCamouflage(string id)
+        {
+            for (int i = 0; i < Camouflage.Length; i++)
+            {
+                if (Camouflage[i].id == id) return true;
+            }
+            return false;
+        }
+
         [Serializable]
         private sealed class CatalogData
         {
             public int schemaVersion;
             public CatalogCounts counts;
             public CatalogLists catalogs;
+            public LoadoutCatalogData loadout;
             public VehicleDefinition[] vehicles;
             public MapDefinition[] maps;
         }
@@ -102,6 +126,31 @@ namespace ClaudeOfTanks.Runtime
             public string[] release;
             public string[] production;
         }
+
+        [Serializable]
+        private sealed class LoadoutCatalogData
+        {
+            public EquipmentDefinition[] equipment;
+            public CamouflageDefinition[] camouflage;
+        }
+    }
+
+    [Serializable]
+    public sealed class EquipmentDefinition
+    {
+        public string id;
+        public string name;
+        public string shortName;
+        public string category;
+        public string era;
+        public string description;
+    }
+
+    [Serializable]
+    public sealed class CamouflageDefinition
+    {
+        public string id;
+        public string name;
     }
 
     [Serializable]
@@ -170,7 +219,15 @@ namespace ClaudeOfTanks.Runtime
     {
         public float caliberMm;
         public float reloadS;
+        public VehicleAutoloader autoloader;
         public VehicleShell[] shells;
+    }
+
+    [Serializable] public sealed class VehicleAutoloader
+    {
+        public int magazineSize;
+        public float fullReloadS;
+        public float intraClipS;
     }
 
     [Serializable] public sealed class VehicleShell

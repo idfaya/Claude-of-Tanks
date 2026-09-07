@@ -15,6 +15,8 @@ namespace ClaudeOfTanks.Runtime
         private readonly Dictionary<string, TankView> _tankViews = new Dictionary<string, TankView>();
         private readonly Dictionary<string, VehicleDefinition> _vehicleDefinitions =
             new Dictionary<string, VehicleDefinition>();
+        private readonly Dictionary<string, string> _camouflageIds =
+            new Dictionary<string, string>();
         private readonly Dictionary<int, GameObject> _shellViews = new Dictionary<int, GameObject>();
         private readonly List<int> _staleShellIds = new List<int>();
         private readonly BattleCameraRig _cameraRig = new BattleCameraRig();
@@ -35,6 +37,8 @@ namespace ClaudeOfTanks.Runtime
         [SerializeField] private string mapId = "verdant";
         [SerializeField] private GameModeId gameMode = GameModeId.Standard;
         [SerializeField] private string vehicleId = "m1a2";
+        private string[] _playerEquipment = Array.Empty<string>();
+        private string _playerCamouflageId = "factory";
         private Action _returnToGarage;
         private Vector3 _cameraAimPoint;
         private bool _aimHeldLastFrame;
@@ -67,13 +71,21 @@ namespace ClaudeOfTanks.Runtime
         public void Configure(
             string selectedVehicleId, string selectedMapId, GameModeId selectedMode,
             Action returnToGarage,
-            ReplayArchive replayArchive = null)
+            ReplayArchive replayArchive = null,
+            string[] equipment = null,
+            string camouflageId = null)
         {
             vehicleId = selectedVehicleId;
             mapId = selectedMapId;
             gameMode = selectedMode;
             _returnToGarage = returnToGarage;
             _replayArchive = replayArchive ?? ReplayArchive.Current;
+            _playerEquipment = equipment == null
+                ? Array.Empty<string>()
+                : (string[])equipment.Clone();
+            _playerCamouflageId = string.IsNullOrEmpty(camouflageId)
+                ? "factory"
+                : camouflageId;
         }
 
         private void Awake()
@@ -214,6 +226,7 @@ namespace ClaudeOfTanks.Runtime
             _shellViews.Clear();
             _inputs.Clear();
             _vehicleDefinitions.Clear();
+            _camouflageIds.Clear();
 
             MapDefinition map = _catalog.GetMap(mapId);
             IHeightField heightField = MapSimulationAdapter.BuildHeightField(map);
@@ -224,15 +237,21 @@ namespace ClaudeOfTanks.Runtime
                 MapSimulationAdapter.BuildStaticObstacles(map, heightField));
             MapPoint playerSpawn = map.spawns.player;
             AddTank(state, "player", Team.Alpha, vehicleId,
-                SpawnPosition(state, playerSpawn.x, playerSpawn.z), 0f);
+                SpawnPosition(state, playerSpawn.x, playerSpawn.z), 0f,
+                _playerEquipment,
+                _playerCamouflageId);
             AddTank(state, "alpha-2", Team.Alpha, "challenger2",
-                SpawnPosition(state, playerSpawn.x - 13f, playerSpawn.z - 8f), 0.1f);
+                SpawnPosition(state, playerSpawn.x - 13f, playerSpawn.z - 8f), 0.1f,
+                Array.Empty<string>(),
+                "auto");
             string[] enemies = { "t90m", "type99a", "leo2a6" };
             for (int i = 0; i < enemies.Length; i++)
             {
                 MapPoint spawn = map.spawns.enemies[i];
                 AddTank(state, "bravo-" + (i + 1), Team.Bravo, enemies[i],
-                    SpawnPosition(state, spawn.x, spawn.z), MathUtil.Pi);
+                    SpawnPosition(state, spawn.x, spawn.z), MathUtil.Pi,
+                    Array.Empty<string>(),
+                    "auto");
             }
             _simulation = new BattleSimulation(state, gameMode);
             _replayRecorder = new BattleReplayRecorder(state, gameMode);
@@ -253,7 +272,13 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 0; i < state.Tanks.Count; i++)
             {
                 TankState tank = state.Tanks[i];
-                _tankViews.Add(tank.Id, TankView.Create(tank, _vehicleDefinitions[tank.Id]));
+                _tankViews.Add(
+                    tank.Id,
+                    TankView.Create(
+                        tank,
+                        _vehicleDefinitions[tank.Id],
+                        _camouflageIds[tank.Id],
+                        mapId));
             }
 
             _accumulator = 0f;
@@ -321,12 +346,14 @@ namespace ClaudeOfTanks.Runtime
             _tankViews.Clear();
             ClearShellViews();
             _vehicleDefinitions.Clear();
+            _camouflageIds.Clear();
             for (int i = 0; i < archived.Recording.TankCount; i++)
             {
                 string entityId = archived.Recording.GetTankId(i);
                 string specId = archived.Recording.GetTankSpecId(i);
                 VehicleDefinition definition = _catalog.GetVehicle(specId);
                 _vehicleDefinitions.Add(entityId, definition);
+                _camouflageIds.Add(entityId, "factory");
             }
 
             _replaySession = new BattleReplaySession(archived.Recording);
@@ -343,7 +370,13 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 0; i < _simulation.State.Tanks.Count; i++)
             {
                 TankState tank = _simulation.State.Tanks[i];
-                _tankViews.Add(tank.Id, TankView.Create(tank, _vehicleDefinitions[tank.Id]));
+                _tankViews.Add(
+                    tank.Id,
+                    TankView.Create(
+                        tank,
+                        _vehicleDefinitions[tank.Id],
+                        _camouflageIds[tank.Id],
+                        mapId));
             }
             SyncViews();
             _hud.SetReplayState(true, false, 0f, _replaySession.DurationS, false);
@@ -411,11 +444,31 @@ namespace ClaudeOfTanks.Runtime
         }
 
         private void AddTank(
-            BattleState state, string entityId, Team team, string vehicleId, Float3 position, float yaw)
+            BattleState state,
+            string entityId,
+            Team team,
+            string vehicleId,
+            Float3 position,
+            float yaw,
+            string[] equipment,
+            string camouflageId)
         {
             VehicleDefinition definition = _catalog.GetVehicle(vehicleId);
-            state.Tanks.Add(new TankState(entityId, team, definition.ToTankSpec(), position, yaw));
+            TankState tank = new TankState(
+                entityId,
+                team,
+                definition.ToTankSpec(),
+                position,
+                yaw);
+            LoadoutSimulation.ApplyEquipment(
+                tank,
+                equipment ?? Array.Empty<string>());
+            state.Tanks.Add(tank);
             _vehicleDefinitions[entityId] = definition;
+            _camouflageIds[entityId] =
+                string.IsNullOrEmpty(camouflageId)
+                    ? "factory"
+                    : camouflageId;
         }
 
         private TankInput ReadPlayerInput()

@@ -37,6 +37,24 @@ namespace ClaudeOfTanks.Tests
                 client.PrivateRoom.ConfigurePlayerId("game-flow-client");
                 host.Select(5, 3, GameModeId.ZoneControl);
                 client.Select(7, 0, GameModeId.Standard);
+                Assert.That(
+                    host.Loadout.SetEquipment(
+                        "toolbox",
+                        true),
+                    Is.True);
+                Assert.That(
+                    host.Loadout.SetCamouflage(
+                        "winter"),
+                    Is.True);
+                Assert.That(
+                    client.Loadout.SetEquipment(
+                        "optics",
+                        true),
+                    Is.True);
+                Assert.That(
+                    client.Loadout.SetCamouflage(
+                        "desert"),
+                    Is.True);
                 string hostMapId = host.SelectedMapId;
                 string clientVehicleId = client.SelectedVehicleId;
                 string endpoint = origin.Replace("http://", "ws://") +
@@ -63,6 +81,19 @@ namespace ClaudeOfTanks.Tests
                     () => host.PrivateRoom.LobbyState?.Players?.Length == 2 &&
                         client.PrivateRoom.LobbyState?.Players?.Length == 2,
                     TimeSpan.FromSeconds(12));
+                yield return WaitUntil(
+                    () =>
+                        HasLoadout(
+                            host.PrivateRoom.LobbyState,
+                            "game-flow-host",
+                            "toolbox",
+                            "winter") &&
+                        HasLoadout(
+                            host.PrivateRoom.LobbyState,
+                            "game-flow-client",
+                            "optics",
+                            "desert"),
+                    TimeSpan.FromSeconds(5));
 
                 yield return ReadyAndStart(host, client);
                 yield return WaitForBattle(host, client, 1);
@@ -110,6 +141,10 @@ namespace ClaudeOfTanks.Tests
             }
             finally
             {
+                hostRoot?.GetComponent<GameFlowController>()
+                    ?.Loadout.Reset();
+                clientRoot?.GetComponent<GameFlowController>()
+                    ?.Loadout.Reset();
                 if (clientRoot != null)
                     UnityEngine.Object.DestroyImmediate(clientRoot);
                 if (hostRoot != null)
@@ -155,6 +190,26 @@ namespace ClaudeOfTanks.Tests
             for (int i = 0; i < state.Players.Length; i++)
                 if (!state.Players[i].Ready) return false;
             return true;
+        }
+
+        private static bool HasLoadout(
+            RoomStateSnapshot state,
+            string playerId,
+            string equipment,
+            string camouflage)
+        {
+            if (state?.Players == null) return false;
+            for (int i = 0; i < state.Players.Length; i++)
+            {
+                RoomPlayerSnapshot player = state.Players[i];
+                if (player.PlayerId != playerId) continue;
+                return player.CamoId == camouflage &&
+                    player.Equipment != null &&
+                    Array.IndexOf(
+                        player.Equipment,
+                        equipment) >= 0;
+            }
+            return false;
         }
 
         private static IEnumerator WaitUntil(

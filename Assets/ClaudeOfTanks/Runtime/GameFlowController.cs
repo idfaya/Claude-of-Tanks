@@ -55,6 +55,7 @@ namespace ClaudeOfTanks.Runtime
             }
 
             _catalog = ContentCatalog.Load();
+            InitializeLoadout();
             _replayArchive = ReplayArchive.Current;
             _privateRoom = gameObject.AddComponent<PrivateRoomCoordinator>();
             _privateRoom.ConfigureContent(
@@ -77,7 +78,8 @@ namespace ClaudeOfTanks.Runtime
             _garage.transform.SetParent(transform, false);
             BuildGarageStage();
             BuildGarageUi();
-            if (!SyncGarageFromRoom()) RefreshPreview(0);
+            if (!SyncGarageFromRoom())
+                RefreshDefaultGarageSelection();
         }
 
         private void StartBattle()
@@ -98,7 +100,14 @@ namespace ClaudeOfTanks.Runtime
             battleObject.transform.SetParent(transform, false);
             battleObject.SetActive(false);
             _battle = battleObject.AddComponent<BattleController>();
-            _battle.Configure(vehicleId, mapId, mode, ShowGarage, _replayArchive);
+            _battle.Configure(
+                vehicleId,
+                mapId,
+                mode,
+                ShowGarage,
+                _replayArchive,
+                _loadout.Equipment,
+                _loadout.CamouflageId);
             battleObject.SetActive(true);
             _battle.Initialize();
         }
@@ -125,7 +134,12 @@ namespace ClaudeOfTanks.Runtime
             _vehicle.SetValueWithoutNotify(vehicleIndex);
             _map.SetValueWithoutNotify(mapIndex);
             _mode.SetValueWithoutNotify((int)mode);
-            RefreshPreview(vehicleIndex);
+            bool vehicleChanged =
+                _loadout.VehicleId !=
+                _catalog.ProductionVehicleIds[vehicleIndex];
+            _loadout.SelectVehicle(
+                _catalog.ProductionVehicleIds[vehicleIndex]);
+            if (!vehicleChanged) RefreshPreview(vehicleIndex);
         }
 
         public void DeploySelected()
@@ -276,13 +290,10 @@ namespace ClaudeOfTanks.Runtime
             Fill(_vehicle, VehicleNames());
             Fill(_map, MapNames());
             Fill(_mode, new[] { "Standard", "Capture the Flag", "Zone Control", "Turbo Ball", "Endless Horde" });
-            _vehicle.onValueChanged.AddListener(index =>
-            {
-                RefreshPreview(index);
-                _privateRoom.SelectVehicle(SelectedVehicleId);
-            });
+            _vehicle.onValueChanged.AddListener(
+                OnGarageVehicleChanged);
             _map.onValueChanged.AddListener(
-                _ => _privateRoom.SelectMap(SelectedMapId));
+                _ => OnGarageMapChanged());
             _mode.onValueChanged.AddListener(
                 _ => _privateRoom.SelectMode(SelectedMode));
             Button deploy = Button("Deploy", ui.transform, font, "DEPLOY", new Vector2(28f, -328f));
@@ -291,32 +302,9 @@ namespace ClaudeOfTanks.Runtime
             settings.onClick.AddListener(() => _settingsPanel.Open());
             Button replays = Button("Replays", ui.transform, font, "REPLAYS", new Vector2(412f, -328f));
             replays.onClick.AddListener(() => _replayBrowser.Open());
-            Button privateRoom = Button(
-                "PrivateRoom",
-                ui.transform,
-                font,
-                "PRIVATE ROOM",
-                new Vector2(28f, -394f));
             _settingsPanel = GameSettingsPanel.Create(ui.transform, GameSettings.Current);
             _replayBrowser = ReplayBrowserPanel.Create(ui.transform, _replayArchive, PlayReplay);
-            _privateRoomPanel = PrivateRoomPanel.Create(
-                ui.transform,
-                _privateRoom,
-                () => SelectedVehicleId,
-                () => SelectedMapId,
-                () => SelectedMode);
-            privateRoom.onClick.AddListener(_privateRoomPanel.Open);
-            Button ranked = Button(
-                "Ranked",
-                ui.transform,
-                font,
-                "RANKED",
-                new Vector2(220f, -394f));
-            _rankedPanel = RankedPanel.Create(
-                ui.transform,
-                _ranked,
-                () => SelectedVehicleId);
-            ranked.onClick.AddListener(_rankedPanel.Open);
+            BuildGarageModeActions(ui.transform, font);
         }
 
         private void RefreshPreview(int index)
@@ -324,7 +312,11 @@ namespace ClaudeOfTanks.Runtime
             if (_preview != null) _preview.Destroy();
             VehicleDefinition definition = _catalog.GetVehicle(_catalog.ProductionVehicleIds[index]);
             TankState tank = new TankState("GarageVehicle", Team.Alpha, definition.ToTankSpec(), Vector3.zero.ToSimulation(), 0.55f);
-            _preview = TankView.Create(tank, definition);
+            _preview = TankView.Create(
+                tank,
+                definition,
+                _loadout.CamouflageId,
+                SelectedMapId);
             _preview.Root.SetParent(_garage.transform, true);
         }
 
@@ -366,10 +358,7 @@ namespace ClaudeOfTanks.Runtime
                     local.VehicleSpecId)
                 : -1;
             if (vehicleIndex >= 0)
-            {
-                _vehicle.SetValueWithoutNotify(vehicleIndex);
-                RefreshPreview(vehicleIndex);
-            }
+                SyncLoadoutFromRoom(local, vehicleIndex);
             return true;
         }
 
@@ -460,6 +449,7 @@ namespace ClaudeOfTanks.Runtime
                 _replayBrowser = null;
                 _privateRoomPanel = null;
                 _rankedPanel = null;
+                _loadoutPanel = null;
             }
         }
 
@@ -472,6 +462,7 @@ namespace ClaudeOfTanks.Runtime
             }
             if (_ranked != null)
                 _ranked.MatchHandoffReady -= StartRankedBattle;
+            DisposeLoadout();
             if (_preview != null)
             {
                 _preview.Destroy();

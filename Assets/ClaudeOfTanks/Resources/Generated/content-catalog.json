@@ -440,6 +440,572 @@
     "releaseVehicles": 136,
     "savedVehicles": 165
   },
+  "loadout": {
+    "camouflage": [
+      {
+        "id": "auto",
+        "name": "Auto (map)"
+      },
+      {
+        "id": "factory",
+        "name": "Factory"
+      },
+      {
+        "id": "summer",
+        "name": "Summer"
+      },
+      {
+        "id": "desert",
+        "name": "Desert"
+      },
+      {
+        "id": "winter",
+        "name": "Winter"
+      },
+      {
+        "id": "digital",
+        "name": "Digital"
+      },
+      {
+        "id": "merdc",
+        "name": "MERDC"
+      },
+      {
+        "id": "tropic",
+        "name": "Tropic"
+      },
+      {
+        "id": "ambushdot",
+        "name": "Ambush"
+      },
+      {
+        "id": "splinter",
+        "name": "Splinter"
+      },
+      {
+        "id": "pinkdesert",
+        "name": "Desert Pink"
+      },
+      {
+        "id": "autumn",
+        "name": "Autumn"
+      },
+      {
+        "id": "urbanblock",
+        "name": "Urban Block"
+      },
+      {
+        "id": "washworn",
+        "name": "Whitewash"
+      },
+      {
+        "id": "naval",
+        "name": "Naval"
+      },
+      {
+        "id": "dazzle",
+        "name": "Dazzle"
+      },
+      {
+        "id": "flecktarn",
+        "name": "Flecktarn"
+      },
+      {
+        "id": "amoeba",
+        "name": "Amoeba"
+      },
+      {
+        "id": "dpm",
+        "name": "DPM"
+      },
+      {
+        "id": "tigerstripe",
+        "name": "Tiger Stripe"
+      },
+      {
+        "id": "m90",
+        "name": "M90 Splinter"
+      },
+      {
+        "id": "chocchip",
+        "name": "Choc-Chip"
+      },
+      {
+        "id": "digitaldesert",
+        "name": "Digital Sand"
+      },
+      {
+        "id": "merdcwinter",
+        "name": "MERDC Winter"
+      },
+      {
+        "id": "winterbands",
+        "name": "Winter Bands"
+      },
+      {
+        "id": "berlin",
+        "name": "Berlin Bde"
+      },
+      {
+        "id": "oakleaf",
+        "name": "Oak Leaf"
+      },
+      {
+        "id": "hexfield",
+        "name": "Hex Mesh"
+      },
+      {
+        "id": "midnight",
+        "name": "Night Ops"
+      },
+      {
+        "id": "claude",
+        "name": "Claude"
+      },
+      {
+        "id": "spark",
+        "name": "Claude Spark"
+      },
+      {
+        "id": "ducky",
+        "name": "Rubber Ducky"
+      },
+      {
+        "id": "suits",
+        "name": "High Roller"
+      },
+      {
+        "id": "flames",
+        "name": "Hot Rod"
+      },
+      {
+        "id": "leopardprint",
+        "name": "Leopard Print"
+      },
+      {
+        "id": "bolt",
+        "name": "Thunderbolt"
+      },
+      {
+        "id": "stars",
+        "name": "Starfall"
+      },
+      {
+        "id": "daisy",
+        "name": "Flower Power"
+      },
+      {
+        "id": "circuit",
+        "name": "Circuit Board"
+      },
+      {
+        "id": "racing",
+        "name": "Racing Team"
+      },
+      {
+        "id": "paintball",
+        "name": "Paintball"
+      },
+      {
+        "id": "normandy44",
+        "name": "Normandy '44"
+      },
+      {
+        "id": "berlin45",
+        "name": "Berlin '45"
+      },
+      {
+        "id": "ardennes44",
+        "name": "Ardennes '44"
+      },
+      {
+        "id": "pacific45",
+        "name": "Pacific '45"
+      },
+      {
+        "id": "jungleops",
+        "name": "Jungle Ops"
+      },
+      {
+        "id": "rasputitsa",
+        "name": "Rasputitsa '42"
+      },
+      {
+        "id": "service_usa_desert",
+        "name": "US Desert Service"
+      },
+      {
+        "id": "service_marder1a3",
+        "name": "Marder Bundeswehr"
+      },
+      {
+        "id": "service_leo2a4m",
+        "name": "Leopard 2A4M Service"
+      },
+      {
+        "id": "service_leo2a6m",
+        "name": "Leopard 2A6M Service"
+      },
+      {
+        "id": "service_soviet_ww2",
+        "name": "Soviet 4BO Field Blotch"
+      },
+      {
+        "id": "service_soviet_coldwar",
+        "name": "Soviet Cold War Amoeba"
+      },
+      {
+        "id": "service_t90m",
+        "name": "Modern Russian Service Digital"
+      },
+      {
+        "id": "service_challenger_3",
+        "name": "Challenger 3 Service"
+      },
+      {
+        "id": "service_leclerc_xlr",
+        "name": "Leclerc XLR Service"
+      },
+      {
+        "id": "service_type99a",
+        "name": "Type 99A Service Digital"
+      },
+      {
+        "id": "service_ariete_c1",
+        "name": "Ariete C1 Service"
+      },
+      {
+        "id": "service_type10",
+        "name": "Type 10 Service"
+      },
+      {
+        "id": "service_pl01",
+        "name": "PL-01 Service Digital"
+      },
+      {
+        "id": "service_bmp3_rok",
+        "name": "BMP-3 ROK Service"
+      },
+      {
+        "id": "service_strv122",
+        "name": "Strv 122 Splinter"
+      },
+      {
+        "id": "service_merkava2d",
+        "name": "Merkava 2D Sinai Gray"
+      },
+      {
+        "id": "service_ua_m2a3_bradley",
+        "name": "UA Bradley Digital"
+      },
+      {
+        "id": "sig_abramsx",
+        "name": "AbramsX Prototype"
+      },
+      {
+        "id": "sig_m551_sheridan",
+        "name": "M551 Sheridan Field"
+      },
+      {
+        "id": "sig_leo2a4_otco",
+        "name": "Leopard 2A4 OTCO"
+      },
+      {
+        "id": "sig_mbt70",
+        "name": "MBT-70 Flecktarn"
+      },
+      {
+        "id": "sig_kf51b",
+        "name": "KF51B Panther"
+      },
+      {
+        "id": "sig_bmpt_t90",
+        "name": "BMPT T-90 Digital"
+      },
+      {
+        "id": "sig_t90",
+        "name": "T-90 obr. 1992 Field"
+      },
+      {
+        "id": "sig_t90sm",
+        "name": "T-90SM Export Digital"
+      },
+      {
+        "id": "sig_t90ms",
+        "name": "T-90MS Tagil Demonstrator"
+      },
+      {
+        "id": "sig_t90a_burlak",
+        "name": "T-90A Burlak Digital"
+      },
+      {
+        "id": "sig_t90m",
+        "name": "T-90M Field Digital"
+      },
+      {
+        "id": "sig_t90m_proryv",
+        "name": "T-90M Proryv Digital"
+      },
+      {
+        "id": "sig_t90a",
+        "name": "T-90A Service Digital"
+      },
+      {
+        "id": "sig_t90a_vladimir",
+        "name": "T-90A Vladimir Digital"
+      },
+      {
+        "id": "sig_challenger2e",
+        "name": "Challenger 2E"
+      },
+      {
+        "id": "sig_challenger_3x",
+        "name": "Challenger 3 X"
+      },
+      {
+        "id": "sig_amx56",
+        "name": "AMX 56"
+      },
+      {
+        "id": "sig_leclerc",
+        "name": "Leclerc S2"
+      },
+      {
+        "id": "sig_ariete_c2",
+        "name": "Ariete C2"
+      },
+      {
+        "id": "sig_type10b",
+        "name": "Type 10B"
+      },
+      {
+        "id": "sig_type90",
+        "name": "Type 90 Kyū-maru"
+      },
+      {
+        "id": "sig_type90a",
+        "name": "Type 90A"
+      },
+      {
+        "id": "sig_type59",
+        "name": "Type 59"
+      },
+      {
+        "id": "sig_ztz85_iii",
+        "name": "ZTZ-85-III"
+      },
+      {
+        "id": "sig_type99a",
+        "name": "Type 99A Tight Digital"
+      },
+      {
+        "id": "sig_ztz99a2",
+        "name": "ZTZ-99A2"
+      },
+      {
+        "id": "sig_pt91m",
+        "name": "PT-91M Pendekar"
+      },
+      {
+        "id": "sig_t72m1_jaguar",
+        "name": "T-72M1 Jaguar"
+      },
+      {
+        "id": "sig_pt91_twardy",
+        "name": "PT-91A Twardy"
+      },
+      {
+        "id": "sig_pl01_105",
+        "name": "PL-01 105 Stealth"
+      },
+      {
+        "id": "sig_bwp1",
+        "name": "BWP-1 Polish Digital"
+      },
+      {
+        "id": "sig_upior",
+        "name": "Upiór Digital"
+      },
+      {
+        "id": "sig_k2",
+        "name": "K2 Black Panther"
+      },
+      {
+        "id": "sig_k1a1",
+        "name": "K1A1"
+      },
+      {
+        "id": "sig_k2b",
+        "name": "K2B Stealth Digital"
+      },
+      {
+        "id": "sig_merkava1b",
+        "name": "Merkava 1B Desert Chip"
+      },
+      {
+        "id": "sig_merkava2b",
+        "name": "Merkava 2B Desert Field"
+      },
+      {
+        "id": "sig_merkava3c",
+        "name": "Merkava 3C Desert Digital"
+      },
+      {
+        "id": "sig_merkava3d",
+        "name": "Merkava 3D Sinai Caunter"
+      },
+      {
+        "id": "sig_merkava4b",
+        "name": "Merkava 4B Sinai Hex"
+      },
+      {
+        "id": "sig_t84",
+        "name": "T-84 Oplot"
+      },
+      {
+        "id": "sig_ua_challenger2",
+        "name": "UA Challenger 2"
+      },
+      {
+        "id": "sig_ua_t64bv",
+        "name": "T-64BV Donbas"
+      },
+      {
+        "id": "sig_ua_t80bv",
+        "name": "UA T-80BV"
+      },
+      {
+        "id": "sig_ua_t80u_kursk",
+        "name": "T-80U Kursk"
+      },
+      {
+        "id": "sig_ua_t84_oplot_m",
+        "name": "T-84BM Oplot-M"
+      },
+      {
+        "id": "sig_ua_m1a1",
+        "name": "M1A1 Abrams UA"
+      },
+      {
+        "id": "sig_leo2a6_ua",
+        "name": "Leopard 2A6 UA"
+      }
+    ],
+    "equipment": [
+      {
+        "category": "fire",
+        "description": "-10% reload time",
+        "era": "all",
+        "id": "rammer",
+        "name": "Gun Rammer",
+        "shortName": "Rammer"
+      },
+      {
+        "category": "fire",
+        "description": "-20% dispersion on the move",
+        "era": "modern",
+        "id": "vstab",
+        "name": "Vertical Stabilizer",
+        "shortName": "V-Stab"
+      },
+      {
+        "category": "fire",
+        "description": "-10% aim time",
+        "era": "all",
+        "id": "gld",
+        "name": "Gun Laying Drive",
+        "shortName": "GLD"
+      },
+      {
+        "category": "fire",
+        "description": "+2.5% crew: reload, aim, view, camo",
+        "era": "all",
+        "id": "vents",
+        "name": "Improved Ventilation",
+        "shortName": "Vents"
+      },
+      {
+        "category": "recon",
+        "description": "+10% view range",
+        "era": "all",
+        "id": "optics",
+        "name": "Coated Optics",
+        "shortName": "Optics"
+      },
+      {
+        "category": "recon",
+        "description": "+25% view range while stationary",
+        "era": "all",
+        "id": "binoculars",
+        "name": "Binocular Telescope",
+        "shortName": "Binocs"
+      },
+      {
+        "category": "recon",
+        "description": "+12% concealment while stationary",
+        "era": "all",
+        "id": "camo_net",
+        "name": "Camouflage Net",
+        "shortName": "Camo Net"
+      },
+      {
+        "category": "mobility",
+        "description": "+10% hull and turret traverse",
+        "era": "all",
+        "id": "rotation",
+        "name": "Improved Rotation",
+        "shortName": "Rotation"
+      },
+      {
+        "category": "mobility",
+        "description": "+50% track durability",
+        "era": "all",
+        "id": "susp",
+        "name": "Enhanced Suspension",
+        "shortName": "Suspension"
+      },
+      {
+        "category": "survival",
+        "description": "+25% repair speed",
+        "era": "all",
+        "id": "toolbox",
+        "name": "Toolbox",
+        "shortName": "Toolbox"
+      },
+      {
+        "category": "survival",
+        "description": "-25% HE splash damage, -50% crew hits from splash",
+        "era": "all",
+        "id": "spall_liner",
+        "name": "Spall Liner",
+        "shortName": "Spall Liner"
+      },
+      {
+        "category": "survival",
+        "description": "+50% ammo rack durability",
+        "era": "all",
+        "id": "wet_rack",
+        "name": "Wet Ammo Rack",
+        "shortName": "Wet Rack"
+      },
+      {
+        "category": "survival",
+        "description": "+50% fuel tank durability, -50% engine fire chance",
+        "era": "all",
+        "id": "fuel_safety",
+        "name": "Safety Fuel Tanks",
+        "shortName": "Safe Fuel"
+      },
+      {
+        "category": "survival",
+        "description": "Fires burn half as long and self-extinguish 2x as often",
+        "era": "modern",
+        "id": "auto_ext",
+        "name": "Auto Extinguishers",
+        "shortName": "Auto Ext"
+      }
+    ]
+  },
   "maps": [
     {
       "blurb": "Rolling grassland, hedgerows and a road-junction village",
@@ -77196,7 +77762,7 @@
       }
     }
   ],
-  "schemaVersion": 4,
+  "schemaVersion": 5,
   "vehicles": [
     {
       "armor": {

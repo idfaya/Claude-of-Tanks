@@ -6,6 +6,11 @@ import {
   SAVED_TANK_IDS,
   TANK_SPECS,
 } from '../src/vehicles/specs.ts';
+import { EQUIPMENT_CATALOG } from '../src/game/equipment.ts';
+import {
+  CAMO_CATALOG_PATTERN_IDS,
+  CAMO_PATTERN_LABEL,
+} from '../src/vehicles/camoPolicy.ts';
 import { MAP_IDS, getMapConfig } from '../src/world/maps/index.ts';
 import { createLayout } from '../src/world/terrain.ts';
 
@@ -368,7 +373,7 @@ function mapRecord(id) {
 }
 
 const payload = canonical({
-  schemaVersion: 4,
+  schemaVersion: 5,
   counts: {
     savedVehicles: SAVED_TANK_IDS.length,
     releaseVehicles: ALL_TANK_IDS.length,
@@ -379,6 +384,20 @@ const payload = canonical({
     saved: SAVED_TANK_IDS,
     release: ALL_TANK_IDS,
     production: PRODUCTION_TANK_IDS,
+  },
+  loadout: {
+    equipment: EQUIPMENT_CATALOG.map((item) => ({
+      id: item.id,
+      name: item.name,
+      shortName: item.short,
+      category: item.cat,
+      era: item.era,
+      description: item.desc,
+    })),
+    camouflage: CAMO_CATALOG_PATTERN_IDS.map((id) => ({
+      id,
+      name: CAMO_PATTERN_LABEL[id],
+    })),
   },
   vehicles: SAVED_TANK_IDS.map((id) => vehicleRecord(TANK_SPECS[id])),
   maps: MAP_IDS.map(mapRecord),
