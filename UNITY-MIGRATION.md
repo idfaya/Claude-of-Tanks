@@ -54,9 +54,11 @@ The port preserves the source project's runtime units and conventions:
 
 - Unity 2022.3 project/package metadata
 - Pure C# deterministic simulation assembly
-- Acceleration, braking, reverse, pivot steering, turret traverse, reloads
-- Swept projectile collision, gravity, distance penetration, directional armor
-- Health, destruction, teams, score events, deterministic AI input
+- Acceleration, braking, reverse, pivot steering, terrain traction and turret traverse
+- Swept projectiles, gravity, deterministic dispersion, guidance and 2 km penetration
+- Plate slope, normalization, overmatch, ricochet and directional armor
+- Health, modules, crew, fire, repair, ammunition and autoloader reload channels
+- Proximity/FOV/occlusion spotting and deterministic AI input
 - Programmatic battlefield, first-party primitive tank rigs, shell visuals
 - Chase camera, mouse aim, HUD, battle result, restart
 - EditMode simulation tests
@@ -71,8 +73,7 @@ These systems still use the TypeScript implementation as their specification:
 
 - complete 126-vehicle production fleet and authored armor/module geometry;
 - all 20 terrain/map recipes, destructibles, vegetation, and streaming;
-- component/crew/fire/ammunition-rack damage and repair;
-- spotting, match modes, equipment, consumables, replays, and garage;
+- match modes, equipment, consumables, replays, and garage;
 - touch/gamepad rebinding and production UI;
 - audio, particles, decals, postprocessing, and adaptive quality;
 - authoritative multiplayer transport, snapshots, prediction, and persistence;

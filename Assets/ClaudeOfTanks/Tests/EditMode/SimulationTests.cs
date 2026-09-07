@@ -94,6 +94,56 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void BattleFireConsumesAmmunitionAndStartsAuthoritativeReload()
+        {
+            BattleState state = new BattleState(new FlatHeightField(), 7u);
+            TankState tank = new TankState("tank", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f);
+            state.Tanks.Add(tank);
+            new BattleSimulation(state).Step(
+                new Dictionary<string, TankInput>
+                {
+                    ["tank"] = new TankInput { Fire = true, AimPoint = new Float3(0f, 1f, 100f) }
+                },
+                BattleState.FixedDeltaTime);
+
+            Assert.That(tank.Combat.Ammo[0], Is.EqualTo(tank.Combat.AmmoCapacity[0] - 1));
+            Assert.That(tank.Combat.Reload.Kind, Is.EqualTo(DamageReloadKind.Shell));
+            Assert.That(tank.ReloadRemainingS, Is.GreaterThan(0f));
+        }
+
+        [Test]
+        public void FixedSeedBattleReplayIsDeterministic()
+        {
+            BattleState first = BuildReplayState();
+            BattleState second = BuildReplayState();
+            BattleSimulation firstSimulation = new BattleSimulation(first);
+            BattleSimulation secondSimulation = new BattleSimulation(second);
+            Dictionary<string, TankInput> inputs = new Dictionary<string, TankInput>
+            {
+                ["alpha"] = new TankInput { Throttle = 1f, Fire = true, AimPoint = new Float3(0f, 1f, 30f) },
+                ["bravo"] = new TankInput { Steer = 0.25f, AimPoint = new Float3(0f, 1f, -30f) }
+            };
+            for (int i = 0; i < 180; i++)
+            {
+                firstSimulation.Step(inputs, BattleState.FixedDeltaTime);
+                secondSimulation.Step(inputs, BattleState.FixedDeltaTime);
+            }
+
+            Assert.That(first.Tanks[0].Position, Is.EqualTo(second.Tanks[0].Position));
+            Assert.That(first.Tanks[1].Health, Is.EqualTo(second.Tanks[1].Health));
+            Assert.That(first.NextShellId, Is.EqualTo(second.NextShellId));
+            Assert.That(first.Shells.Count, Is.EqualTo(second.Shells.Count));
+        }
+
+        private static BattleState BuildReplayState()
+        {
+            BattleState state = new BattleState(new FlatHeightField(), 6000u);
+            state.Tanks.Add(new TankState("alpha", Team.Alpha, TankSpec.Medium(), new Float3(0f, 0f, -20f), 0f));
+            state.Tanks.Add(new TankState("bravo", Team.Bravo, TankSpec.Medium(), new Float3(0f, 0f, 20f), MathUtil.Pi));
+            return state;
+        }
+
+        [Test]
         public void GeneratedContentCatalogMatchesTypeScriptRegistries()
         {
             ContentCatalog catalog = ContentCatalog.Load();

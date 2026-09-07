@@ -5,14 +5,14 @@ namespace ClaudeOfTanks.Simulation
 {
     public sealed class BattleSimulation
     {
-        private const float GravityMps2 = 9.81f;
-        private const float ShellLifetimeS = 6f;
         private const float WorldHalfExtentM = 120f;
         private readonly BattleState _state;
+        private readonly Func<float> _nextRandom;
 
         public BattleSimulation(BattleState state)
         {
             _state = state ?? throw new ArgumentNullException(nameof(state));
+            _nextRandom = _state.Random.NextFloat;
         }
 
         public BattleState State => _state;
@@ -33,8 +33,18 @@ namespace ClaudeOfTanks.Simulation
 
                 Float3 previous = tank.Position;
                 TankMovement.Step(tank, input, _state.HeightField, dt);
+                DamageSimulation.TickReload(tank.Combat, dt);
+                tank.ReloadRemainingS = tank.Combat.Reload.RemainingS;
+                DamageSimulation.AdvanceModuleRepairs(tank.Combat, dt);
                 ResolveWorldBounds(tank);
                 ResolveTankContacts(tank, previous);
+                if (tank.Combat.Fire.Burning)
+                {
+                    DamageSimulation.AdvanceFire(
+                        tank.Combat, dt, _nextRandom);
+                    tank.Health = tank.Combat.Health;
+                    tank.Destroyed = tank.Combat.Destroyed;
+                }
                 if (input.Fire)
                 {
                     TryFire(tank, input.AimPoint);
@@ -47,7 +57,9 @@ namespace ClaudeOfTanks.Simulation
 
         private void TryFire(TankState tank, Float3 aimPoint)
         {
-            if (tank.Destroyed || tank.ReloadRemainingS > 0f)
+            if (tank.Destroyed ||
+                tank.Combat.Reload.Kind != DamageReloadKind.Ready ||
+                !DamageSimulation.ConsumeAmmunition(tank.Combat, tank.Combat.ShellSlot))
             {
                 return;
             }
@@ -60,11 +72,7 @@ namespace ClaudeOfTanks.Simulation
                 direction = Float3.Forward(gunYaw);
             }
 
-            float spread = 0.0018f;
-            direction.X += _state.Random.Range(-spread, spread);
-            direction.Y += _state.Random.Range(-spread, spread);
-            direction.Z += _state.Random.Range(-spread, spread);
-            direction = direction.Normalized;
+            direction = BallisticsSimulation.ApplyDispersion(direction, 0.0018f, _state.Random);
 
             ShellState shell = new ShellState
             {
@@ -77,7 +85,8 @@ namespace ClaudeOfTanks.Simulation
                 Velocity = direction * tank.Spec.Shell.VelocityMps
             };
             _state.Shells.Add(shell);
-            tank.ReloadRemainingS = tank.Spec.Shell.ReloadS;
+            DamageSimulation.StartPostShotReload(tank.Combat, tank.DamageSpec);
+            tank.ReloadRemainingS = tank.Combat.Reload.RemainingS;
             _state.Events.Add(new BattleEvent
             {
                 Type = BattleEventType.ShellFired,
@@ -91,12 +100,7 @@ namespace ClaudeOfTanks.Simulation
             for (int i = _state.Shells.Count - 1; i >= 0; i--)
             {
                 ShellState shell = _state.Shells[i];
-                shell.PreviousPosition = shell.Position;
-                shell.Position += shell.Velocity * dt;
-                shell.Position.Y -= 0.5f * GravityMps2 * dt * dt;
-                shell.Velocity.Y -= GravityMps2 * dt;
-                shell.DistanceM += Float3.Distance(shell.PreviousPosition, shell.Position);
-                shell.AgeS += dt;
+                BallisticsSimulation.Step(shell, dt);
 
                 TankState target = FindShellTarget(shell);
                 if (target != null)
@@ -105,7 +109,7 @@ namespace ClaudeOfTanks.Simulation
                     shell.Dead = true;
                 }
                 else if (shell.Position.Y <= _state.HeightField.HeightAt(shell.Position.X, shell.Position.Z) ||
-                         shell.AgeS > ShellLifetimeS)
+                         shell.Dead)
                 {
                     shell.Dead = true;
                 }
@@ -146,15 +150,41 @@ namespace ClaudeOfTanks.Simulation
         {
             Float3 travel = shell.Velocity.Normalized;
             Float3 targetForward = Float3.Forward(target.Yaw);
-            float facing = Float3.Dot(travel, targetForward);
-            float armor = MathF.Abs(facing) > 0.62f
-                ? (facing < 0f ? target.Spec.ArmorFrontMm : target.Spec.ArmorRearMm)
-                : target.Spec.ArmorSideMm;
-            float penetration = PenetrationAtDistance(shell.Spec, shell.DistanceM) *
-                                _state.Random.Range(0.9f, 1.1f);
-            bool penetrated = penetration >= armor;
+            ArmorDirection direction = ArmorSimulation.DirectionFromHit(travel, targetForward);
+            float armor = ArmorSimulation.SelectDirectionalArmorMm(
+                direction, target.Spec.ArmorFrontMm, target.Spec.ArmorSideMm, target.Spec.ArmorRearMm);
+            Float3 center = target.Position + new Float3(0f, 1.25f, 0f);
+            Float3 outwardNormal = (shell.Position - center).Normalized;
+            ArmorShellType shellType;
+            if (!Enum.TryParse(shell.Spec.Type, true, out shellType)) shellType = ArmorShellType.AP;
+            ArmorHitResult armorResult = ArmorSimulation.ResolveHit(
+                shell.Spec,
+                shellType,
+                shell.Spec.CaliberMm,
+                new ArmorPlateSpec(armor),
+                travel,
+                outwardNormal,
+                targetForward,
+                shell.DistanceM,
+                _state.Random);
+            bool penetrated = armorResult.Penetrated;
             float damage = penetrated ? shell.Spec.Damage * _state.Random.Range(0.9f, 1.1f) : 0f;
-            target.Health = MathF.Max(0f, target.Health - damage);
+            DamageSimulation.DamageHealth(target.Combat, damage);
+            if (penetrated)
+            {
+                float moduleRoll = _state.Random.NextFloat();
+                string moduleId = moduleRoll < 0.2f ? "ammoRack"
+                    : moduleRoll < 0.4f ? "engine"
+                    : moduleRoll < 0.6f ? "gun"
+                    : moduleRoll < 0.8f ? "trackL"
+                    : "trackR";
+                DamageSimulation.DamageModule(
+                    target.Combat,
+                    moduleId,
+                    shell.Spec.Damage * 0.35f,
+                    _nextRandom);
+            }
+            target.Health = target.Combat.Health;
 
             _state.Events.Add(new BattleEvent
             {
@@ -166,7 +196,7 @@ namespace ClaudeOfTanks.Simulation
                 Penetrated = penetrated
             });
 
-            if (target.Health <= 0f)
+            if (target.Combat.Destroyed)
             {
                 target.Destroyed = true;
                 TankState shooter = FindTank(shell.ShooterId);
@@ -187,8 +217,7 @@ namespace ClaudeOfTanks.Simulation
 
         public static float PenetrationAtDistance(ShellSpec spec, float distanceM)
         {
-            float t = MathUtil.Clamp01((distanceM - 100f) / 900f);
-            return spec.Pen100Mm + (spec.Pen1000Mm - spec.Pen100Mm) * t;
+            return BallisticsSimulation.PenetrationAtDistance(spec, distanceM);
         }
 
         private TankState FindTank(string id)

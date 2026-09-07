@@ -38,6 +38,14 @@ namespace ClaudeOfTanks.Simulation
             return a.X * b.X + a.Y * b.Y + a.Z * b.Z;
         }
 
+        public static Float3 Cross(Float3 a, Float3 b)
+        {
+            return new Float3(
+                a.Y * b.Z - a.Z * b.Y,
+                a.Z * b.X - a.X * b.Z,
+                a.X * b.Y - a.Y * b.X);
+        }
+
         public static float Distance(Float3 a, Float3 b)
         {
             return (a - b).Magnitude;

@@ -21,10 +21,18 @@ namespace ClaudeOfTanks.Simulation
             float reverseLimit = tank.Spec.ReverseSpeedKmh / 3.6f;
             float targetSpeed = throttle >= 0f ? throttle * forwardLimit : throttle * reverseLimit;
             float powerToWeight = tank.Spec.EnginePowerHp / MathF.Max(1f, tank.Spec.WeightTons);
+            ITerrainSurface surface = heightField as ITerrainSurface;
+            Float3 groundNormal = surface != null
+                ? surface.NormalAt(tank.Position.X, tank.Position.Z).Normalized
+                : new Float3(0f, 1f, 0f);
+            float surfaceResistance = surface != null
+                ? MathF.Max(0.25f, surface.ResistanceAt(tank.Position.X, tank.Position.Z))
+                : 1f;
+            float slopeTraction = MathUtil.Clamp01(groundNormal.Y * MathF.Max(0.1f, tank.Spec.TrackTraction));
             float acceleration = MathUtil.Clamp(
                 powerToWeight * DriveAccelerationPerHpPerTon,
                 1.8f,
-                7.5f);
+                7.5f) * slopeTraction / MathF.Max(0.25f, tank.Spec.TerrainResistance * surfaceResistance);
 
             if (input.Brake)
             {
@@ -58,8 +66,6 @@ namespace ClaudeOfTanks.Simulation
                 float maxStep = tank.Spec.TurretTraverseDegS * MathUtil.Deg2Rad * dt;
                 tank.TurretYaw += MathUtil.Clamp(delta, -maxStep, maxStep);
             }
-
-            tank.ReloadRemainingS = MathF.Max(0f, tank.ReloadRemainingS - dt);
         }
     }
 }

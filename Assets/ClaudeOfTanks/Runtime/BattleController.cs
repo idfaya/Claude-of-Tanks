@@ -16,6 +16,7 @@ namespace ClaudeOfTanks.Runtime
         private readonly Dictionary<int, GameObject> _shellViews = new Dictionary<int, GameObject>();
         private readonly List<int> _staleShellIds = new List<int>();
         private BattleSimulation _simulation;
+        private BotController _botController;
         private TankState _player;
         private Camera _camera;
         private float _accumulator;
@@ -110,6 +111,7 @@ namespace ClaudeOfTanks.Runtime
             state.Tanks.Add(new TankState("bravo-2", Team.Bravo, medium, new Float3(15f, 0f, 35f), MathUtil.Pi));
             state.Tanks.Add(new TankState("bravo-3", Team.Bravo, medium, new Float3(-18f, 0f, 31f), MathUtil.Pi));
             _simulation = new BattleSimulation(state);
+            _botController = new BotController(new SpottingSimulation());
             _player = state.Tanks[0];
             for (int i = 0; i < state.Tanks.Count; i++)
             {
@@ -214,49 +216,8 @@ namespace ClaudeOfTanks.Runtime
                     continue;
                 }
 
-                TankState target = FindClosestEnemy(bot, tanks);
-                if (target == null)
-                {
-                    continue;
-                }
-
-                Float3 offset = target.Position - bot.Position;
-                float distance = offset.Magnitude;
-                float desiredYaw = Mathf.Atan2(offset.X, offset.Z);
-                float hullDelta = MathUtil.DeltaAngle(bot.Yaw, desiredYaw);
-                float gunDelta = MathUtil.DeltaAngle(bot.Yaw + bot.TurretYaw, desiredYaw);
-                _inputs[bot.Id] = new TankInput
-                {
-                    Throttle = distance > 34f ? 1f : distance < 18f ? -0.45f : 0f,
-                    Steer = MathUtil.Clamp(hullDelta * 2.2f, -1f, 1f),
-                    Brake = distance >= 18f && distance <= 34f,
-                    Fire = distance < 105f && Mathf.Abs(gunDelta) < 0.055f,
-                    AimPoint = target.Position + new Float3(0f, 1.25f, 0f)
-                };
+                _inputs[bot.Id] = _botController.Decide(bot, tanks);
             }
-        }
-
-        private static TankState FindClosestEnemy(TankState source, List<TankState> tanks)
-        {
-            TankState best = null;
-            float bestDistance = float.MaxValue;
-            for (int i = 0; i < tanks.Count; i++)
-            {
-                TankState candidate = tanks[i];
-                if (candidate.Destroyed || candidate.Team == source.Team)
-                {
-                    continue;
-                }
-
-                float distance = (candidate.Position - source.Position).SqrMagnitude;
-                if (distance < bestDistance)
-                {
-                    bestDistance = distance;
-                    best = candidate;
-                }
-            }
-
-            return best;
         }
 
         private void ConsumeEvents()

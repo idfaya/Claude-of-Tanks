@@ -12,11 +12,17 @@ namespace ClaudeOfTanks.Simulation
     public sealed class ShellSpec
     {
         public string Name = "AP";
+        public string Type = "AP";
+        public float CaliberMm = 120f;
         public float VelocityMps = 900f;
         public float Damage = 240f;
         public float Pen100Mm = 180f;
         public float Pen1000Mm = 145f;
+        public float Pen2000Mm;
         public float ReloadS = 5.5f;
+        public bool Guided;
+        public float GravityScale = 1f;
+        public float GuidanceTurnRateRadS = 2.4f;
     }
 
     public sealed class TankSpec
@@ -30,6 +36,8 @@ namespace ClaudeOfTanks.Simulation
         public float ReverseSpeedKmh = 18f;
         public float HullTraverseDegS = 38f;
         public float TurretTraverseDegS = 32f;
+        public float TerrainResistance = 1f;
+        public float TrackTraction = 1f;
         public float ArmorFrontMm = 150f;
         public float ArmorSideMm = 80f;
         public float ArmorRearMm = 45f;
@@ -93,6 +101,8 @@ namespace ClaudeOfTanks.Simulation
         public float ReloadRemainingS;
         public bool Destroyed;
         public int Kills;
+        public readonly DamageCombatState Combat;
+        public readonly DamageTankSpec DamageSpec;
 
         public TankState(string id, Team team, TankSpec spec, Float3 position, float yaw)
         {
@@ -102,6 +112,10 @@ namespace ClaudeOfTanks.Simulation
             Position = position;
             Yaw = yaw;
             Health = spec.MaxHealth;
+            DamageSpec = new DamageTankSpec { MaxHealth = spec.MaxHealth };
+            DamageSpec.Gun.ReloadS = spec.Shell.ReloadS;
+            DamageSpec.Gun.Shells.Add(new DamageShellSpec { Type = spec.Shell.Type });
+            Combat = DamageSimulation.CreateCombatState(DamageSpec);
         }
     }
 
@@ -141,11 +155,27 @@ namespace ClaudeOfTanks.Simulation
         float HeightAt(float x, float z);
     }
 
-    public sealed class FlatHeightField : IHeightField
+    public interface ITerrainSurface : IHeightField
+    {
+        Float3 NormalAt(float x, float z);
+        float ResistanceAt(float x, float z);
+    }
+
+    public sealed class FlatHeightField : ITerrainSurface
     {
         public float HeightAt(float x, float z)
         {
             return 0f;
+        }
+
+        public Float3 NormalAt(float x, float z)
+        {
+            return new Float3(0f, 1f, 0f);
+        }
+
+        public float ResistanceAt(float x, float z)
+        {
+            return 1f;
         }
     }
 
