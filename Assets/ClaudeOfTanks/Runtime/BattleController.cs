@@ -239,10 +239,11 @@ namespace ClaudeOfTanks.Runtime
         {
             float throttle = 0f;
             float steer = 0f;
-            if (IsKeyPressed(KeyCode.W) || IsKeyPressed(KeyCode.UpArrow)) throttle += 1f;
-            if (IsKeyPressed(KeyCode.S) || IsKeyPressed(KeyCode.DownArrow)) throttle -= 1f;
-            if (IsKeyPressed(KeyCode.D) || IsKeyPressed(KeyCode.RightArrow)) steer += 1f;
-            if (IsKeyPressed(KeyCode.A) || IsKeyPressed(KeyCode.LeftArrow)) steer -= 1f;
+            GameSettings settings = GameSettings.Current;
+            if (settings.IsPressed(GameInputAction.Forward)) throttle += 1f;
+            if (settings.IsPressed(GameInputAction.Reverse)) throttle -= 1f;
+            if (settings.IsPressed(GameInputAction.Right)) steer += 1f;
+            if (settings.IsPressed(GameInputAction.Left)) steer -= 1f;
             bool gamepadFire = false;
             bool gamepadBrake = false;
 #if ENABLE_INPUT_SYSTEM
@@ -279,47 +280,17 @@ namespace ClaudeOfTanks.Runtime
                 Throttle = Mathf.Clamp(throttle, -1f, 1f),
                 Steer = Mathf.Clamp(steer, -1f, 1f),
                 Brake = gamepadBrake || (_hud != null && _hud.BrakeHeld) ||
-                    IsKeyPressed(KeyCode.LeftControl) || IsKeyPressed(KeyCode.RightControl),
+                    settings.IsPressed(GameInputAction.Brake),
                 Fire = gamepadFire || (_hud != null && _hud.FireHeld) ||
-                    IsPrimaryButtonPressed() || IsKeyPressed(KeyCode.Space),
-                UseRepairKit = Input.GetKeyDown(KeyCode.Alpha4) ||
+                    IsPrimaryButtonPressed() || settings.IsPressed(GameInputAction.Fire),
+                UseRepairKit = settings.WasPressedThisFrame(GameInputAction.Repair) ||
                     (_hud != null && _hud.ConsumeConsumable(0)),
-                UseFirstAidKit = Input.GetKeyDown(KeyCode.Alpha5) ||
+                UseFirstAidKit = settings.WasPressedThisFrame(GameInputAction.FirstAid) ||
                     (_hud != null && _hud.ConsumeConsumable(1)),
-                UseFireExtinguisher = Input.GetKeyDown(KeyCode.Alpha6) ||
+                UseFireExtinguisher = settings.WasPressedThisFrame(GameInputAction.Extinguisher) ||
                     (_hud != null && _hud.ConsumeConsumable(2)),
                 AimPoint = aimPoint
             };
-        }
-
-        private static bool IsKeyPressed(KeyCode keyCode)
-        {
-            bool pressed = Input.GetKey(keyCode);
-#if ENABLE_INPUT_SYSTEM
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null)
-            {
-                return pressed;
-            }
-
-            switch (keyCode)
-            {
-                case KeyCode.W: return pressed || keyboard.wKey.isPressed;
-                case KeyCode.A: return pressed || keyboard.aKey.isPressed;
-                case KeyCode.S: return pressed || keyboard.sKey.isPressed;
-                case KeyCode.D: return pressed || keyboard.dKey.isPressed;
-                case KeyCode.UpArrow: return pressed || keyboard.upArrowKey.isPressed;
-                case KeyCode.DownArrow: return pressed || keyboard.downArrowKey.isPressed;
-                case KeyCode.LeftArrow: return pressed || keyboard.leftArrowKey.isPressed;
-                case KeyCode.RightArrow: return pressed || keyboard.rightArrowKey.isPressed;
-                case KeyCode.LeftShift: return pressed || keyboard.leftShiftKey.isPressed;
-                case KeyCode.RightShift: return pressed || keyboard.rightShiftKey.isPressed;
-                case KeyCode.LeftControl: return pressed || keyboard.leftCtrlKey.isPressed;
-                case KeyCode.RightControl: return pressed || keyboard.rightCtrlKey.isPressed;
-                case KeyCode.Space: return pressed || keyboard.spaceKey.isPressed;
-            }
-#endif
-            return pressed;
         }
 
         private static bool IsPrimaryButtonPressed()
@@ -333,8 +304,7 @@ namespace ClaudeOfTanks.Runtime
 
         private void UpdateCameraControls()
         {
-            if (IsKeyPressedThisFrame(KeyCode.LeftShift) ||
-                IsKeyPressedThisFrame(KeyCode.RightShift) ||
+            if (GameSettings.Current.WasPressedThisFrame(GameInputAction.Sniper) ||
                 (_hud != null && _hud.ConsumeSniperToggle()))
             {
                 _cameraRig.ToggleSniper();
@@ -364,21 +334,6 @@ namespace ClaudeOfTanks.Runtime
                 _aimHoldOwnsSniper = false;
             }
             _aimHeldLastFrame = aimHeld;
-        }
-
-        private static bool IsKeyPressedThisFrame(KeyCode keyCode)
-        {
-            bool pressed = Input.GetKeyDown(keyCode);
-#if ENABLE_INPUT_SYSTEM
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard == null)
-            {
-                return pressed;
-            }
-            if (keyCode == KeyCode.LeftShift) return pressed || keyboard.leftShiftKey.wasPressedThisFrame;
-            if (keyCode == KeyCode.RightShift) return pressed || keyboard.rightShiftKey.wasPressedThisFrame;
-#endif
-            return pressed;
         }
 
         private static bool IsSecondaryButtonPressed()

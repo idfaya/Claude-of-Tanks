@@ -17,6 +17,7 @@ namespace ClaudeOfTanks.Runtime
         private Dropdown _mode;
         private Camera _camera;
         private BattleController _battle;
+        private GameSettingsPanel _settingsPanel;
         private Material _garageFloorMaterial;
 
         public bool IsGarageVisible => _garage != null;
@@ -161,6 +162,9 @@ namespace ClaudeOfTanks.Runtime
             _vehicle.onValueChanged.AddListener(RefreshPreview);
             Button deploy = Button("Deploy", ui.transform, font, "DEPLOY", new Vector2(28f, -328f));
             deploy.onClick.AddListener(StartBattle);
+            Button settings = Button("Settings", ui.transform, font, "SETTINGS", new Vector2(220f, -328f));
+            settings.onClick.AddListener(() => _settingsPanel.Open());
+            _settingsPanel = GameSettingsPanel.Create(ui.transform, GameSettings.Current);
         }
 
         private void RefreshPreview(int index)
@@ -264,6 +268,7 @@ namespace ClaudeOfTanks.Runtime
             {
                 ReleaseObject(_garage);
                 _garage = null;
+                _settingsPanel = null;
             }
         }
 

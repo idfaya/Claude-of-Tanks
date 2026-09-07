@@ -30,6 +30,7 @@ namespace ClaudeOfTanks.Runtime
         private Text _scopeZoom;
         private Text _damageDetails;
         private BattleMinimap _minimap;
+        private GameSettingsPanel _settingsPanel;
         private readonly RectTransform[] _consumableButtons = new RectTransform[3];
         private GameObject _resultRoot;
         private Text _resultTitle;
@@ -222,10 +223,14 @@ namespace ClaudeOfTanks.Runtime
                 .GetComponent<RectTransform>();
             CreateButton("Garage", "GARAGE", new Vector2(20f, -48f), _garage,
                 new Vector2(90f, 34f), new Vector2(0f, 1f));
+            CreateButton("Settings", "SETTINGS", new Vector2(120f, -48f),
+                () => _settingsPanel.Open(),
+                new Vector2(96f, 34f), new Vector2(0f, 1f));
             BuildDamagePanel(font);
             _minimap = BattleMinimap.Create(transform, font);
             BuildTouchControls(font);
             BuildResultScreen(font);
+            _settingsPanel = GameSettingsPanel.Create(transform, GameSettings.Current);
         }
 
         private void OnDestroy()
