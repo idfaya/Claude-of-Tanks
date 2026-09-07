@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using ClaudeOfTanks.Simulation;
 using NUnit.Framework;
 
@@ -65,6 +66,76 @@ namespace ClaudeOfTanks.Tests
             Assert.That(session.CurrentFrame, Is.EqualTo(0));
             Assert.Throws<System.ArgumentOutOfRangeException>(() =>
                 session.SeekTime(float.NaN));
+        }
+
+        [Test]
+        public void ReplayWireCodecRoundTripsLandformsAndAuthoritativeResult()
+        {
+            TerrainLandform[] landforms =
+            {
+                new TerrainLandform
+                {
+                    Kind = "ridge",
+                    X = 12f,
+                    Z = -8f,
+                    Height = 5f,
+                    Length = 80f,
+                    Width = 24f,
+                    RadiusX = 12f,
+                    RadiusZ = 40f,
+                    YawRad = 0.4f
+                }
+            };
+            BattleState state = new BattleState(new LandformHeightField(landforms), 902u);
+            state.Tanks.Add(new TankState(
+                "alpha", Team.Alpha, TankSpec.Medium(), new Float3(0f, 0f, -20f), 0f));
+            state.Tanks.Add(new TankState(
+                "bravo", Team.Bravo, TankSpec.Heavy(), new Float3(0f, 0f, 30f), MathUtil.Pi));
+            BattleReplayRecorder recorder = new BattleReplayRecorder(state, GameModeId.Standard);
+            BattleSimulation original = new BattleSimulation(state, GameModeId.Standard);
+            Dictionary<string, TankInput> inputs = new Dictionary<string, TankInput>();
+            for (int tick = 0; tick < 240; tick++)
+            {
+                inputs["alpha"] = new TankInput
+                {
+                    Throttle = tick < 60 ? 1f : 0f,
+                    Fire = tick == 90,
+                    AimPoint = state.Tanks[1].Position
+                };
+                inputs["bravo"] = new TankInput { AimPoint = state.Tanks[0].Position };
+                recorder.Record(inputs, BattleState.FixedDeltaTime);
+                original.Step(inputs, BattleState.FixedDeltaTime);
+            }
+
+            byte[] encoded = ReplayWireCodec.Encode(recorder.Recording);
+            ReplayRecording decoded = ReplayWireCodec.Decode(encoded);
+            BattleSimulation replay = BattleReplayPlayer.Play(decoded);
+            Assert.That(decoded.FrameCount, Is.EqualTo(240));
+            Assert.That(decoded.TankCount, Is.EqualTo(2));
+            Assert.That(decoded.GetTankId(0), Is.EqualTo("alpha"));
+            Assert.That(decoded.GetTankSpecId(1), Is.EqualTo("heavy"));
+            Assert.That(decoded.GetTankTeam(1), Is.EqualTo(Team.Bravo));
+            Assert.That(replay.State.Tanks[0].Position, Is.EqualTo(original.State.Tanks[0].Position));
+            Assert.That(replay.State.Tanks[1].Health, Is.EqualTo(original.State.Tanks[1].Health));
+            Assert.That(replay.State.HeightField.HeightAt(12f, -8f), Is.EqualTo(5f).Within(0.001f));
+        }
+
+        [Test]
+        public void ReplayWireCodecRejectsTruncatedAndTrailingData()
+        {
+            BattleState state = new BattleState(new FlatHeightField(), 22u);
+            state.Tanks.Add(new TankState(
+                "alpha", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f));
+            BattleReplayRecorder recorder = new BattleReplayRecorder(state, GameModeId.Standard);
+            recorder.Record(new Dictionary<string, TankInput>(), BattleState.FixedDeltaTime);
+            byte[] packet = ReplayWireCodec.Encode(recorder.Recording);
+
+            byte[] truncated = new byte[packet.Length - 1];
+            Buffer.BlockCopy(packet, 0, truncated, 0, truncated.Length);
+            Assert.Throws<FormatException>(() => ReplayWireCodec.Decode(truncated));
+
+            Array.Resize(ref packet, packet.Length + 1);
+            Assert.Throws<FormatException>(() => ReplayWireCodec.Decode(packet));
         }
     }
 }

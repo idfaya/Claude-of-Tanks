@@ -33,6 +33,7 @@ namespace ClaudeOfTanks.Simulation
         }
 
         public int FrameCount => Frames.Count;
+        public int TankCount => Tanks.Count;
         public float DurationS
         {
             get
@@ -42,6 +43,10 @@ namespace ClaudeOfTanks.Simulation
                 return total;
             }
         }
+
+        public string GetTankId(int index) { return Tanks[index].Id; }
+        public string GetTankSpecId(int index) { return Tanks[index].Spec.Id; }
+        public Team GetTankTeam(int index) { return Tanks[index].Team; }
     }
 
     internal sealed class ReplayTankSeed

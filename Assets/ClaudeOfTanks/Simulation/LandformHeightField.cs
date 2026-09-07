@@ -21,7 +21,14 @@ namespace ClaudeOfTanks.Simulation
 
         public LandformHeightField(TerrainLandform[] landforms)
         {
-            _landforms = landforms ?? Array.Empty<TerrainLandform>();
+            _landforms = landforms == null
+                ? Array.Empty<TerrainLandform>()
+                : (TerrainLandform[])landforms.Clone();
+        }
+
+        public TerrainLandform[] CopyLandforms()
+        {
+            return (TerrainLandform[])_landforms.Clone();
         }
 
         public float HeightAt(float x, float z)
