@@ -18,6 +18,7 @@ namespace ClaudeOfTanks.Runtime
         private readonly Dictionary<int, GameObject> _shellViews = new Dictionary<int, GameObject>();
         private readonly List<int> _staleShellIds = new List<int>();
         private BattleSimulation _simulation;
+        private BattleReplayRecorder _replayRecorder;
         private BotController _botController;
         private TankState _player;
         private Camera _camera;
@@ -61,6 +62,7 @@ namespace ClaudeOfTanks.Runtime
             while (_accumulator >= BattleState.FixedDeltaTime)
             {
                 BuildInputs(playerInput);
+                _replayRecorder.Record(_inputs, BattleState.FixedDeltaTime);
                 _simulation.Step(_inputs, BattleState.FixedDeltaTime);
                 ConsumeEvents();
                 _accumulator -= BattleState.FixedDeltaTime;
@@ -125,6 +127,7 @@ namespace ClaudeOfTanks.Runtime
                     SpawnPosition(state, spawn.x, spawn.z), MathUtil.Pi);
             }
             _simulation = new BattleSimulation(state, gameMode);
+            _replayRecorder = new BattleReplayRecorder(state, gameMode);
             _botController = new BotController(new SpottingSimulation());
             _player = state.Tanks[0];
             for (int i = 0; i < state.Tanks.Count; i++)
