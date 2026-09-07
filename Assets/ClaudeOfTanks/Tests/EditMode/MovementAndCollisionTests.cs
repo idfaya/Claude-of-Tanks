@@ -164,6 +164,95 @@ namespace ClaudeOfTanks.Tests
             Assert.That(tank.Position.Z, Is.GreaterThan(10f));
         }
 
+        [Test]
+        public void TankTopplesCrushableTreeWithoutLeavingCollision()
+        {
+            StaticObstacle tree = new StaticObstacle(
+                "map-tree-0",
+                new Float3(0f, 0f, 7f),
+                0.3f,
+                0.3f,
+                5f,
+                0f,
+                StaticObstacleFlags.Movement | StaticObstacleFlags.Shells,
+                true,
+                true,
+                1f);
+            BattleState state = new BattleState(
+                new FlatHeightField(),
+                71u,
+                500f,
+                new[] { tree });
+            TankState tank = new TankState(
+                "tank", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f);
+            state.Tanks.Add(tank);
+            BattleSimulation simulation = new BattleSimulation(state);
+            Dictionary<string, TankInput> inputs = new Dictionary<string, TankInput>
+            {
+                ["tank"] = new TankInput
+                {
+                    Throttle = 1f,
+                    AimPoint = new Float3(0f, 1f, 100f)
+                }
+            };
+
+            bool crushedEvent = false;
+            for (int i = 0; i < 180; i++)
+            {
+                simulation.Step(inputs, BattleState.FixedDeltaTime);
+                for (int eventIndex = 0; eventIndex < state.Events.Count; eventIndex++)
+                    crushedEvent |= state.Events[eventIndex].Type == BattleEventType.PropCrushed;
+            }
+
+            Assert.That(crushedEvent, Is.True);
+            Assert.That(state.IsStaticObstacleDestroyed(0), Is.True);
+            Assert.That(state.StaticObstacleRevision, Is.EqualTo(1u));
+            Assert.That(tank.Position.Z, Is.GreaterThan(9f));
+        }
+
+        [Test]
+        public void ShellTopplesCrushableTreeOnFirstImpact()
+        {
+            StaticObstacle tree = new StaticObstacle(
+                "map-tree-0",
+                new Float3(0f, 0f, 10f),
+                0.3f,
+                0.3f,
+                5f,
+                0f,
+                StaticObstacleFlags.Movement | StaticObstacleFlags.Shells,
+                true,
+                true,
+                1f);
+            BattleState state = new BattleState(
+                new FlatHeightField(),
+                72u,
+                500f,
+                new[] { tree });
+            TankState shooter = new TankState(
+                "shooter", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f);
+            state.Tanks.Add(shooter);
+            BattleSimulation simulation = new BattleSimulation(state);
+            simulation.Step(
+                new Dictionary<string, TankInput>
+                {
+                    ["shooter"] = new TankInput
+                    {
+                        Fire = true,
+                        AimPoint = new Float3(0f, 1.65f, 100f)
+                    }
+                },
+                BattleState.FixedDeltaTime);
+
+            Assert.That(state.IsStaticObstacleDestroyed(0), Is.True);
+            Assert.That(state.Shells, Is.Empty);
+            Assert.That(
+                state.Events.Exists(value =>
+                    value.Type == BattleEventType.PropCrushed &&
+                    value.TargetId == "map-tree-0"),
+                Is.True);
+        }
+
         private sealed class TestSurface : ITerrainSurface
         {
             private readonly float _resistance;

@@ -49,6 +49,8 @@ namespace ClaudeOfTanks.Runtime
             _vegetation != null ? _vegetation.ChunkCount : 0;
         public int ActiveVegetationChunkCount =>
             _vegetation != null ? _vegetation.ActiveChunkCount : 0;
+        public int ToppledTreeCount =>
+            _vegetation != null ? _vegetation.ToppledTreeCount : 0;
         public const int TerrainChunkCount =
             TerrainChunksPerAxis * TerrainChunksPerAxis;
         public int TerrainVertexCount { get; private set; }
@@ -66,6 +68,7 @@ namespace ClaudeOfTanks.Runtime
         public void SyncDestroyedStructures(BattleState state)
         {
             _structures?.SyncDestroyedStructures(state);
+            _vegetation?.SyncDestroyedTrees(state);
         }
 
         public void UpdateVegetationVisibility(

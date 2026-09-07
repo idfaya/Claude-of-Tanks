@@ -100,7 +100,9 @@ namespace ClaudeOfTanks.Tests
                         12f,
                         0.4f,
                         StaticObstacleFlags.All,
-                        true)
+                        true,
+                        true,
+                        1f)
                 });
             state.Tanks.Add(new TankState(
                 "alpha", Team.Alpha, TankSpec.Medium(), new Float3(0f, 0f, -20f), 0f));
@@ -139,6 +141,8 @@ namespace ClaudeOfTanks.Tests
             Assert.That(replay.State.StaticObstacles[0].YawRad, Is.EqualTo(0.4f));
             Assert.That(replay.State.StaticObstacles[0].Flags, Is.EqualTo(StaticObstacleFlags.All));
             Assert.That(replay.State.StaticObstacles[0].Destructible, Is.True);
+            Assert.That(replay.State.StaticObstacles[0].Crushable, Is.True);
+            Assert.That(replay.State.StaticObstacles[0].CrushSpeedRetention, Is.EqualTo(1f));
             Assert.That(replay.State.Tanks[0].Position, Is.EqualTo(original.State.Tanks[0].Position));
             Assert.That(replay.State.Tanks[1].Health, Is.EqualTo(original.State.Tanks[1].Health));
             Assert.That(replay.State.HeightField.HeightAt(12f, -8f), Is.EqualTo(5f).Within(0.001f));

@@ -16,6 +16,11 @@ namespace ClaudeOfTanks.Runtime
             return (mapId ?? "map") + "-wall-" + wallIndex + "-" + pieceIndex;
         }
 
+        public static string TreeObstacleId(string mapId, int treeIndex)
+        {
+            return (mapId ?? "map") + "-tree-" + treeIndex;
+        }
+
         public static IHeightField BuildHeightField(MapDefinition map)
         {
             if (map == null) throw new ArgumentNullException(nameof(map));
@@ -47,16 +52,36 @@ namespace ClaudeOfTanks.Runtime
             if (map == null) throw new ArgumentNullException(nameof(map));
             if (heightField == null) throw new ArgumentNullException(nameof(heightField));
             MapStructures structures = map.unityStructures;
-            if (structures == null) return Array.Empty<StaticObstacle>();
 
             List<StaticObstacle> result = new List<StaticObstacle>();
-            MapBuilding[] buildings = structures.buildings ?? Array.Empty<MapBuilding>();
+            MapBuilding[] buildings =
+                structures?.buildings ?? Array.Empty<MapBuilding>();
             for (int i = 0; i < buildings.Length; i++)
                 AddBuilding(result, map.id, i, buildings[i], heightField);
 
-            MapWall[] walls = structures.walls ?? Array.Empty<MapWall>();
+            MapWall[] walls = structures?.walls ?? Array.Empty<MapWall>();
             for (int i = 0; i < walls.Length; i++)
                 AddWall(result, map.id, i, walls[i], heightField);
+
+            VegetationTreePlacement[] trees = MapVegetationPlacementBuilder.Expand(map);
+            for (int i = 0; i < trees.Length; i++)
+            {
+                VegetationTreePlacement tree = trees[i];
+                result.Add(new StaticObstacle(
+                    TreeObstacleId(map.id, tree.Index),
+                    new Float3(
+                        tree.X,
+                        heightField.HeightAt(tree.X, tree.Z),
+                        tree.Z),
+                    MathF.Max(0.16f, tree.TrunkRadius),
+                    MathF.Max(0.16f, tree.TrunkRadius),
+                    tree.TrunkHeight,
+                    tree.Yaw,
+                    StaticObstacleFlags.Movement | StaticObstacleFlags.Shells,
+                    true,
+                    true,
+                    1f));
+            }
 
             if (result.Count > BattleState.MaximumStaticObstacles)
                 throw new InvalidOperationException("Map static obstacle count exceeds its bound.");

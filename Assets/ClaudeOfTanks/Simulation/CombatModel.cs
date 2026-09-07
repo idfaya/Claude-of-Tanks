@@ -146,7 +146,8 @@ namespace ClaudeOfTanks.Simulation
         TankDestroyed,
         ConsumableUsed,
         StructureHit,
-        StructureDestroyed
+        StructureDestroyed,
+        PropCrushed
     }
 
     public struct BattleEvent
@@ -195,7 +196,8 @@ namespace ClaudeOfTanks.Simulation
     public sealed class BattleState
     {
         public const float FixedDeltaTime = 1f / 60f;
-        public const int MaximumStaticObstacles = 4096;
+        public const int MaximumStaticObstacles = 8192;
+        private const int ObstacleGridAxis = 40;
 
         public readonly List<TankState> Tanks = new List<TankState>();
         public readonly List<ShellState> Shells = new List<ShellState>();
@@ -203,6 +205,9 @@ namespace ClaudeOfTanks.Simulation
         public readonly StaticObstacle[] StaticObstacles;
         private readonly float[] _staticObstacleHealth;
         private readonly bool[] _staticObstacleDestroyed;
+        private readonly List<int>[] _obstacleGrid;
+        private readonly int[] _obstacleQueryMarks;
+        private int _obstacleQueryMark;
         public readonly IHeightField HeightField;
         public readonly DeterministicRandom Random;
         public readonly uint InitialSeed;
@@ -227,6 +232,8 @@ namespace ClaudeOfTanks.Simulation
             StaticObstacles = new StaticObstacle[obstacleCount];
             _staticObstacleHealth = new float[obstacleCount];
             _staticObstacleDestroyed = new bool[obstacleCount];
+            _obstacleGrid = new List<int>[ObstacleGridAxis * ObstacleGridAxis];
+            _obstacleQueryMarks = new int[obstacleCount];
             HashSet<string> obstacleIds = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < obstacleCount; i++)
             {
@@ -239,6 +246,7 @@ namespace ClaudeOfTanks.Simulation
                 }
                 StaticObstacles[i] = staticObstacles[i];
                 _staticObstacleHealth[i] = StaticObstacleDurability(staticObstacles[i]);
+                RegisterStaticObstacle(i, staticObstacles[i]);
             }
         }
 
@@ -291,28 +299,107 @@ namespace ClaudeOfTanks.Simulation
             obstacle = default;
             fraction = float.MaxValue;
             normal = Float3.Zero;
-            for (int i = 0; i < StaticObstacles.Length; i++)
+            int minX;
+            int minZ;
+            int maxX;
+            int maxZ;
+            QueryCellRange(
+                MathF.Min(start.X, end.X),
+                MathF.Min(start.Z, end.Z),
+                MathF.Max(start.X, end.X),
+                MathF.Max(start.Z, end.Z),
+                out minX,
+                out minZ,
+                out maxX,
+                out maxZ);
+            int mark = NextObstacleQueryMark();
+            for (int z = minZ; z <= maxZ; z++)
             {
-                if (_staticObstacleDestroyed[i]) continue;
-                StaticObstacle candidate = StaticObstacles[i];
-                if (!candidate.HasFlag(requiredFlag)) continue;
-                float candidateFraction;
-                Float3 candidateNormal;
-                if (CollisionSimulation.SegmentIntersectsObstacle(
-                        start,
-                        end,
-                        candidate,
-                        out candidateFraction,
-                        out candidateNormal) &&
-                    candidateFraction < fraction)
+                for (int x = minX; x <= maxX; x++)
                 {
-                    obstacleIndex = i;
-                    obstacle = candidate;
-                    fraction = candidateFraction;
-                    normal = candidateNormal;
+                    List<int> candidates = _obstacleGrid[z * ObstacleGridAxis + x];
+                    if (candidates == null) continue;
+                    for (int candidateIndex = 0;
+                        candidateIndex < candidates.Count;
+                        candidateIndex++)
+                    {
+                        int i = candidates[candidateIndex];
+                        if (_obstacleQueryMarks[i] == mark) continue;
+                        _obstacleQueryMarks[i] = mark;
+                        if (_staticObstacleDestroyed[i]) continue;
+                        StaticObstacle candidate = StaticObstacles[i];
+                        if (!candidate.HasFlag(requiredFlag)) continue;
+                        float candidateFraction;
+                        Float3 candidateNormal;
+                        if (CollisionSimulation.SegmentIntersectsObstacle(
+                                start,
+                                end,
+                                candidate,
+                                out candidateFraction,
+                                out candidateNormal) &&
+                            candidateFraction < fraction)
+                        {
+                            obstacleIndex = i;
+                            obstacle = candidate;
+                            fraction = candidateFraction;
+                            normal = candidateNormal;
+                        }
+                    }
                 }
             }
             return obstacleIndex >= 0;
+        }
+
+        public bool TryFindStaticObstacleOverlap(
+            StaticObstacleFlags requiredFlag,
+            Float3 center,
+            float radius,
+            out int obstacleIndex)
+        {
+            obstacleIndex = -1;
+            int minX;
+            int minZ;
+            int maxX;
+            int maxZ;
+            QueryCellRange(
+                center.X - radius,
+                center.Z - radius,
+                center.X + radius,
+                center.Z + radius,
+                out minX,
+                out minZ,
+                out maxX,
+                out maxZ);
+            int mark = NextObstacleQueryMark();
+            for (int z = minZ; z <= maxZ; z++)
+            {
+                for (int x = minX; x <= maxX; x++)
+                {
+                    List<int> candidates = _obstacleGrid[z * ObstacleGridAxis + x];
+                    if (candidates == null) continue;
+                    for (int candidateIndex = 0;
+                        candidateIndex < candidates.Count;
+                        candidateIndex++)
+                    {
+                        int i = candidates[candidateIndex];
+                        if (_obstacleQueryMarks[i] == mark) continue;
+                        _obstacleQueryMarks[i] = mark;
+                        StaticObstacle candidate = StaticObstacles[i];
+                        if (_staticObstacleDestroyed[i] ||
+                            !candidate.HasFlag(requiredFlag) ||
+                            !CollisionSimulation.CircleIntersectsObstacle(
+                                center,
+                                radius,
+                                candidate))
+                        {
+                            continue;
+                        }
+                        obstacleIndex = i;
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         public bool IsVisionOccluded(Float3 start, Float3 end)
@@ -338,6 +425,77 @@ namespace ClaudeOfTanks.Simulation
                 obstacle.HalfLengthM * 2f *
                 obstacle.HeightM;
             return MathUtil.Clamp(volume * 0.8f, 80f, 900f);
+        }
+
+        private void RegisterStaticObstacle(int index, StaticObstacle obstacle)
+        {
+            float extentX = MathF.Abs(obstacle.CosYaw) * obstacle.HalfWidthM +
+                MathF.Abs(obstacle.SinYaw) * obstacle.HalfLengthM;
+            float extentZ = MathF.Abs(obstacle.SinYaw) * obstacle.HalfWidthM +
+                MathF.Abs(obstacle.CosYaw) * obstacle.HalfLengthM;
+            int minX;
+            int minZ;
+            int maxX;
+            int maxZ;
+            QueryCellRange(
+                obstacle.Center.X - extentX,
+                obstacle.Center.Z - extentZ,
+                obstacle.Center.X + extentX,
+                obstacle.Center.Z + extentZ,
+                out minX,
+                out minZ,
+                out maxX,
+                out maxZ);
+            for (int z = minZ; z <= maxZ; z++)
+            {
+                for (int x = minX; x <= maxX; x++)
+                {
+                    int cellIndex = z * ObstacleGridAxis + x;
+                    List<int> cell = _obstacleGrid[cellIndex];
+                    if (cell == null)
+                    {
+                        cell = new List<int>();
+                        _obstacleGrid[cellIndex] = cell;
+                    }
+                    cell.Add(index);
+                }
+            }
+        }
+
+        private void QueryCellRange(
+            float minimumX,
+            float minimumZ,
+            float maximumX,
+            float maximumZ,
+            out int minX,
+            out int minZ,
+            out int maxX,
+            out int maxZ)
+        {
+            float size = WorldHalfExtentM * 2f / ObstacleGridAxis;
+            minX = GridCoordinate(minimumX, size);
+            minZ = GridCoordinate(minimumZ, size);
+            maxX = GridCoordinate(maximumX, size);
+            maxZ = GridCoordinate(maximumZ, size);
+        }
+
+        private int GridCoordinate(float value, float size)
+        {
+            return Math.Max(
+                0,
+                Math.Min(
+                    ObstacleGridAxis - 1,
+                    (int)((value + WorldHalfExtentM) / size)));
+        }
+
+        private int NextObstacleQueryMark()
+        {
+            if (_obstacleQueryMark == int.MaxValue)
+            {
+                Array.Clear(_obstacleQueryMarks, 0, _obstacleQueryMarks.Length);
+                _obstacleQueryMark = 0;
+            }
+            return ++_obstacleQueryMark;
         }
     }
 }

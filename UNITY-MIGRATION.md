@@ -92,7 +92,12 @@ The port preserves the source project's runtime units and conventions:
 - Source-configured vegetation manifests for all 20 maps with 4,579
   cluster/lone/rim/belt stands and 65,170 trees. Runtime expansion uses stable
   per-stand seeds, terrain grounding, species-shaped low-poly crowns, sixteen
-  distance-managed chunks, and at most 48 merged vegetation meshes per map.
+  distance-managed chunks, and at most 49 merged vegetation meshes per map.
+- All 65,170 rendered trees share their exact placement with authoritative
+  trunk collision. A fixed spatial grid bounds tank/shell queries; rammed or
+  shot trees topple immediately, persist in replay/network destruction state,
+  leave no invisible blocker, and rebuild only merged mesh index buffers plus
+  one shared fallen-tree mesh.
 - Source-layout-driven surface presentation for all 20 maps: country/grid/path
   road networks with casings, lake and frozen-water sheets, marsh/soft-ground
   discs, map palettes, ground variation, and all 1,420 configured craters.
@@ -147,7 +152,7 @@ The port preserves the source project's runtime units and conventions:
   string, enum, finite-number, truncation, and trailing-data validation
 - ACK-based keyframe/delta snapshots with explicit visibility removals,
   missing-base recovery, bounded history, and strict binary frame validation
-- Snapshot payload v2 persistent structure destruction with stable bounded
+- Snapshot payload v2 persistent structure/tree destruction with stable bounded
   obstacle indices, monotonic revisions, delta-only additions, v1 decode
   compatibility, and full keyframe recovery for reconnecting clients
 - Bounded dual-channel loopback transport and host/client pumps: reliable FIFO
@@ -184,8 +189,7 @@ These systems still use the TypeScript implementation as their specification:
 
 - complete 126-vehicle production fleet and authored armor/module geometry;
 - per-family structure geometry/material parity, complete vegetation recipes,
-  authoritative tree interaction/toppling, and broader world streaming for all
-  20 maps;
+  and broader world streaming for all 20 maps;
 - progression, loadout editing, and production garage;
 - controller glyph polish, accessibility options, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;

@@ -83,7 +83,11 @@ namespace ClaudeOfTanks.Tests
                     Assert.That(obstacle.HeightM, Is.GreaterThan(0f), obstacle.Id);
                     Assert.That(
                         obstacle.Flags,
-                        Is.EqualTo(StaticObstacleFlags.All),
+                        obstacle.Crushable
+                            ? Is.EqualTo(
+                                StaticObstacleFlags.Movement |
+                                StaticObstacleFlags.Shells)
+                            : Is.EqualTo(StaticObstacleFlags.All),
                         obstacle.Id);
                 }
                 totalAuthoritativeObstacles += obstacles.Length;
@@ -224,7 +228,11 @@ namespace ClaudeOfTanks.Tests
                     int destroyed = 0;
                     for (int obstacleIndex = 0; obstacleIndex < obstacles.Length; obstacleIndex++)
                     {
-                        if (!obstacles[obstacleIndex].Destructible) continue;
+                        if (!obstacles[obstacleIndex].Destructible ||
+                            obstacles[obstacleIndex].Crushable)
+                        {
+                            continue;
+                        }
                         Assert.That(
                             destructionState.DamageStaticObstacle(obstacleIndex, 10000f),
                             Is.True,
@@ -261,6 +269,38 @@ namespace ClaudeOfTanks.Tests
                         definition.id);
                     Assert.That(destroyedMesh.gameObject.activeSelf, Is.False, definition.id);
 
+                    int treeObstacleIndex = -1;
+                    for (int obstacleIndex = 0;
+                        obstacleIndex < obstacles.Length;
+                        obstacleIndex++)
+                    {
+                        if (obstacles[obstacleIndex].Crushable)
+                        {
+                            treeObstacleIndex = obstacleIndex;
+                            break;
+                        }
+                    }
+                    Assert.That(treeObstacleIndex, Is.GreaterThanOrEqualTo(0), definition.id);
+                    BattleState toppledTreeState = new BattleState(
+                        heightField,
+                        502u,
+                        500f,
+                        obstacles);
+                    Assert.That(
+                        toppledTreeState.DamageStaticObstacle(
+                            treeObstacleIndex,
+                            float.MaxValue),
+                        Is.True,
+                        definition.id);
+                    runtime.SyncDestroyedStructures(toppledTreeState);
+                    Assert.That(runtime.ToppledTreeCount, Is.EqualTo(1), definition.id);
+                    Transform fallenTrees = vegetation.Find("Fallen-Trees");
+                    Assert.That(fallenTrees, Is.Not.Null, definition.id);
+                    Assert.That(
+                        fallenTrees.GetComponent<MeshFilter>().sharedMesh.triangles,
+                        Is.Not.Empty,
+                        definition.id);
+
                     int objects = runtime.Root.GetComponentsInChildren<UnityEngine.Transform>().Length;
                     Assert.That(objects, Is.GreaterThan(8), definition.id);
                     totalObjects += objects;
@@ -286,7 +326,7 @@ namespace ClaudeOfTanks.Tests
             Assert.That(totalStructureTriangles, Is.GreaterThan(75000));
             Assert.That(
                 totalAuthoritativeObstacles,
-                Is.GreaterThan(totalBuildings + totalWallRuns));
+                Is.EqualTo(66715));
             Assert.That(totalTerrainTriangles, Is.GreaterThan(600000));
             Assert.That(totalVegetationStands, Is.EqualTo(4579));
             Assert.That(totalTrees, Is.EqualTo(65170));

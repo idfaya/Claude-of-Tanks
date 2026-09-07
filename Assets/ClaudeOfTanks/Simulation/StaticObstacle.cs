@@ -24,6 +24,8 @@ namespace ClaudeOfTanks.Simulation
         internal readonly float SinYaw;
         public readonly StaticObstacleFlags Flags;
         public readonly bool Destructible;
+        public readonly bool Crushable;
+        public readonly float CrushSpeedRetention;
 
         public StaticObstacle(
             string id,
@@ -33,13 +35,16 @@ namespace ClaudeOfTanks.Simulation
             float heightM,
             float yawRad,
             StaticObstacleFlags flags,
-            bool destructible = false)
+            bool destructible = false,
+            bool crushable = false,
+            float crushSpeedRetention = 0.94f)
         {
             if (string.IsNullOrEmpty(id) || id.Length > 96)
                 throw new ArgumentException("Static obstacle id is invalid.", nameof(id));
             if (!IsFinite(center.X) || !IsFinite(center.Y) || !IsFinite(center.Z) ||
                 !IsFinite(halfWidthM) || !IsFinite(halfLengthM) ||
-                !IsFinite(heightM) || !IsFinite(yawRad))
+                !IsFinite(heightM) || !IsFinite(yawRad) ||
+                !IsFinite(crushSpeedRetention))
             {
                 throw new ArgumentException("Static obstacle values must be finite.");
             }
@@ -50,6 +55,10 @@ namespace ClaudeOfTanks.Simulation
             {
                 throw new ArgumentOutOfRangeException(nameof(flags));
             }
+            if (crushSpeedRetention < 0f || crushSpeedRetention > 1f)
+                throw new ArgumentOutOfRangeException(nameof(crushSpeedRetention));
+            if (crushable && !destructible)
+                throw new ArgumentException("Crushable obstacles must be destructible.");
 
             Id = id;
             Center = center;
@@ -61,6 +70,8 @@ namespace ClaudeOfTanks.Simulation
             SinYaw = MathF.Sin(yawRad);
             Flags = flags;
             Destructible = destructible;
+            Crushable = crushable;
+            CrushSpeedRetention = crushSpeedRetention;
         }
 
         public bool HasFlag(StaticObstacleFlags flag)
@@ -81,6 +92,9 @@ namespace ClaudeOfTanks.Simulation
             HalfWidthM > 0f &&
             HalfLengthM > 0f &&
             HeightM > 0f &&
+            CrushSpeedRetention >= 0f &&
+            CrushSpeedRetention <= 1f &&
+            (!Crushable || Destructible) &&
             Flags != StaticObstacleFlags.None &&
             (Flags & ~StaticObstacleFlags.All) == 0;
 

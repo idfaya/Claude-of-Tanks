@@ -13,7 +13,8 @@ namespace ClaudeOfTanks.Simulation
         public const int MaximumLandforms = 128;
         public const int MaximumStaticObstacles = BattleState.MaximumStaticObstacles;
         private const uint Magic = 0x52544f43u;
-        private const ushort Version = 2;
+        private const ushort Version = 3;
+        private const ushort StaticObstacleVersion = 2;
         private const ushort PreviousVersion = 1;
 
         public static byte[] Encode(ReplayRecording recording)
@@ -91,7 +92,9 @@ namespace ClaudeOfTanks.Simulation
                     if (reader.ReadUInt32() != Magic)
                         throw new FormatException("Replay magic is invalid.");
                     ushort version = reader.ReadUInt16();
-                    if (version != Version && version != PreviousVersion)
+                    if (version != Version &&
+                        version != StaticObstacleVersion &&
+                        version != PreviousVersion)
                         throw new FormatException("Replay version is unsupported.");
                     uint seed = reader.ReadUInt32();
                     float worldExtent = ReadFinite(reader, "world extent");
@@ -100,7 +103,7 @@ namespace ClaudeOfTanks.Simulation
                     GameModeId gameMode = ReadEnum<GameModeId>(reader.ReadByte(), "game mode");
                     IHeightField heightField = ReadHeightField(reader);
                     StaticObstacle[] staticObstacles = version >= 2
-                        ? ReadStaticObstacles(reader)
+                        ? ReadStaticObstacles(reader, version)
                         : Array.Empty<StaticObstacle>();
                     int tankCount = reader.ReadByte();
                     ValidateCount(tankCount, 1, MaximumTanks, "tank");
@@ -234,10 +237,17 @@ namespace ClaudeOfTanks.Simulation
                 WriteFinite(writer, obstacle.YawRad, "obstacle yaw");
                 writer.Write((byte)obstacle.Flags);
                 writer.Write(obstacle.Destructible);
+                writer.Write(obstacle.Crushable);
+                WriteFinite(
+                    writer,
+                    obstacle.CrushSpeedRetention,
+                    "obstacle crush speed retention");
             }
         }
 
-        private static StaticObstacle[] ReadStaticObstacles(BinaryReader reader)
+        private static StaticObstacle[] ReadStaticObstacles(
+            BinaryReader reader,
+            ushort version)
         {
             int count = reader.ReadUInt16();
             ValidateCount(count, 0, MaximumStaticObstacles, "static obstacle");
@@ -255,7 +265,12 @@ namespace ClaudeOfTanks.Simulation
                 float yaw = ReadFinite(reader, "obstacle yaw");
                 StaticObstacleFlags flags = (StaticObstacleFlags)reader.ReadByte();
                 bool destructible = reader.ReadBoolean();
+                bool crushable = version >= 3 && reader.ReadBoolean();
+                float crushSpeedRetention = version >= 3
+                    ? ReadFinite(reader, "obstacle crush speed retention")
+                    : 0.94f;
                 if (halfWidth <= 0f || halfLength <= 0f || height <= 0f ||
+                    crushSpeedRetention < 0f || crushSpeedRetention > 1f ||
                     flags == StaticObstacleFlags.None ||
                     (flags & ~StaticObstacleFlags.All) != 0)
                 {
@@ -269,7 +284,9 @@ namespace ClaudeOfTanks.Simulation
                     height,
                     yaw,
                     flags,
-                    destructible);
+                    destructible,
+                    crushable,
+                    crushSpeedRetention);
             }
             return obstacles;
         }

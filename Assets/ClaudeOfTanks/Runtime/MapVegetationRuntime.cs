@@ -9,7 +9,7 @@ namespace ClaudeOfTanks.Runtime
     public sealed class MapVegetationRuntime : IDisposable
     {
         public const int ChunksPerAxis = 4;
-        public const int MaximumMeshCount = ChunksPerAxis * ChunksPerAxis * 3;
+        public const int MaximumMeshCount = ChunksPerAxis * ChunksPerAxis * 3 + 1;
         public const float DefaultVisibleDistanceM = 620f;
 
         private const float WorldHalfExtentM = 500f;
@@ -18,12 +18,24 @@ namespace ClaudeOfTanks.Runtime
         private readonly List<Mesh> _meshes = new List<Mesh>();
         private readonly List<Material> _materials = new List<Material>();
         private readonly List<ChunkView> _chunks = new List<ChunkView>();
+        private readonly List<MeshBinding> _bindings = new List<MeshBinding>();
+        private readonly VegetationTreePlacement[] _trees;
+        private readonly string _treeObstaclePrefix;
+        private readonly bool[] _destroyedTrees;
+        private readonly bool[] _desiredDestroyedTrees;
+        private Mesh _fallenMesh;
+        private BattleState _syncedState;
+        private uint _syncedRevision = uint.MaxValue;
 
         private MapVegetationRuntime(Transform parent, MapDefinition map, IHeightField heightField)
         {
             _root = new GameObject("Vegetation");
             _root.transform.SetParent(parent, false);
             _heightField = heightField ?? throw new ArgumentNullException(nameof(heightField));
+            _trees = MapVegetationPlacementBuilder.Expand(map);
+            _treeObstaclePrefix = (map.id ?? "map") + "-tree-";
+            _destroyedTrees = new bool[_trees.Length];
+            _desiredDestroyedTrees = new bool[_trees.Length];
             Build(map);
         }
 
@@ -33,6 +45,7 @@ namespace ClaudeOfTanks.Runtime
         public int ChunkCount => _chunks.Count;
         public int ActiveChunkCount { get; private set; }
         public Transform Root => _root.transform;
+        public int ToppledTreeCount { get; private set; }
 
         public static MapVegetationRuntime Create(
             Transform parent,
@@ -65,6 +78,56 @@ namespace ClaudeOfTanks.Runtime
             ActiveChunkCount = active;
         }
 
+        public void SyncDestroyedTrees(BattleState state)
+        {
+            if (state == null) throw new ArgumentNullException(nameof(state));
+            if (ReferenceEquals(state, _syncedState) &&
+                state.StaticObstacleRevision == _syncedRevision)
+            {
+                return;
+            }
+            Array.Clear(_desiredDestroyedTrees, 0, _desiredDestroyedTrees.Length);
+            int toppled = 0;
+            for (int i = 0; i < state.StaticObstacles.Length; i++)
+            {
+                if (!state.IsStaticObstacleDestroyed(i)) continue;
+                string id = state.StaticObstacles[i].Id;
+                if (!id.StartsWith(_treeObstaclePrefix, StringComparison.Ordinal)) continue;
+                int treeIndex;
+                if (!int.TryParse(
+                        id.Substring(_treeObstaclePrefix.Length),
+                        out treeIndex) ||
+                    treeIndex < 0 ||
+                    treeIndex >= _desiredDestroyedTrees.Length)
+                {
+                    continue;
+                }
+                if (!_desiredDestroyedTrees[treeIndex])
+                {
+                    _desiredDestroyedTrees[treeIndex] = true;
+                    toppled++;
+                }
+            }
+            bool changed = false;
+            for (int i = 0; i < _destroyedTrees.Length; i++)
+            {
+                if (_destroyedTrees[i] == _desiredDestroyedTrees[i]) continue;
+                changed = true;
+                break;
+            }
+            _syncedState = state;
+            _syncedRevision = state.StaticObstacleRevision;
+            if (!changed) return;
+            Array.Copy(
+                _desiredDestroyedTrees,
+                _destroyedTrees,
+                _destroyedTrees.Length);
+            for (int i = 0; i < _bindings.Count; i++)
+                _bindings[i].Apply(_destroyedTrees);
+            RebuildFallenMesh();
+            ToppledTreeCount = toppled;
+        }
+
         public void Dispose()
         {
             for (int i = 0; i < _materials.Count; i++) DestroyObject(_materials[i]);
@@ -74,42 +137,14 @@ namespace ClaudeOfTanks.Runtime
 
         private void Build(MapDefinition map)
         {
-            MapVegetationLayout layout = map.unityVegetation;
-            MapVegetationStand[] stands =
-                layout?.stands ?? Array.Empty<MapVegetationStand>();
             ChunkBucket[] buckets = new ChunkBucket[ChunksPerAxis * ChunksPerAxis];
             for (int i = 0; i < buckets.Length; i++) buckets[i] = new ChunkBucket();
 
-            for (int standIndex = 0; standIndex < stands.Length; standIndex++)
+            for (int treeIndex = 0; treeIndex < _trees.Length; treeIndex++)
             {
-                MapVegetationStand stand = stands[standIndex];
-                DeterministicRandom random = new DeterministicRandom(
-                    stand.seed == 0u ? 1u : stand.seed);
-                for (int treeIndex = 0; treeIndex < stand.count; treeIndex++)
-                {
-                    float angle = random.NextFloat() * MathUtil.Pi * 2f;
-                    float radius = stand.radius > 0f
-                        ? MathF.Sqrt(random.NextFloat()) * stand.radius
-                        : 0f;
-                    float x = MathUtil.Clamp(
-                        stand.x + MathF.Cos(angle) * radius,
-                        -WorldHalfExtentM + 1f,
-                        WorldHalfExtentM - 1f);
-                    float z = MathUtil.Clamp(
-                        stand.z + MathF.Sin(angle) * radius,
-                        -WorldHalfExtentM + 1f,
-                        WorldHalfExtentM - 1f);
-                    float yaw = random.NextFloat() * MathUtil.Pi * 2f;
-                    float scale = 0.78f + random.NextFloat() * 0.48f;
-                    AddTree(
-                        buckets[ChunkIndex(x, z)],
-                        stand.species,
-                        x,
-                        z,
-                        yaw,
-                        scale);
-                    TreeCount++;
-                }
+                VegetationTreePlacement tree = _trees[treeIndex];
+                AddTree(buckets[ChunkIndex(tree.X, tree.Z)], tree);
+                TreeCount++;
             }
 
             Color ground = map.unitySurface?.groundColor?.ToColor() ??
@@ -120,6 +155,7 @@ namespace ClaudeOfTanks.Runtime
                 Color.Lerp(new Color(0.16f, 0.34f, 0.12f), ground, 0.2f));
             Material conifer = Material(
                 Color.Lerp(new Color(0.09f, 0.24f, 0.13f), ground, 0.16f));
+            CreateFallenMesh(trunk);
             float chunkSize = WorldHalfExtentM * 2f / ChunksPerAxis;
             for (int z = 0; z < ChunksPerAxis; z++)
             {
@@ -147,27 +183,30 @@ namespace ClaudeOfTanks.Runtime
 
         private void AddTree(
             ChunkBucket bucket,
-            string species,
-            float x,
-            float z,
-            float yaw,
-            float scale)
+            VegetationTreePlacement tree)
         {
-            bool conifer = IsConifer(species);
+            string species = tree.Species;
+            float x = tree.X;
+            float z = tree.Z;
+            float yaw = tree.Yaw;
+            float scale = tree.Scale;
+            bool conifer = MapVegetationPlacementBuilder.IsConifer(species);
             bool palm = string.Equals(species, "palm", StringComparison.Ordinal);
             bool narrow = conifer ||
                 string.Equals(species, "poplar", StringComparison.Ordinal) ||
                 string.Equals(species, "cypress", StringComparison.Ordinal);
-            float height = (palm ? 12f : narrow ? 11f : 8.5f) * scale;
-            float crownRadius = (palm ? 3.4f : narrow ? 2.25f : 3.2f) * scale;
-            float trunkHeight = height * (palm ? 0.78f : 0.48f);
+            float height = tree.Height;
+            float crownRadius = tree.CrownRadius;
+            float trunkHeight = tree.TrunkHeight;
             float ground = _heightField.HeightAt(x, z);
+            int trunkStart = bucket.Trunks.Triangles.Count;
             AddBox(
                 bucket.Trunks,
                 new Vector3(x, ground + trunkHeight * 0.5f, z),
                 new Vector3(0.42f * scale, trunkHeight, 0.42f * scale),
                 yaw);
             MeshBucket canopy = conifer ? bucket.Conifers : bucket.Broadleaf;
+            int canopyStart = canopy.Triangles.Count;
             Vector3 crownCenter =
                 new Vector3(x, ground + trunkHeight + crownRadius * 0.55f, z);
             if (palm)
@@ -228,6 +267,14 @@ namespace ClaudeOfTanks.Runtime
                     crownRadius * 0.62f,
                     crownRadius * 0.82f);
             }
+            bucket.Trunks.AddOwner(
+                tree.Index,
+                trunkStart,
+                bucket.Trunks.Triangles.Count - trunkStart);
+            canopy.AddOwner(
+                tree.Index,
+                canopyStart,
+                canopy.Triangles.Count - canopyStart);
             bucket.TreeCount++;
         }
 
@@ -251,6 +298,35 @@ namespace ClaudeOfTanks.Runtime
             node.transform.SetParent(parent, false);
             node.AddComponent<MeshFilter>().sharedMesh = mesh;
             node.AddComponent<MeshRenderer>().sharedMaterial = material;
+            _bindings.Add(new MeshBinding(mesh, bucket));
+        }
+
+        private void CreateFallenMesh(Material trunkMaterial)
+        {
+            _fallenMesh = new Mesh { name = "Fallen-Trees-Mesh" };
+            _fallenMesh.indexFormat = IndexFormat.UInt32;
+            _meshes.Add(_fallenMesh);
+            GameObject node = new GameObject("Fallen-Trees");
+            node.transform.SetParent(_root.transform, false);
+            node.AddComponent<MeshFilter>().sharedMesh = _fallenMesh;
+            node.AddComponent<MeshRenderer>().sharedMaterial = trunkMaterial;
+        }
+
+        private void RebuildFallenMesh()
+        {
+            MeshBucket fallen = new MeshBucket();
+            for (int i = 0; i < _trees.Length; i++)
+            {
+                if (!_destroyedTrees[i]) continue;
+                VegetationTreePlacement tree = _trees[i];
+                float ground = _heightField.HeightAt(tree.X, tree.Z);
+                AddFallenBox(fallen, tree, ground);
+            }
+            _fallenMesh.Clear();
+            _fallenMesh.SetVertices(fallen.Vertices);
+            _fallenMesh.SetTriangles(fallen.Triangles, 0);
+            _fallenMesh.RecalculateNormals();
+            _fallenMesh.RecalculateBounds();
         }
 
         private Material Material(Color color)
@@ -271,15 +347,6 @@ namespace ClaudeOfTanks.Runtime
                 ChunksPerAxis - 1,
                 Math.Max(0, (int)((z + WorldHalfExtentM) / size)));
             return chunkZ * ChunksPerAxis + chunkX;
-        }
-
-        private static bool IsConifer(string species)
-        {
-            return species == "pine" ||
-                species == "spruce" ||
-                species == "fir" ||
-                species == "cedar" ||
-                species == "cypress";
         }
 
         private static void AddOctahedron(
@@ -405,6 +472,45 @@ namespace ClaudeOfTanks.Runtime
                 bucket.Triangles.Add(start + triangles[i]);
         }
 
+        private static void AddFallenBox(
+            MeshBucket bucket,
+            VegetationTreePlacement tree,
+            float ground)
+        {
+            float directionX = MathF.Sin(tree.Yaw);
+            float directionZ = MathF.Cos(tree.Yaw);
+            float rightX = directionZ;
+            float rightZ = -directionX;
+            float halfLength = tree.TrunkHeight * 0.5f;
+            float halfWidth = MathF.Max(0.16f, tree.TrunkRadius);
+            Vector3 center = new Vector3(
+                tree.X + directionX * halfLength,
+                ground + halfWidth,
+                tree.Z + directionZ * halfLength);
+            int start = bucket.Vertices.Count;
+            for (int y = -1; y <= 1; y += 2)
+            {
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    for (int end = -1; end <= 1; end += 2)
+                    {
+                        bucket.Vertices.Add(center + new Vector3(
+                            rightX * halfWidth * side + directionX * halfLength * end,
+                            halfWidth * y,
+                            rightZ * halfWidth * side + directionZ * halfLength * end));
+                    }
+                }
+            }
+            int[] triangles =
+            {
+                0, 1, 3, 0, 3, 2, 4, 6, 7, 4, 7, 5,
+                0, 4, 5, 0, 5, 1, 2, 3, 7, 2, 7, 6,
+                0, 2, 6, 0, 6, 4, 1, 5, 7, 1, 7, 3
+            };
+            for (int i = 0; i < triangles.Length; i++)
+                bucket.Triangles.Add(start + triangles[i]);
+        }
+
         private static void DestroyObject(UnityEngine.Object value)
         {
             if (value == null) return;
@@ -416,6 +522,58 @@ namespace ClaudeOfTanks.Runtime
         {
             public readonly List<Vector3> Vertices = new List<Vector3>();
             public readonly List<int> Triangles = new List<int>();
+            public readonly List<TreeTriangleRange> Owners =
+                new List<TreeTriangleRange>();
+
+            public void AddOwner(int treeIndex, int start, int count)
+            {
+                Owners.Add(new TreeTriangleRange
+                {
+                    TreeIndex = treeIndex,
+                    Start = start,
+                    Count = count
+                });
+            }
+        }
+
+        private struct TreeTriangleRange
+        {
+            public int TreeIndex;
+            public int Start;
+            public int Count;
+        }
+
+        private sealed class MeshBinding
+        {
+            private readonly Mesh _mesh;
+            private readonly int[] _triangles;
+            private readonly TreeTriangleRange[] _owners;
+            private readonly List<int> _active = new List<int>();
+
+            public MeshBinding(Mesh mesh, MeshBucket bucket)
+            {
+                _mesh = mesh;
+                _triangles = bucket.Triangles.ToArray();
+                _owners = bucket.Owners.ToArray();
+                _active.Capacity = _triangles.Length;
+            }
+
+            public void Apply(bool[] destroyedTrees)
+            {
+                _active.Clear();
+                for (int i = 0; i < _owners.Length; i++)
+                {
+                    TreeTriangleRange owner = _owners[i];
+                    if (destroyedTrees[owner.TreeIndex]) continue;
+                    for (int triangle = owner.Start;
+                        triangle < owner.Start + owner.Count;
+                        triangle++)
+                    {
+                        _active.Add(_triangles[triangle]);
+                    }
+                }
+                _mesh.SetTriangles(_active, 0);
+            }
         }
 
         private sealed class ChunkBucket

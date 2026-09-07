@@ -144,6 +144,18 @@ namespace ClaudeOfTanks.Simulation
                 {
                     shell.Position = PointOnSegment(
                         shell.PreviousPosition, shell.Position, obstacleFraction);
+                    if (obstacle.Crushable)
+                    {
+                        CrushObstacle(
+                            obstacleIndex,
+                            shell.ShooterId,
+                            shell.Position,
+                            shell.Velocity.Normalized,
+                            shell.Spec.CaliberMm);
+                        shell.Dead = true;
+                        _state.Shells.RemoveAt(i);
+                        continue;
+                    }
                     _state.Events.Add(new BattleEvent
                     {
                         Type = BattleEventType.StructureHit,
@@ -346,23 +358,59 @@ namespace ClaudeOfTanks.Simulation
         private void ResolveStaticObstacleContacts(TankState tank, Float3 previous)
         {
             if (tank.Destroyed) return;
-            for (int i = 0; i < _state.StaticObstacles.Length; i++)
+            int crushed = 0;
+            while (crushed < 16)
             {
-                StaticObstacle obstacle = _state.StaticObstacles[i];
-                if (_state.IsStaticObstacleDestroyed(i)) continue;
-                if (!obstacle.HasFlag(StaticObstacleFlags.Movement)) continue;
-                if (!CollisionSimulation.CircleIntersectsObstacle(
+                int obstacleIndex;
+                if (!_state.TryFindStaticObstacleOverlap(
+                        StaticObstacleFlags.Movement,
                         tank.Position,
                         tank.Spec.CollisionRadiusM,
-                        obstacle))
+                        out obstacleIndex))
                 {
+                    return;
+                }
+                StaticObstacle obstacle = _state.StaticObstacles[obstacleIndex];
+                if (obstacle.Crushable)
+                {
+                    float directionSign = tank.SpeedMps < 0f ? -1f : 1f;
+                    Float3 direction =
+                        Float3.Forward(tank.Yaw) * directionSign;
+                    CrushObstacle(
+                        obstacleIndex,
+                        tank.Id,
+                        obstacle.Center,
+                        direction,
+                        0f);
+                    tank.SpeedMps *= obstacle.CrushSpeedRetention;
+                    crushed++;
                     continue;
                 }
-
                 tank.Position = previous;
                 tank.SpeedMps = 0f;
                 return;
             }
+        }
+
+        private void CrushObstacle(
+            int obstacleIndex,
+            string sourceId,
+            Float3 position,
+            Float3 direction,
+            float caliberMm)
+        {
+            StaticObstacle obstacle = _state.StaticObstacles[obstacleIndex];
+            if (!_state.DamageStaticObstacle(obstacleIndex, float.MaxValue)) return;
+            _state.Events.Add(new BattleEvent
+            {
+                Type = BattleEventType.PropCrushed,
+                SourceId = sourceId,
+                TargetId = obstacle.Id,
+                Position = position,
+                Direction = direction,
+                Normal = new Float3(0f, 1f, 0f),
+                CaliberMm = caliberMm
+            });
         }
 
         private static Float3 PointOnSegment(Float3 start, Float3 end, float fraction)

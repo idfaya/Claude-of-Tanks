@@ -606,6 +606,7 @@ namespace ClaudeOfTanks.Runtime
                     battleEvent.Type == BattleEventType.ShellHit ||
                     battleEvent.Type == BattleEventType.StructureHit ||
                     battleEvent.Type == BattleEventType.StructureDestroyed ||
+                    battleEvent.Type == BattleEventType.PropCrushed ||
                     battleEvent.Type == BattleEventType.TankDestroyed)
                 {
                     TankView target;
