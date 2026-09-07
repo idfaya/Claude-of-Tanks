@@ -64,6 +64,10 @@ The port preserves the source project's runtime units and conventions:
 - EditMode simulation tests
 - Generated parity catalog for all 165 saved vehicle records, 136 release
   vehicles, 126 production vehicles, and all 20 battlefield configurations
+- Runtime `TankSpec` construction and dimension/role/family-driven procedural
+  presentation for every production vehicle
+- Data-driven map environment, authored spawns, landforms, props, vegetation,
+  sky and authoritative terrain height queries for all 20 maps
 - `npm run unity:content:update` / `unity:content:check` drift gate
 
 ## Remaining parity work

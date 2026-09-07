@@ -25,6 +25,22 @@ namespace ClaudeOfTanks.Tests
             Assert.That(CollisionSimulation.RamDamage(45f, 45f, 2f).Total, Is.Zero);
         }
 
+        [Test]
+        public void LandformHeightFieldIsDeterministicAndReturnsSlopeNormal()
+        {
+            LandformHeightField field = new LandformHeightField(new[]
+            {
+                new TerrainLandform
+                {
+                    Kind = "knoll", Height = 6f, RadiusX = 20f, RadiusZ = 10f
+                }
+            });
+            Assert.That(field.HeightAt(0f, 0f), Is.EqualTo(6f));
+            Assert.That(field.HeightAt(20f, 0f), Is.Zero);
+            Assert.That(field.HeightAt(8f, 0f), Is.EqualTo(field.HeightAt(-8f, 0f)));
+            Assert.That(field.NormalAt(8f, 0f).X, Is.GreaterThan(0f));
+        }
+
         private sealed class TestSurface : ITerrainSurface
         {
             private readonly float _resistance;

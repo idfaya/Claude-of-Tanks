@@ -22,34 +22,133 @@ namespace ClaudeOfTanks.Runtime
 
         public static TankView Create(TankState tank)
         {
+            return Create(tank, null);
+        }
+
+        public static TankView Create(TankState tank, VehicleDefinition definition)
+        {
+            Color authored = definition != null && definition.visual != null
+                ? definition.visual.Color : new Color(0.28f, 0.32f, 0.24f);
             Color teamColor = tank.Team == Team.Alpha
-                ? new Color(0.18f, 0.48f, 0.24f)
-                : new Color(0.62f, 0.20f, 0.15f);
+                ? Color.Lerp(authored, new Color(0.16f, 0.55f, 0.25f), 0.35f)
+                : Color.Lerp(authored, new Color(0.68f, 0.18f, 0.12f), 0.48f);
+            float width = definition?.dims != null && definition.dims.widthM > 0f
+                ? definition.dims.widthM : 3.4f;
+            float length = definition?.dims != null && definition.dims.hullLengthM > 0f
+                ? definition.dims.hullLengthM : 5.4f;
+            float height = definition?.dims != null && definition.dims.heightM > 0f
+                ? definition.dims.heightM : 2.8f;
+            float trackWidth = definition?.visual != null && definition.visual.trackWidthM > 0f
+                ? definition.visual.trackWidthM : width * 0.16f;
             GameObject root = new GameObject(tank.Id);
 
-            CreatePart("Hull", PrimitiveType.Cube, root.transform, new Vector3(0f, 1.05f, 0f),
-                new Vector3(3.4f, 0.9f, 5.4f), teamColor);
-            CreatePart("UpperHull", PrimitiveType.Cube, root.transform, new Vector3(0f, 1.7f, 0.15f),
-                new Vector3(2.85f, 0.55f, 3.4f), teamColor * 1.08f);
-            CreatePart("LeftTrack", PrimitiveType.Cube, root.transform, new Vector3(-1.75f, 0.65f, 0f),
-                new Vector3(0.55f, 0.75f, 5.5f), new Color(0.09f, 0.09f, 0.08f));
-            CreatePart("RightTrack", PrimitiveType.Cube, root.transform, new Vector3(1.75f, 0.65f, 0f),
-                new Vector3(0.55f, 0.75f, 5.5f), new Color(0.09f, 0.09f, 0.08f));
+            float trackY = Mathf.Max(0.4f, height * 0.21f);
+            CreatePart("Hull", PrimitiveType.Cube, root.transform, new Vector3(0f, trackY + height * 0.16f, 0f),
+                new Vector3(width * 0.84f, height * 0.28f, length * 0.92f), teamColor);
+            CreatePart("UpperHull", PrimitiveType.Cube, root.transform,
+                new Vector3(0f, trackY + height * 0.35f, length * 0.02f),
+                new Vector3(width * 0.72f, height * 0.18f, length * 0.62f), teamColor * 1.08f);
+            CreateTrack(root.transform, -width * 0.47f, trackY, length, trackWidth);
+            CreateTrack(root.transform, width * 0.47f, trackY, length, trackWidth);
 
+            bool casemate = definition != null &&
+                (definition.role == "td" || definition.id.StartsWith("strv103"));
             GameObject turretRoot = new GameObject("TurretRoot");
             turretRoot.transform.SetParent(root.transform, false);
-            turretRoot.transform.localPosition = new Vector3(0f, 2.05f, 0.15f);
-            CreatePart("Turret", PrimitiveType.Cylinder, turretRoot.transform, Vector3.zero,
-                new Vector3(2.05f, 0.55f, 2.05f), teamColor * 0.92f);
+            turretRoot.transform.localPosition = new Vector3(0f, height * 0.63f, length * 0.03f);
+            float turretScale = definition != null && definition.role == "ifv" ? 0.36f : 0.55f;
+            if (casemate)
+            {
+                CreatePart("Turret", PrimitiveType.Cube, turretRoot.transform,
+                    new Vector3(0f, -height * 0.12f, length * 0.08f),
+                    new Vector3(width * 0.72f, height * 0.28f, length * 0.42f), teamColor * 0.92f);
+            }
+            else
+            {
+                CreatePart("Turret", PrimitiveType.Cylinder, turretRoot.transform, Vector3.zero,
+                    new Vector3(width * turretScale, height * 0.2f, width * turretScale), teamColor * 0.92f);
+            }
+            float gunLength = definition?.gun != null && definition.gun.caliberMm < 80f
+                ? length * 0.35f : length * 0.62f;
+            float gunRadius = Mathf.Clamp(
+                (definition?.gun != null ? definition.gun.caliberMm : 120f) / 500f, 0.08f, 0.32f);
             Transform barrel = CreatePart("Gun", PrimitiveType.Cube, turretRoot.transform,
-                new Vector3(0f, 0.05f, 2.65f), new Vector3(0.24f, 0.24f, 4.8f),
+                new Vector3(0f, 0.05f, width * turretScale + gunLength * 0.45f),
+                new Vector3(gunRadius, gunRadius, gunLength),
                 new Color(0.12f, 0.14f, 0.12f));
             barrel.localRotation = Quaternion.identity;
+            AddFamilyDetails(root.transform, turretRoot.transform, definition, teamColor, width, height, length);
 
             Renderer[] renderers = root.GetComponentsInChildren<Renderer>();
             TankView view = new TankView(root.transform, turretRoot.transform, renderers, teamColor);
             view.Sync(tank);
             return view;
+        }
+
+        private static void AddFamilyDetails(
+            Transform root,
+            Transform turret,
+            VehicleDefinition definition,
+            Color color,
+            float width,
+            float height,
+            float length)
+        {
+            if (definition == null) return;
+            if (definition.role == "ifv")
+            {
+                CreatePart("MissilePod", PrimitiveType.Cube, turret,
+                    new Vector3(width * 0.3f, height * 0.05f, 0f),
+                    new Vector3(width * 0.22f, height * 0.18f, width * 0.38f), color * 0.78f);
+            }
+            if (definition.era == "modern")
+            {
+                for (int side = -1; side <= 1; side += 2)
+                {
+                    CreatePart("SideArmor", PrimitiveType.Cube, root,
+                        new Vector3(side * width * 0.48f, height * 0.46f, 0f),
+                        new Vector3(width * 0.06f, height * 0.24f, length * 0.58f), color * 0.82f);
+                }
+            }
+            if (definition.id.Contains("t90") || definition.id.Contains("t72") ||
+                definition.id.Contains("t80"))
+            {
+                for (int i = -2; i <= 2; i++)
+                {
+                    CreatePart("ERA", PrimitiveType.Cube, turret,
+                        new Vector3(i * width * 0.12f, 0f, width * 0.43f),
+                        new Vector3(width * 0.1f, height * 0.09f, 0.16f), color * 1.12f);
+                }
+            }
+            if (definition.id.Contains("abrams") || definition.id.StartsWith("m1a"))
+            {
+                CreatePart("TurretBustle", PrimitiveType.Cube, turret,
+                    new Vector3(0f, 0f, -width * 0.34f),
+                    new Vector3(width * 0.62f, height * 0.16f, width * 0.38f), color * 0.88f);
+            }
+            if (definition.id.Contains("leopard") || definition.id.StartsWith("leo2"))
+            {
+                CreatePart("TurretWedge", PrimitiveType.Cube, turret,
+                    new Vector3(0f, 0f, width * 0.4f),
+                    new Vector3(width * 0.78f, height * 0.24f, width * 0.42f), color * 1.05f);
+            }
+        }
+
+        private static void CreateTrack(
+            Transform root, float x, float y, float length, float width)
+        {
+            CreatePart(x < 0f ? "LeftTrack" : "RightTrack", PrimitiveType.Cube, root,
+                new Vector3(x, y, 0f), new Vector3(width, y, length),
+                new Color(0.09f, 0.09f, 0.08f));
+            int wheelCount = Mathf.Clamp(Mathf.RoundToInt(length * 0.9f), 4, 8);
+            for (int i = 0; i < wheelCount; i++)
+            {
+                float z = Mathf.Lerp(-length * 0.38f, length * 0.38f, i / (float)(wheelCount - 1));
+                Transform wheel = CreatePart("RoadWheel", PrimitiveType.Cylinder, root,
+                    new Vector3(x, y, z), new Vector3(y * 0.72f, width * 0.7f, y * 0.72f),
+                    new Color(0.12f, 0.13f, 0.11f));
+                wheel.localRotation = Quaternion.Euler(0f, 0f, 90f);
+            }
         }
 
         public void Sync(TankState tank)

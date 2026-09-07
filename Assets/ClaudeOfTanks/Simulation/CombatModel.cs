@@ -188,13 +188,15 @@ namespace ClaudeOfTanks.Simulation
         public readonly List<BattleEvent> Events = new List<BattleEvent>();
         public readonly IHeightField HeightField;
         public readonly DeterministicRandom Random;
+        public readonly float WorldHalfExtentM;
         public float TimeS;
         public int NextShellId = 1;
 
-        public BattleState(IHeightField heightField, uint seed)
+        public BattleState(IHeightField heightField, uint seed, float worldHalfExtentM = 500f)
         {
             HeightField = heightField ?? throw new ArgumentNullException(nameof(heightField));
             Random = new DeterministicRandom(seed);
+            WorldHalfExtentM = MathF.Max(50f, worldHalfExtentM);
         }
     }
 }

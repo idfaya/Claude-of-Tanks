@@ -156,5 +156,49 @@ namespace ClaudeOfTanks.Tests
             Assert.That(catalog.ContainsMap("verdant"), Is.True);
             Assert.That(catalog.ContainsMap("skybridge"), Is.True);
         }
+
+        [Test]
+        public void ProductionVehicleDefinitionBuildsAuthoritativeTankSpec()
+        {
+            VehicleDefinition abrams = ContentCatalog.Load().GetVehicle("m1a2");
+            TankSpec spec = abrams.ToTankSpec();
+            Assert.That(spec.DisplayName, Is.EqualTo("M1A2 Abrams"));
+            Assert.That(spec.MaxHealth, Is.EqualTo(2600f));
+            Assert.That(spec.Shell.Type, Is.EqualTo("APFSDS"));
+            Assert.That(spec.Shell.Pen2000Mm, Is.EqualTo(750f));
+            Assert.That(spec.TopSpeedKmh, Is.EqualTo(67f));
+        }
+
+        [Test]
+        public void EveryProductionVehicleBuildsAUsableTankSpec()
+        {
+            ContentCatalog catalog = ContentCatalog.Load();
+            string[] ids = catalog.ProductionVehicleIds;
+            Assert.That(ids, Has.Length.EqualTo(126));
+            for (int i = 0; i < ids.Length; i++)
+            {
+                TankSpec spec = catalog.GetVehicle(ids[i]).ToTankSpec();
+                Assert.That(spec.Id, Is.EqualTo(ids[i]));
+                Assert.That(spec.MaxHealth, Is.GreaterThan(0f), ids[i]);
+                Assert.That(spec.WeightTons, Is.GreaterThan(0f), ids[i]);
+                Assert.That(spec.Shell.VelocityMps, Is.GreaterThan(0f), ids[i]);
+                Assert.That(spec.Shell.Damage, Is.GreaterThan(0f), ids[i]);
+            }
+        }
+
+        [Test]
+        public void EveryMapHasPlayableSpawnsAndTerrain()
+        {
+            ContentCatalog catalog = ContentCatalog.Load();
+            Assert.That(catalog.Maps, Has.Length.EqualTo(20));
+            for (int i = 0; i < catalog.Maps.Length; i++)
+            {
+                MapDefinition map = catalog.Maps[i];
+                Assert.That(map.spawns, Is.Not.Null, map.id);
+                Assert.That(map.spawns.player, Is.Not.Null, map.id);
+                Assert.That(map.spawns.enemies, Has.Length.GreaterThanOrEqualTo(7), map.id);
+                Assert.That(map.terrain.landforms, Has.Length.GreaterThan(0), map.id);
+            }
+        }
     }
 }

@@ -13,12 +13,17 @@ namespace ClaudeOfTanks.Runtime
     {
         private readonly Dictionary<string, TankInput> _inputs = new Dictionary<string, TankInput>();
         private readonly Dictionary<string, TankView> _tankViews = new Dictionary<string, TankView>();
+        private readonly Dictionary<string, VehicleDefinition> _vehicleDefinitions =
+            new Dictionary<string, VehicleDefinition>();
         private readonly Dictionary<int, GameObject> _shellViews = new Dictionary<int, GameObject>();
         private readonly List<int> _staleShellIds = new List<int>();
         private BattleSimulation _simulation;
         private BotController _botController;
         private TankState _player;
         private Camera _camera;
+        private ContentCatalog _catalog;
+        private MapRuntime _mapRuntime;
+        [SerializeField] private string mapId = "verdant";
         private float _accumulator;
         private string _status = "BATTLE";
         private float _statusUntil;
@@ -37,6 +42,7 @@ namespace ClaudeOfTanks.Runtime
                 InputSystem.AddDevice<Mouse>();
             }
 #endif
+            _catalog = ContentCatalog.Load();
             BuildEnvironment();
             StartBattle();
         }
@@ -101,27 +107,42 @@ namespace ClaudeOfTanks.Runtime
             _tankViews.Clear();
             _shellViews.Clear();
             _inputs.Clear();
+            _vehicleDefinitions.Clear();
 
-            BattleState state = new BattleState(new FlatHeightField(), 6000u);
-            TankSpec medium = TankSpec.Medium();
-            TankSpec heavy = TankSpec.Heavy();
-            state.Tanks.Add(new TankState("player", Team.Alpha, medium, new Float3(0f, 0f, -34f), 0f));
-            state.Tanks.Add(new TankState("alpha-2", Team.Alpha, heavy, new Float3(-13f, 0f, -42f), 0.1f));
-            state.Tanks.Add(new TankState("bravo-1", Team.Bravo, heavy, new Float3(0f, 0f, 42f), MathUtil.Pi));
-            state.Tanks.Add(new TankState("bravo-2", Team.Bravo, medium, new Float3(15f, 0f, 35f), MathUtil.Pi));
-            state.Tanks.Add(new TankState("bravo-3", Team.Bravo, medium, new Float3(-18f, 0f, 31f), MathUtil.Pi));
+            MapDefinition map = _catalog.GetMap(mapId);
+            BattleState state = new BattleState(BuildHeightField(map), 6000u);
+            MapPoint playerSpawn = map.spawns.player;
+            AddTank(state, "player", Team.Alpha, "m1a2",
+                SpawnPosition(state, playerSpawn.x, playerSpawn.z), 0f);
+            AddTank(state, "alpha-2", Team.Alpha, "challenger2",
+                SpawnPosition(state, playerSpawn.x - 13f, playerSpawn.z - 8f), 0.1f);
+            string[] enemies = { "t90m", "type99a", "leo2a6" };
+            for (int i = 0; i < enemies.Length; i++)
+            {
+                MapPoint spawn = map.spawns.enemies[i];
+                AddTank(state, "bravo-" + (i + 1), Team.Bravo, enemies[i],
+                    SpawnPosition(state, spawn.x, spawn.z), MathUtil.Pi);
+            }
             _simulation = new BattleSimulation(state);
             _botController = new BotController(new SpottingSimulation());
             _player = state.Tanks[0];
             for (int i = 0; i < state.Tanks.Count; i++)
             {
                 TankState tank = state.Tanks[i];
-                _tankViews.Add(tank.Id, TankView.Create(tank));
+                _tankViews.Add(tank.Id, TankView.Create(tank, _vehicleDefinitions[tank.Id]));
             }
 
             _accumulator = 0f;
             _status = "BATTLE";
             _statusUntil = Time.unscaledTime + 1.5f;
+        }
+
+        private void AddTank(
+            BattleState state, string entityId, Team team, string vehicleId, Float3 position, float yaw)
+        {
+            VehicleDefinition definition = _catalog.GetVehicle(vehicleId);
+            state.Tanks.Add(new TankState(entityId, team, definition.ToTankSpec(), position, yaw));
+            _vehicleDefinitions[entityId] = definition;
         }
 
         private TankInput ReadPlayerInput()
@@ -314,25 +335,8 @@ namespace ClaudeOfTanks.Runtime
 
         private void BuildEnvironment()
         {
-            RenderSettings.ambientLight = new Color(0.34f, 0.37f, 0.40f);
-            RenderSettings.fog = true;
-            RenderSettings.fogColor = new Color(0.55f, 0.64f, 0.68f);
-            RenderSettings.fogDensity = 0.004f;
-
-            GameObject sun = new GameObject("Sun");
-            Light light = sun.AddComponent<Light>();
-            light.type = LightType.Directional;
-            light.color = new Color(1f, 0.94f, 0.80f);
-            light.intensity = 1.25f;
-            light.shadows = LightShadows.Soft;
-            sun.transform.rotation = Quaternion.Euler(48f, -32f, 0f);
-
-            GameObject ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            ground.name = "Battlefield";
-            ground.transform.localScale = new Vector3(24f, 1f, 24f);
-            Material groundMaterial = new Material(Shader.Find("Standard"));
-            groundMaterial.color = new Color(0.28f, 0.34f, 0.22f);
-            ground.GetComponent<Renderer>().material = groundMaterial;
+            _mapRuntime?.Dispose();
+            _mapRuntime = MapRuntime.Create(_catalog.GetMap(mapId));
 
             _camera = Camera.main;
             if (_camera == null)
@@ -348,6 +352,33 @@ namespace ClaudeOfTanks.Runtime
             _camera.farClipPlane = 500f;
             _camera.backgroundColor = new Color(0.49f, 0.61f, 0.68f);
             _camera.transform.position = new Vector3(0f, 8f, -48f);
+        }
+
+        private static IHeightField BuildHeightField(MapDefinition map)
+        {
+            LandformDefinition[] source = map.terrain?.landforms ?? Array.Empty<LandformDefinition>();
+            TerrainLandform[] landforms = new TerrainLandform[source.Length];
+            for (int i = 0; i < source.Length; i++)
+            {
+                landforms[i] = new TerrainLandform
+                {
+                    Kind = source[i].kind,
+                    X = source[i].x,
+                    Z = source[i].z,
+                    Height = source[i].height,
+                    Length = source[i].length,
+                    Width = source[i].width,
+                    RadiusX = source[i].rx,
+                    RadiusZ = source[i].rz,
+                    YawRad = source[i].yawDeg * MathUtil.Deg2Rad
+                };
+            }
+            return new LandformHeightField(landforms);
+        }
+
+        private static Float3 SpawnPosition(BattleState state, float x, float z)
+        {
+            return new Float3(x, state.HeightField.HeightAt(x, z), z);
         }
 
         private void OnGUI()

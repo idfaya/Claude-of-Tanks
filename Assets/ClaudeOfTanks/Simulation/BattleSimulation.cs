@@ -5,7 +5,6 @@ namespace ClaudeOfTanks.Simulation
 {
     public sealed class BattleSimulation
     {
-        private const float WorldHalfExtentM = 120f;
         private readonly BattleState _state;
         private readonly Func<float> _nextRandom;
 
@@ -236,7 +235,7 @@ namespace ClaudeOfTanks.Simulation
         private void ResolveWorldBounds(TankState tank)
         {
             Float3 position = tank.Position;
-            float limit = WorldHalfExtentM - tank.Spec.CollisionRadiusM;
+            float limit = _state.WorldHalfExtentM - tank.Spec.CollisionRadiusM;
             position.X = MathUtil.Clamp(position.X, -limit, limit);
             position.Z = MathUtil.Clamp(position.Z, -limit, limit);
             tank.Position = position;
