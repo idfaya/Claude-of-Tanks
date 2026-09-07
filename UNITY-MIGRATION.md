@@ -60,6 +60,9 @@ The port preserves the source project's runtime units and conventions:
 - Programmatic battlefield, first-party primitive tank rigs, shell visuals
 - Chase camera, mouse aim, HUD, battle result, restart
 - EditMode simulation tests
+- Generated parity catalog for all 165 saved vehicle records, 136 release
+  vehicles, 126 production vehicles, and all 20 battlefield configurations
+- `npm run unity:content:update` / `unity:content:check` drift gate
 
 ## Remaining parity work
 

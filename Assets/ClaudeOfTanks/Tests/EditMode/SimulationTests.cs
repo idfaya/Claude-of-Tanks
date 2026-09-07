@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using ClaudeOfTanks.Runtime;
 using ClaudeOfTanks.Simulation;
 using NUnit.Framework;
 
@@ -90,6 +91,20 @@ namespace ClaudeOfTanks.Tests
             }
 
             Assert.That(target.Health, Is.LessThan(target.Spec.MaxHealth));
+        }
+
+        [Test]
+        public void GeneratedContentCatalogMatchesTypeScriptRegistries()
+        {
+            ContentCatalog catalog = ContentCatalog.Load();
+            Assert.That(catalog.SavedVehicleCount, Is.EqualTo(165));
+            Assert.That(catalog.ReleaseVehicleCount, Is.EqualTo(136));
+            Assert.That(catalog.ProductionVehicleCount, Is.EqualTo(126));
+            Assert.That(catalog.MapCount, Is.EqualTo(20));
+            Assert.That(catalog.ContainsVehicle("m1a2"), Is.True);
+            Assert.That(catalog.ContainsVehicle("t90m"), Is.True);
+            Assert.That(catalog.ContainsMap("verdant"), Is.True);
+            Assert.That(catalog.ContainsMap("skybridge"), Is.True);
         }
     }
 }
