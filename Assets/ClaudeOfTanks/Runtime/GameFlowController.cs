@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace ClaudeOfTanks.Runtime
 {
-    public sealed class GameFlowController : MonoBehaviour
+    public sealed partial class GameFlowController : MonoBehaviour
     {
         private ContentCatalog _catalog;
         private GameObject _garage;
@@ -23,6 +23,8 @@ namespace ClaudeOfTanks.Runtime
         private ReplayBrowserPanel _replayBrowser;
         private PrivateRoomCoordinator _privateRoom;
         private PrivateRoomPanel _privateRoomPanel;
+        private RankedCoordinator _ranked;
+        private RankedPanel _rankedPanel;
         private ReplayArchive _replayArchive;
         private Material _garageFloorMaterial;
 
@@ -31,6 +33,8 @@ namespace ClaudeOfTanks.Runtime
         public NetworkBattleController ActiveNetworkBattle => _networkBattle;
         public PrivateRoomCoordinator PrivateRoom => _privateRoom;
         public PrivateRoomPanel PrivateRoomPanel => _privateRoomPanel;
+        public RankedCoordinator Ranked => _ranked;
+        public RankedPanel RankedPanel => _rankedPanel;
         public int VehicleOptionCount => _catalog.ProductionVehicleIds.Length;
         public int MapOptionCount => _catalog.Maps.Length;
         public string SelectedVehicleId => _catalog.ProductionVehicleIds[_vehicle.value];
@@ -58,6 +62,8 @@ namespace ClaudeOfTanks.Runtime
                 MapIds());
             _privateRoom.MatchHandoffReady += StartNetworkBattle;
             _privateRoom.Changed += OnPrivateRoomChanged;
+            _ranked = gameObject.AddComponent<RankedCoordinator>();
+            _ranked.MatchHandoffReady += StartRankedBattle;
             EnsureEventSystem();
             ShowGarage();
         }
@@ -77,6 +83,10 @@ namespace ClaudeOfTanks.Runtime
         private void StartBattle()
         {
             if (_privateRoom != null && _privateRoom.IsInLobby)
+            {
+                return;
+            }
+            if (_ranked != null && _ranked.IsBusy)
             {
                 return;
             }
@@ -296,6 +306,17 @@ namespace ClaudeOfTanks.Runtime
                 () => SelectedMapId,
                 () => SelectedMode);
             privateRoom.onClick.AddListener(_privateRoomPanel.Open);
+            Button ranked = Button(
+                "Ranked",
+                ui.transform,
+                font,
+                "RANKED",
+                new Vector2(220f, -394f));
+            _rankedPanel = RankedPanel.Create(
+                ui.transform,
+                _ranked,
+                () => SelectedVehicleId);
+            ranked.onClick.AddListener(_rankedPanel.Open);
         }
 
         private void RefreshPreview(int index)
@@ -438,6 +459,7 @@ namespace ClaudeOfTanks.Runtime
                 _settingsPanel = null;
                 _replayBrowser = null;
                 _privateRoomPanel = null;
+                _rankedPanel = null;
             }
         }
 
@@ -448,6 +470,8 @@ namespace ClaudeOfTanks.Runtime
                 _privateRoom.MatchHandoffReady -= StartNetworkBattle;
                 _privateRoom.Changed -= OnPrivateRoomChanged;
             }
+            if (_ranked != null)
+                _ranked.MatchHandoffReady -= StartRankedBattle;
             if (_preview != null)
             {
                 _preview.Destroy();

@@ -25,8 +25,7 @@ namespace ClaudeOfTanks.Network
     public sealed class RankedMatchAssignment
     {
         public DedicatedMatchTicket MatchTicket;
-        public string MapId;
-        public RoomMatchSeat[] Roster;
+        public RoomMatchPlan Plan;
     }
 
     public sealed class RankedQueueView
@@ -349,6 +348,7 @@ namespace ClaudeOfTanks.Network
                 Seed = unchecked(0x6d2b79f5u ^ (uint)(sequence * -1640531527)),
                 MapId = _mapRotation[(sequence - 1) % _mapRotation.Length],
                 GameMode = GameModeId.Standard,
+                TeamSize = teamSize,
                 Seats = seats,
                 SpectatorPlayerIds = Array.Empty<string>()
             };
@@ -364,8 +364,7 @@ namespace ClaudeOfTanks.Network
                 entry.Assignment = new RankedMatchAssignment
                 {
                     MatchTicket = byPlayer[entry.PlayerId],
-                    MapId = plan.MapId,
-                    Roster = (RoomMatchSeat[])seats.Clone()
+                    Plan = ClonePlan(plan)
                 };
             }
             _matches.Add(matchId, new MatchRecord
@@ -403,6 +402,40 @@ namespace ClaudeOfTanks.Network
                 };
                 rated.Add(new RatedPlayer { PlayerId = entry.PlayerId, Team = team });
             }
+        }
+
+        private static RoomMatchPlan ClonePlan(RoomMatchPlan source)
+        {
+            RoomMatchSeat[] seats = new RoomMatchSeat[source.Seats.Length];
+            for (int i = 0; i < seats.Length; i++)
+            {
+                RoomMatchSeat seat = source.Seats[i];
+                seats[i] = new RoomMatchSeat
+                {
+                    PlayerId = seat.PlayerId,
+                    EntityId = seat.EntityId,
+                    DisplayName = seat.DisplayName,
+                    Team = seat.Team,
+                    VehicleSpecId = seat.VehicleSpecId,
+                    Equipment = seat.Equipment == null
+                        ? Array.Empty<string>()
+                        : (string[])seat.Equipment.Clone(),
+                    CamoId = seat.CamoId,
+                    Rating = seat.Rating
+                };
+            }
+            return new RoomMatchPlan
+            {
+                Round = source.Round,
+                Seed = source.Seed,
+                MapId = source.MapId,
+                GameMode = source.GameMode,
+                TeamSize = source.TeamSize,
+                Seats = seats,
+                SpectatorPlayerIds = source.SpectatorPlayerIds == null
+                    ? Array.Empty<string>()
+                    : (string[])source.SpectatorPlayerIds.Clone()
+            };
         }
 
         private RankedQueueView View(QueueRecord entry)

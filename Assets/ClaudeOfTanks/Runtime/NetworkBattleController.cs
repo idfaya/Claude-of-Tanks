@@ -10,16 +10,18 @@ using UnityEngine.InputSystem;
 namespace ClaudeOfTanks.Runtime
 {
     [DefaultExecutionOrder(-100)]
-    public sealed class NetworkBattleController : MonoBehaviour
+    public sealed partial class NetworkBattleController : MonoBehaviour
     {
         private readonly BattleCameraRig _cameraRig =
             new BattleCameraRig();
         private readonly SpottingSimulation _hudSpotting =
             new SpottingSimulation();
         private PrivateRoomAuthoritativeHostRuntime _host;
-        private PrivateRoomNetworkClientRuntime _client;
+        private INetworkBattleClientRuntime _client;
+        private PrivateRoomNetworkClientRuntime _privateClient;
         private Action<PrivateRoomHostLobbyRuntime> _hostReturned;
         private Action<PrivateRoomClientLobbyRuntime> _clientReturned;
+        private Action _rankedReturned;
         private IDisposable _pendingHandoff;
         private NetworkBattlePresenter _presenter;
         private LocalTankPredictor _predictor;
@@ -98,7 +100,9 @@ namespace ClaudeOfTanks.Runtime
             IsSpectator = handoff.IsSpectator;
             _predictor = CreatePredictor(
                 FindSeat(_plan, _localPlayerId));
-            _client = handoff.CreateMatchRuntime(_predictor);
+            _privateClient =
+                handoff.CreateMatchRuntime(_predictor);
+            _client = _privateClient;
             _pendingHandoff = null;
             _clientReturned = returned ??
                 throw new ArgumentNullException(nameof(returned));
@@ -118,11 +122,20 @@ namespace ClaudeOfTanks.Runtime
                     result,
                     "returned_from_battle"));
             }
+            else if (_privateClient != null)
+            {
+                PrivateRoomNetworkClientRuntime runtime =
+                    _privateClient;
+                _client = null;
+                _privateClient = null;
+                _clientReturned(runtime.ReturnToLobby());
+            }
             else if (_client != null)
             {
-                PrivateRoomNetworkClientRuntime runtime = _client;
+                INetworkBattleClientRuntime runtime = _client;
                 _client = null;
-                _clientReturned(runtime.ReturnToLobby());
+                runtime.Dispose();
+                _rankedReturned();
             }
         }
 
@@ -283,7 +296,10 @@ namespace ClaudeOfTanks.Runtime
         {
             if (_cameraTarget == null) return;
             bool over = snapshot.Winner.HasValue || snapshot.Draw;
-            string status = IsSpectator ? "SPECTATING" :
+            string status = _client != null &&
+                    !_client.IsConnected
+                ? "RECONNECTING" :
+                IsSpectator ? "SPECTATING" :
                 over ? Verdict(snapshot) :
                 Time.unscaledTime < _presenter.StatusUntil
                     ? _presenter.Status

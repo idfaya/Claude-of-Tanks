@@ -5,7 +5,8 @@
     "ClaudeOfTanks.Simulation",
     "ClaudeOfTanks.Network",
     "ClaudeOfTanks.WebRTC",
-    "Unity.InputSystem"
+    "Unity.InputSystem",
+    "UnityEngine.UnityWebRequestModule"
   ],
   "includePlatforms": [],
   "excludePlatforms": [],

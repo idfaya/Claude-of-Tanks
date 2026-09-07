@@ -434,13 +434,20 @@ namespace ClaudeOfTanks.Server
             public string matchId;
             public string playerId;
             public string token;
+            public int round;
+            public uint seed;
             public string mapId;
+            public string mode;
+            public int teamSize;
             public RosterResponse[] roster;
 
             public static MatchResponse From(RankedMatchAssignment assignment)
             {
                 if (assignment == null) return null;
-                RoomMatchSeat[] seats = assignment.Roster ?? Array.Empty<RoomMatchSeat>();
+                RoomMatchPlan plan = assignment.Plan ??
+                    throw new InvalidOperationException(
+                        "Ranked assignment has no match plan.");
+                RoomMatchSeat[] seats = plan.Seats ?? Array.Empty<RoomMatchSeat>();
                 RosterResponse[] roster = new RosterResponse[seats.Length];
                 for (int i = 0; i < seats.Length; i++)
                     roster[i] = RosterResponse.From(seats[i]);
@@ -449,7 +456,11 @@ namespace ClaudeOfTanks.Server
                     matchId = assignment.MatchTicket.MatchId,
                     playerId = assignment.MatchTicket.PlayerId,
                     token = assignment.MatchTicket.TicketToken,
-                    mapId = assignment.MapId,
+                    round = plan.Round,
+                    seed = plan.Seed,
+                    mapId = plan.MapId,
+                    mode = plan.GameMode.ToString().ToLowerInvariant(),
+                    teamSize = plan.TeamSize,
                     roster = roster
                 };
             }
@@ -457,8 +468,10 @@ namespace ClaudeOfTanks.Server
         [Serializable] private sealed class RosterResponse
         {
             public string id;
+            public string entityId;
             public string name;
             public string specId;
+            public string[] equipment;
             public string camo;
             public string team;
             public int rating;
@@ -468,8 +481,10 @@ namespace ClaudeOfTanks.Server
                 return new RosterResponse
                 {
                     id = seat.PlayerId,
+                    entityId = seat.EntityId,
                     name = seat.DisplayName,
                     specId = seat.VehicleSpecId,
+                    equipment = seat.Equipment ?? Array.Empty<string>(),
                     camo = seat.CamoId,
                     team = seat.Team == ClaudeOfTanks.Simulation.Team.Alpha
                         ? "alpha"

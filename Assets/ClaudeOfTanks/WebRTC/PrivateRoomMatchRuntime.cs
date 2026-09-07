@@ -225,7 +225,8 @@ namespace ClaudeOfTanks.WebRTC
         }
     }
 
-    public sealed class PrivateRoomNetworkClientRuntime : IDisposable
+    public sealed class PrivateRoomNetworkClientRuntime :
+        INetworkBattleClientRuntime
     {
         private readonly PrivateRoomClientRtcSession _rtc;
         private readonly string _playerId;

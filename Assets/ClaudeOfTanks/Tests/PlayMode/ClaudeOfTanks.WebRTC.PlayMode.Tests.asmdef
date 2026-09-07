@@ -5,6 +5,7 @@
     "ClaudeOfTanks.Simulation",
     "ClaudeOfTanks.Network",
     "ClaudeOfTanks.Runtime",
+    "ClaudeOfTanks.Server",
     "ClaudeOfTanks.WebRTC",
     "Unity.WebRTC"
   ],

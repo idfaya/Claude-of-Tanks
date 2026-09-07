@@ -283,6 +283,25 @@ absent because every vehicle is available and there is no tech tree. The
 garage stores only an honest local battle record; competitive rating remains
 server-owned.
 
+The Unity garage exposes the same ranked path through `RankedPanel` and
+`RankedCoordinator`. Identity tokens are persisted per service origin, queue
+polling is cancellable, and the matched response carries the complete
+authoritative `RoomMatchPlan`: round, seed, map, mode, team size, entity ids,
+vehicle ids, equipment, camouflage, teams, and ratings. The client consumes
+the one-time ticket over `/match`, then hands an authenticated
+`DedicatedNetworkClientRuntime` to `NetworkBattleController`. It never creates
+or advances match authority locally. Snapshot rendering, local prediction,
+HUD, audio, FX, structures, and vegetation use the same
+`NetworkBattlePresenter` as private rooms.
+
+`DedicatedNetworkClientRuntime` retains the rotating session token after the
+ticket admission. A dropped WebSocket starts bounded reconnect attempts,
+reuses the same player/entity identity, keeps snapshot and prediction history,
+and replaces only the transport-facing `NetworkClientPump`. The HUD reports
+`RECONNECTING` while the authority connection is unavailable. Returning from
+the battle polls the original queue ticket until the service publishes the
+server-owned result and updated rating.
+
 Spectators receive both teams through an explicitly marked observer peer and
 cannot submit vehicle controls. Ranked authority never migrates to a player.
 Private/LAN rooms close cleanly if their browser host leaves; host

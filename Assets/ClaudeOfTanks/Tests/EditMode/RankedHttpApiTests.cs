@@ -75,6 +75,16 @@ namespace ClaudeOfTanks.Tests
                     Assert.That(matched.match.roster, Has.Length.EqualTo(2));
                     Assert.That(matched.match.token, Has.Length.GreaterThanOrEqualTo(24));
                     Assert.That(matched.match.mapId, Is.EqualTo("verdant"));
+                    Assert.That(matched.match.round, Is.EqualTo(1));
+                    Assert.That(matched.match.seed, Is.Not.Zero);
+                    Assert.That(matched.match.mode, Is.EqualTo("standard"));
+                    Assert.That(matched.match.teamSize, Is.EqualTo(1));
+                    Assert.That(
+                        matched.match.roster[0].entityId,
+                        Is.Not.Empty);
+                    Assert.That(
+                        matched.match.roster[0].equipment,
+                        Is.Not.Null);
 
                     HttpResponse profile = Send(
                         port,
@@ -315,10 +325,19 @@ namespace ClaudeOfTanks.Tests
         [Serializable] private sealed class MatchDto
         {
             public string token;
+            public int round;
+            public uint seed;
             public string mapId;
+            public string mode;
+            public int teamSize;
             public RosterDto[] roster;
         }
-        [Serializable] private sealed class RosterDto { public string id; }
+        [Serializable] private sealed class RosterDto
+        {
+            public string id;
+            public string entityId;
+            public string[] equipment;
+        }
         [Serializable] private sealed class LeaderboardDto
         {
             public ProfileDto[] players;

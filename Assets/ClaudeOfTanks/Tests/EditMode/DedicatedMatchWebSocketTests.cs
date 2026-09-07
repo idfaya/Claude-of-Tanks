@@ -162,11 +162,13 @@ namespace ClaudeOfTanks.Tests
                                 PlayerId = tickets[0].PlayerId,
                                 Token = alphaSessionToken
                             }).GetAwaiter().GetResult();
-                    using (resumed)
-                    using (NetworkClientPump resumedClient = new NetworkClientPump(
-                        resumed.Admission.PlayerId,
-                        resumed.Admission.EntityId,
-                        resumed.Transport))
+                    using (DedicatedNetworkClientRuntime resumedClient =
+                        new DedicatedNetworkClientRuntime(
+                            new Uri(
+                                "ws://127.0.0.1:" +
+                                port +
+                                "/match"),
+                            resumed))
                     {
                         Assert.That(resumed.Admission.ConnectionGeneration, Is.EqualTo(2));
                         Assert.That(resumed.Admission.SessionToken, Is.Not.EqualTo(alphaSessionToken));
@@ -184,6 +186,22 @@ namespace ClaudeOfTanks.Tests
                         }
                         Assert.That(registry.Get("match_socket").ConnectedPlayerCount, Is.EqualTo(1));
                         Assert.That(recoveredStructureState, Is.True);
+
+                        resumed.Transport.Close("test_reconnect");
+                        bool automaticallyReconnected = false;
+                        for (int i = 0; i < 500 && !automaticallyReconnected; i++)
+                        {
+                            service.Pump(1);
+                            resumedClient.Pump();
+                            automaticallyReconnected =
+                                resumedClient.IsConnected &&
+                                resumedClient.ConnectionGeneration == 3 &&
+                                resumedClient.LatestSnapshot != null &&
+                                resumedClient.LatestSnapshot.Tick > tickBeforeReconnect;
+                            if (!automaticallyReconnected) Thread.Sleep(2);
+                        }
+                        Assert.That(automaticallyReconnected, Is.True);
+                        Assert.That(resumedClient.LastError, Is.Null);
                     }
                 }
             }

@@ -51,13 +51,15 @@ namespace ClaudeOfTanks.Tests
                 RankedQueueView view = matchmaker.Poll(
                     joins[0].QueueId, joins[0].QueueToken);
                 Assert.That(view.Status, Is.EqualTo(RankedQueueStatus.Matched));
-                Assert.That(view.Assignment.Roster, Has.Length.EqualTo(4));
-                Assert.That(CountTeam(view.Assignment.Roster, Team.Alpha), Is.EqualTo(2));
-                Assert.That(CountTeam(view.Assignment.Roster, Team.Bravo), Is.EqualTo(2));
-                Assert.That(view.Assignment.Roster[0].Equipment, Has.Length.EqualTo(3));
+                Assert.That(view.Assignment.Plan.TeamSize, Is.EqualTo(2));
+                Assert.That(view.Assignment.Plan.GameMode, Is.EqualTo(GameModeId.Standard));
+                Assert.That(view.Assignment.Plan.Seats, Has.Length.EqualTo(4));
+                Assert.That(CountTeam(view.Assignment.Plan.Seats, Team.Alpha), Is.EqualTo(2));
+                Assert.That(CountTeam(view.Assignment.Plan.Seats, Team.Bravo), Is.EqualTo(2));
+                Assert.That(view.Assignment.Plan.Seats[0].Equipment, Has.Length.EqualTo(3));
                 Assert.That(
-                    UniqueNameCount(view.Assignment.Roster),
-                    Is.EqualTo(view.Assignment.Roster.Length));
+                    UniqueNameCount(view.Assignment.Plan.Seats),
+                    Is.EqualTo(view.Assignment.Plan.Seats.Length));
 
                 DedicatedMatchAdmission admission = registry.Admit(
                     view.Assignment.MatchTicket.MatchId,

@@ -75,6 +75,7 @@ namespace ClaudeOfTanks.Network
         }
 
         public bool IsRunning => _started && !_disposed;
+        public string LastConnectionError { get; private set; }
         public int ActiveConnectionCount
         {
             get
@@ -300,8 +301,10 @@ namespace ClaudeOfTanks.Network
                     }
                 }
             }
-            catch
+            catch (Exception error)
             {
+                LastConnectionError =
+                    error.GetType().Name + ": " + error.Message;
                 if (connection != null)
                 {
                     try
