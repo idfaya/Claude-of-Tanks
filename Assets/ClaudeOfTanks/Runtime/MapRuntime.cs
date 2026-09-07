@@ -14,6 +14,8 @@ namespace ClaudeOfTanks.Runtime
             _root = root;
         }
 
+        public Transform Root => _root.transform;
+
         public static MapRuntime Create(MapDefinition map)
         {
             GameObject root = new GameObject("Map-" + map.id);
@@ -24,8 +26,14 @@ namespace ClaudeOfTanks.Runtime
 
         public void Dispose()
         {
-            for (int i = 0; i < _materials.Count; i++) UnityEngine.Object.Destroy(_materials[i]);
-            UnityEngine.Object.Destroy(_root);
+            for (int i = 0; i < _materials.Count; i++) DestroyObject(_materials[i]);
+            DestroyObject(_root);
+        }
+
+        private static void DestroyObject(UnityEngine.Object value)
+        {
+            if (Application.isPlaying) UnityEngine.Object.Destroy(value);
+            else UnityEngine.Object.DestroyImmediate(value);
         }
 
         private void Build(MapDefinition map)
