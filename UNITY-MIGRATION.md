@@ -24,6 +24,21 @@ tools/uloop.sh control-play-mode --action Play
 tools/uloop.sh screenshot --window-name Game --capture-mode GameView
 ```
 
+Dedicated server build and launch:
+
+```bash
+npm run unity:server:build -- linux
+./Build/Server/Linux/ClaudeOfTanksServer \
+  -batchmode -nographics --cot-server \
+  --cot-bind=0.0.0.0 --cot-port=18791 \
+  --cot-origins=https://game.example
+```
+
+Install the matching Unity Linux Dedicated Server Build Support module before
+running the build command. `tools/build-unity-server.sh macos <output> player`
+builds a regular macOS player for local `-batchmode -nographics` smoke tests
+when the Dedicated Server module is unavailable.
+
 Unity CLI Loop `3.4.0` and Input System `1.7.0` are project dependencies.
 The CLI is installed at `~/.local/bin/uloop`; `tools/uloop.sh` binds it to this
 project and uses the locally cached project runner when GitHub API rate limits
@@ -146,6 +161,9 @@ The port preserves the source project's runtime units and conventions:
   exact origin policy, one-time ticket and rotating reconnect authentication,
   stale-generation isolation, per-viewer snapshots, and one authoritative tick
   per match regardless of connected player count
+- Unity headless bootstrap with strict bind/port/origin configuration, a
+  bounded 60 Hz service pump, UI-free Server builds, and reproducible
+  Linux/macOS command-line build tooling
 - Persistent authoritative room policy for 1v1 through 7v7, spectators,
   readiness and selection locks, host-owned rules, round retention, reserved
   disconnect seats, hashed rotating resume tokens, and deterministic host
@@ -171,8 +189,8 @@ These systems still use the TypeScript implementation as their specification:
 - progression, loadout editing, and production garage;
 - controller glyph polish, accessibility options, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
-- Unity headless build/bootstrap, ranked HTTP matchmaking endpoints,
-  WebRTC private-room transport, and signaling deployment;
+- installable build-target release artifacts, ranked HTTP matchmaking
+  endpoints, WebRTC private-room transport, and signaling deployment;
 - per-family procedural vehicle geometry/pattern parity and generated technical assets.
 
 Migrate these by extending the simulation contracts rather than moving

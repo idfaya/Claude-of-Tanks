@@ -4,7 +4,8 @@
   "references": [
     "ClaudeOfTanks.Simulation",
     "ClaudeOfTanks.Runtime",
-    "ClaudeOfTanks.Network"
+    "ClaudeOfTanks.Network",
+    "ClaudeOfTanks.Server"
   ],
   "includePlatforms": [
     "Editor"
