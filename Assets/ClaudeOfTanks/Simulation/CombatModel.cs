@@ -145,7 +145,8 @@ namespace ClaudeOfTanks.Simulation
         ShellHit,
         TankDestroyed,
         ConsumableUsed,
-        StructureHit
+        StructureHit,
+        StructureDestroyed
     }
 
     public struct BattleEvent
@@ -200,12 +201,15 @@ namespace ClaudeOfTanks.Simulation
         public readonly List<ShellState> Shells = new List<ShellState>();
         public readonly List<BattleEvent> Events = new List<BattleEvent>();
         public readonly StaticObstacle[] StaticObstacles;
+        private readonly float[] _staticObstacleHealth;
+        private readonly bool[] _staticObstacleDestroyed;
         public readonly IHeightField HeightField;
         public readonly DeterministicRandom Random;
         public readonly uint InitialSeed;
         public readonly float WorldHalfExtentM;
         public float TimeS;
         public int NextShellId = 1;
+        public uint StaticObstacleRevision { get; private set; }
 
         public BattleState(
             IHeightField heightField,
@@ -221,6 +225,8 @@ namespace ClaudeOfTanks.Simulation
             if (obstacleCount > MaximumStaticObstacles)
                 throw new ArgumentOutOfRangeException(nameof(staticObstacles));
             StaticObstacles = new StaticObstacle[obstacleCount];
+            _staticObstacleHealth = new float[obstacleCount];
+            _staticObstacleDestroyed = new bool[obstacleCount];
             HashSet<string> obstacleIds = new HashSet<string>(StringComparer.Ordinal);
             for (int i = 0; i < obstacleCount; i++)
             {
@@ -232,22 +238,106 @@ namespace ClaudeOfTanks.Simulation
                         nameof(staticObstacles));
                 }
                 StaticObstacles[i] = staticObstacles[i];
+                _staticObstacleHealth[i] = StaticObstacleDurability(staticObstacles[i]);
             }
+        }
+
+        public bool IsStaticObstacleDestroyed(int index)
+        {
+            if (index < 0 || index >= StaticObstacles.Length)
+                throw new ArgumentOutOfRangeException(nameof(index));
+            return _staticObstacleDestroyed[index];
+        }
+
+        public float StaticObstacleHealth(int index)
+        {
+            if (index < 0 || index >= StaticObstacles.Length)
+                throw new ArgumentOutOfRangeException(nameof(index));
+            return _staticObstacleHealth[index];
+        }
+
+        public bool DamageStaticObstacle(int index, float damage)
+        {
+            if (index < 0 || index >= StaticObstacles.Length)
+                throw new ArgumentOutOfRangeException(nameof(index));
+            if (float.IsNaN(damage) || float.IsInfinity(damage) || damage < 0f)
+                throw new ArgumentOutOfRangeException(nameof(damage));
+            if (!StaticObstacles[index].Destructible ||
+                _staticObstacleDestroyed[index] ||
+                damage <= 0f)
+            {
+                return false;
+            }
+
+            _staticObstacleHealth[index] = MathF.Max(
+                0f,
+                _staticObstacleHealth[index] - damage);
+            if (_staticObstacleHealth[index] > 0f) return false;
+            _staticObstacleDestroyed[index] = true;
+            StaticObstacleRevision++;
+            return true;
+        }
+
+        public bool TryFindFirstStaticObstacleHit(
+            StaticObstacleFlags requiredFlag,
+            Float3 start,
+            Float3 end,
+            out int obstacleIndex,
+            out StaticObstacle obstacle,
+            out float fraction,
+            out Float3 normal)
+        {
+            obstacleIndex = -1;
+            obstacle = default;
+            fraction = float.MaxValue;
+            normal = Float3.Zero;
+            for (int i = 0; i < StaticObstacles.Length; i++)
+            {
+                if (_staticObstacleDestroyed[i]) continue;
+                StaticObstacle candidate = StaticObstacles[i];
+                if (!candidate.HasFlag(requiredFlag)) continue;
+                float candidateFraction;
+                Float3 candidateNormal;
+                if (CollisionSimulation.SegmentIntersectsObstacle(
+                        start,
+                        end,
+                        candidate,
+                        out candidateFraction,
+                        out candidateNormal) &&
+                    candidateFraction < fraction)
+                {
+                    obstacleIndex = i;
+                    obstacle = candidate;
+                    fraction = candidateFraction;
+                    normal = candidateNormal;
+                }
+            }
+            return obstacleIndex >= 0;
         }
 
         public bool IsVisionOccluded(Float3 start, Float3 end)
         {
+            int obstacleIndex;
             StaticObstacle obstacle;
             float fraction;
             Float3 normal;
-            return CollisionSimulation.TryFindFirstObstacleHit(
-                StaticObstacles,
+            return TryFindFirstStaticObstacleHit(
                 StaticObstacleFlags.Vision,
                 start,
                 end,
+                out obstacleIndex,
                 out obstacle,
                 out fraction,
                 out normal);
+        }
+
+        private static float StaticObstacleDurability(StaticObstacle obstacle)
+        {
+            if (!obstacle.Destructible) return float.PositiveInfinity;
+            float volume = obstacle.HalfWidthM * 2f *
+                obstacle.HalfLengthM * 2f *
+                obstacle.HeightM;
+            return MathUtil.Clamp(volume * 0.8f, 80f, 900f);
         }
     }
 }

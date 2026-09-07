@@ -142,6 +142,10 @@ namespace ClaudeOfTanks.Tests
                     Assert.That(structures, Is.Not.Null, definition.id);
                     MeshFilter[] structureMeshes = structures.GetComponentsInChildren<MeshFilter>();
                     Assert.That(structureMeshes.Length, Is.InRange(4, 5), definition.id);
+                    Transform structureBodies = structures.Find("Structures-Bodies");
+                    Assert.That(structureBodies, Is.Not.Null, definition.id);
+                    int intactBodyTriangles =
+                        structureBodies.GetComponent<MeshFilter>().sharedMesh.triangles.Length / 3;
                     for (int meshIndex = 0; meshIndex < structureMeshes.Length; meshIndex++)
                     {
                         Assert.That(structureMeshes[meshIndex].GetComponent<Collider>(),
@@ -155,6 +159,51 @@ namespace ClaudeOfTanks.Tests
                     totalRubble += runtime.RubblePileCount;
                     totalSandbagLines += runtime.SandbagLineCount;
                     totalHedgehogs += runtime.HedgehogCount;
+
+                    BattleState destructionState = new BattleState(
+                        heightField,
+                        501u,
+                        500f,
+                        obstacles);
+                    int destroyed = 0;
+                    for (int obstacleIndex = 0; obstacleIndex < obstacles.Length; obstacleIndex++)
+                    {
+                        if (!obstacles[obstacleIndex].Destructible) continue;
+                        Assert.That(
+                            destructionState.DamageStaticObstacle(obstacleIndex, 10000f),
+                            Is.True,
+                            obstacles[obstacleIndex].Id);
+                        destroyed++;
+                    }
+                    runtime.SyncDestroyedStructures(destructionState);
+                    Assert.That(destroyed, Is.EqualTo(3), definition.id);
+                    Assert.That(runtime.DestroyedBuildingCount, Is.EqualTo(3), definition.id);
+                    Assert.That(
+                        structureBodies.GetComponent<MeshFilter>().sharedMesh.triangles.Length / 3,
+                        Is.LessThan(intactBodyTriangles),
+                        definition.id);
+                    Transform destroyedMesh = structures.Find("Structures-Destroyed");
+                    Assert.That(destroyedMesh, Is.Not.Null, definition.id);
+                    Assert.That(
+                        destroyedMesh.GetComponent<MeshFilter>().sharedMesh.triangles.Length,
+                        Is.GreaterThan(0),
+                        definition.id);
+                    Assert.That(
+                        structures.GetComponentsInChildren<MeshRenderer>().Length,
+                        Is.LessThanOrEqualTo(6),
+                        definition.id);
+
+                    runtime.SyncDestroyedStructures(new BattleState(
+                        heightField,
+                        501u,
+                        500f,
+                        obstacles));
+                    Assert.That(runtime.DestroyedBuildingCount, Is.Zero, definition.id);
+                    Assert.That(
+                        structureBodies.GetComponent<MeshFilter>().sharedMesh.triangles.Length / 3,
+                        Is.EqualTo(intactBodyTriangles),
+                        definition.id);
+                    Assert.That(destroyedMesh.gameObject.activeSelf, Is.False, definition.id);
 
                     int objects = runtime.Root.GetComponentsInChildren<UnityEngine.Transform>().Length;
                     Assert.That(objects, Is.GreaterThan(8), definition.id);

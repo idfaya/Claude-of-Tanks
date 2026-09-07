@@ -37,6 +37,8 @@ namespace ClaudeOfTanks.Runtime
         public int RubblePileCount => _structures != null ? _structures.RubblePileCount : 0;
         public int SandbagLineCount => _structures != null ? _structures.SandbagLineCount : 0;
         public int HedgehogCount => _structures != null ? _structures.HedgehogCount : 0;
+        public int DestroyedBuildingCount =>
+            _structures != null ? _structures.DestroyedBuildingCount : 0;
         public const int TerrainChunkCount =
             TerrainChunksPerAxis * TerrainChunksPerAxis;
         public int TerrainVertexCount { get; private set; }
@@ -49,6 +51,11 @@ namespace ClaudeOfTanks.Runtime
             MapRuntime runtime = new MapRuntime(root);
             runtime.Build(map);
             return runtime;
+        }
+
+        public void SyncDestroyedStructures(BattleState state)
+        {
+            _structures?.SyncDestroyedStructures(state);
         }
 
         public void Dispose()

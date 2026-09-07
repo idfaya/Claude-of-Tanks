@@ -6,6 +6,16 @@ namespace ClaudeOfTanks.Runtime
 {
     public static class MapSimulationAdapter
     {
+        public static string BuildingObstacleId(string mapId, int buildingIndex)
+        {
+            return (mapId ?? "map") + "-building-" + buildingIndex;
+        }
+
+        public static string WallObstacleId(string mapId, int wallIndex, int pieceIndex)
+        {
+            return (mapId ?? "map") + "-wall-" + wallIndex + "-" + pieceIndex;
+        }
+
         public static IHeightField BuildHeightField(MapDefinition map)
         {
             if (map == null) throw new ArgumentNullException(nameof(map));
@@ -65,7 +75,7 @@ namespace ClaudeOfTanks.Runtime
             float height = MathF.Max(3f, building.h);
             float yaw = building.yawDeg * MathUtil.Deg2Rad;
             float ground = heightField.HeightAt(building.x, building.z);
-            string id = (mapId ?? "map") + "-building-" + index;
+            string id = BuildingObstacleId(mapId, index);
             if (string.Equals(building.profile, "ruin", StringComparison.Ordinal))
             {
                 AddLocalBox(
@@ -141,7 +151,7 @@ namespace ClaudeOfTanks.Runtime
                 float x = wall.x1 + dx * t;
                 float z = wall.z1 + dz * t;
                 result.Add(new StaticObstacle(
-                    (mapId ?? "map") + "-wall-" + wallIndex + "-" + i,
+                    WallObstacleId(mapId, wallIndex, i),
                     new Float3(x, heightField.HeightAt(x, z), z),
                     0.4f,
                     pieceLength * 0.45f,

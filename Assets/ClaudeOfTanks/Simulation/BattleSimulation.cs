@@ -128,14 +128,15 @@ namespace ClaudeOfTanks.Simulation
 
                 float targetFraction;
                 TankState target = FindShellTarget(shell, out targetFraction);
+                int obstacleIndex;
                 StaticObstacle obstacle;
                 float obstacleFraction;
                 Float3 obstacleNormal;
-                bool obstacleHit = CollisionSimulation.TryFindFirstObstacleHit(
-                    _state.StaticObstacles,
+                bool obstacleHit = _state.TryFindFirstStaticObstacleHit(
                     StaticObstacleFlags.Shells,
                     shell.PreviousPosition,
                     shell.Position,
+                    out obstacleIndex,
                     out obstacle,
                     out obstacleFraction,
                     out obstacleNormal);
@@ -152,8 +153,23 @@ namespace ClaudeOfTanks.Simulation
                         Direction = shell.Velocity.Normalized,
                         Normal = obstacleNormal,
                         ShellType = shell.Spec.Type,
-                        CaliberMm = shell.Spec.CaliberMm
+                        CaliberMm = shell.Spec.CaliberMm,
+                        Value = shell.Spec.Damage
                     });
+                    if (_state.DamageStaticObstacle(obstacleIndex, shell.Spec.Damage))
+                    {
+                        _state.Events.Add(new BattleEvent
+                        {
+                            Type = BattleEventType.StructureDestroyed,
+                            SourceId = shell.ShooterId,
+                            TargetId = obstacle.Id,
+                            Position = shell.Position,
+                            Direction = shell.Velocity.Normalized,
+                            Normal = obstacleNormal,
+                            ShellType = shell.Spec.Type,
+                            CaliberMm = shell.Spec.CaliberMm
+                        });
+                    }
                     shell.Dead = true;
                 }
                 else if (target != null)
@@ -333,6 +349,7 @@ namespace ClaudeOfTanks.Simulation
             for (int i = 0; i < _state.StaticObstacles.Length; i++)
             {
                 StaticObstacle obstacle = _state.StaticObstacles[i];
+                if (_state.IsStaticObstacleDestroyed(i)) continue;
                 if (!obstacle.HasFlag(StaticObstacleFlags.Movement)) continue;
                 if (!CollisionSimulation.CircleIntersectsObstacle(
                         tank.Position,

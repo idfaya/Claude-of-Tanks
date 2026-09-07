@@ -152,6 +152,51 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void ShellDestroysDestructibleStructureExactlyOnce()
+        {
+            BattleState state = new BattleState(
+                new FlatHeightField(),
+                6002u,
+                500f,
+                new[]
+                {
+                    new StaticObstacle(
+                        "field-post",
+                        new Float3(0f, 0f, 10f),
+                        1f,
+                        1f,
+                        2f,
+                        0f,
+                        StaticObstacleFlags.All,
+                        true)
+                });
+            TankState shooter = new TankState(
+                "shooter", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f);
+            state.Tanks.Add(shooter);
+            BattleSimulation simulation = new BattleSimulation(state);
+            Dictionary<string, TankInput> inputs = new Dictionary<string, TankInput>
+            {
+                ["shooter"] = new TankInput
+                {
+                    Fire = true,
+                    AimPoint = new Float3(0f, 1.25f, 20f)
+                }
+            };
+
+            simulation.Step(inputs, BattleState.FixedDeltaTime);
+
+            Assert.That(state.IsStaticObstacleDestroyed(0), Is.True);
+            Assert.That(state.StaticObstacleRevision, Is.EqualTo(1u));
+            Assert.That(state.Events.FindAll(
+                battleEvent => battleEvent.Type == BattleEventType.StructureDestroyed),
+                Has.Count.EqualTo(1));
+            Assert.That(state.Events.Exists(
+                battleEvent => battleEvent.Type == BattleEventType.StructureHit &&
+                    battleEvent.TargetId == "field-post"),
+                Is.True);
+        }
+
+        [Test]
         public void BattleFireConsumesAmmunitionAndStartsAuthoritativeReload()
         {
             BattleState state = new BattleState(new FlatHeightField(), 7u);

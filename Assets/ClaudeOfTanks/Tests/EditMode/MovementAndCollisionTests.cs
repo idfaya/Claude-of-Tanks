@@ -114,6 +114,56 @@ namespace ClaudeOfTanks.Tests
             Assert.That(normal.Magnitude, Is.EqualTo(1f).Within(0.0001f));
         }
 
+        [Test]
+        public void DestroyedObstacleStopsBlockingMovementAndVision()
+        {
+            StaticObstacle obstacle = new StaticObstacle(
+                "destructible",
+                new Float3(0f, 0f, 8f),
+                2f,
+                1f,
+                3f,
+                0f,
+                StaticObstacleFlags.All,
+                true);
+            BattleState state = new BattleState(
+                new FlatHeightField(),
+                42u,
+                500f,
+                new[] { obstacle });
+            Assert.That(
+                state.IsVisionOccluded(
+                    new Float3(0f, 1f, 0f),
+                    new Float3(0f, 1f, 20f)),
+                Is.True);
+            Assert.That(state.DamageStaticObstacle(0, 1000f), Is.True);
+            Assert.That(state.DamageStaticObstacle(0, 1000f), Is.False);
+            Assert.That(state.IsStaticObstacleDestroyed(0), Is.True);
+            Assert.That(state.StaticObstacleRevision, Is.EqualTo(1u));
+            Assert.That(
+                state.IsVisionOccluded(
+                    new Float3(0f, 1f, 0f),
+                    new Float3(0f, 1f, 20f)),
+                Is.False);
+
+            TankState tank = new TankState(
+                "tank", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f);
+            state.Tanks.Add(tank);
+            BattleSimulation simulation = new BattleSimulation(state);
+            Dictionary<string, TankInput> inputs = new Dictionary<string, TankInput>
+            {
+                ["tank"] = new TankInput
+                {
+                    Throttle = 1f,
+                    AimPoint = new Float3(0f, 1f, 100f)
+                }
+            };
+            for (int i = 0; i < 240; i++)
+                simulation.Step(inputs, BattleState.FixedDeltaTime);
+
+            Assert.That(tank.Position.Z, Is.GreaterThan(10f));
+        }
+
         private sealed class TestSurface : ITerrainSurface
         {
             private readonly float _resistance;

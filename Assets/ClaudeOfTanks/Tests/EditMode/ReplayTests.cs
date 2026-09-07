@@ -205,5 +205,53 @@ namespace ClaudeOfTanks.Tests
             Assert.Throws<System.IO.InvalidDataException>(
                 () => ReplayWireCodec.Encode(recorder.Recording));
         }
+
+        [Test]
+        public void ReplaySeekRestoresAuthoritativeStructureDestruction()
+        {
+            BattleState state = new BattleState(
+                new FlatHeightField(),
+                25u,
+                500f,
+                new[]
+                {
+                    new StaticObstacle(
+                        "replay-post",
+                        new Float3(0f, 0f, 10f),
+                        1f,
+                        1f,
+                        2f,
+                        0f,
+                        StaticObstacleFlags.All,
+                        true)
+                });
+            state.Tanks.Add(new TankState(
+                "alpha", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f));
+            BattleReplayRecorder recorder =
+                new BattleReplayRecorder(state, GameModeId.Standard);
+            Dictionary<string, TankInput> inputs = new Dictionary<string, TankInput>
+            {
+                ["alpha"] = new TankInput
+                {
+                    Fire = true,
+                    AimPoint = new Float3(0f, 1.25f, 20f)
+                }
+            };
+            recorder.Record(inputs, BattleState.FixedDeltaTime);
+            new BattleSimulation(state).Step(inputs, BattleState.FixedDeltaTime);
+            Assert.That(state.IsStaticObstacleDestroyed(0), Is.True);
+
+            ReplayRecording decoded = ReplayWireCodec.Decode(
+                ReplayWireCodec.Encode(recorder.Recording));
+            BattleReplaySession session = new BattleReplaySession(decoded);
+            session.Seek(1);
+            Assert.That(session.Simulation.State.IsStaticObstacleDestroyed(0), Is.True);
+            Assert.That(session.Simulation.State.StaticObstacleRevision, Is.EqualTo(1u));
+            session.Seek(0);
+            Assert.That(session.Simulation.State.IsStaticObstacleDestroyed(0), Is.False);
+            Assert.That(session.Simulation.State.StaticObstacleRevision, Is.Zero);
+            session.Seek(1);
+            Assert.That(session.Simulation.State.IsStaticObstacleDestroyed(0), Is.True);
+        }
     }
 }

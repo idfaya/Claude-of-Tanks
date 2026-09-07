@@ -12,6 +12,17 @@ namespace ClaudeOfTanks.Runtime
         private readonly List<Mesh> _meshes = new List<Mesh>();
         private readonly List<Material> _materials = new List<Material>();
         private readonly IHeightField _heightField;
+        private readonly Dictionary<string, MapBuilding> _destructibleBuildings =
+            new Dictionary<string, MapBuilding>(StringComparer.Ordinal);
+        private readonly List<string> _destructibleOrder = new List<string>();
+        private readonly HashSet<string> _destroyedBuildings =
+            new HashSet<string>(StringComparer.Ordinal);
+        private readonly List<MeshBucket> _ownedBuckets = new List<MeshBucket>();
+        private BattleState _syncedState;
+        private uint _syncedRevision = uint.MaxValue;
+        private Mesh _debrisMesh;
+        private GameObject _debrisNode;
+        private Material _debrisMaterial;
 
         private MapStructureRuntime(Transform parent, MapDefinition map)
         {
@@ -28,6 +39,7 @@ namespace ClaudeOfTanks.Runtime
         public int RubblePileCount { get; private set; }
         public int SandbagLineCount { get; private set; }
         public int HedgehogCount { get; private set; }
+        public int DestroyedBuildingCount => _destroyedBuildings.Count;
 
         public static MapStructureRuntime Create(Transform parent, MapDefinition map)
         {
@@ -62,7 +74,21 @@ namespace ClaudeOfTanks.Runtime
             MeshBucket cover = new MeshBucket();
             for (int i = 0; i < buildings.Length; i++)
             {
+                string ownerId = buildings[i].destructible
+                    ? MapSimulationAdapter.BuildingObstacleId(map.id, i)
+                    : null;
+                int bodyStart = bodies.Triangles.Count;
+                int roofStart = roofs.Triangles.Count;
+                int detailStart = details.Triangles.Count;
                 AddBuilding(buildings[i], bodies, roofs, details);
+                RecordOwnedRange(bodies, ownerId, bodyStart);
+                RecordOwnedRange(roofs, ownerId, roofStart);
+                RecordOwnedRange(details, ownerId, detailStart);
+                if (ownerId != null)
+                {
+                    _destructibleBuildings.Add(ownerId, buildings[i]);
+                    _destructibleOrder.Add(ownerId);
+                }
                 if (buildings[i].tactical) TacticalBuildingCount++;
             }
             for (int i = 0; i < walls.Length; i++) AddWall(walls[i], wallMesh);
@@ -75,11 +101,43 @@ namespace ClaudeOfTanks.Runtime
                 : new Color(0.62f, 0.61f, 0.57f);
             Color roof = Color.Lerp(building, new Color(0.15f, 0.16f, 0.16f), 0.58f);
             Color dark = new Color(0.12f, 0.14f, 0.14f);
+            _debrisMaterial = CreateMaterial(
+                Color.Lerp(building, new Color(0.15f, 0.12f, 0.1f), 0.72f));
             CreateMesh("Structures-Bodies", bodies, building);
             CreateMesh("Structures-Roofs", roofs, roof);
             CreateMesh("Structures-Details", details, dark);
             CreateMesh("Structures-Walls", wallMesh, Color.Lerp(building, Color.gray, 0.3f));
             CreateMesh("Structures-Cover", cover, Color.Lerp(building, new Color(0.2f, 0.17f, 0.13f), 0.55f));
+        }
+
+        public void SyncDestroyedStructures(BattleState state)
+        {
+            if (state == null) throw new ArgumentNullException(nameof(state));
+            if (ReferenceEquals(state, _syncedState) &&
+                state.StaticObstacleRevision == _syncedRevision)
+            {
+                return;
+            }
+
+            _syncedState = state;
+            _syncedRevision = state.StaticObstacleRevision;
+            HashSet<string> desired = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < state.StaticObstacles.Length; i++)
+            {
+                StaticObstacle obstacle = state.StaticObstacles[i];
+                if (obstacle.Destructible &&
+                    state.IsStaticObstacleDestroyed(i) &&
+                    _destructibleBuildings.ContainsKey(obstacle.Id))
+                {
+                    desired.Add(obstacle.Id);
+                }
+            }
+            if (_destroyedBuildings.SetEquals(desired)) return;
+            _destroyedBuildings.Clear();
+            foreach (string id in desired) _destroyedBuildings.Add(id);
+            for (int i = 0; i < _ownedBuckets.Count; i++)
+                _ownedBuckets[i].ApplyDestroyed(_destroyedBuildings);
+            RebuildDebris();
         }
 
         private void AddBuilding(
@@ -255,6 +313,89 @@ namespace ClaudeOfTanks.Runtime
             }
         }
 
+        private static void RecordOwnedRange(
+            MeshBucket bucket,
+            string ownerId,
+            int triangleStart)
+        {
+            if (ownerId == null || triangleStart == bucket.Triangles.Count) return;
+            bucket.OwnedRanges.Add(new OwnedTriangleRange
+            {
+                OwnerId = ownerId,
+                Start = triangleStart,
+                Count = bucket.Triangles.Count - triangleStart
+            });
+        }
+
+        private void RebuildDebris()
+        {
+            if (_destroyedBuildings.Count == 0)
+            {
+                if (_debrisMesh != null) _debrisMesh.Clear();
+                if (_debrisNode != null) _debrisNode.SetActive(false);
+                return;
+            }
+
+            MeshBucket debris = new MeshBucket();
+            for (int ownerIndex = 0; ownerIndex < _destructibleOrder.Count; ownerIndex++)
+            {
+                string ownerId = _destructibleOrder[ownerIndex];
+                if (!_destroyedBuildings.Contains(ownerId)) continue;
+                MapBuilding building = _destructibleBuildings[ownerId];
+                System.Random random = new System.Random(StableHash(ownerId + "-destroyed"));
+                float yaw = building.yawDeg * Mathf.Deg2Rad;
+                float width = Mathf.Max(3f, building.w);
+                float depth = Mathf.Max(3f, building.d);
+                float ground = _heightField.HeightAt(building.x, building.z);
+                for (int chunk = 0; chunk < 9; chunk++)
+                {
+                    float chunkWidth = Mathf.Lerp(
+                        width * 0.12f,
+                        width * 0.28f,
+                        (float)random.NextDouble());
+                    float chunkDepth = Mathf.Lerp(
+                        depth * 0.12f,
+                        depth * 0.28f,
+                        (float)random.NextDouble());
+                    float chunkHeight = Mathf.Lerp(
+                        0.35f,
+                        1.25f,
+                        (float)random.NextDouble());
+                    float localX = Mathf.Lerp(
+                        -width * 0.38f,
+                        width * 0.38f,
+                        (float)random.NextDouble());
+                    float localZ = Mathf.Lerp(
+                        -depth * 0.38f,
+                        depth * 0.38f,
+                        (float)random.NextDouble());
+                    Vector3 center = new Vector3(building.x, ground, building.z) +
+                        Local(localX, chunkHeight * 0.5f, localZ, yaw);
+                    AddBox(
+                        debris,
+                        center,
+                        new Vector3(chunkWidth, chunkHeight, chunkDepth),
+                        yaw + Mathf.Lerp(-0.35f, 0.35f, (float)random.NextDouble()));
+                }
+            }
+
+            if (_debrisMesh == null)
+            {
+                _debrisMesh = new Mesh { name = "Structures-Destroyed-Mesh" };
+                _meshes.Add(_debrisMesh);
+                _debrisNode = new GameObject("Structures-Destroyed");
+                _debrisNode.transform.SetParent(_root.transform, false);
+                _debrisNode.AddComponent<MeshFilter>().sharedMesh = _debrisMesh;
+                _debrisNode.AddComponent<MeshRenderer>().sharedMaterial = _debrisMaterial;
+            }
+            _debrisMesh.Clear();
+            _debrisMesh.SetVertices(debris.Vertices);
+            _debrisMesh.SetTriangles(debris.Triangles, 0);
+            _debrisMesh.RecalculateNormals();
+            _debrisMesh.RecalculateBounds();
+            _debrisNode.SetActive(true);
+        }
+
         private Vector3 FeaturePosition(
             MapBuilding[] buildings,
             System.Random random,
@@ -291,13 +432,21 @@ namespace ClaudeOfTanks.Runtime
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
             _meshes.Add(mesh);
-            Material material = new Material(Shader.Find("Standard")) { color = color };
-            material.SetFloat("_Glossiness", 0.08f);
-            _materials.Add(material);
+            bucket.Mesh = mesh;
+            if (bucket.OwnedRanges.Count > 0) _ownedBuckets.Add(bucket);
+            Material material = CreateMaterial(color);
             GameObject node = new GameObject(name);
             node.transform.SetParent(_root.transform, false);
             node.AddComponent<MeshFilter>().sharedMesh = mesh;
             node.AddComponent<MeshRenderer>().sharedMaterial = material;
+        }
+
+        private Material CreateMaterial(Color color)
+        {
+            Material material = new Material(Shader.Find("Standard")) { color = color };
+            material.SetFloat("_Glossiness", 0.08f);
+            _materials.Add(material);
+            return material;
         }
 
         private static void AddBox(
@@ -432,6 +581,44 @@ namespace ClaudeOfTanks.Runtime
         {
             public readonly List<Vector3> Vertices = new List<Vector3>();
             public readonly List<int> Triangles = new List<int>();
+            public readonly List<OwnedTriangleRange> OwnedRanges =
+                new List<OwnedTriangleRange>();
+            private readonly List<int> _activeTriangles = new List<int>();
+            public Mesh Mesh;
+
+            public void ApplyDestroyed(HashSet<string> destroyedOwners)
+            {
+                if (Mesh == null) return;
+                _activeTriangles.Clear();
+                int rangeIndex = 0;
+                for (int triangleIndex = 0;
+                    triangleIndex < Triangles.Count;
+                    triangleIndex += 3)
+                {
+                    while (rangeIndex < OwnedRanges.Count &&
+                        triangleIndex >= OwnedRanges[rangeIndex].Start +
+                            OwnedRanges[rangeIndex].Count)
+                    {
+                        rangeIndex++;
+                    }
+                    bool removed =
+                        rangeIndex < OwnedRanges.Count &&
+                        triangleIndex >= OwnedRanges[rangeIndex].Start &&
+                        destroyedOwners.Contains(OwnedRanges[rangeIndex].OwnerId);
+                    if (removed) continue;
+                    _activeTriangles.Add(Triangles[triangleIndex]);
+                    _activeTriangles.Add(Triangles[triangleIndex + 1]);
+                    _activeTriangles.Add(Triangles[triangleIndex + 2]);
+                }
+                Mesh.SetTriangles(_activeTriangles, 0);
+            }
+        }
+
+        private sealed class OwnedTriangleRange
+        {
+            public string OwnerId;
+            public int Start;
+            public int Count;
         }
     }
 }

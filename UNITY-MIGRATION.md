@@ -85,6 +85,10 @@ The port preserves the source project's runtime units and conventions:
   building, ruin-section, and wall-piece OBBs. The shared deterministic queries
   block tanks and shells, occlude bot/HUD/network spotting, preserve authored
   wall gaps, and round-trip through backward-compatible replay codec v2.
+- Deterministic durability and destruction for all 60 tactical structures:
+  destroyed obstacles stop blocking movement, shells, and vision; replay seek
+  restores their state; merged structure meshes remove only the affected
+  geometry and replace it with one shared deterministic debris mesh.
 - Standard, Capture the Flag, Zone Control, Turbo Ball, and Endless Horde modes
 - Equipment, consumables, deterministic replay recording, responsive HUD,
   keyboard, gamepad, and touch input
@@ -155,8 +159,8 @@ These systems still use the TypeScript implementation as their specification:
 
 - complete 126-vehicle production fleet and authored armor/module geometry;
 - per-family structure geometry/material parity, authoritative structure
-  destruction/debris synchronization, complete vegetation recipes, and world
-  streaming for all 20 maps;
+  destruction snapshot synchronization, complete vegetation recipes, and
+  world streaming for all 20 maps;
 - progression, loadout editing, and production garage;
 - controller glyph polish, accessibility options, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;

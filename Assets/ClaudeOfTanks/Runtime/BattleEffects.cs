@@ -238,7 +238,9 @@ namespace ClaudeOfTanks.Runtime
         private void ConfigureParticles(ParticleSystem particles, BattleEvent battleEvent)
         {
             ParticleSystem.MainModule main = particles.main;
-            bool destroyed = battleEvent.Type == BattleEventType.TankDestroyed;
+            bool destroyed =
+                battleEvent.Type == BattleEventType.TankDestroyed ||
+                battleEvent.Type == BattleEventType.StructureDestroyed;
             bool fired = battleEvent.Type == BattleEventType.ShellFired;
             main.startLifetime = destroyed ? 1.4f : fired ? 0.28f : 0.55f;
             main.startSize = destroyed ? 0.65f : fired ? 0.24f : 0.18f;
@@ -284,7 +286,8 @@ namespace ClaudeOfTanks.Runtime
                 audio.clip = battleEvent.CaliberMm > 105f ? _shotHeavy : _shotLight;
                 audio.volume = Mathf.Lerp(0.55f, 1f, Mathf.Clamp01(battleEvent.CaliberMm / 150f));
             }
-            else if (battleEvent.Type == BattleEventType.TankDestroyed)
+            else if (battleEvent.Type == BattleEventType.TankDestroyed ||
+                battleEvent.Type == BattleEventType.StructureDestroyed)
             {
                 audio.clip = _destroyed;
                 audio.volume = 1f;
@@ -352,7 +355,8 @@ namespace ClaudeOfTanks.Runtime
 
         private static float Lifetime(BattleEventType type)
         {
-            return type == BattleEventType.TankDestroyed ? 1.5f
+            return type == BattleEventType.TankDestroyed ||
+                type == BattleEventType.StructureDestroyed ? 1.5f
                 : type == BattleEventType.ShellFired ? 0.45f
                 : 0.7f;
         }

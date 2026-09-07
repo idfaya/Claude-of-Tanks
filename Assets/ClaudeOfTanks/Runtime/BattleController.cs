@@ -604,6 +604,7 @@ namespace ClaudeOfTanks.Runtime
                 if (battleEvent.Type == BattleEventType.ShellFired ||
                     battleEvent.Type == BattleEventType.ShellHit ||
                     battleEvent.Type == BattleEventType.StructureHit ||
+                    battleEvent.Type == BattleEventType.StructureDestroyed ||
                     battleEvent.Type == BattleEventType.TankDestroyed)
                 {
                     TankView target;
@@ -626,11 +627,17 @@ namespace ClaudeOfTanks.Runtime
                     _status = "DESTROYED";
                     _statusUntil = Time.unscaledTime + 1.4f;
                 }
+                else if (battleEvent.Type == BattleEventType.StructureDestroyed)
+                {
+                    _status = "STRUCTURE DESTROYED";
+                    _statusUntil = Time.unscaledTime + 1.2f;
+                }
             }
         }
 
         private void SyncViews()
         {
+            _mapRuntime?.SyncDestroyedStructures(_simulation.State);
             List<TankState> tanks = _simulation.State.Tanks;
             for (int i = 0; i < tanks.Count; i++)
             {
