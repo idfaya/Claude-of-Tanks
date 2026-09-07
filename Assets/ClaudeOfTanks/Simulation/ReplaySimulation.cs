@@ -33,6 +33,15 @@ namespace ClaudeOfTanks.Simulation
         }
 
         public int FrameCount => Frames.Count;
+        public float DurationS
+        {
+            get
+            {
+                float total = 0f;
+                for (int i = 0; i < Frames.Count; i++) total += Frames[i].DeltaTime;
+                return total;
+            }
+        }
     }
 
     internal sealed class ReplayTankSeed
@@ -76,22 +85,75 @@ namespace ClaudeOfTanks.Simulation
     {
         public static BattleSimulation Play(ReplayRecording recording)
         {
-            if (recording == null) throw new ArgumentNullException(nameof(recording));
-            BattleState state = new BattleState(
-                recording.HeightField, recording.Seed, recording.WorldHalfExtentM);
-            for (int i = 0; i < recording.Tanks.Count; i++)
+            BattleReplaySession session = new BattleReplaySession(recording);
+            session.Seek(recording.FrameCount);
+            return session.Simulation;
+        }
+    }
+
+    public sealed class BattleReplaySession
+    {
+        private readonly ReplayRecording _recording;
+
+        public BattleReplaySession(ReplayRecording recording)
+        {
+            _recording = recording ?? throw new ArgumentNullException(nameof(recording));
+            Reset();
+        }
+
+        public BattleSimulation Simulation { get; private set; }
+        public int CurrentFrame { get; private set; }
+        public int FrameCount => _recording.FrameCount;
+        public bool Complete => CurrentFrame >= FrameCount;
+        public float DurationS => _recording.DurationS;
+        public float CurrentTimeS => Simulation.State.TimeS;
+
+        public bool Step()
+        {
+            if (Complete) return false;
+            ReplayFrame frame = _recording.Frames[CurrentFrame++];
+            Simulation.Step(frame.Inputs, frame.DeltaTime);
+            return true;
+        }
+
+        public void Seek(int frame)
+        {
+            if (frame < 0 || frame > FrameCount)
+                throw new ArgumentOutOfRangeException(nameof(frame));
+            if (frame < CurrentFrame) Reset();
+            while (CurrentFrame < frame) Step();
+        }
+
+        public void SeekTime(float timeS)
+        {
+            if (float.IsNaN(timeS) || float.IsInfinity(timeS))
+                throw new ArgumentOutOfRangeException(nameof(timeS));
+            float target = Math.Max(0f, Math.Min(timeS, DurationS));
+            int frame = 0;
+            float elapsed = 0f;
+            while (frame < _recording.Frames.Count &&
+                elapsed + _recording.Frames[frame].DeltaTime <= target)
             {
-                ReplayTankSeed seed = recording.Tanks[i];
+                elapsed += _recording.Frames[frame].DeltaTime;
+                frame++;
+            }
+            Seek(frame);
+        }
+
+        public void Reset()
+        {
+            BattleState state = new BattleState(
+                _recording.HeightField,
+                _recording.Seed,
+                _recording.WorldHalfExtentM);
+            for (int i = 0; i < _recording.Tanks.Count; i++)
+            {
+                ReplayTankSeed seed = _recording.Tanks[i];
                 state.Tanks.Add(new TankState(
                     seed.Id, seed.Team, seed.Spec, seed.Position, seed.Yaw));
             }
-            BattleSimulation simulation = new BattleSimulation(state, recording.GameMode);
-            for (int i = 0; i < recording.Frames.Count; i++)
-            {
-                ReplayFrame frame = recording.Frames[i];
-                simulation.Step(frame.Inputs, frame.DeltaTime);
-            }
-            return simulation;
+            Simulation = new BattleSimulation(state, _recording.GameMode);
+            CurrentFrame = 0;
         }
     }
 }

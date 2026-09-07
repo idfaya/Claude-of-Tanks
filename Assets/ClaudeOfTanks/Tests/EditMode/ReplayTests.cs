@@ -43,6 +43,28 @@ namespace ClaudeOfTanks.Tests
             Assert.That(replay.State.Tanks[1].Health, Is.EqualTo(original.State.Tanks[1].Health));
             Assert.That(replay.State.Tanks[0].Combat.Ammo, Is.EqualTo(original.State.Tanks[0].Combat.Ammo));
             Assert.That(replay.MatchMode.Winner, Is.EqualTo(original.MatchMode.Winner));
+
+            BattleReplaySession session = new BattleReplaySession(recorder.Recording);
+            session.Seek(180);
+            Float3 midpoint = session.Simulation.State.Tanks[0].Position;
+            Assert.That(session.CurrentFrame, Is.EqualTo(180));
+            Assert.That(session.CurrentTimeS, Is.EqualTo(3f).Within(0.001f));
+            session.Seek(360);
+            Assert.That(session.Simulation.State.Tanks[0].Position,
+                Is.EqualTo(original.State.Tanks[0].Position));
+            session.Seek(180);
+            Assert.That(session.Simulation.State.Tanks[0].Position, Is.EqualTo(midpoint));
+            Assert.That(session.Complete, Is.False);
+            session.Seek(session.FrameCount);
+            Assert.That(session.Complete, Is.True);
+            session.SeekTime(2.5f);
+            Assert.That(session.CurrentTimeS, Is.EqualTo(2.5f).Within(0.02f));
+            session.SeekTime(999f);
+            Assert.That(session.Complete, Is.True);
+            session.SeekTime(-5f);
+            Assert.That(session.CurrentFrame, Is.EqualTo(0));
+            Assert.Throws<System.ArgumentOutOfRangeException>(() =>
+                session.SeekTime(float.NaN));
         }
     }
 }

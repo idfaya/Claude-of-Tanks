@@ -199,5 +199,53 @@ namespace ClaudeOfTanks.Tests
                 Object.DestroyImmediate(hud.gameObject);
             }
         }
+
+        [Test]
+        public void ResultScreenOffersKillcamAndFullReplayControls()
+        {
+            int killcam = 0;
+            int fullReplay = 0;
+            int exit = 0;
+            BattleHud hud = BattleHud.Create(() => { }, () => { });
+            try
+            {
+                hud.ConfigureReplayActions(
+                    () => killcam++,
+                    () => fullReplay++,
+                    () => exit++);
+                TankState tank = new TankState(
+                    "player", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f);
+                hud.SetState(
+                    tank,
+                    new MatchModeState(GameModeId.Standard),
+                    "VICTORY",
+                    true,
+                    new BattleHudStats());
+                Assert.That(hud.ResultVisible, Is.True);
+                hud.transform.Find("BattleResult/Killcam")
+                    .GetComponent<Button>().onClick.Invoke();
+                hud.transform.Find("BattleResult/FullReplay")
+                    .GetComponent<Button>().onClick.Invoke();
+                Assert.That(killcam, Is.EqualTo(1));
+                Assert.That(fullReplay, Is.EqualTo(1));
+
+                hud.SetReplayState(true, true, 3.2f, 8f, false);
+                Assert.That(hud.ResultVisible, Is.False);
+                Assert.That(hud.ReplayVisible, Is.True);
+                Text status = hud.transform.Find("ReplayOverlay/Band/Status")
+                    .GetComponent<Text>();
+                Assert.That(status.text, Does.Contain("KILLCAM"));
+                Assert.That(status.text, Does.Contain("00:03 / 00:08"));
+                hud.transform.Find("ReplayOverlay/Band/ExitReplay")
+                    .GetComponent<Button>().onClick.Invoke();
+                Assert.That(exit, Is.EqualTo(1));
+                hud.SetReplayState(false, false, 0f, 0f, false);
+                Assert.That(hud.ReplayVisible, Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(hud.gameObject);
+            }
+        }
     }
 }

@@ -33,8 +33,10 @@ namespace ClaudeOfTanks.Runtime
         private GameSettingsPanel _settingsPanel;
         private readonly RectTransform[] _consumableButtons = new RectTransform[3];
         private GameObject _resultRoot;
+        private GameObject _replayRoot;
         private Text _resultTitle;
         private Text _resultStats;
+        private Text _replayStatus;
         private readonly StringBuilder _damageText = new StringBuilder(160);
         private Vector2 _touchDrive;
         private Vector2 _touchAimPosition;
@@ -49,6 +51,9 @@ namespace ClaudeOfTanks.Runtime
         private BattleCameraMode _cameraMode = (BattleCameraMode)(-1);
         private float _cameraZoom = -1f;
         private bool _resultShown;
+        private Action _killcam;
+        private Action _fullReplay;
+        private Action _exitReplay;
         private Action _restart;
         private Action _garage;
 
@@ -58,6 +63,7 @@ namespace ClaudeOfTanks.Runtime
         public string DamageSummary => _damageDetails != null ? _damageDetails.text : string.Empty;
         public string ResultSummary => _resultStats != null ? _resultStats.text : string.Empty;
         public bool ResultVisible => _resultRoot != null && _resultRoot.activeSelf;
+        public bool ReplayVisible => _replayRoot != null && _replayRoot.activeSelf;
         public int MinimapTankMarkers => _minimap != null ? _minimap.VisibleTankMarkerCount : 0;
         public int MinimapEnemyMarkers => _minimap != null ? _minimap.VisibleEnemyMarkerCount : 0;
         public int MinimapObjectiveMarkers =>
@@ -119,6 +125,40 @@ namespace ClaudeOfTanks.Runtime
             _touchRoot.SetActive(visible);
             _minimap?.SetTouchLayout(visible);
             if (visible) SetTouchLayoutForViewport(Screen.width, Screen.height);
+        }
+
+        public void ConfigureReplayActions(Action killcam, Action fullReplay, Action exitReplay)
+        {
+            _killcam = killcam;
+            _fullReplay = fullReplay;
+            _exitReplay = exitReplay;
+        }
+
+        public void SetReplayState(
+            bool visible,
+            bool killcam,
+            float currentTimeS,
+            float durationS,
+            bool complete)
+        {
+            _replayRoot.SetActive(visible);
+            if (!visible)
+            {
+                _resultShown = false;
+                return;
+            }
+            _resultRoot.SetActive(false);
+            _status.text = string.Empty;
+            int current = Mathf.FloorToInt(currentTimeS);
+            int duration = Mathf.CeilToInt(durationS);
+            _replayStatus.text = string.Format(
+                "{0}   {1:00}:{2:00} / {3:00}:{4:00}{5}",
+                killcam ? "KILLCAM" : "BATTLE REPLAY",
+                current / 60,
+                current % 60,
+                duration / 60,
+                duration % 60,
+                complete ? "   COMPLETE" : string.Empty);
         }
 
         public void SetTouchLayoutForViewport(int width, int height)
@@ -230,6 +270,7 @@ namespace ClaudeOfTanks.Runtime
             _minimap = BattleMinimap.Create(transform, font);
             BuildTouchControls(font);
             BuildResultScreen(font);
+            BuildReplayOverlay(font);
             _settingsPanel = GameSettingsPanel.Create(transform, GameSettings.Current);
         }
 
@@ -276,11 +317,35 @@ namespace ClaudeOfTanks.Runtime
             _resultStats = Label("Summary", shade.transform, font, 18, TextAnchor.MiddleCenter);
             Rect(_resultStats.rectTransform, new Vector2(-430f, -30f), new Vector2(430f, 65f),
                 new Vector2(0.5f, 0.5f));
-            CreateButton("BattleAgain", "BATTLE AGAIN", new Vector2(-190f, -112f), _restart,
+            CreateButton("Killcam", "KILLCAM", new Vector2(-390f, -112f),
+                () => _killcam?.Invoke(),
                 new Vector2(180f, 48f), new Vector2(0.5f, 0.5f), shade.transform);
-            CreateButton("ReturnToGarage", "GARAGE", new Vector2(10f, -112f), _garage,
+            CreateButton("FullReplay", "FULL REPLAY", new Vector2(-190f, -112f),
+                () => _fullReplay?.Invoke(),
+                new Vector2(180f, 48f), new Vector2(0.5f, 0.5f), shade.transform);
+            CreateButton("BattleAgain", "BATTLE AGAIN", new Vector2(10f, -112f), _restart,
+                new Vector2(180f, 48f), new Vector2(0.5f, 0.5f), shade.transform);
+            CreateButton("ReturnToGarage", "GARAGE", new Vector2(210f, -112f), _garage,
                 new Vector2(180f, 48f), new Vector2(0.5f, 0.5f), shade.transform);
             _resultRoot.SetActive(false);
+        }
+
+        private void BuildReplayOverlay(Font font)
+        {
+            _replayRoot = new GameObject("ReplayOverlay", typeof(RectTransform));
+            _replayRoot.transform.SetParent(transform, false);
+            Rect(_replayRoot.GetComponent<RectTransform>(),
+                Vector2.zero, Vector2.zero, Vector2.zero, Vector2.one);
+            Image band = Image("Band", _replayRoot.transform, new Color(0.02f, 0.03f, 0.028f, 0.88f));
+            Rect(band.rectTransform, new Vector2(0f, -54f), Vector2.zero,
+                new Vector2(0f, 1f), Vector2.one);
+            _replayStatus = Label("Status", band.transform, font, 16, TextAnchor.MiddleLeft);
+            Rect(_replayStatus.rectTransform, new Vector2(20f, 8f), new Vector2(-170f, -8f),
+                Vector2.zero, Vector2.one);
+            CreateButton("ExitReplay", "EXIT REPLAY", new Vector2(-150f, -46f),
+                () => _exitReplay?.Invoke(),
+                new Vector2(130f, 38f), new Vector2(1f, 1f), band.transform);
+            _replayRoot.SetActive(false);
         }
 
         private void BuildScopeOverlay(Font font)

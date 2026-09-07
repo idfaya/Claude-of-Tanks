@@ -20,6 +20,9 @@ namespace ClaudeOfTanks.Runtime
         private readonly BattleCameraRig _cameraRig = new BattleCameraRig();
         private BattleSimulation _simulation;
         private BattleReplayRecorder _replayRecorder;
+        private BattleReplaySession _replaySession;
+        private BattleSimulation _liveSimulation;
+        private TankState _livePlayer;
         private BotController _botController;
         private readonly SpottingSimulation _hudSpotting = new SpottingSimulation();
         private TankState _player;
@@ -41,6 +44,8 @@ namespace ClaudeOfTanks.Runtime
         private float _damageDealt;
         private float _damageReceived;
         private float _accumulator;
+        private float _replayStartTimeS;
+        private bool _replayIsKillcam;
         private string _status = "BATTLE";
         private float _statusUntil;
         private GUIStyle _labelStyle;
@@ -52,6 +57,7 @@ namespace ClaudeOfTanks.Runtime
         public TankState Player => _player;
         public BattleState State => _simulation?.State;
         public MatchModeState MatchMode => _simulation?.MatchMode;
+        public bool IsReplaying => _replaySession != null;
 
         public void Configure(
             string selectedVehicleId, string selectedMapId, GameModeId selectedMode,
@@ -91,6 +97,10 @@ namespace ClaudeOfTanks.Runtime
             _hud = BattleHud.Create(StartBattle, _returnToGarage);
             _hud.transform.SetParent(transform, false);
             _hud.SetMap(_catalog.GetMap(mapId));
+            _hud.ConfigureReplayActions(
+                () => StartReplay(true),
+                () => StartReplay(false),
+                ExitReplay);
             _effects = BattleEffects.Create();
             _effects.transform.SetParent(transform, false);
         }
@@ -101,18 +111,26 @@ namespace ClaudeOfTanks.Runtime
             {
                 return;
             }
-
-            float frameTime = Mathf.Min(Time.deltaTime, 0.25f);
-            _accumulator += frameTime;
-            UpdateCameraControls();
-            TankInput playerInput = ReadPlayerInput();
-            while (_accumulator >= BattleState.FixedDeltaTime)
+            if (_replaySession != null)
             {
-                BuildInputs(playerInput);
-                _replayRecorder.Record(_inputs, BattleState.FixedDeltaTime);
-                _simulation.Step(_inputs, BattleState.FixedDeltaTime);
-                ConsumeEvents();
-                _accumulator -= BattleState.FixedDeltaTime;
+                UpdateReplay();
+                return;
+            }
+
+            UpdateCameraControls();
+            if (!IsBattleOver())
+            {
+                float frameTime = Mathf.Min(Time.deltaTime, 0.25f);
+                _accumulator += frameTime;
+                TankInput playerInput = ReadPlayerInput();
+                while (_accumulator >= BattleState.FixedDeltaTime)
+                {
+                    BuildInputs(playerInput);
+                    _replayRecorder.Record(_inputs, BattleState.FixedDeltaTime);
+                    _simulation.Step(_inputs, BattleState.FixedDeltaTime);
+                    ConsumeEvents(false);
+                    _accumulator -= BattleState.FixedDeltaTime;
+                }
             }
 
             SyncViews();
@@ -165,6 +183,10 @@ namespace ClaudeOfTanks.Runtime
 
         private void StartBattle()
         {
+            _replaySession = null;
+            _liveSimulation = null;
+            _livePlayer = null;
+            _hud?.SetReplayState(false, false, 0f, 0f, false);
             _effects?.ResetAll();
             foreach (TankView view in _tankViews.Values)
             {
@@ -218,6 +240,85 @@ namespace ClaudeOfTanks.Runtime
             _accumulator = 0f;
             _status = "BATTLE";
             _statusUntil = Time.unscaledTime + 1.5f;
+        }
+
+        public void StartReplay(bool killcam)
+        {
+            if (!IsBattleOver() || _replayRecorder == null || _replayRecorder.Recording.FrameCount == 0)
+                return;
+            _liveSimulation = _simulation;
+            _livePlayer = _player;
+            _replaySession = new BattleReplaySession(_replayRecorder.Recording);
+            _replayIsKillcam = killcam;
+            _replayStartTimeS = killcam
+                ? Mathf.Max(0f, _replaySession.DurationS - 8f)
+                : 0f;
+            _replaySession.SeekTime(_replayStartTimeS);
+            _simulation = _replaySession.Simulation;
+            _player = FindTank(_simulation.State, _livePlayer.Id);
+            _accumulator = 0f;
+            _effects?.ResetAll();
+            ClearShellViews();
+            SyncViews();
+            _hud.SetReplayState(
+                true,
+                killcam,
+                0f,
+                _replaySession.DurationS - _replayStartTimeS,
+                _replaySession.Complete);
+        }
+
+        public void ExitReplay()
+        {
+            if (_replaySession == null) return;
+            _simulation = _liveSimulation;
+            _player = _livePlayer;
+            _replaySession = null;
+            _liveSimulation = null;
+            _livePlayer = null;
+            _accumulator = 0f;
+            _effects?.ResetAll();
+            ClearShellViews();
+            SyncViews();
+            _hud.SetReplayState(false, false, 0f, 0f, false);
+        }
+
+        private void UpdateReplay()
+        {
+            _accumulator += Mathf.Min(Time.unscaledDeltaTime, 0.25f);
+            UpdateCameraControls();
+            while (_accumulator >= BattleState.FixedDeltaTime && !_replaySession.Complete)
+            {
+                _replaySession.Step();
+                ConsumeEvents(true);
+                _accumulator -= BattleState.FixedDeltaTime;
+            }
+            SyncViews();
+            _hud.SetCamera(_cameraRig.Mode, _cameraRig.Zoom);
+            _hud.SetMinimap(
+                _player,
+                _simulation.State.Tanks,
+                _simulation.MatchMode,
+                _hudSpotting);
+            _hud.SetReplayState(
+                true,
+                _replayIsKillcam,
+                Mathf.Max(0f, _replaySession.CurrentTimeS - _replayStartTimeS),
+                _replaySession.DurationS - _replayStartTimeS,
+                _replaySession.Complete);
+        }
+
+        private void ClearShellViews()
+        {
+            foreach (GameObject shell in _shellViews.Values) DestroyShellView(shell);
+            _shellViews.Clear();
+        }
+
+        private static TankState FindTank(BattleState state, string entityId)
+        {
+            for (int i = 0; i < state.Tanks.Count; i++)
+                if (state.Tanks[i].Id == entityId) return state.Tanks[i];
+            throw new InvalidOperationException("Replay is missing player entity " + entityId + ".");
         }
 
         private void OnDestroy()
@@ -394,18 +495,19 @@ namespace ClaudeOfTanks.Runtime
             }
         }
 
-        private void ConsumeEvents()
+        private void ConsumeEvents(bool replay)
         {
             List<BattleEvent> events = _simulation.State.Events;
             for (int i = 0; i < events.Count; i++)
             {
                 BattleEvent battleEvent = events[i];
-                if (battleEvent.Type == BattleEventType.ShellFired &&
+                if (!replay &&
+                    battleEvent.Type == BattleEventType.ShellFired &&
                     battleEvent.SourceId == _player.Id)
                 {
                     _shotsFired++;
                 }
-                else if (battleEvent.Type == BattleEventType.ShellHit)
+                else if (!replay && battleEvent.Type == BattleEventType.ShellHit)
                 {
                     if (battleEvent.SourceId == _player.Id)
                     {
