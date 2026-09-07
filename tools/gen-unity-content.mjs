@@ -7,6 +7,7 @@ import {
   TANK_SPECS,
 } from '../src/vehicles/specs.ts';
 import { MAP_IDS, getMapConfig } from '../src/world/maps/index.ts';
+import { createLayout } from '../src/world/terrain.ts';
 
 const outputUrl = new URL('../Assets/ClaudeOfTanks/Resources/Generated/content-catalog.json', import.meta.url);
 const check = process.argv.includes('--check');
@@ -51,8 +52,65 @@ function vehicleRecord(spec) {
   };
 }
 
+function cssColor(value, fallback) {
+  const text = String(value || '');
+  const rgba = text.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+  if (rgba) {
+    return {
+      r: Number(rgba[1]) / 255,
+      g: Number(rgba[2]) / 255,
+      b: Number(rgba[3]) / 255,
+    };
+  }
+  if (/^#[0-9a-f]{6}$/i.test(text)) {
+    const number = Number.parseInt(text.slice(1), 16);
+    return {
+      r: ((number >> 16) & 255) / 255,
+      g: ((number >> 8) & 255) / 255,
+      b: (number & 255) / 255,
+    };
+  }
+  return fallback;
+}
+
+function rgb(value, fallback) {
+  return Array.isArray(value) && value.length >= 3
+    ? { r: value[0] / 255, g: value[1] / 255, b: value[2] / 255 }
+    : fallback;
+}
+
+function mapRecord(id) {
+  const config = getMapConfig(id);
+  const layout = createLayout(config);
+  const minimap = config.minimap || {};
+  const fallbackGround = { r: 0.28, g: 0.34, b: 0.22 };
+  return {
+    ...config,
+    unitySurface: {
+      roads: layout.roads.map((line) => ({
+        points: line.map(([x, z]) => ({ x, z })),
+      })),
+      lakes: layout.lakes.map((disc) => ({
+        x: disc.x, z: disc.z, r: disc.r,
+        depth: disc.depth || 0, level: disc.level || 0,
+      })),
+      marshes: layout.marshes.map((disc) => ({
+        x: disc.x, z: disc.z, r: disc.r,
+        depth: disc.dip || disc.depth || 0, level: disc.level || 0,
+      })),
+      frozenWater: layout.terrain.frozenMarshes === true,
+      groundColor: rgb(minimap.base, fallbackGround),
+      hardColor: rgb(minimap.hard, { r: 0.42, g: 0.4, b: 0.34 }),
+      softColor: rgb(minimap.soft, { r: 0.2, g: 0.28, b: 0.22 }),
+      roadColor: cssColor(minimap.roadFill, { r: 0.62, g: 0.56, b: 0.44 }),
+      roadCasingColor: cssColor(minimap.roadCasing, { r: 0.2, g: 0.18, b: 0.14 }),
+      waterColor: cssColor(minimap.water, { r: 0.2, g: 0.36, b: 0.4 }),
+    },
+  };
+}
+
 const payload = canonical({
-  schemaVersion: 1,
+  schemaVersion: 2,
   counts: {
     savedVehicles: SAVED_TANK_IDS.length,
     releaseVehicles: ALL_TANK_IDS.length,
@@ -65,7 +123,7 @@ const payload = canonical({
     production: PRODUCTION_TANK_IDS,
   },
   vehicles: SAVED_TANK_IDS.map((id) => vehicleRecord(TANK_SPECS[id])),
-  maps: MAP_IDS.map((id) => getMapConfig(id)),
+  maps: MAP_IDS.map(mapRecord),
 });
 const output = `${JSON.stringify(payload, null, 2)}\n`;
 

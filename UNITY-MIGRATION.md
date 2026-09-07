@@ -70,6 +70,10 @@ The port preserves the source project's runtime units and conventions:
   presentation for every production vehicle
 - Data-driven map environment, authored spawns, landforms, props, vegetation,
   sky and authoritative terrain height queries for all 20 maps
+- Source-layout-driven surface presentation for all 20 maps: country/grid/path
+  road networks with casings, lake and frozen-water sheets, marsh/soft-ground
+  discs, map palettes, ground variation, and all 1,420 configured craters.
+  Each surface class is merged into a bounded presentation-only mesh.
 - Standard, Capture the Flag, Zone Control, Turbo Ball, and Endless Horde modes
 - Equipment, consumables, deterministic replay recording, responsive HUD,
   keyboard, gamepad, and touch input
@@ -116,7 +120,8 @@ The original release is substantially larger than this first playable port.
 These systems still use the TypeScript implementation as their specification:
 
 - complete 126-vehicle production fleet and authored armor/module geometry;
-- all 20 terrain/map recipes, destructibles, vegetation, and streaming;
+- full terrain height-field rendering, authored buildings/landmarks,
+  destructibles, complete vegetation recipes, and world streaming for all 20 maps;
 - progression, loadout editing, replay browser, and production garage;
 - input rebinding, settings, minimap, damage panel, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;

@@ -7,6 +7,7 @@ namespace ClaudeOfTanks.Runtime
     public sealed class ContentCatalog
     {
         private const string ResourcePath = "Generated/content-catalog";
+        private const int SupportedSchemaVersion = 2;
         private readonly CatalogData _data;
 
         private ContentCatalog(CatalogData data)
@@ -31,7 +32,7 @@ namespace ClaudeOfTanks.Runtime
             }
 
             CatalogData data = JsonUtility.FromJson<CatalogData>(asset.text);
-            if (data == null || data.schemaVersion != 1)
+            if (data == null || data.schemaVersion != SupportedSchemaVersion)
             {
                 throw new InvalidOperationException("Unsupported content catalog schema.");
             }
@@ -234,6 +235,7 @@ namespace ClaudeOfTanks.Runtime
         public MapTerrain terrain;
         public MapProps props;
         public MapVegetation vegetation;
+        public MapSurface unitySurface;
     }
 
     [Serializable] public sealed class MapSky
@@ -249,6 +251,35 @@ namespace ClaudeOfTanks.Runtime
     [Serializable] public sealed class MapPoint { public float x; public float z; }
     [Serializable] public sealed class MapSpawns { public MapPoint player; public MapPoint[] enemies; }
     [Serializable] public sealed class MapTerrain { public LandformDefinition[] landforms; }
+    [Serializable] public sealed class MapSurface
+    {
+        public MapPolyline[] roads;
+        public MapDisc[] lakes;
+        public MapDisc[] marshes;
+        public bool frozenWater;
+        public MapColor groundColor;
+        public MapColor hardColor;
+        public MapColor softColor;
+        public MapColor roadColor;
+        public MapColor roadCasingColor;
+        public MapColor waterColor;
+    }
+    [Serializable] public sealed class MapPolyline { public MapPoint[] points; }
+    [Serializable] public sealed class MapDisc
+    {
+        public float x;
+        public float z;
+        public float r;
+        public float depth;
+        public float level;
+    }
+    [Serializable] public sealed class MapColor
+    {
+        public float r;
+        public float g;
+        public float b;
+        public Color ToColor(float alpha = 1f) { return new Color(r, g, b, alpha); }
+    }
     [Serializable] public sealed class LandformDefinition
     {
         public string kind;
