@@ -84,6 +84,9 @@ The port preserves the source project's runtime units and conventions:
 - Renderer-free multiplayer authority baseline with bounded 60 Hz catch-up,
   validated sequenced input, deduplicated action edges, 20 Hz snapshot cadence,
   spectator views, and pre-serialization spotting filters
+- Bounded client snapshot buffering with shortest-angle interpolation, 250 ms
+  extrapolation ceiling, immediate visibility removal, and shared-movement
+  local prediction with acknowledged-input replay and presentation correction
 - `npm run unity:content:update` / `unity:content:check` drift gate
 
 ## Remaining parity work
@@ -96,7 +99,7 @@ These systems still use the TypeScript implementation as their specification:
 - progression, loadout editing, replay browser, and production garage;
 - input rebinding, settings, minimap, damage panel, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
-- multiplayer transports, delta codec, client prediction, rooms, and persistence;
+- multiplayer transports, delta codec, rooms, reconnect, and persistence;
 - procedural vehicle geometry parity and generated technical assets.
 
 Migrate these by extending the simulation contracts rather than moving
