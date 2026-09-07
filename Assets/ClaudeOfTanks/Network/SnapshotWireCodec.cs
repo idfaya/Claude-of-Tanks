@@ -11,7 +11,11 @@ namespace ClaudeOfTanks.Network
         public const int MaximumEntities = 64;
         public const int MaximumShells = 256;
         public const int MaximumEvents = 256;
+        public const int MaximumDestroyedStaticObstacles =
+            BattleState.MaximumStaticObstacles;
         private const uint Magic = 0x4e544f43u;
+        private const ushort Version = 2;
+        private const ushort PreviousVersion = 1;
 
         public static byte[] Encode(NetworkWorldSnapshot snapshot)
         {
@@ -20,7 +24,7 @@ namespace ClaudeOfTanks.Network
             using (BinaryWriter writer = new BinaryWriter(stream, Encoding.UTF8, true))
             {
                 writer.Write(Magic);
-                writer.Write((ushort)NetworkProtocol.Version);
+                writer.Write(Version);
                 writer.Write(snapshot.Tick);
                 writer.Write(snapshot.ServerTimeMs);
                 WriteString(writer, snapshot.ViewerEntityId);
@@ -30,6 +34,10 @@ namespace ClaudeOfTanks.Network
                 writer.Write((byte)snapshot.GameMode);
                 writer.Write(snapshot.Winner.HasValue ? (sbyte)snapshot.Winner.Value : (sbyte)-1);
                 writer.Write(snapshot.Draw);
+                writer.Write(snapshot.StaticObstacleRevision);
+                writer.Write((ushort)snapshot.DestroyedStaticObstacleIndices.Length);
+                for (int i = 0; i < snapshot.DestroyedStaticObstacleIndices.Length; i++)
+                    writer.Write(snapshot.DestroyedStaticObstacleIndices[i]);
 
                 writer.Write((ushort)snapshot.Entities.Length);
                 for (int i = 0; i < snapshot.Entities.Length; i++)
@@ -58,7 +66,8 @@ namespace ClaudeOfTanks.Network
                 {
                     if (reader.ReadUInt32() != Magic)
                         throw new FormatException("Snapshot magic is invalid.");
-                    if (reader.ReadUInt16() != NetworkProtocol.Version)
+                    ushort version = reader.ReadUInt16();
+                    if (version != Version && version != PreviousVersion)
                         throw new FormatException("Snapshot protocol version is unsupported.");
 
                     NetworkWorldSnapshot snapshot = new NetworkWorldSnapshot
@@ -74,6 +83,21 @@ namespace ClaudeOfTanks.Network
                     sbyte winner = reader.ReadSByte();
                     snapshot.Winner = winner < 0 ? (Team?)null : (Team)winner;
                     snapshot.Draw = reader.ReadBoolean();
+                    if (version >= 2)
+                    {
+                        snapshot.StaticObstacleRevision = reader.ReadUInt32();
+                        int destroyedCount = ReadCount(
+                            reader,
+                            MaximumDestroyedStaticObstacles,
+                            "destroyed static obstacle");
+                        snapshot.DestroyedStaticObstacleIndices =
+                            new ushort[destroyedCount];
+                        for (int i = 0; i < destroyedCount; i++)
+                        {
+                            snapshot.DestroyedStaticObstacleIndices[i] =
+                                reader.ReadUInt16();
+                        }
+                    }
 
                     int entityCount = ReadCount(reader, MaximumEntities, "entity");
                     snapshot.Entities = new NetworkEntitySnapshot[entityCount];
@@ -241,6 +265,9 @@ namespace ClaudeOfTanks.Network
                 snapshot.Shells.Length > MaximumShells ||
                 snapshot.Events == null ||
                 snapshot.Events.Length > MaximumEvents ||
+                snapshot.DestroyedStaticObstacleIndices == null ||
+                snapshot.DestroyedStaticObstacleIndices.Length >
+                    MaximumDestroyedStaticObstacles ||
                 !Enum.IsDefined(typeof(GameModeId), snapshot.GameMode) ||
                 (snapshot.Winner.HasValue &&
                  !Enum.IsDefined(typeof(Team), snapshot.Winner.Value)))
@@ -248,6 +275,18 @@ namespace ClaudeOfTanks.Network
                 throw new FormatException("Snapshot header is invalid.");
             }
 
+            ushort previousDestroyedIndex = 0;
+            for (int i = 0; i < snapshot.DestroyedStaticObstacleIndices.Length; i++)
+            {
+                ushort index = snapshot.DestroyedStaticObstacleIndices[i];
+                if (index >= BattleState.MaximumStaticObstacles ||
+                    (i > 0 && index <= previousDestroyedIndex))
+                {
+                    throw new FormatException(
+                        "Snapshot destroyed static obstacle indices are invalid.");
+                }
+                previousDestroyedIndex = index;
+            }
             for (int i = 0; i < snapshot.Entities.Length; i++)
             {
                 NetworkEntitySnapshot entity = snapshot.Entities[i];

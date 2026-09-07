@@ -45,6 +45,7 @@ namespace ClaudeOfTanks.Network
                 snapshot.Entities == null ||
                 snapshot.Shells == null ||
                 snapshot.Events == null ||
+                snapshot.DestroyedStaticObstacleIndices == null ||
                 snapshot.Tick <= LatestTick)
             {
                 return false;

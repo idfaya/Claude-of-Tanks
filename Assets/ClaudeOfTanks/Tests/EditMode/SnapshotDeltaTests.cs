@@ -96,6 +96,55 @@ namespace ClaudeOfTanks.Tests
             Assert.Throws<ArgumentException>(() => SnapshotDelta.Apply(frame, baseline));
         }
 
+        [Test]
+        public void DeltaCarriesOnlyNewStructureDestructionAndReconstructsFullState()
+        {
+            NetworkWorldSnapshot baseline = Snapshot(15, Entity("alpha", 0f, 1000f));
+            baseline.StaticObstacleRevision = 1u;
+            baseline.DestroyedStaticObstacleIndices = new ushort[] { 2 };
+            NetworkWorldSnapshot current = Snapshot(18, Entity("alpha", 0f, 1000f));
+            current.StaticObstacleRevision = 3u;
+            current.DestroyedStaticObstacleIndices = new ushort[] { 2, 5, 8 };
+
+            NetworkSnapshotFrame frame = SnapshotDelta.Create(current, baseline);
+            Assert.That(
+                frame.Payload.DestroyedStaticObstacleIndices,
+                Is.EqualTo(new ushort[] { 5, 8 }));
+            NetworkWorldSnapshot reconstructed = SnapshotDelta.Apply(
+                SnapshotFrameWireCodec.Decode(SnapshotFrameWireCodec.Encode(frame)),
+                baseline);
+
+            Assert.That(reconstructed.StaticObstacleRevision, Is.EqualTo(3u));
+            Assert.That(
+                reconstructed.DestroyedStaticObstacleIndices,
+                Is.EqualTo(new ushort[] { 2, 5, 8 }));
+        }
+
+        [Test]
+        public void ReceiverRecoversStructureStateFromKeyframeAfterDroppedDelta()
+        {
+            NetworkWorldSnapshot baseline = Snapshot(30, Entity("alpha", 0f, 1000f));
+            NetworkWorldSnapshot missed = Snapshot(33, Entity("alpha", 0f, 1000f));
+            missed.StaticObstacleRevision = 1u;
+            missed.DestroyedStaticObstacleIndices = new ushort[] { 4 };
+            NetworkWorldSnapshot recovered = Snapshot(60, Entity("alpha", 0f, 1000f));
+            recovered.StaticObstacleRevision = 2u;
+            recovered.DestroyedStaticObstacleIndices = new ushort[] { 4, 9 };
+            SnapshotFrameReceiver receiver = new SnapshotFrameReceiver();
+            NetworkWorldSnapshot output;
+
+            Assert.That(
+                receiver.Receive(SnapshotDelta.Create(missed, baseline), out output),
+                Is.EqualTo(SnapshotFrameAdmission.MissingBase));
+            Assert.That(
+                receiver.Receive(SnapshotDelta.Create(recovered), out output),
+                Is.EqualTo(SnapshotFrameAdmission.Accepted));
+            Assert.That(
+                output.DestroyedStaticObstacleIndices,
+                Is.EqualTo(new ushort[] { 4, 9 }));
+            Assert.That(output.StaticObstacleRevision, Is.EqualTo(2u));
+        }
+
         private static NetworkEntitySnapshot Find(
             NetworkWorldSnapshot snapshot,
             string entityId)

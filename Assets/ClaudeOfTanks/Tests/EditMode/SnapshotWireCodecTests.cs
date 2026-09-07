@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using ClaudeOfTanks.Network;
 using ClaudeOfTanks.Simulation;
 using NUnit.Framework;
@@ -18,6 +19,8 @@ namespace ClaudeOfTanks.Tests
                 AcknowledgedInputSequence = 19u,
                 GameMode = GameModeId.ZoneControl,
                 Winner = Team.Alpha,
+                StaticObstacleRevision = 2u,
+                DestroyedStaticObstacleIndices = new ushort[] { 3, 8 },
                 Entities = new[]
                 {
                     new NetworkEntitySnapshot
@@ -72,6 +75,8 @@ namespace ClaudeOfTanks.Tests
             Assert.That(decoded.ViewerEntityId, Is.EqualTo(source.ViewerEntityId));
             Assert.That(decoded.AcknowledgedInputSequence, Is.EqualTo(19u));
             Assert.That(decoded.GameMode, Is.EqualTo(GameModeId.ZoneControl));
+            Assert.That(decoded.StaticObstacleRevision, Is.EqualTo(2u));
+            Assert.That(decoded.DestroyedStaticObstacleIndices, Is.EqualTo(new ushort[] { 3, 8 }));
             Assert.That(decoded.Entities[0].EntityId, Is.EqualTo("entity-a"));
             Assert.That(decoded.Entities[0].VehicleSpecId, Is.EqualTo("m1a2"));
             Assert.That(decoded.Entities[0].Position, Is.EqualTo(source.Entities[0].Position));
@@ -94,6 +99,46 @@ namespace ClaudeOfTanks.Tests
             Assert.Throws<FormatException>(() => SnapshotWireCodec.Decode(trailing));
 
             source.ServerTimeMs = double.NaN;
+            Assert.Throws<FormatException>(() => SnapshotWireCodec.Encode(source));
+        }
+
+        [Test]
+        public void CodecReadsVersionOneWithIntactStructures()
+        {
+            byte[] packet;
+            using (MemoryStream stream = new MemoryStream())
+            using (BinaryWriter writer = new BinaryWriter(stream))
+            {
+                writer.Write(0x4e544f43u);
+                writer.Write((ushort)1);
+                writer.Write((long)7);
+                writer.Write(116.0);
+                writer.Write((byte)0);
+                writer.Write(false);
+                writer.Write((byte)GameModeId.Standard);
+                writer.Write((sbyte)-1);
+                writer.Write(false);
+                writer.Write((ushort)0);
+                writer.Write((ushort)0);
+                writer.Write((ushort)0);
+                writer.Flush();
+                packet = stream.ToArray();
+            }
+
+            NetworkWorldSnapshot decoded = SnapshotWireCodec.Decode(packet);
+
+            Assert.That(decoded.Tick, Is.EqualTo(7));
+            Assert.That(decoded.StaticObstacleRevision, Is.Zero);
+            Assert.That(decoded.DestroyedStaticObstacleIndices, Is.Empty);
+        }
+
+        [Test]
+        public void CodecRejectsDuplicateDestroyedObstacleIndices()
+        {
+            NetworkWorldSnapshot source = EmptySnapshot();
+            source.StaticObstacleRevision = 2u;
+            source.DestroyedStaticObstacleIndices = new ushort[] { 4, 4 };
+
             Assert.Throws<FormatException>(() => SnapshotWireCodec.Encode(source));
         }
 

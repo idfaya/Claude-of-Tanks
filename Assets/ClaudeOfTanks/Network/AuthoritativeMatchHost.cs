@@ -152,6 +152,13 @@ namespace ClaudeOfTanks.Network
                 if (IsEventVisible(visible, battleEvent)) events.Add(battleEvent);
             }
 
+            List<ushort> destroyedStaticObstacles = new List<ushort>();
+            for (int i = 0; i < _simulation.State.StaticObstacles.Length; i++)
+            {
+                if (_simulation.State.IsStaticObstacleDestroyed(i))
+                    destroyedStaticObstacles.Add((ushort)i);
+            }
+
             return new NetworkWorldSnapshot
             {
                 Tick = Tick,
@@ -162,6 +169,8 @@ namespace ClaudeOfTanks.Network
                 GameMode = _simulation.MatchMode.Id,
                 Winner = _simulation.MatchMode.Winner,
                 Draw = _simulation.MatchMode.Draw,
+                StaticObstacleRevision = _simulation.State.StaticObstacleRevision,
+                DestroyedStaticObstacleIndices = destroyedStaticObstacles.ToArray(),
                 Entities = entities.ToArray(),
                 Shells = shells.ToArray(),
                 Events = events.ToArray()

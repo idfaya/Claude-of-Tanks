@@ -128,6 +128,9 @@ The port preserves the source project's runtime units and conventions:
   string, enum, finite-number, truncation, and trailing-data validation
 - ACK-based keyframe/delta snapshots with explicit visibility removals,
   missing-base recovery, bounded history, and strict binary frame validation
+- Snapshot payload v2 persistent structure destruction with stable bounded
+  obstacle indices, monotonic revisions, delta-only additions, v1 decode
+  compatibility, and full keyframe recovery for reconnecting clients
 - Bounded dual-channel loopback transport and host/client pumps: reliable FIFO
   input, replaceable latest-state delivery, prediction reconciliation, and
   automatic keyframe recovery after state loss
@@ -158,9 +161,8 @@ The original release is substantially larger than this first playable port.
 These systems still use the TypeScript implementation as their specification:
 
 - complete 126-vehicle production fleet and authored armor/module geometry;
-- per-family structure geometry/material parity, authoritative structure
-  destruction snapshot synchronization, complete vegetation recipes, and
-  world streaming for all 20 maps;
+- per-family structure geometry/material parity, complete vegetation recipes,
+  and world streaming for all 20 maps;
 - progression, loadout editing, and production garage;
 - controller glyph polish, accessibility options, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;

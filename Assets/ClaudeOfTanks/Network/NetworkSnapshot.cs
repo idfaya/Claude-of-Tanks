@@ -36,6 +36,8 @@ namespace ClaudeOfTanks.Network
         public GameModeId GameMode;
         public Team? Winner;
         public bool Draw;
+        public uint StaticObstacleRevision;
+        public ushort[] DestroyedStaticObstacleIndices = System.Array.Empty<ushort>();
         public NetworkEntitySnapshot[] Entities;
         public NetworkShellSnapshot[] Shells;
         public BattleEvent[] Events;

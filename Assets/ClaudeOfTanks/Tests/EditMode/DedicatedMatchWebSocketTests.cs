@@ -57,7 +57,8 @@ namespace ClaudeOfTanks.Tests
                 () => "dedicated_token_value_" + (++tokenSequence).ToString("D8")))
             {
                 RoomMatchPlan plan = Plan();
-                AuthoritativeMatchHost host = Host(plan);
+                BattleState battleState;
+                AuthoritativeMatchHost host = Host(plan, out battleState);
                 DedicatedMatchTicket[] tickets =
                     registry.CreateMatch(plan, host, 1000, "match_socket");
                 int port = FreeTcpPort();
@@ -133,6 +134,9 @@ namespace ClaudeOfTanks.Tests
                         Assert.That(alphaClient.LatestSnapshot.ViewerEntityId, Is.EqualTo("alpha-entity"));
                         Assert.That(bravoClient.LatestSnapshot.ViewerEntityId, Is.EqualTo("bravo-entity"));
                         Assert.That(service.ActiveConnectionCount, Is.EqualTo(2));
+                        Assert.That(
+                            battleState.DamageStaticObstacle(0, 10000f),
+                            Is.True);
                     }
 
                     bool disconnected = false;
@@ -159,11 +163,27 @@ namespace ClaudeOfTanks.Tests
                                 Token = alphaSessionToken
                             }).GetAwaiter().GetResult();
                     using (resumed)
+                    using (NetworkClientPump resumedClient = new NetworkClientPump(
+                        resumed.Admission.PlayerId,
+                        resumed.Admission.EntityId,
+                        resumed.Transport))
                     {
                         Assert.That(resumed.Admission.ConnectionGeneration, Is.EqualTo(2));
                         Assert.That(resumed.Admission.SessionToken, Is.Not.EqualTo(alphaSessionToken));
-                        service.Pump(0);
+                        bool recoveredStructureState = false;
+                        for (int i = 0; i < 200 && !recoveredStructureState; i++)
+                        {
+                            service.Pump(1);
+                            resumedClient.Pump();
+                            recoveredStructureState =
+                                resumedClient.LatestSnapshot != null &&
+                                resumedClient.LatestSnapshot.StaticObstacleRevision == 1u &&
+                                resumedClient.LatestSnapshot.DestroyedStaticObstacleIndices.Length == 1 &&
+                                resumedClient.LatestSnapshot.DestroyedStaticObstacleIndices[0] == 0;
+                            if (!recoveredStructureState) Thread.Sleep(2);
+                        }
                         Assert.That(registry.Get("match_socket").ConnectedPlayerCount, Is.EqualTo(1));
+                        Assert.That(recoveredStructureState, Is.True);
                     }
                 }
             }
@@ -211,9 +231,26 @@ namespace ClaudeOfTanks.Tests
             };
         }
 
-        private static AuthoritativeMatchHost Host(RoomMatchPlan plan)
+        private static AuthoritativeMatchHost Host(
+            RoomMatchPlan plan,
+            out BattleState state)
         {
-            BattleState state = new BattleState(new FlatHeightField(), plan.Seed);
+            state = new BattleState(
+                new FlatHeightField(),
+                plan.Seed,
+                500f,
+                new[]
+                {
+                    new StaticObstacle(
+                        "reconnect-cover",
+                        new Float3(30f, 0f, 0f),
+                        2f,
+                        2f,
+                        3f,
+                        0f,
+                        StaticObstacleFlags.All,
+                        true)
+                });
             for (int i = 0; i < plan.Seats.Length; i++)
             {
                 RoomMatchSeat seat = plan.Seats[i];

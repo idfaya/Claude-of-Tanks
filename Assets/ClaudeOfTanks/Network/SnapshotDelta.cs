@@ -28,17 +28,22 @@ namespace ClaudeOfTanks.Network
             NetworkWorldSnapshot baseline = null)
         {
             RequireSnapshot(current, nameof(current));
+            RequireCompleteStructureState(current, nameof(current));
             if (baseline == null)
             {
                 return new NetworkSnapshotFrame
                 {
                     BaseTick = -1,
-                    Payload = CopyWithEntities(current, current.Entities),
+                    Payload = CopyWithState(
+                        current,
+                        current.Entities,
+                        current.DestroyedStaticObstacleIndices),
                     RemovedEntityIds = Array.Empty<string>()
                 };
             }
 
             RequireSnapshot(baseline, nameof(baseline));
+            RequireCompleteStructureState(baseline, nameof(baseline));
             if (baseline.Tick >= current.Tick ||
                 baseline.ViewerEntityId != current.ViewerEntityId)
             {
@@ -59,11 +64,17 @@ namespace ClaudeOfTanks.Network
                 string entityId = baseline.Entities[i].EntityId;
                 if (Find(current.Entities, entityId) == null) removed.Add(entityId);
             }
+            ushort[] destroyedStaticObstacles = AddedDestroyedStaticObstacles(
+                current,
+                baseline);
 
             return new NetworkSnapshotFrame
             {
                 BaseTick = baseline.Tick,
-                Payload = CopyWithEntities(current, changed.ToArray()),
+                Payload = CopyWithState(
+                    current,
+                    changed.ToArray(),
+                    destroyedStaticObstacles),
                 RemovedEntityIds = removed.ToArray()
             };
         }
@@ -77,11 +88,21 @@ namespace ClaudeOfTanks.Network
             RequireSnapshot(frame.Payload, nameof(frame));
             if (frame.IsKeyframe)
             {
-                if (frame.RemovedEntityIds.Length != 0)
-                    throw new ArgumentException("Keyframes cannot remove entities.", nameof(frame));
-                return CopyWithEntities(frame.Payload, frame.Payload.Entities);
+                if (frame.RemovedEntityIds.Length != 0 ||
+                    frame.Payload.StaticObstacleRevision !=
+                        frame.Payload.DestroyedStaticObstacleIndices.Length)
+                {
+                    throw new ArgumentException(
+                        "Keyframe state is inconsistent.",
+                        nameof(frame));
+                }
+                return CopyWithState(
+                    frame.Payload,
+                    frame.Payload.Entities,
+                    frame.Payload.DestroyedStaticObstacleIndices);
             }
             RequireSnapshot(baseline, nameof(baseline));
+            RequireCompleteStructureState(baseline, nameof(baseline));
             if (baseline.Tick != frame.BaseTick ||
                 baseline.Tick >= frame.Payload.Tick ||
                 baseline.ViewerEntityId != frame.Payload.ViewerEntityId)
@@ -129,12 +150,19 @@ namespace ClaudeOfTanks.Network
                 NetworkEntitySnapshot entity = frame.Payload.Entities[i];
                 if (upserts.ContainsKey(entity.EntityId)) entities.Add(entity);
             }
-            return CopyWithEntities(frame.Payload, entities.ToArray());
+            ushort[] destroyedStaticObstacles = MergeDestroyedStaticObstacles(
+                baseline,
+                frame.Payload);
+            return CopyWithState(
+                frame.Payload,
+                entities.ToArray(),
+                destroyedStaticObstacles);
         }
 
-        private static NetworkWorldSnapshot CopyWithEntities(
+        private static NetworkWorldSnapshot CopyWithState(
             NetworkWorldSnapshot source,
-            NetworkEntitySnapshot[] entities)
+            NetworkEntitySnapshot[] entities,
+            ushort[] destroyedStaticObstacleIndices)
         {
             return new NetworkWorldSnapshot
             {
@@ -145,10 +173,92 @@ namespace ClaudeOfTanks.Network
                 GameMode = source.GameMode,
                 Winner = source.Winner,
                 Draw = source.Draw,
+                StaticObstacleRevision = source.StaticObstacleRevision,
+                DestroyedStaticObstacleIndices =
+                    (ushort[])destroyedStaticObstacleIndices.Clone(),
                 Entities = (NetworkEntitySnapshot[])entities.Clone(),
                 Shells = (NetworkShellSnapshot[])source.Shells.Clone(),
                 Events = (BattleEvent[])source.Events.Clone()
             };
+        }
+
+        private static ushort[] AddedDestroyedStaticObstacles(
+            NetworkWorldSnapshot current,
+            NetworkWorldSnapshot baseline)
+        {
+            if (current.StaticObstacleRevision < baseline.StaticObstacleRevision)
+                throw new ArgumentException("Static obstacle revision cannot move backward.");
+            List<ushort> added = new List<ushort>();
+            int baselineIndex = 0;
+            for (int currentIndex = 0;
+                currentIndex < current.DestroyedStaticObstacleIndices.Length;
+                currentIndex++)
+            {
+                ushort value = current.DestroyedStaticObstacleIndices[currentIndex];
+                while (baselineIndex < baseline.DestroyedStaticObstacleIndices.Length &&
+                    baseline.DestroyedStaticObstacleIndices[baselineIndex] < value)
+                {
+                    throw new ArgumentException(
+                        "Destroyed static obstacle state cannot be restored.");
+                }
+                if (baselineIndex < baseline.DestroyedStaticObstacleIndices.Length &&
+                    baseline.DestroyedStaticObstacleIndices[baselineIndex] == value)
+                {
+                    baselineIndex++;
+                }
+                else
+                {
+                    added.Add(value);
+                }
+            }
+            if (baselineIndex != baseline.DestroyedStaticObstacleIndices.Length ||
+                current.StaticObstacleRevision - baseline.StaticObstacleRevision !=
+                    (uint)added.Count)
+            {
+                throw new ArgumentException("Static obstacle revision is inconsistent.");
+            }
+            return added.ToArray();
+        }
+
+        private static ushort[] MergeDestroyedStaticObstacles(
+            NetworkWorldSnapshot baseline,
+            NetworkWorldSnapshot delta)
+        {
+            if (delta.StaticObstacleRevision < baseline.StaticObstacleRevision ||
+                delta.StaticObstacleRevision - baseline.StaticObstacleRevision !=
+                    (uint)delta.DestroyedStaticObstacleIndices.Length)
+            {
+                throw new ArgumentException("Static obstacle delta revision is invalid.");
+            }
+            ushort[] merged = new ushort[
+                baseline.DestroyedStaticObstacleIndices.Length +
+                delta.DestroyedStaticObstacleIndices.Length];
+            int baselineIndex = 0;
+            int deltaIndex = 0;
+            int outputIndex = 0;
+            while (baselineIndex < baseline.DestroyedStaticObstacleIndices.Length ||
+                deltaIndex < delta.DestroyedStaticObstacleIndices.Length)
+            {
+                if (deltaIndex >= delta.DestroyedStaticObstacleIndices.Length ||
+                    (baselineIndex < baseline.DestroyedStaticObstacleIndices.Length &&
+                     baseline.DestroyedStaticObstacleIndices[baselineIndex] <
+                        delta.DestroyedStaticObstacleIndices[deltaIndex]))
+                {
+                    merged[outputIndex++] =
+                        baseline.DestroyedStaticObstacleIndices[baselineIndex++];
+                    continue;
+                }
+                if (baselineIndex < baseline.DestroyedStaticObstacleIndices.Length &&
+                    baseline.DestroyedStaticObstacleIndices[baselineIndex] ==
+                        delta.DestroyedStaticObstacleIndices[deltaIndex])
+                {
+                    throw new ArgumentException(
+                        "Static obstacle delta contains an existing index.");
+                }
+                merged[outputIndex++] =
+                    delta.DestroyedStaticObstacleIndices[deltaIndex++];
+            }
+            return merged;
         }
 
         private static NetworkEntitySnapshot Find(
@@ -185,11 +295,25 @@ namespace ClaudeOfTanks.Network
                 snapshot.Tick < 0 ||
                 snapshot.Entities == null ||
                 snapshot.Shells == null ||
-                snapshot.Events == null)
+                snapshot.Events == null ||
+                snapshot.DestroyedStaticObstacleIndices == null)
             {
                 throw new ArgumentException("Snapshot is incomplete.", argument);
             }
             HashSet<string> ids = new HashSet<string>(StringComparer.Ordinal);
+            ushort previousDestroyedIndex = 0;
+            for (int i = 0; i < snapshot.DestroyedStaticObstacleIndices.Length; i++)
+            {
+                ushort index = snapshot.DestroyedStaticObstacleIndices[i];
+                if (index >= BattleState.MaximumStaticObstacles ||
+                    (i > 0 && index <= previousDestroyedIndex))
+                {
+                    throw new ArgumentException(
+                        "Snapshot static obstacle indices are invalid.",
+                        argument);
+                }
+                previousDestroyedIndex = index;
+            }
             for (int i = 0; i < snapshot.Entities.Length; i++)
             {
                 NetworkEntitySnapshot entity = snapshot.Entities[i];
@@ -199,6 +323,19 @@ namespace ClaudeOfTanks.Network
                 {
                     throw new ArgumentException("Snapshot entity identities are invalid.", argument);
                 }
+            }
+        }
+
+        private static void RequireCompleteStructureState(
+            NetworkWorldSnapshot snapshot,
+            string argument)
+        {
+            if (snapshot.StaticObstacleRevision !=
+                snapshot.DestroyedStaticObstacleIndices.Length)
+            {
+                throw new ArgumentException(
+                    "Snapshot static obstacle revision is incomplete.",
+                    argument);
             }
         }
     }

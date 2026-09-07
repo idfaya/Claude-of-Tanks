@@ -106,6 +106,49 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void StructureDestructionStateIsIdenticalForEveryViewer()
+        {
+            BattleState state = new BattleState(
+                new FlatHeightField(),
+                95u,
+                500f,
+                new[]
+                {
+                    new StaticObstacle(
+                        "global-cover",
+                        new Float3(0f, 0f, 60f),
+                        4f,
+                        4f,
+                        5f,
+                        0f,
+                        StaticObstacleFlags.All,
+                        true)
+                });
+            TankState alpha = Tank("entity-alpha", Team.Alpha, Float3.Zero, 0f);
+            TankState bravo = Tank(
+                "entity-bravo", Team.Bravo, new Float3(0f, 0f, 120f), MathUtil.Pi);
+            state.Tanks.Add(alpha);
+            state.Tanks.Add(bravo);
+            state.DamageStaticObstacle(0, 10000f);
+            AuthoritativeMatchHost host =
+                new AuthoritativeMatchHost(new BattleSimulation(state));
+            host.RegisterPlayer("peer-alpha", alpha.Id);
+            host.RegisterPlayer("peer-bravo", bravo.Id);
+
+            NetworkWorldSnapshot alphaSnapshot = host.CreateSnapshot("peer-alpha");
+            NetworkWorldSnapshot bravoSnapshot = host.CreateSnapshot("peer-bravo");
+
+            Assert.That(alphaSnapshot.StaticObstacleRevision, Is.EqualTo(1u));
+            Assert.That(bravoSnapshot.StaticObstacleRevision, Is.EqualTo(1u));
+            Assert.That(
+                alphaSnapshot.DestroyedStaticObstacleIndices,
+                Is.EqualTo(new ushort[] { 0 }));
+            Assert.That(
+                bravoSnapshot.DestroyedStaticObstacleIndices,
+                Is.EqualTo(new ushort[] { 0 }));
+        }
+
+        [Test]
         public void EntityIdentityDoesNotAliasDuplicateVehicleSelections()
         {
             BattleState state = new BattleState(new FlatHeightField(), 93u);
