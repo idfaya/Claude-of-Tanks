@@ -18,15 +18,17 @@ namespace ClaudeOfTanks.Runtime
         private bool _fireHeld;
         private readonly bool[] _consumables = new bool[3];
         private Action _restart;
+        private Action _garage;
 
         public Vector2 TouchDrive => _touchDrive;
         public bool FireHeld => _fireHeld;
 
-        public static BattleHud Create(Action restart)
+        public static BattleHud Create(Action restart, Action garage = null)
         {
             GameObject root = new GameObject("BattleHUD");
             BattleHud hud = root.AddComponent<BattleHud>();
             hud._restart = restart;
+            hud._garage = garage;
             hud.Build();
             return hud;
         }
@@ -110,6 +112,8 @@ namespace ClaudeOfTanks.Runtime
             CreateButton("Extinguish", "6", new Vector2(542f, 20f), () => _consumables[2] = true);
             CreateButton("Restart", "RESTART", new Vector2(-70f, -50f), _restart, new Vector2(140f, 42f), new Vector2(0.5f, 0.5f));
             transform.Find("Restart").gameObject.SetActive(false);
+            CreateButton("Garage", "GARAGE", new Vector2(20f, -48f), _garage,
+                new Vector2(90f, 34f), new Vector2(0f, 1f));
             BuildTouchControls(font);
         }
 

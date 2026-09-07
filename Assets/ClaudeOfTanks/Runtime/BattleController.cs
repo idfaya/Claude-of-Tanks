@@ -28,14 +28,41 @@ namespace ClaudeOfTanks.Runtime
         private BattleEffects _effects;
         [SerializeField] private string mapId = "verdant";
         [SerializeField] private GameModeId gameMode = GameModeId.Standard;
+        [SerializeField] private string vehicleId = "m1a2";
+        private Action _returnToGarage;
         private float _accumulator;
         private string _status = "BATTLE";
         private float _statusUntil;
         private GUIStyle _labelStyle;
         private GUIStyle _statusStyle;
 
+        public string VehicleId => vehicleId;
+        public string MapId => mapId;
+        public GameModeId GameMode => gameMode;
+        public TankState Player => _player;
+
+        public void Configure(
+            string selectedVehicleId, string selectedMapId, GameModeId selectedMode,
+            Action returnToGarage)
+        {
+            vehicleId = selectedVehicleId;
+            mapId = selectedMapId;
+            gameMode = selectedMode;
+            _returnToGarage = returnToGarage;
+        }
+
         private void Awake()
         {
+            Initialize();
+        }
+
+        public void Initialize()
+        {
+            if (_catalog != null)
+            {
+                return;
+            }
+
 #if ENABLE_INPUT_SYSTEM
             if (Keyboard.current == null)
             {
@@ -49,8 +76,10 @@ namespace ClaudeOfTanks.Runtime
             _catalog = ContentCatalog.Load();
             BuildEnvironment();
             StartBattle();
-            _hud = BattleHud.Create(StartBattle);
+            _hud = BattleHud.Create(StartBattle, _returnToGarage);
+            _hud.transform.SetParent(transform, false);
             _effects = BattleEffects.Create();
+            _effects.transform.SetParent(transform, false);
         }
 
         private void Update()
@@ -113,7 +142,7 @@ namespace ClaudeOfTanks.Runtime
 
             foreach (GameObject shell in _shellViews.Values)
             {
-                Destroy(shell);
+                DestroyShellView(shell);
             }
 
             _tankViews.Clear();
@@ -124,7 +153,7 @@ namespace ClaudeOfTanks.Runtime
             MapDefinition map = _catalog.GetMap(mapId);
             BattleState state = new BattleState(BuildHeightField(map), 6000u);
             MapPoint playerSpawn = map.spawns.player;
-            AddTank(state, "player", Team.Alpha, "m1a2",
+            AddTank(state, "player", Team.Alpha, vehicleId,
                 SpawnPosition(state, playerSpawn.x, playerSpawn.z), 0f);
             AddTank(state, "alpha-2", Team.Alpha, "challenger2",
                 SpawnPosition(state, playerSpawn.x - 13f, playerSpawn.z - 8f), 0.1f);
@@ -148,6 +177,13 @@ namespace ClaudeOfTanks.Runtime
             _accumulator = 0f;
             _status = "BATTLE";
             _statusUntil = Time.unscaledTime + 1.5f;
+        }
+
+        private void OnDestroy()
+        {
+            _mapRuntime?.Dispose();
+            foreach (TankView view in _tankViews.Values) view.Destroy();
+            foreach (GameObject shell in _shellViews.Values) DestroyShellView(shell);
         }
 
         private void AddTank(
@@ -330,8 +366,10 @@ namespace ClaudeOfTanks.Runtime
                     view.name = "Shell-" + shell.Id;
                     view.transform.localScale = Vector3.one * 0.18f;
                     Renderer renderer = view.GetComponent<Renderer>();
-                    renderer.material = new Material(Shader.Find("Standard"));
-                    renderer.material.color = new Color(1f, 0.72f, 0.14f);
+                    renderer.sharedMaterial = new Material(Shader.Find("Standard"))
+                    {
+                        color = new Color(1f, 0.72f, 0.14f)
+                    };
                     _shellViews.Add(shell.Id, view);
                 }
 
@@ -342,9 +380,26 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 0; i < _staleShellIds.Count; i++)
             {
                 int id = _staleShellIds[i];
-                Destroy(_shellViews[id]);
+                DestroyShellView(_shellViews[id]);
                 _shellViews.Remove(id);
             }
+        }
+
+        private static void DestroyShellView(GameObject shell)
+        {
+            Renderer renderer = shell != null ? shell.GetComponent<Renderer>() : null;
+            if (renderer != null && renderer.sharedMaterial != null)
+            {
+                DestroyObject(renderer.sharedMaterial);
+            }
+            DestroyObject(shell);
+        }
+
+        private static void DestroyObject(UnityEngine.Object value)
+        {
+            if (value == null) return;
+            if (Application.isPlaying) Destroy(value);
+            else DestroyImmediate(value);
         }
 
         private void CheckResult()

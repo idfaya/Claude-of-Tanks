@@ -233,9 +233,16 @@ namespace ClaudeOfTanks.Runtime
 
         public void Destroy()
         {
-            Object.Destroy(_root.gameObject);
-            for (int i = 0; i < _meshes.Length; i++) Object.Destroy(_meshes[i]);
-            for (int i = 0; i < _materials.Length; i++) Object.Destroy(_materials[i]);
+            DestroyObject(_root.gameObject);
+            for (int i = 0; i < _meshes.Length; i++) DestroyObject(_meshes[i]);
+            for (int i = 0; i < _materials.Length; i++) DestroyObject(_materials[i]);
+        }
+
+        private static void DestroyObject(Object value)
+        {
+            if (value == null) return;
+            if (Application.isPlaying) Object.Destroy(value);
+            else Object.DestroyImmediate(value);
         }
 
         private static Transform CreatePart(

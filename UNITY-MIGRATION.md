@@ -68,6 +68,12 @@ The port preserves the source project's runtime units and conventions:
   presentation for every production vehicle
 - Data-driven map environment, authored spawns, landforms, props, vegetation,
   sky and authoritative terrain height queries for all 20 maps
+- Standard, Capture the Flag, Zone Control, Turbo Ball, and Endless Horde modes
+- Equipment, consumables, deterministic replay recording, responsive HUD,
+  keyboard, gamepad, and touch input
+- Pooled battle audio and impact/destruction effects
+- Garage-first lifecycle with all 126 production vehicles, 20 maps, and five
+  modes selectable before deployment, plus complete return-to-garage cleanup
 - `npm run unity:content:update` / `unity:content:check` drift gate
 
 ## Remaining parity work
@@ -77,8 +83,8 @@ These systems still use the TypeScript implementation as their specification:
 
 - complete 126-vehicle production fleet and authored armor/module geometry;
 - all 20 terrain/map recipes, destructibles, vegetation, and streaming;
-- match modes, equipment, consumables, replays, and garage;
-- touch/gamepad rebinding and production UI;
+- progression, results, loadout editing, replay browser, and production garage;
+- input rebinding, settings, minimap, damage panel, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
 - authoritative multiplayer transport, snapshots, prediction, and persistence;
 - procedural vehicle geometry parity and generated technical assets.

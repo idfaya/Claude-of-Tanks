@@ -7,13 +7,13 @@ namespace ClaudeOfTanks.Runtime
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Initialize()
         {
-            if (Object.FindObjectOfType<BattleController>() != null)
+            if (Object.FindObjectOfType<GameFlowController>() != null)
             {
                 return;
             }
 
             GameObject runtime = new GameObject("Claude of Tanks Runtime");
-            runtime.AddComponent<BattleController>();
+            runtime.AddComponent<GameFlowController>();
             Object.DontDestroyOnLoad(runtime);
         }
     }
