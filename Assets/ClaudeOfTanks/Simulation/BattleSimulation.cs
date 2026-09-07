@@ -40,6 +40,7 @@ namespace ClaudeOfTanks.Simulation
                 DamageSimulation.AdvanceModuleRepairs(tank.Combat, dt);
                 ResolveWorldBounds(tank);
                 ResolveTankContacts(tank, previous);
+                TryUseConsumables(tank, input);
                 if (tank.Combat.Fire.Burning)
                 {
                     DamageSimulation.AdvanceFire(
@@ -56,6 +57,22 @@ namespace ClaudeOfTanks.Simulation
             StepShells(dt);
             _state.TimeS += dt;
             _matchMode.Step(dt);
+        }
+
+        private void TryUseConsumables(TankState tank, TankInput input)
+        {
+            ConsumableSlot? slot = input.UseRepairKit ? ConsumableSlot.RepairKit
+                : input.UseFirstAidKit ? ConsumableSlot.FirstAidKit
+                : input.UseFireExtinguisher ? ConsumableSlot.FireExtinguisher
+                : (ConsumableSlot?)null;
+            if (!slot.HasValue || !LoadoutSimulation.UseConsumable(tank, slot.Value, _state.TimeS))
+                return;
+            _state.Events.Add(new BattleEvent
+            {
+                Type = BattleEventType.ConsumableUsed,
+                SourceId = tank.Id,
+                Value = (int)slot.Value
+            });
         }
 
         private void TryFire(TankState tank, Float3 aimPoint)

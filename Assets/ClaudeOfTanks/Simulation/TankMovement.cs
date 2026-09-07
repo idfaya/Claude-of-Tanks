@@ -50,7 +50,8 @@ namespace ClaudeOfTanks.Simulation
             float speedFraction = MathUtil.Clamp01(MathF.Abs(tank.SpeedMps) / MathF.Max(1f, forwardLimit));
             float pivotFactor = MathF.Abs(tank.SpeedMps) < 0.3f ? 0.72f : 1f - speedFraction * 0.35f;
             float direction = tank.SpeedMps < -0.05f ? -1f : 1f;
-            tank.Yaw += steer * direction * tank.Spec.HullTraverseDegS * MathUtil.Deg2Rad * pivotFactor * dt;
+            tank.Yaw += steer * direction * tank.Spec.HullTraverseDegS *
+                tank.TraverseMultiplier * MathUtil.Deg2Rad * pivotFactor * dt;
 
             Float3 forward = Float3.Forward(tank.Yaw);
             Float3 next = tank.Position + forward * (tank.SpeedMps * dt);
@@ -63,7 +64,8 @@ namespace ClaudeOfTanks.Simulation
                 float desiredWorldYaw = MathF.Atan2(toAim.X, toAim.Z);
                 float desiredLocalYaw = MathUtil.DeltaAngle(tank.Yaw, desiredWorldYaw);
                 float delta = MathUtil.DeltaAngle(tank.TurretYaw, desiredLocalYaw);
-                float maxStep = tank.Spec.TurretTraverseDegS * MathUtil.Deg2Rad * dt;
+                float maxStep = tank.Spec.TurretTraverseDegS *
+                    tank.TurretMultiplier * MathUtil.Deg2Rad * dt;
                 tank.TurretYaw += MathUtil.Clamp(delta, -maxStep, maxStep);
             }
         }

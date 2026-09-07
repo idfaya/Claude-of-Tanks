@@ -85,6 +85,9 @@ namespace ClaudeOfTanks.Simulation
         public float Steer;
         public bool Brake;
         public bool Fire;
+        public bool UseRepairKit;
+        public bool UseFirstAidKit;
+        public bool UseFireExtinguisher;
         public Float3 AimPoint;
     }
 
@@ -101,6 +104,9 @@ namespace ClaudeOfTanks.Simulation
         public float ReloadRemainingS;
         public bool Destroyed;
         public int Kills;
+        public float TraverseMultiplier = 1f;
+        public float TurretMultiplier = 1f;
+        public readonly float[] ConsumableReadyAt = new float[3];
         public readonly DamageCombatState Combat;
         public readonly DamageTankSpec DamageSpec;
 
@@ -137,7 +143,8 @@ namespace ClaudeOfTanks.Simulation
     {
         ShellFired,
         ShellHit,
-        TankDestroyed
+        TankDestroyed,
+        ConsumableUsed
     }
 
     public struct BattleEvent

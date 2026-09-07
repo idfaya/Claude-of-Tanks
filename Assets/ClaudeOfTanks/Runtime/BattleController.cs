@@ -173,6 +173,9 @@ namespace ClaudeOfTanks.Runtime
                 Steer = steer,
                 Brake = IsKeyPressed(KeyCode.LeftShift) || IsKeyPressed(KeyCode.RightShift),
                 Fire = IsPrimaryButtonPressed() || IsKeyPressed(KeyCode.Space),
+                UseRepairKit = Input.GetKeyDown(KeyCode.Alpha4),
+                UseFirstAidKit = Input.GetKeyDown(KeyCode.Alpha5),
+                UseFireExtinguisher = Input.GetKeyDown(KeyCode.Alpha6),
                 AimPoint = aimPoint
             };
         }
