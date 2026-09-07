@@ -79,6 +79,148 @@ function rgb(value, fallback) {
     : fallback;
 }
 
+const TOWER_KINDS = new Set([
+  'tower', 'church', 'chapel', 'onionchurch', 'minaret', 'lighthouse',
+  'watertower', 'stack', 'needletower', 'broadcasttower', 'relaystation',
+]);
+const LARGE_KINDS = new Set([
+  'factory', 'warehouse', 'depot', 'foundryoffice', 'firestation',
+  'caravanserai', 'compound', 'compoundSouk', 'marketRow', 'motorpool',
+  'servicegarage', 'parkingdeck', 'civichall', 'arcology', 'megatower',
+  'terracetower', 'gantry',
+]);
+const INDUSTRIAL_KINDS = new Set([
+  'factory', 'warehouse', 'depot', 'foundryoffice', 'firestation',
+  'containerRow', 'gantry', 'watertower', 'stack', 'shed', 'motorpool',
+  'quonsethut', 'transformershed', 'securityoffice', 'servicegarage',
+  'relaystation', 'parkingdeck', 'broadcasttower',
+]);
+const RUIN_KINDS = new Set(['ruin']);
+
+function stableHash(value) {
+  let hash = 17;
+  for (let i = 0; i < value.length; i++) hash = Math.imul(hash, 31) + value.charCodeAt(i) | 0;
+  return hash >>> 0;
+}
+
+function mulberry32(seed) {
+  return () => {
+    seed |= 0;
+    seed = seed + 0x6D2B79F5 | 0;
+    let value = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    value = value + Math.imul(value ^ value >>> 7, 61 | value) ^ value;
+    return ((value ^ value >>> 14) >>> 0) / 4294967296;
+  };
+}
+
+function structureShape(kind) {
+  if (kind === 'megatower' || kind === 'arcology') {
+    return { w: 24, d: 22, h: 48, profile: 'tower' };
+  }
+  if (kind === 'terracetower' || kind === 'needletower') {
+    return { w: 15, d: 15, h: 38, profile: 'tower' };
+  }
+  if (TOWER_KINDS.has(kind)) {
+    const height = kind === 'lighthouse' || kind === 'broadcasttower' ? 28 : 20;
+    return { w: 9, d: 9, h: height, profile: 'tower' };
+  }
+  if (LARGE_KINDS.has(kind)) {
+    return {
+      w: kind === 'parkingdeck' ? 26 : 18,
+      d: kind === 'gantry' ? 9 : 15,
+      h: kind === 'parkingdeck' ? 13 : 11,
+      profile: 'industrial',
+    };
+  }
+  if (kind === 'rowhouse' || kind === 'cornershop') {
+    return { w: 9.5, d: 10, h: 10.5, profile: 'urban' };
+  }
+  if (RUIN_KINDS.has(kind)) return { w: 10, d: 9, h: 6, profile: 'ruin' };
+  if (kind === 'deserttent' || kind === 'commandtent') {
+    return { w: 7, d: 9, h: 4, profile: 'tent' };
+  }
+  if (kind === 'huntingblind' || kind === 'guardpost' || kind === 'checkpointhut') {
+    return { w: 5, d: 5, h: 5, profile: 'post' };
+  }
+  return { w: 10, d: 12, h: 7.5, profile: INDUSTRIAL_KINDS.has(kind) ? 'industrial' : 'rural' };
+}
+
+function structureLayout(config, layout) {
+  const props = config.props || {};
+  const plan = props.plan || [];
+  const village = layout.village;
+  const latBase = props.buildingLat?.[0] ?? 10;
+  const latSpread = props.buildingLat?.[1] ?? 4;
+  const candidates = [];
+  for (let roadIndex = 0; roadIndex < layout.roads.length; roadIndex++) {
+    const road = layout.roads[roadIndex];
+    for (let pointIndex = 1; pointIndex < road.length - 1; pointIndex++) {
+      const [x, z] = road[pointIndex];
+      if (x < village.x0 || x > village.x1 || z < village.z0 || z > village.z1) continue;
+      const tx = road[pointIndex + 1][0] - road[pointIndex - 1][0];
+      const tz = road[pointIndex + 1][1] - road[pointIndex - 1][1];
+      const length = Math.hypot(tx, tz) || 1;
+      for (const side of [-1, 1]) {
+        candidates.push({ x, z, tx: tx / length, tz: tz / length, side, roadIndex, pointIndex });
+      }
+    }
+  }
+  if (!candidates.length) {
+    candidates.push({ x: village.cx, z: village.cz, tx: 0, tz: 1, side: 1 });
+  }
+  const rng = mulberry32(stableHash(config.id + '-unity-structures'));
+  for (let i = candidates.length - 1; i > 0; i--) {
+    const swap = Math.floor(rng() * (i + 1));
+    [candidates[i], candidates[swap]] = [candidates[swap], candidates[i]];
+  }
+
+  const buildings = plan.map((kind, index) => {
+    const candidate = candidates[index % candidates.length];
+    const shape = structureShape(kind);
+    const ring = Math.floor(index / candidates.length);
+    const lateral = latBase + (index % 5) / 4 * latSpread +
+      shape.d * 0.5 + ring * (shape.d + 4);
+    return {
+      kind,
+      profile: shape.profile,
+      x: candidate.x - candidate.tz * candidate.side * lateral,
+      z: candidate.z + candidate.tx * candidate.side * lateral,
+      w: shape.w,
+      d: shape.d,
+      h: shape.h,
+      yawDeg: Math.atan2(candidate.tx, candidate.tz) * 180 / Math.PI,
+      tactical: false,
+      destructible: false,
+    };
+  });
+  for (const beat of props.tacticalBeats || []) {
+    if (!beat.structure) continue;
+    const shape = structureShape(beat.structure);
+    buildings.push({
+      kind: beat.structure,
+      profile: shape.profile,
+      x: beat.x,
+      z: beat.z,
+      w: shape.w,
+      d: shape.d,
+      h: shape.h,
+      yawDeg: beat.yawDeg || 0,
+      tactical: true,
+      destructible: true,
+    });
+  }
+  return {
+    buildings,
+    walls: (props.wallRuns || []).map(([x1, z1, x2, z2, variant = 0]) => ({
+      x1, z1, x2, z2, variant,
+    })),
+    rubblePiles: props.rubblePiles || 0,
+    sandbagLines: props.sandbagLines || 0,
+    hedgehogs: props.hedgehogs || 0,
+    buildingColor: cssColor(config.minimap?.buildingFill, { r: 0.66, g: 0.64, b: 0.6 }),
+  };
+}
+
 function mapRecord(id) {
   const config = getMapConfig(id);
   const layout = createLayout(config);
@@ -106,11 +248,12 @@ function mapRecord(id) {
       roadCasingColor: cssColor(minimap.roadCasing, { r: 0.2, g: 0.18, b: 0.14 }),
       waterColor: cssColor(minimap.water, { r: 0.2, g: 0.36, b: 0.4 }),
     },
+    unityStructures: structureLayout(config, layout),
   };
 }
 
 const payload = canonical({
-  schemaVersion: 2,
+  schemaVersion: 3,
   counts: {
     savedVehicles: SAVED_TANK_IDS.length,
     releaseVehicles: ALL_TANK_IDS.length,

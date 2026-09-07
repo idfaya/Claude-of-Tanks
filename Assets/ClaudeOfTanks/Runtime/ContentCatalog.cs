@@ -7,7 +7,7 @@ namespace ClaudeOfTanks.Runtime
     public sealed class ContentCatalog
     {
         private const string ResourcePath = "Generated/content-catalog";
-        private const int SupportedSchemaVersion = 2;
+        private const int SupportedSchemaVersion = 3;
         private readonly CatalogData _data;
 
         private ContentCatalog(CatalogData data)
@@ -236,6 +236,7 @@ namespace ClaudeOfTanks.Runtime
         public MapProps props;
         public MapVegetation vegetation;
         public MapSurface unitySurface;
+        public MapStructures unityStructures;
     }
 
     [Serializable] public sealed class MapSky
@@ -279,6 +280,36 @@ namespace ClaudeOfTanks.Runtime
         public float g;
         public float b;
         public Color ToColor(float alpha = 1f) { return new Color(r, g, b, alpha); }
+    }
+    [Serializable] public sealed class MapStructures
+    {
+        public MapBuilding[] buildings;
+        public MapWall[] walls;
+        public int rubblePiles;
+        public int sandbagLines;
+        public int hedgehogs;
+        public MapColor buildingColor;
+    }
+    [Serializable] public sealed class MapBuilding
+    {
+        public string kind;
+        public string profile;
+        public float x;
+        public float z;
+        public float w;
+        public float d;
+        public float h;
+        public float yawDeg;
+        public bool tactical;
+        public bool destructible;
+    }
+    [Serializable] public sealed class MapWall
+    {
+        public float x1;
+        public float z1;
+        public float x2;
+        public float z2;
+        public int variant;
     }
     [Serializable] public sealed class LandformDefinition
     {

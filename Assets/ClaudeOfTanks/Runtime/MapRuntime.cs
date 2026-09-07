@@ -13,6 +13,7 @@ namespace ClaudeOfTanks.Runtime
         private readonly GameObject _root;
         private readonly List<Material> _materials = new List<Material>();
         private readonly List<Mesh> _meshes = new List<Mesh>();
+        private MapStructureRuntime _structures;
 
         private MapRuntime(GameObject root)
         {
@@ -24,6 +25,13 @@ namespace ClaudeOfTanks.Runtime
         public int LakeCount { get; private set; }
         public int MarshCount { get; private set; }
         public int CraterCount { get; private set; }
+        public int BuildingCount => _structures != null ? _structures.BuildingCount : 0;
+        public int TacticalBuildingCount =>
+            _structures != null ? _structures.TacticalBuildingCount : 0;
+        public int WallRunCount => _structures != null ? _structures.WallRunCount : 0;
+        public int RubblePileCount => _structures != null ? _structures.RubblePileCount : 0;
+        public int SandbagLineCount => _structures != null ? _structures.SandbagLineCount : 0;
+        public int HedgehogCount => _structures != null ? _structures.HedgehogCount : 0;
 
         public static MapRuntime Create(MapDefinition map)
         {
@@ -36,6 +44,7 @@ namespace ClaudeOfTanks.Runtime
 
         public void Dispose()
         {
+            _structures?.Dispose();
             for (int i = 0; i < _materials.Count; i++) DestroyObject(_materials[i]);
             for (int i = 0; i < _meshes.Count; i++) DestroyObject(_meshes[i]);
             DestroyObject(_root);
@@ -76,6 +85,7 @@ namespace ClaudeOfTanks.Runtime
             CreateWetGround(surface);
             CreateRoads(surface);
             CreateCraters(map.id, map.props?.craters ?? 0, groundColor);
+            _structures = MapStructureRuntime.Create(_root.transform, map);
 
             LandformDefinition[] landforms = map.terrain?.landforms ?? Array.Empty<LandformDefinition>();
             for (int i = 0; i < landforms.Length; i++) CreateLandform(landforms[i], groundColor);

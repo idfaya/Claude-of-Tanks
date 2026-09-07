@@ -299,6 +299,16 @@ namespace ClaudeOfTanks.Runtime
                 DrawRoads(pixels, surface.roads, surface.roadCasingColor.ToColor(), 4);
                 DrawRoads(pixels, surface.roads, surface.roadColor.ToColor(), 2);
             }
+            if (map.unityStructures != null)
+            {
+                DrawBuildings(
+                    pixels,
+                    map.unityStructures.buildings,
+                    Color.Lerp(
+                        map.unityStructures.buildingColor.ToColor(),
+                        Color.black,
+                        0.32f));
+            }
             Texture2D texture = new Texture2D(
                 TextureSize,
                 TextureSize,
@@ -355,6 +365,41 @@ namespace ClaudeOfTanks.Runtime
                     {
                         Vector2 position = Vector2.Lerp(a, b, step / (float)steps);
                         PaintSquare(pixels, Mathf.RoundToInt(position.x), Mathf.RoundToInt(position.y), radius, color);
+                    }
+                }
+            }
+        }
+
+        private static void DrawBuildings(
+            Color[] pixels,
+            MapBuilding[] buildings,
+            Color color)
+        {
+            if (buildings == null) return;
+            for (int i = 0; i < buildings.Length; i++)
+            {
+                MapBuilding building = buildings[i];
+                Vector2 center = WorldToPixel(building.x, building.z);
+                float halfW = Mathf.Max(1f, building.w / WorldSizeM * TextureSize * 0.5f);
+                float halfD = Mathf.Max(1f, building.d / WorldSizeM * TextureSize * 0.5f);
+                int radius = Mathf.CeilToInt(Mathf.Sqrt(halfW * halfW + halfD * halfD));
+                float yaw = building.yawDeg * Mathf.Deg2Rad;
+                float cos = Mathf.Cos(yaw);
+                float sin = Mathf.Sin(yaw);
+                for (int y = Mathf.Max(0, Mathf.FloorToInt(center.y) - radius);
+                    y <= Mathf.Min(TextureSize - 1, Mathf.CeilToInt(center.y) + radius);
+                    y++)
+                {
+                    for (int x = Mathf.Max(0, Mathf.FloorToInt(center.x) - radius);
+                        x <= Mathf.Min(TextureSize - 1, Mathf.CeilToInt(center.x) + radius);
+                        x++)
+                    {
+                        float dx = x - center.x;
+                        float dy = y - center.y;
+                        float localX = dx * cos - dy * sin;
+                        float localY = dx * sin + dy * cos;
+                        if (Mathf.Abs(localX) <= halfW && Mathf.Abs(localY) <= halfD)
+                            pixels[y * TextureSize + x] = color;
                     }
                 }
             }

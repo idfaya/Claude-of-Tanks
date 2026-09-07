@@ -1,5 +1,6 @@
 using ClaudeOfTanks.Runtime;
 using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace ClaudeOfTanks.Tests
@@ -15,6 +16,13 @@ namespace ClaudeOfTanks.Tests
             int totalCraters = 0;
             int mapsWithWater = 0;
             int mapsWithMarshes = 0;
+            int totalBuildings = 0;
+            int totalTacticalBuildings = 0;
+            int totalWallRuns = 0;
+            int totalRubble = 0;
+            int totalSandbagLines = 0;
+            int totalHedgehogs = 0;
+            int totalStructureTriangles = 0;
             for (int i = 0; i < catalog.Maps.Length; i++)
             {
                 MapDefinition definition = catalog.Maps[i];
@@ -34,6 +42,17 @@ namespace ClaudeOfTanks.Tests
                     Assert.That(runtime.LakeCount, Is.EqualTo(definition.unitySurface.lakes.Length), definition.id);
                     Assert.That(runtime.MarshCount, Is.EqualTo(definition.unitySurface.marshes.Length), definition.id);
                     Assert.That(runtime.CraterCount, Is.EqualTo(definition.props.craters), definition.id);
+                    Assert.That(runtime.BuildingCount,
+                        Is.EqualTo(definition.unityStructures.buildings.Length), definition.id);
+                    Assert.That(runtime.TacticalBuildingCount, Is.EqualTo(3), definition.id);
+                    Assert.That(runtime.WallRunCount,
+                        Is.EqualTo(definition.unityStructures.walls.Length), definition.id);
+                    Assert.That(runtime.RubblePileCount,
+                        Is.EqualTo(definition.unityStructures.rubblePiles), definition.id);
+                    Assert.That(runtime.SandbagLineCount,
+                        Is.EqualTo(definition.unityStructures.sandbagLines), definition.id);
+                    Assert.That(runtime.HedgehogCount,
+                        Is.EqualTo(definition.unityStructures.hedgehogs), definition.id);
                     Assert.That(roads.GetComponent<Collider>(), Is.Null, definition.id);
                     totalRoadTriangles += roads.GetComponent<MeshFilter>().sharedMesh.triangles.Length / 3;
                     totalCraters += runtime.CraterCount;
@@ -55,6 +74,23 @@ namespace ClaudeOfTanks.Tests
                         Assert.That(marshes.GetComponent<Collider>(), Is.Null, definition.id);
                         mapsWithMarshes++;
                     }
+                    Transform structures = runtime.Root.Find("Structures");
+                    Assert.That(structures, Is.Not.Null, definition.id);
+                    MeshFilter[] structureMeshes = structures.GetComponentsInChildren<MeshFilter>();
+                    Assert.That(structureMeshes.Length, Is.InRange(4, 5), definition.id);
+                    for (int meshIndex = 0; meshIndex < structureMeshes.Length; meshIndex++)
+                    {
+                        Assert.That(structureMeshes[meshIndex].GetComponent<Collider>(),
+                            Is.Null, definition.id);
+                        totalStructureTriangles +=
+                            structureMeshes[meshIndex].sharedMesh.triangles.Length / 3;
+                    }
+                    totalBuildings += runtime.BuildingCount;
+                    totalTacticalBuildings += runtime.TacticalBuildingCount;
+                    totalWallRuns += runtime.WallRunCount;
+                    totalRubble += runtime.RubblePileCount;
+                    totalSandbagLines += runtime.SandbagLineCount;
+                    totalHedgehogs += runtime.HedgehogCount;
 
                     int objects = runtime.Root.GetComponentsInChildren<UnityEngine.Transform>().Length;
                     Assert.That(objects, Is.GreaterThan(8), definition.id);
@@ -72,6 +108,13 @@ namespace ClaudeOfTanks.Tests
             Assert.That(totalCraters, Is.GreaterThan(1400));
             Assert.That(mapsWithWater, Is.GreaterThanOrEqualTo(4));
             Assert.That(mapsWithMarshes, Is.GreaterThanOrEqualTo(10));
+            Assert.That(totalBuildings, Is.EqualTo(661));
+            Assert.That(totalTacticalBuildings, Is.EqualTo(60));
+            Assert.That(totalWallRuns, Is.EqualTo(197));
+            Assert.That(totalRubble, Is.EqualTo(894));
+            Assert.That(totalSandbagLines, Is.EqualTo(361));
+            Assert.That(totalHedgehogs, Is.EqualTo(346));
+            Assert.That(totalStructureTriangles, Is.GreaterThan(75000));
         }
 
         private static void AssertSurfaceData(MapDefinition map)
@@ -84,6 +127,29 @@ namespace ClaudeOfTanks.Tests
             }
             Assert.That(map.unitySurface.lakes, Is.Not.Null, map.id);
             Assert.That(map.unitySurface.marshes, Is.Not.Null, map.id);
+            Assert.That(map.unityStructures, Is.Not.Null, map.id);
+            Assert.That(map.unityStructures.buildings, Is.Not.Null.And.Not.Empty, map.id);
+            Assert.That(map.unityStructures.walls, Is.Not.Null.And.Not.Empty, map.id);
+            AssertColor(map.unityStructures.buildingColor, map.id + " building");
+            HashSet<string> planPositions = new HashSet<string>();
+            int tactical = 0;
+            for (int i = 0; i < map.unityStructures.buildings.Length; i++)
+            {
+                MapBuilding building = map.unityStructures.buildings[i];
+                Assert.That(building.kind, Is.Not.Empty, map.id);
+                Assert.That(building.profile, Is.Not.Empty, map.id);
+                Assert.That(building.w, Is.GreaterThan(2f), map.id);
+                Assert.That(building.d, Is.GreaterThan(2f), map.id);
+                Assert.That(building.h, Is.GreaterThan(2f), map.id);
+                Assert.That(Mathf.Abs(building.x), Is.LessThanOrEqualTo(500f), map.id);
+                Assert.That(Mathf.Abs(building.z), Is.LessThanOrEqualTo(500f), map.id);
+                if (building.tactical) tactical++;
+                else Assert.That(
+                    planPositions.Add(building.x.ToString("R") + ":" + building.z.ToString("R")),
+                    Is.True,
+                    map.id + " duplicate plan placement");
+            }
+            Assert.That(tactical, Is.EqualTo(3), map.id);
             AssertColor(map.unitySurface.groundColor, map.id + " ground");
             AssertColor(map.unitySurface.hardColor, map.id + " hard");
             AssertColor(map.unitySurface.softColor, map.id + " soft");

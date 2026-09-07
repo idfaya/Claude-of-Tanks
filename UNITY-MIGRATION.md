@@ -74,6 +74,9 @@ The port preserves the source project's runtime units and conventions:
   road networks with casings, lake and frozen-water sheets, marsh/soft-ground
   discs, map palettes, ground variation, and all 1,420 configured craters.
   Each surface class is merged into a bounded presentation-only mesh.
+- Source-plan-driven structure presentation for all 20 maps: 601 road-aligned
+  planned buildings, 60 exact tactical landmarks, 197 wall runs, 894 rubble
+  piles, 361 sandbag lines, and 346 hedgehogs in five merged material buckets.
 - Standard, Capture the Flag, Zone Control, Turbo Ball, and Endless Horde modes
 - Equipment, consumables, deterministic replay recording, responsive HUD,
   keyboard, gamepad, and touch input
@@ -143,8 +146,9 @@ The original release is substantially larger than this first playable port.
 These systems still use the TypeScript implementation as their specification:
 
 - complete 126-vehicle production fleet and authored armor/module geometry;
-- full terrain height-field rendering, authored buildings/landmarks,
-  destructibles, complete vegetation recipes, and world streaming for all 20 maps;
+- full terrain height-field rendering, per-family structure geometry/material
+  parity, authoritative building collision/destruction, complete vegetation
+  recipes, and world streaming for all 20 maps;
 - progression, loadout editing, and production garage;
 - controller glyph polish, accessibility options, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
