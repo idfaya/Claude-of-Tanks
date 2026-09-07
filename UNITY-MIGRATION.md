@@ -187,6 +187,11 @@ The port preserves the source project's runtime units and conventions:
   `cot-match-v1` control and unordered zero-retransmit `cot-state-v1` state
   channels behind the shared `INetworkTransportEndpoint`; control queues are
   bounded and congested state packets coalesce to the latest packet.
+- Signaling-neutral Unity peer sessions create and validate bounded
+  offer/answer/ICE messages, queue candidates until a remote description is
+  installed, replay answers for duplicate durable offers, reject overlapping
+  negotiation, validate relay-only TURN configuration, and expose the shared
+  transport only after both channels are open.
 - Persistent authoritative room policy for 1v1 through 7v7, spectators,
   readiness and selection locks, host-owned rules, round retention, reserved
   disconnect seats, hashed rotating resume tokens, and deterministic host

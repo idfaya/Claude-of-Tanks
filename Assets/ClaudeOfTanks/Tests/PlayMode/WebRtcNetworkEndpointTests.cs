@@ -6,12 +6,127 @@ using ClaudeOfTanks.Simulation;
 using ClaudeOfTanks.WebRTC;
 using NUnit.Framework;
 using Unity.WebRTC;
+using UnityEngine;
 using UnityEngine.TestTools;
 
 namespace ClaudeOfTanks.Tests
 {
     public sealed class WebRtcNetworkEndpointTests
     {
+        [UnityTest]
+        public IEnumerator PeerSessionsExchangeStrictSignalsAndOpenTransport()
+        {
+            using (WebRtcPeerSession host =
+                new WebRtcPeerSession(WebRtcPeerRole.Host))
+            using (WebRtcPeerSession client =
+                new WebRtcPeerSession(WebRtcPeerRole.Client))
+            {
+                Queue<WebRtcSignal> toHost = new Queue<WebRtcSignal>();
+                Queue<WebRtcSignal> toClient = new Queue<WebRtcSignal>();
+                List<string> failures = new List<string>();
+                WebRtcSignal firstOffer = null;
+                int clientDescriptions = 0;
+                int clientRestarts = 0;
+                host.SignalReady += signal =>
+                {
+                    if (signal.kind == "description" && firstOffer == null)
+                        firstOffer = signal;
+                    toClient.Enqueue(signal);
+                };
+                client.SignalReady += signal =>
+                {
+                    if (signal.kind == "description") clientDescriptions++;
+                    if (signal.kind == "restart") clientRestarts++;
+                    toHost.Enqueue(signal);
+                };
+                host.Failed += failures.Add;
+                client.Failed += failures.Add;
+
+                yield return host.Start();
+                yield return client.Start();
+                DateTime deadline = DateTime.UtcNow.AddSeconds(8);
+                while (DateTime.UtcNow < deadline &&
+                    (!host.IsTransportReady || !client.IsTransportReady))
+                {
+                    while (toClient.Count > 0)
+                    {
+                        WebRtcSignal signal = toClient.Dequeue();
+                        string json = JsonUtility.ToJson(signal);
+                        Assert.That(json, Does.Contain("\"kind\""));
+                        yield return client.HandleSignal(
+                            JsonUtility.FromJson<WebRtcSignal>(json));
+                    }
+                    while (toHost.Count > 0)
+                    {
+                        WebRtcSignal signal = toHost.Dequeue();
+                        yield return host.HandleSignal(
+                            JsonUtility.FromJson<WebRtcSignal>(
+                                JsonUtility.ToJson(signal)));
+                    }
+                    yield return null;
+                }
+
+                Assert.That(failures, Is.Empty);
+                Assert.That(host.IsTransportReady, Is.True);
+                Assert.That(client.IsTransportReady, Is.True);
+                Assert.That(firstOffer, Is.Not.Null);
+                int descriptionsBeforeReplay = clientDescriptions;
+                yield return client.HandleSignal(
+                    JsonUtility.FromJson<WebRtcSignal>(
+                        JsonUtility.ToJson(firstOffer)));
+                Assert.That(
+                    clientDescriptions,
+                    Is.EqualTo(descriptionsBeforeReplay + 1),
+                    "duplicate offer must replay the existing answer");
+                yield return client.Restart();
+                Assert.That(clientRestarts, Is.EqualTo(1));
+                byte received = 0;
+                client.Transport.ControlReceived += packet => received = packet[0];
+                Assert.That(host.Transport.SendControl(new byte[] { 77 }), Is.True);
+                deadline = DateTime.UtcNow.AddSeconds(3);
+                while (DateTime.UtcNow < deadline && received != 77)
+                {
+                    host.Transport.Pump();
+                    client.Transport.Pump();
+                    yield return null;
+                }
+                Assert.That(received, Is.EqualTo(77));
+            }
+        }
+
+        [Test]
+        public void RelayOnlySessionRequiresTurnAndSignalsAreBounded()
+        {
+            RTCConfiguration invalid = new RTCConfiguration
+            {
+                iceTransportPolicy = RTCIceTransportPolicy.Relay,
+                iceServers = new[]
+                {
+                    new RTCIceServer { urls = new[] { "stun:localhost:3478" } }
+                }
+            };
+            Assert.Throws<ArgumentException>(() =>
+                new WebRtcPeerSession(WebRtcPeerRole.Host, invalid));
+            using (WebRtcPeerSession client =
+                new WebRtcPeerSession(WebRtcPeerRole.Client))
+            {
+                Assert.Throws<FormatException>(() =>
+                {
+                    IEnumerator routine = client.HandleSignal(new WebRtcSignal
+                    {
+                        kind = "ice",
+                        candidate = new WebRtcCandidateSignal
+                        {
+                            candidate = new string('x',
+                                WebRtcPeerSession.MaximumCandidateCharacters + 1),
+                            sdpMid = "0"
+                        }
+                    });
+                    routine.MoveNext();
+                });
+            }
+        }
+
         [UnityTest]
         public IEnumerator RealPeerPairRunsAuthoritativeHostAndClientPumps()
         {
