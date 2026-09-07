@@ -19,6 +19,7 @@ namespace ClaudeOfTanks.Network
         public uint Sequence;
         public uint ActionSequence;
         public long ClientTick;
+        public long SnapshotAckTick;
         public float Throttle;
         public float Steer;
         public bool Brake;
@@ -53,6 +54,7 @@ namespace ClaudeOfTanks.Network
         {
             return !string.IsNullOrEmpty(command.PlayerId) &&
                 command.PlayerId.Length <= 64 &&
+                command.ClientTick >= 0 &&
                 IsFinite(command.Throttle) &&
                 IsFinite(command.Steer) &&
                 IsFinite(command.AimYawRad) &&
@@ -64,6 +66,11 @@ namespace ClaudeOfTanks.Network
                 command.Steer <= 1f &&
                 command.AimPitchRad >= -MaximumAimPitchRad &&
                 command.AimPitchRad <= MaximumAimPitchRad &&
+                command.SnapshotAckTick >= -1 &&
+                (command.Actions & ~(NetworkActionBits.Fire |
+                    NetworkActionBits.RepairKit |
+                    NetworkActionBits.FirstAidKit |
+                    NetworkActionBits.FireExtinguisher)) == 0 &&
                 command.AimDistanceM >= MinimumAimDistanceM &&
                 command.AimDistanceM <= MaximumAimDistanceM;
         }

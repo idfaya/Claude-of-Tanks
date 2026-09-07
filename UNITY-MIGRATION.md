@@ -89,6 +89,11 @@ The port preserves the source project's runtime units and conventions:
   local prediction with acknowledged-input replay and presentation correction
 - Versioned binary full-snapshot codec with 64 KiB packet, entity, shell, event,
   string, enum, finite-number, truncation, and trailing-data validation
+- ACK-based keyframe/delta snapshots with explicit visibility removals,
+  missing-base recovery, bounded history, and strict binary frame validation
+- Bounded dual-channel loopback transport and host/client pumps: reliable FIFO
+  input, replaceable latest-state delivery, prediction reconciliation, and
+  automatic keyframe recovery after state loss
 - `npm run unity:content:update` / `unity:content:check` drift gate
 
 ## Remaining parity work
@@ -101,7 +106,7 @@ These systems still use the TypeScript implementation as their specification:
 - progression, loadout editing, replay browser, and production garage;
 - input rebinding, settings, minimap, damage panel, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
-- multiplayer transports, delta codec, rooms, reconnect, and persistence;
+- WebSocket/WebRTC transports, rooms, reconnect, and persistence;
 - procedural vehicle geometry parity and generated technical assets.
 
 Migrate these by extending the simulation contracts rather than moving

@@ -67,6 +67,10 @@ namespace ClaudeOfTanks.Network
                 return InputAdmission.TooFarAhead;
             if (command.ClientTick < Tick - NetworkProtocol.MaximumPastTicks)
                 return InputAdmission.TooOld;
+            if (command.SnapshotAckTick > Tick)
+                return InputAdmission.TooFarAhead;
+            if (command.SnapshotAckTick > peer.SnapshotAckTick)
+                peer.SnapshotAckTick = command.SnapshotAckTick;
             if (peer.HasInputSequence &&
                 !NetworkProtocol.IsSequenceNewer(command.Sequence, peer.InputSequence))
             {
@@ -85,6 +89,14 @@ namespace ClaudeOfTanks.Network
                 peer.HasActionSequence = true;
             }
             return InputAdmission.Accepted;
+        }
+
+        public long GetSnapshotAcknowledgement(string playerId)
+        {
+            PeerState peer;
+            if (!_peers.TryGetValue(playerId, out peer))
+                throw new ArgumentException("Unknown player.", nameof(playerId));
+            return peer.SnapshotAckTick;
         }
 
         public int AdvanceTicks(int requestedTicks)
@@ -276,6 +288,7 @@ namespace ClaudeOfTanks.Network
             public uint ActionSequence;
             public bool HasActionSequence;
             public NetworkActionBits PendingActions;
+            public long SnapshotAckTick = -1;
         }
     }
 }
