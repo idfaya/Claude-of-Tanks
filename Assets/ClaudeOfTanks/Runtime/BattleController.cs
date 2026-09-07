@@ -25,6 +25,7 @@ namespace ClaudeOfTanks.Runtime
         private ContentCatalog _catalog;
         private MapRuntime _mapRuntime;
         private BattleHud _hud;
+        private BattleEffects _effects;
         [SerializeField] private string mapId = "verdant";
         [SerializeField] private GameModeId gameMode = GameModeId.Standard;
         private float _accumulator;
@@ -49,6 +50,7 @@ namespace ClaudeOfTanks.Runtime
             BuildEnvironment();
             StartBattle();
             _hud = BattleHud.Create(StartBattle);
+            _effects = BattleEffects.Create();
         }
 
         private void Update()
@@ -282,6 +284,12 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 0; i < events.Count; i++)
             {
                 BattleEvent battleEvent = events[i];
+                if (battleEvent.Type == BattleEventType.ShellFired ||
+                    battleEvent.Type == BattleEventType.ShellHit ||
+                    battleEvent.Type == BattleEventType.TankDestroyed)
+                {
+                    _effects.Play(battleEvent);
+                }
                 if (battleEvent.Type == BattleEventType.ShellHit)
                 {
                     _status = battleEvent.Penetrated
