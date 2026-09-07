@@ -11,8 +11,10 @@ namespace ClaudeOfTanks.Simulation
         public const int MaximumFrames = 60 * 60 * 30;
         public const int MaximumTanks = 32;
         public const int MaximumLandforms = 128;
+        public const int MaximumStaticObstacles = BattleState.MaximumStaticObstacles;
         private const uint Magic = 0x52544f43u;
-        private const ushort Version = 1;
+        private const ushort Version = 2;
+        private const ushort PreviousVersion = 1;
 
         public static byte[] Encode(ReplayRecording recording)
         {
@@ -29,6 +31,7 @@ namespace ClaudeOfTanks.Simulation
                 WriteFinite(writer, recording.WorldHalfExtentM, "world extent");
                 writer.Write((byte)recording.GameMode);
                 WriteHeightField(writer, recording.HeightField);
+                WriteStaticObstacles(writer, recording.StaticObstacles);
                 writer.Write((byte)recording.Tanks.Count);
 
                 Dictionary<string, ushort> tankIndices =
@@ -53,6 +56,12 @@ namespace ClaudeOfTanks.Simulation
                     if (frame.DeltaTime <= 0f || frame.DeltaTime > 0.25f)
                         throw new InvalidDataException("Replay frame delta is outside its bound.");
                     ValidateCount(frame.Inputs.Count, 0, recording.Tanks.Count, "input");
+                    foreach (string entityId in frame.Inputs.Keys)
+                    {
+                        if (!tankIndices.ContainsKey(entityId))
+                            throw new InvalidDataException(
+                                "Replay input references an unknown tank.");
+                    }
                     writer.Write((byte)frame.Inputs.Count);
                     for (int tankIndex = 0; tankIndex < recording.Tanks.Count; tankIndex++)
                     {
@@ -81,7 +90,8 @@ namespace ClaudeOfTanks.Simulation
                 {
                     if (reader.ReadUInt32() != Magic)
                         throw new FormatException("Replay magic is invalid.");
-                    if (reader.ReadUInt16() != Version)
+                    ushort version = reader.ReadUInt16();
+                    if (version != Version && version != PreviousVersion)
                         throw new FormatException("Replay version is unsupported.");
                     uint seed = reader.ReadUInt32();
                     float worldExtent = ReadFinite(reader, "world extent");
@@ -89,10 +99,17 @@ namespace ClaudeOfTanks.Simulation
                         throw new FormatException("Replay world extent is invalid.");
                     GameModeId gameMode = ReadEnum<GameModeId>(reader.ReadByte(), "game mode");
                     IHeightField heightField = ReadHeightField(reader);
+                    StaticObstacle[] staticObstacles = version >= 2
+                        ? ReadStaticObstacles(reader)
+                        : Array.Empty<StaticObstacle>();
                     int tankCount = reader.ReadByte();
                     ValidateCount(tankCount, 1, MaximumTanks, "tank");
 
-                    BattleState state = new BattleState(heightField, seed, worldExtent);
+                    BattleState state = new BattleState(
+                        heightField,
+                        seed,
+                        worldExtent,
+                        staticObstacles);
                     HashSet<string> ids = new HashSet<string>(StringComparer.Ordinal);
                     string[] tankIds = new string[tankCount];
                     for (int i = 0; i < tankCount; i++)
@@ -197,6 +214,64 @@ namespace ClaudeOfTanks.Simulation
                 };
             }
             return new LandformHeightField(landforms);
+        }
+
+        private static void WriteStaticObstacles(
+            BinaryWriter writer,
+            IReadOnlyList<StaticObstacle> obstacles)
+        {
+            int count = obstacles == null ? 0 : obstacles.Count;
+            ValidateCount(count, 0, MaximumStaticObstacles, "static obstacle");
+            writer.Write((ushort)count);
+            for (int i = 0; i < count; i++)
+            {
+                StaticObstacle obstacle = obstacles[i];
+                WriteString(writer, obstacle.Id, 96);
+                WriteFloat3(writer, obstacle.Center);
+                WriteFinite(writer, obstacle.HalfWidthM, "obstacle half width");
+                WriteFinite(writer, obstacle.HalfLengthM, "obstacle half length");
+                WriteFinite(writer, obstacle.HeightM, "obstacle height");
+                WriteFinite(writer, obstacle.YawRad, "obstacle yaw");
+                writer.Write((byte)obstacle.Flags);
+                writer.Write(obstacle.Destructible);
+            }
+        }
+
+        private static StaticObstacle[] ReadStaticObstacles(BinaryReader reader)
+        {
+            int count = reader.ReadUInt16();
+            ValidateCount(count, 0, MaximumStaticObstacles, "static obstacle");
+            StaticObstacle[] obstacles = new StaticObstacle[count];
+            HashSet<string> ids = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < count; i++)
+            {
+                string id = ReadString(reader, 96);
+                if (!ids.Add(id))
+                    throw new FormatException("Replay static obstacle ids are duplicated.");
+                Float3 center = ReadFloat3(reader);
+                float halfWidth = ReadFinite(reader, "obstacle half width");
+                float halfLength = ReadFinite(reader, "obstacle half length");
+                float height = ReadFinite(reader, "obstacle height");
+                float yaw = ReadFinite(reader, "obstacle yaw");
+                StaticObstacleFlags flags = (StaticObstacleFlags)reader.ReadByte();
+                bool destructible = reader.ReadBoolean();
+                if (halfWidth <= 0f || halfLength <= 0f || height <= 0f ||
+                    flags == StaticObstacleFlags.None ||
+                    (flags & ~StaticObstacleFlags.All) != 0)
+                {
+                    throw new FormatException("Replay static obstacle bounds are invalid.");
+                }
+                obstacles[i] = new StaticObstacle(
+                    id,
+                    center,
+                    halfWidth,
+                    halfLength,
+                    height,
+                    yaw,
+                    flags,
+                    destructible);
+            }
+            return obstacles;
         }
 
         private static void WriteTankSpec(BinaryWriter writer, TankSpec spec)

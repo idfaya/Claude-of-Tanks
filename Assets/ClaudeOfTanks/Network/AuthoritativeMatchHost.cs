@@ -9,6 +9,7 @@ namespace ClaudeOfTanks.Network
         public const int MaximumCatchUpTicks = 8;
         private readonly BattleSimulation _simulation;
         private readonly SpottingSimulation _spotting;
+        private readonly Func<Float3, Float3, bool> _isOccluded;
         private readonly Dictionary<string, PeerState> _peers =
             new Dictionary<string, PeerState>(StringComparer.Ordinal);
         private readonly Dictionary<string, string> _ownersByEntity =
@@ -23,7 +24,8 @@ namespace ClaudeOfTanks.Network
         {
             _simulation = simulation ?? throw new ArgumentNullException(nameof(simulation));
             _spotting = spotting ?? new SpottingSimulation();
-            _bots = new BotController(_spotting);
+            _isOccluded = _simulation.State.IsVisionOccluded;
+            _bots = new BotController(_spotting, _isOccluded);
         }
 
         public long Tick { get; private set; }
@@ -202,7 +204,7 @@ namespace ClaudeOfTanks.Network
                 if (viewer == null ||
                     tank.Id == viewer.Id ||
                     tank.Team == viewer.Team ||
-                    _spotting.CanSpot(viewer, tank))
+                    _spotting.CanSpot(viewer, tank, _isOccluded))
                 {
                     result.Add(tank.Id);
                 }

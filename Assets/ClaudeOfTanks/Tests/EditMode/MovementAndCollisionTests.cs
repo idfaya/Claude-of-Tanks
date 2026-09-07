@@ -1,5 +1,6 @@
 using ClaudeOfTanks.Simulation;
 using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace ClaudeOfTanks.Tests
 {
@@ -39,6 +40,78 @@ namespace ClaudeOfTanks.Tests
             Assert.That(field.HeightAt(20f, 0f), Is.Zero);
             Assert.That(field.HeightAt(8f, 0f), Is.EqualTo(field.HeightAt(-8f, 0f)));
             Assert.That(field.NormalAt(8f, 0f).X, Is.GreaterThan(0f));
+        }
+
+        [Test]
+        public void TankCannotCrossRotatedStaticObstacle()
+        {
+            StaticObstacle obstacle = new StaticObstacle(
+                "building",
+                new Float3(0f, 0f, 8f),
+                5f,
+                1.5f,
+                6f,
+                0.35f,
+                StaticObstacleFlags.All);
+            BattleState state = new BattleState(
+                new FlatHeightField(),
+                41u,
+                500f,
+                new[] { obstacle });
+            TankState tank = new TankState(
+                "tank",
+                Team.Alpha,
+                TankSpec.Medium(),
+                Float3.Zero,
+                0f);
+            state.Tanks.Add(tank);
+            BattleSimulation simulation = new BattleSimulation(state);
+            Dictionary<string, TankInput> inputs = new Dictionary<string, TankInput>
+            {
+                ["tank"] = new TankInput
+                {
+                    Throttle = 1f,
+                    AimPoint = new Float3(0f, 1f, 100f)
+                }
+            };
+
+            for (int i = 0; i < 240; i++)
+                simulation.Step(inputs, BattleState.FixedDeltaTime);
+
+            Assert.That(tank.Position.Z, Is.LessThan(6f));
+            Assert.That(tank.SpeedMps, Is.Zero);
+            Assert.That(
+                CollisionSimulation.CircleIntersectsObstacle(
+                    tank.Position,
+                    tank.Spec.CollisionRadiusM,
+                    obstacle),
+                Is.False);
+        }
+
+        [Test]
+        public void SegmentHitReturnsRotatedObstacleSurface()
+        {
+            StaticObstacle obstacle = new StaticObstacle(
+                "wall",
+                new Float3(0f, 0f, 10f),
+                4f,
+                0.5f,
+                3f,
+                MathUtil.Pi * 0.25f,
+                StaticObstacleFlags.All);
+
+            float fraction;
+            Float3 normal;
+            Assert.That(
+                CollisionSimulation.SegmentIntersectsObstacle(
+                    new Float3(0f, 1f, 0f),
+                    new Float3(0f, 1f, 20f),
+                    obstacle,
+                    out fraction,
+                    out normal),
+                Is.True);
+            Assert.That(fraction, Is.InRange(0f, 1f));
+            Assert.That(normal.Magnitude, Is.EqualTo(1f).Within(0.0001f));
         }
 
         private sealed class TestSurface : ITerrainSurface

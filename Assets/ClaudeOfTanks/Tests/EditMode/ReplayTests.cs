@@ -86,7 +86,22 @@ namespace ClaudeOfTanks.Tests
                     YawRad = 0.4f
                 }
             };
-            BattleState state = new BattleState(new LandformHeightField(landforms), 902u);
+            BattleState state = new BattleState(
+                new LandformHeightField(landforms),
+                902u,
+                500f,
+                new[]
+                {
+                    new StaticObstacle(
+                        "replay-building",
+                        new Float3(30f, 1f, 40f),
+                        6f,
+                        9f,
+                        12f,
+                        0.4f,
+                        StaticObstacleFlags.All,
+                        true)
+                });
             state.Tanks.Add(new TankState(
                 "alpha", Team.Alpha, TankSpec.Medium(), new Float3(0f, 0f, -20f), 0f));
             state.Tanks.Add(new TankState(
@@ -115,6 +130,15 @@ namespace ClaudeOfTanks.Tests
             Assert.That(decoded.GetTankId(0), Is.EqualTo("alpha"));
             Assert.That(decoded.GetTankSpecId(1), Is.EqualTo("heavy"));
             Assert.That(decoded.GetTankTeam(1), Is.EqualTo(Team.Bravo));
+            Assert.That(decoded.StaticObstacleCount, Is.EqualTo(1));
+            Assert.That(replay.State.StaticObstacles[0].Id, Is.EqualTo("replay-building"));
+            Assert.That(replay.State.StaticObstacles[0].Center, Is.EqualTo(new Float3(30f, 1f, 40f)));
+            Assert.That(replay.State.StaticObstacles[0].HalfWidthM, Is.EqualTo(6f));
+            Assert.That(replay.State.StaticObstacles[0].HalfLengthM, Is.EqualTo(9f));
+            Assert.That(replay.State.StaticObstacles[0].HeightM, Is.EqualTo(12f));
+            Assert.That(replay.State.StaticObstacles[0].YawRad, Is.EqualTo(0.4f));
+            Assert.That(replay.State.StaticObstacles[0].Flags, Is.EqualTo(StaticObstacleFlags.All));
+            Assert.That(replay.State.StaticObstacles[0].Destructible, Is.True);
             Assert.That(replay.State.Tanks[0].Position, Is.EqualTo(original.State.Tanks[0].Position));
             Assert.That(replay.State.Tanks[1].Health, Is.EqualTo(original.State.Tanks[1].Health));
             Assert.That(replay.State.HeightField.HeightAt(12f, -8f), Is.EqualTo(5f).Within(0.001f));
@@ -136,6 +160,50 @@ namespace ClaudeOfTanks.Tests
 
             Array.Resize(ref packet, packet.Length + 1);
             Assert.Throws<FormatException>(() => ReplayWireCodec.Decode(packet));
+        }
+
+        [Test]
+        public void ReplayWireCodecReadsVersionOneWithoutStaticObstacles()
+        {
+            BattleState state = new BattleState(new FlatHeightField(), 23u);
+            state.Tanks.Add(new TankState(
+                "alpha", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f));
+            BattleReplayRecorder recorder = new BattleReplayRecorder(state, GameModeId.Standard);
+            byte[] versionTwo = ReplayWireCodec.Encode(recorder.Recording);
+            const int obstacleCountOffset = 16;
+            byte[] versionOne = new byte[versionTwo.Length - 2];
+            Buffer.BlockCopy(versionTwo, 0, versionOne, 0, obstacleCountOffset);
+            Buffer.BlockCopy(
+                versionTwo,
+                obstacleCountOffset + 2,
+                versionOne,
+                obstacleCountOffset,
+                versionTwo.Length - obstacleCountOffset - 2);
+            versionOne[4] = 1;
+            versionOne[5] = 0;
+
+            ReplayRecording decoded = ReplayWireCodec.Decode(versionOne);
+
+            Assert.That(decoded.StaticObstacleCount, Is.Zero);
+            Assert.That(decoded.TankCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void ReplayWireCodecRejectsInputsForUnknownTank()
+        {
+            BattleState state = new BattleState(new FlatHeightField(), 24u);
+            state.Tanks.Add(new TankState(
+                "alpha", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f));
+            BattleReplayRecorder recorder = new BattleReplayRecorder(state, GameModeId.Standard);
+            recorder.Record(
+                new Dictionary<string, TankInput>
+                {
+                    ["unknown"] = new TankInput { AimPoint = Float3.Zero }
+                },
+                BattleState.FixedDeltaTime);
+
+            Assert.Throws<System.IO.InvalidDataException>(
+                () => ReplayWireCodec.Encode(recorder.Recording));
         }
     }
 }

@@ -39,6 +39,7 @@ namespace ClaudeOfTanks.Simulation
                 tank.ReloadRemainingS = tank.Combat.Reload.RemainingS;
                 DamageSimulation.AdvanceModuleRepairs(tank.Combat, dt);
                 ResolveWorldBounds(tank);
+                ResolveStaticObstacleContacts(tank, previous);
                 ResolveTankContacts(tank, previous);
                 TryUseConsumables(tank, input);
                 if (tank.Combat.Fire.Burning)
@@ -125,9 +126,40 @@ namespace ClaudeOfTanks.Simulation
                 ShellState shell = _state.Shells[i];
                 BallisticsSimulation.Step(shell, dt);
 
-                TankState target = FindShellTarget(shell);
-                if (target != null)
+                float targetFraction;
+                TankState target = FindShellTarget(shell, out targetFraction);
+                StaticObstacle obstacle;
+                float obstacleFraction;
+                Float3 obstacleNormal;
+                bool obstacleHit = CollisionSimulation.TryFindFirstObstacleHit(
+                    _state.StaticObstacles,
+                    StaticObstacleFlags.Shells,
+                    shell.PreviousPosition,
+                    shell.Position,
+                    out obstacle,
+                    out obstacleFraction,
+                    out obstacleNormal);
+                if (obstacleHit && (target == null || obstacleFraction <= targetFraction))
                 {
+                    shell.Position = PointOnSegment(
+                        shell.PreviousPosition, shell.Position, obstacleFraction);
+                    _state.Events.Add(new BattleEvent
+                    {
+                        Type = BattleEventType.StructureHit,
+                        SourceId = shell.ShooterId,
+                        TargetId = obstacle.Id,
+                        Position = shell.Position,
+                        Direction = shell.Velocity.Normalized,
+                        Normal = obstacleNormal,
+                        ShellType = shell.Spec.Type,
+                        CaliberMm = shell.Spec.CaliberMm
+                    });
+                    shell.Dead = true;
+                }
+                else if (target != null)
+                {
+                    shell.Position = PointOnSegment(
+                        shell.PreviousPosition, shell.Position, targetFraction);
                     ResolveHit(shell, target);
                     shell.Dead = true;
                 }
@@ -144,10 +176,10 @@ namespace ClaudeOfTanks.Simulation
             }
         }
 
-        private TankState FindShellTarget(ShellState shell)
+        private TankState FindShellTarget(ShellState shell, out float bestT)
         {
             TankState best = null;
-            float bestT = float.MaxValue;
+            bestT = float.MaxValue;
             for (int i = 0; i < _state.Tanks.Count; i++)
             {
                 TankState tank = _state.Tanks[i];
@@ -293,6 +325,32 @@ namespace ClaudeOfTanks.Simulation
                     return;
                 }
             }
+        }
+
+        private void ResolveStaticObstacleContacts(TankState tank, Float3 previous)
+        {
+            if (tank.Destroyed) return;
+            for (int i = 0; i < _state.StaticObstacles.Length; i++)
+            {
+                StaticObstacle obstacle = _state.StaticObstacles[i];
+                if (!obstacle.HasFlag(StaticObstacleFlags.Movement)) continue;
+                if (!CollisionSimulation.CircleIntersectsObstacle(
+                        tank.Position,
+                        tank.Spec.CollisionRadiusM,
+                        obstacle))
+                {
+                    continue;
+                }
+
+                tank.Position = previous;
+                tank.SpeedMps = 0f;
+                return;
+            }
+        }
+
+        private static Float3 PointOnSegment(Float3 start, Float3 end, float fraction)
+        {
+            return start + (end - start) * fraction;
         }
 
         private static bool SegmentSphere(Float3 start, Float3 end, Float3 center, float radius, out float t)

@@ -74,6 +74,38 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void SnapshotDoesNotSerializeEnemyBehindStaticStructure()
+        {
+            BattleState state = new BattleState(
+                new FlatHeightField(),
+                94u,
+                500f,
+                new[]
+                {
+                    new StaticObstacle(
+                        "warehouse",
+                        new Float3(0f, 0f, 60f),
+                        12f,
+                        8f,
+                        10f,
+                        0f,
+                        StaticObstacleFlags.All)
+                });
+            TankState viewer = Tank("entity-viewer", Team.Alpha, Float3.Zero, 0f);
+            TankState hidden = Tank(
+                "entity-hidden", Team.Bravo, new Float3(0f, 0f, 120f), MathUtil.Pi);
+            state.Tanks.Add(viewer);
+            state.Tanks.Add(hidden);
+            AuthoritativeMatchHost host =
+                new AuthoritativeMatchHost(new BattleSimulation(state));
+            host.RegisterPlayer("peer-viewer", viewer.Id);
+
+            NetworkWorldSnapshot snapshot = host.CreateSnapshot("peer-viewer");
+
+            Assert.That(ContainsEntity(snapshot, hidden.Id), Is.False);
+        }
+
+        [Test]
         public void EntityIdentityDoesNotAliasDuplicateVehicleSelections()
         {
             BattleState state = new BattleState(new FlatHeightField(), 93u);

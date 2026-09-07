@@ -1,4 +1,5 @@
 using ClaudeOfTanks.Runtime;
+using ClaudeOfTanks.Simulation;
 using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,10 +24,33 @@ namespace ClaudeOfTanks.Tests
             int totalSandbagLines = 0;
             int totalHedgehogs = 0;
             int totalStructureTriangles = 0;
+            int totalAuthoritativeObstacles = 0;
             for (int i = 0; i < catalog.Maps.Length; i++)
             {
                 MapDefinition definition = catalog.Maps[i];
                 AssertSurfaceData(definition);
+                IHeightField heightField = MapSimulationAdapter.BuildHeightField(definition);
+                StaticObstacle[] obstacles =
+                    MapSimulationAdapter.BuildStaticObstacles(definition, heightField);
+                Assert.That(obstacles, Is.Not.Empty, definition.id);
+                Assert.That(
+                    obstacles.Length,
+                    Is.LessThanOrEqualTo(BattleState.MaximumStaticObstacles),
+                    definition.id);
+                HashSet<string> obstacleIds = new HashSet<string>();
+                for (int obstacleIndex = 0; obstacleIndex < obstacles.Length; obstacleIndex++)
+                {
+                    StaticObstacle obstacle = obstacles[obstacleIndex];
+                    Assert.That(obstacleIds.Add(obstacle.Id), Is.True, obstacle.Id);
+                    Assert.That(obstacle.HalfWidthM, Is.GreaterThan(0f), obstacle.Id);
+                    Assert.That(obstacle.HalfLengthM, Is.GreaterThan(0f), obstacle.Id);
+                    Assert.That(obstacle.HeightM, Is.GreaterThan(0f), obstacle.Id);
+                    Assert.That(
+                        obstacle.Flags,
+                        Is.EqualTo(StaticObstacleFlags.All),
+                        obstacle.Id);
+                }
+                totalAuthoritativeObstacles += obstacles.Length;
                 MapRuntime runtime = MapRuntime.Create(definition);
                 try
                 {
@@ -115,6 +139,9 @@ namespace ClaudeOfTanks.Tests
             Assert.That(totalSandbagLines, Is.EqualTo(361));
             Assert.That(totalHedgehogs, Is.EqualTo(346));
             Assert.That(totalStructureTriangles, Is.GreaterThan(75000));
+            Assert.That(
+                totalAuthoritativeObstacles,
+                Is.GreaterThan(totalBuildings + totalWallRuns));
         }
 
         private static void AssertSurfaceData(MapDefinition map)

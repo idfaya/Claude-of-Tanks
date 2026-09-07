@@ -144,7 +144,8 @@ namespace ClaudeOfTanks.Simulation
         ShellFired,
         ShellHit,
         TankDestroyed,
-        ConsumableUsed
+        ConsumableUsed,
+        StructureHit
     }
 
     public struct BattleEvent
@@ -193,10 +194,12 @@ namespace ClaudeOfTanks.Simulation
     public sealed class BattleState
     {
         public const float FixedDeltaTime = 1f / 60f;
+        public const int MaximumStaticObstacles = 4096;
 
         public readonly List<TankState> Tanks = new List<TankState>();
         public readonly List<ShellState> Shells = new List<ShellState>();
         public readonly List<BattleEvent> Events = new List<BattleEvent>();
+        public readonly StaticObstacle[] StaticObstacles;
         public readonly IHeightField HeightField;
         public readonly DeterministicRandom Random;
         public readonly uint InitialSeed;
@@ -204,12 +207,47 @@ namespace ClaudeOfTanks.Simulation
         public float TimeS;
         public int NextShellId = 1;
 
-        public BattleState(IHeightField heightField, uint seed, float worldHalfExtentM = 500f)
+        public BattleState(
+            IHeightField heightField,
+            uint seed,
+            float worldHalfExtentM = 500f,
+            IReadOnlyList<StaticObstacle> staticObstacles = null)
         {
             HeightField = heightField ?? throw new ArgumentNullException(nameof(heightField));
             InitialSeed = seed;
             Random = new DeterministicRandom(seed);
             WorldHalfExtentM = MathF.Max(50f, worldHalfExtentM);
+            int obstacleCount = staticObstacles == null ? 0 : staticObstacles.Count;
+            if (obstacleCount > MaximumStaticObstacles)
+                throw new ArgumentOutOfRangeException(nameof(staticObstacles));
+            StaticObstacles = new StaticObstacle[obstacleCount];
+            HashSet<string> obstacleIds = new HashSet<string>(StringComparer.Ordinal);
+            for (int i = 0; i < obstacleCount; i++)
+            {
+                if (!staticObstacles[i].IsValid ||
+                    !obstacleIds.Add(staticObstacles[i].Id))
+                {
+                    throw new ArgumentException(
+                        "Static obstacles must be valid and have unique ids.",
+                        nameof(staticObstacles));
+                }
+                StaticObstacles[i] = staticObstacles[i];
+            }
+        }
+
+        public bool IsVisionOccluded(Float3 start, Float3 end)
+        {
+            StaticObstacle obstacle;
+            float fraction;
+            Float3 normal;
+            return CollisionSimulation.TryFindFirstObstacleHit(
+                StaticObstacles,
+                StaticObstacleFlags.Vision,
+                start,
+                end,
+                out obstacle,
+                out fraction,
+                out normal);
         }
     }
 }

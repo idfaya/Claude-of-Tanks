@@ -11,13 +11,13 @@ namespace ClaudeOfTanks.Runtime
         private readonly GameObject _root;
         private readonly List<Mesh> _meshes = new List<Mesh>();
         private readonly List<Material> _materials = new List<Material>();
-        private readonly LandformHeightField _heightField;
+        private readonly IHeightField _heightField;
 
         private MapStructureRuntime(Transform parent, MapDefinition map)
         {
             _root = new GameObject("Structures");
             _root.transform.SetParent(parent, false);
-            _heightField = BuildHeightField(map);
+            _heightField = MapSimulationAdapter.BuildHeightField(map);
             Build(map);
         }
 
@@ -410,29 +410,6 @@ namespace ClaudeOfTanks.Runtime
             float cos = Mathf.Cos(yaw);
             float sin = Mathf.Sin(yaw);
             return new Vector3(x * cos + z * sin, y, -x * sin + z * cos);
-        }
-
-        private static LandformHeightField BuildHeightField(MapDefinition map)
-        {
-            LandformDefinition[] source =
-                map.terrain?.landforms ?? Array.Empty<LandformDefinition>();
-            TerrainLandform[] landforms = new TerrainLandform[source.Length];
-            for (int i = 0; i < source.Length; i++)
-            {
-                landforms[i] = new TerrainLandform
-                {
-                    Kind = source[i].kind,
-                    X = source[i].x,
-                    Z = source[i].z,
-                    Height = source[i].height,
-                    Length = source[i].length,
-                    Width = source[i].width,
-                    RadiusX = source[i].rx,
-                    RadiusZ = source[i].rz,
-                    YawRad = source[i].yawDeg * MathUtil.Deg2Rad
-                };
-            }
-            return new LandformHeightField(landforms);
         }
 
         private static int StableHash(string value)

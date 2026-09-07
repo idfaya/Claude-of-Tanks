@@ -162,7 +162,8 @@ namespace ClaudeOfTanks.Runtime
                 _player,
                 _simulation.State.Tanks,
                 _simulation.MatchMode,
-                _hudSpotting);
+                _hudSpotting,
+                _simulation.State.IsVisionOccluded);
             if (Input.GetKeyDown(KeyCode.Return) && IsBattleOver())
             {
                 StartBattle();
@@ -214,7 +215,12 @@ namespace ClaudeOfTanks.Runtime
             _vehicleDefinitions.Clear();
 
             MapDefinition map = _catalog.GetMap(mapId);
-            BattleState state = new BattleState(BuildHeightField(map), 6000u);
+            IHeightField heightField = MapSimulationAdapter.BuildHeightField(map);
+            BattleState state = new BattleState(
+                heightField,
+                6000u,
+                500f,
+                MapSimulationAdapter.BuildStaticObstacles(map, heightField));
             MapPoint playerSpawn = map.spawns.player;
             AddTank(state, "player", Team.Alpha, vehicleId,
                 SpawnPosition(state, playerSpawn.x, playerSpawn.z), 0f);
@@ -229,7 +235,9 @@ namespace ClaudeOfTanks.Runtime
             }
             _simulation = new BattleSimulation(state, gameMode);
             _replayRecorder = new BattleReplayRecorder(state, gameMode);
-            _botController = new BotController(new SpottingSimulation());
+            _botController = new BotController(
+                new SpottingSimulation(),
+                state.IsVisionOccluded);
             _player = state.Tanks[0];
             _cameraRig.Reset();
             _cameraAimPoint = _player.Position.ToUnity() +
@@ -371,7 +379,8 @@ namespace ClaudeOfTanks.Runtime
                 _player,
                 _simulation.State.Tanks,
                 _simulation.MatchMode,
-                _hudSpotting);
+                _hudSpotting,
+                _simulation.State.IsVisionOccluded);
             _hud.SetReplayState(
                 true,
                 _replayIsKillcam,
@@ -594,6 +603,7 @@ namespace ClaudeOfTanks.Runtime
                 }
                 if (battleEvent.Type == BattleEventType.ShellFired ||
                     battleEvent.Type == BattleEventType.ShellHit ||
+                    battleEvent.Type == BattleEventType.StructureHit ||
                     battleEvent.Type == BattleEventType.TankDestroyed)
                 {
                     TankView target;
@@ -739,28 +749,6 @@ namespace ClaudeOfTanks.Runtime
             _camera.farClipPlane = 500f;
             _camera.backgroundColor = new Color(0.49f, 0.61f, 0.68f);
             _camera.transform.position = new Vector3(0f, 8f, -48f);
-        }
-
-        private static IHeightField BuildHeightField(MapDefinition map)
-        {
-            LandformDefinition[] source = map.terrain?.landforms ?? Array.Empty<LandformDefinition>();
-            TerrainLandform[] landforms = new TerrainLandform[source.Length];
-            for (int i = 0; i < source.Length; i++)
-            {
-                landforms[i] = new TerrainLandform
-                {
-                    Kind = source[i].kind,
-                    X = source[i].x,
-                    Z = source[i].z,
-                    Height = source[i].height,
-                    Length = source[i].length,
-                    Width = source[i].width,
-                    RadiusX = source[i].rx,
-                    RadiusZ = source[i].rz,
-                    YawRad = source[i].yawDeg * MathUtil.Deg2Rad
-                };
-            }
-            return new LandformHeightField(landforms);
         }
 
         private static Float3 SpawnPosition(BattleState state, float x, float z)

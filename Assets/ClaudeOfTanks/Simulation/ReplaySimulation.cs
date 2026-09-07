@@ -9,6 +9,7 @@ namespace ClaudeOfTanks.Simulation
         internal readonly uint Seed;
         internal readonly float WorldHalfExtentM;
         internal readonly GameModeId GameMode;
+        internal readonly StaticObstacle[] StaticObstacles;
         internal readonly List<ReplayTankSeed> Tanks = new List<ReplayTankSeed>();
         internal readonly List<ReplayFrame> Frames = new List<ReplayFrame>();
 
@@ -18,6 +19,7 @@ namespace ClaudeOfTanks.Simulation
             Seed = state.InitialSeed;
             WorldHalfExtentM = state.WorldHalfExtentM;
             GameMode = gameMode;
+            StaticObstacles = (StaticObstacle[])state.StaticObstacles.Clone();
             for (int i = 0; i < state.Tanks.Count; i++)
             {
                 TankState tank = state.Tanks[i];
@@ -34,6 +36,7 @@ namespace ClaudeOfTanks.Simulation
 
         public int FrameCount => Frames.Count;
         public int TankCount => Tanks.Count;
+        public int StaticObstacleCount => StaticObstacles.Length;
         public float DurationS
         {
             get
@@ -150,7 +153,8 @@ namespace ClaudeOfTanks.Simulation
             BattleState state = new BattleState(
                 _recording.HeightField,
                 _recording.Seed,
-                _recording.WorldHalfExtentM);
+                _recording.WorldHalfExtentM,
+                _recording.StaticObstacles);
             for (int i = 0; i < _recording.Tanks.Count; i++)
             {
                 ReplayTankSeed seed = _recording.Tanks[i];

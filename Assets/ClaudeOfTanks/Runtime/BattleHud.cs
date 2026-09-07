@@ -189,9 +189,10 @@ namespace ClaudeOfTanks.Runtime
             TankState player,
             System.Collections.Generic.IList<TankState> tanks,
             MatchModeState mode,
-            SpottingSimulation spotting)
+            SpottingSimulation spotting,
+            System.Func<Float3, Float3, bool> isOccluded = null)
         {
-            _minimap.Update(player, tanks, mode, spotting);
+            _minimap.Update(player, tanks, mode, spotting, isOccluded);
         }
 
         public void SetCamera(BattleCameraMode mode, float zoom)

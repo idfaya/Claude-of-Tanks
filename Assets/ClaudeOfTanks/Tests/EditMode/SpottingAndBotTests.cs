@@ -44,6 +44,34 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void BattleStateStructuresOccludeSpotting()
+        {
+            BattleState state = new BattleState(
+                new FlatHeightField(),
+                17u,
+                500f,
+                new[]
+                {
+                    new StaticObstacle(
+                        "building",
+                        new Float3(0f, 0f, 80f),
+                        10f,
+                        10f,
+                        12f,
+                        0.2f,
+                        StaticObstacleFlags.All)
+                });
+            TankState spotter = Tank("spotter", Team.Alpha, Float3.Zero, 0f);
+            TankState target = Tank(
+                "target", Team.Bravo, new Float3(0f, 0f, 160f), MathUtil.Pi);
+            SpottingSimulation spotting = new SpottingSimulation();
+
+            Assert.That(
+                spotting.CanSpot(spotter, target, state.IsVisionOccluded),
+                Is.False);
+        }
+
+        [Test]
         public void ProximitySpottingIgnoresViewAndOcclusion()
         {
             SpottingSimulation spotting = new SpottingSimulation(445f, 30f);

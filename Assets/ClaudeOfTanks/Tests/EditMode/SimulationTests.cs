@@ -109,6 +109,49 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void StaticObstacleStopsShellBeforeEnemyTank()
+        {
+            BattleState state = new BattleState(
+                new FlatHeightField(),
+                6001u,
+                500f,
+                new[]
+                {
+                    new StaticObstacle(
+                        "wall",
+                        new Float3(0f, 0f, 10f),
+                        5f,
+                        0.5f,
+                        4f,
+                        0f,
+                        StaticObstacleFlags.All)
+                });
+            TankState shooter = new TankState(
+                "shooter", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f);
+            TankState target = new TankState(
+                "target", Team.Bravo, TankSpec.Medium(), new Float3(0f, 0f, 20f), MathUtil.Pi);
+            state.Tanks.Add(shooter);
+            state.Tanks.Add(target);
+            BattleSimulation simulation = new BattleSimulation(state);
+            Dictionary<string, TankInput> inputs = new Dictionary<string, TankInput>
+            {
+                ["shooter"] = new TankInput
+                {
+                    Fire = true,
+                    AimPoint = target.Position + new Float3(0f, 1.25f, 0f)
+                }
+            };
+
+            simulation.Step(inputs, BattleState.FixedDeltaTime);
+
+            Assert.That(target.Health, Is.EqualTo(target.Spec.MaxHealth));
+            Assert.That(state.Shells, Is.Empty);
+            Assert.That(state.Events.Exists(
+                battleEvent => battleEvent.Type == BattleEventType.StructureHit),
+                Is.True);
+        }
+
+        [Test]
         public void BattleFireConsumesAmmunitionAndStartsAuthoritativeReload()
         {
             BattleState state = new BattleState(new FlatHeightField(), 7u);

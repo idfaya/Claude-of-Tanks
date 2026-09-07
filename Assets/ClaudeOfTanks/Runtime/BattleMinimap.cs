@@ -97,7 +97,8 @@ namespace ClaudeOfTanks.Runtime
             TankState player,
             IList<TankState> tanks,
             MatchModeState mode,
-            SpottingSimulation spotting)
+            SpottingSimulation spotting,
+            Func<Float3, Float3, bool> isOccluded = null)
         {
             VisibleTankMarkerCount = 0;
             VisibleEnemyMarkerCount = 0;
@@ -109,7 +110,12 @@ namespace ClaudeOfTanks.Runtime
                     TankState tank = tanks[i];
                     if (tank == null || tank.Destroyed) continue;
                     bool enemy = tank.Team != player.Team;
-                    if (enemy && (spotting == null || !spotting.CanSpot(player, tank))) continue;
+                    if (enemy &&
+                        (spotting == null ||
+                         !spotting.CanSpot(player, tank, isOccluded)))
+                    {
+                        continue;
+                    }
                     Marker marker = _tankMarkers[VisibleTankMarkerCount++];
                     marker.Root.gameObject.SetActive(true);
                     marker.Label.color = tank.Id == player.Id
