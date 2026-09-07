@@ -10,9 +10,10 @@ the incremental port.
 2. Use Unity `2022.3.62f3`.
 3. Open `Assets/Scenes/Battle.unity`, then enter Play Mode.
 
-`GameBootstrap` creates the battlefield automatically. The current desktop
-controls are WASD or arrow keys to drive, Shift to brake, mouse to aim, and
-left mouse or Space to fire.
+`GameBootstrap` opens the garage. Select a vehicle, map, and mode, then deploy.
+The current desktop controls are WASD or arrow keys to drive, Ctrl to brake,
+mouse to aim, left mouse or Space to fire, Shift to toggle sniper mode, and
+the mouse wheel to traverse the arcade/sniper zoom ladder.
 
 Command-line verification:
 
@@ -74,6 +75,8 @@ The port preserves the source project's runtime units and conventions:
 - Pooled battle audio and impact/destruction effects
 - Garage-first lifecycle with all 126 production vehicles, 20 maps, and five
   modes selectable before deployment, plus complete return-to-garage cleanup
+- Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
+  near-aim protection, vehicle hiding, and HUD scope treatment
 - `npm run unity:content:update` / `unity:content:check` drift gate
 
 ## Remaining parity work

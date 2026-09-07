@@ -17,6 +17,7 @@ namespace ClaudeOfTanks.Runtime
             new Dictionary<string, VehicleDefinition>();
         private readonly Dictionary<int, GameObject> _shellViews = new Dictionary<int, GameObject>();
         private readonly List<int> _staleShellIds = new List<int>();
+        private readonly BattleCameraRig _cameraRig = new BattleCameraRig();
         private BattleSimulation _simulation;
         private BattleReplayRecorder _replayRecorder;
         private BotController _botController;
@@ -30,6 +31,9 @@ namespace ClaudeOfTanks.Runtime
         [SerializeField] private GameModeId gameMode = GameModeId.Standard;
         [SerializeField] private string vehicleId = "m1a2";
         private Action _returnToGarage;
+        private Vector3 _cameraAimPoint;
+        private bool _aimHeldLastFrame;
+        private bool _aimHoldOwnsSniper;
         private float _accumulator;
         private string _status = "BATTLE";
         private float _statusUntil;
@@ -91,6 +95,7 @@ namespace ClaudeOfTanks.Runtime
 
             float frameTime = Mathf.Min(Time.deltaTime, 0.25f);
             _accumulator += frameTime;
+            UpdateCameraControls();
             TankInput playerInput = ReadPlayerInput();
             while (_accumulator >= BattleState.FixedDeltaTime)
             {
@@ -108,6 +113,7 @@ namespace ClaudeOfTanks.Runtime
                 _simulation.MatchMode,
                 Time.unscaledTime < _statusUntil || IsBattleOver() ? _status : string.Empty,
                 IsBattleOver());
+            _hud.SetCamera(_cameraRig.Mode, _cameraRig.Zoom);
             if (Input.GetKeyDown(KeyCode.Return) && IsBattleOver())
             {
                 StartBattle();
@@ -121,16 +127,16 @@ namespace ClaudeOfTanks.Runtime
                 return;
             }
 
-            Vector3 target = _player.Position.ToUnity() + Vector3.up * 1.8f;
-            Vector3 forward = new Vector3(Mathf.Sin(_player.Yaw), 0f, Mathf.Cos(_player.Yaw));
-            Vector3 desired = target - forward * 12f + Vector3.up * 7f;
-            _camera.transform.position = Vector3.Lerp(
-                _camera.transform.position,
-                desired,
-                1f - Mathf.Exp(-7f * Time.deltaTime));
-            _camera.transform.rotation = Quaternion.LookRotation(
-                target + forward * 8f - _camera.transform.position,
-                Vector3.up);
+            _cameraRig.Apply(_camera, _player, _cameraAimPoint, Time.deltaTime);
+            TankView playerView;
+            if (_tankViews.TryGetValue(_player.Id, out playerView))
+            {
+                bool visible = _cameraRig.Mode != BattleCameraMode.Sniper;
+                if (playerView.Root.gameObject.activeSelf != visible)
+                {
+                    playerView.Root.gameObject.SetActive(visible);
+                }
+            }
         }
 
         private void StartBattle()
@@ -168,6 +174,11 @@ namespace ClaudeOfTanks.Runtime
             _replayRecorder = new BattleReplayRecorder(state, gameMode);
             _botController = new BotController(new SpottingSimulation());
             _player = state.Tanks[0];
+            _cameraRig.Reset();
+            _cameraAimPoint = _player.Position.ToUnity() +
+                new Vector3(0f, 1.6f, 100f);
+            _aimHeldLastFrame = false;
+            _aimHoldOwnsSniper = false;
             for (int i = 0; i < state.Tanks.Count; i++)
             {
                 TankState tank = state.Tanks[i];
@@ -231,12 +242,13 @@ namespace ClaudeOfTanks.Runtime
                     aimPoint = ray.GetPoint(distance).ToSimulation();
                 }
             }
+            _cameraAimPoint = aimPoint.ToUnity();
 
             return new TankInput
             {
                 Throttle = Mathf.Clamp(throttle, -1f, 1f),
                 Steer = Mathf.Clamp(steer, -1f, 1f),
-                Brake = gamepadBrake || IsKeyPressed(KeyCode.LeftShift) || IsKeyPressed(KeyCode.RightShift),
+                Brake = gamepadBrake || IsKeyPressed(KeyCode.LeftControl) || IsKeyPressed(KeyCode.RightControl),
                 Fire = gamepadFire || (_hud != null && _hud.FireHeld) ||
                     IsPrimaryButtonPressed() || IsKeyPressed(KeyCode.Space),
                 UseRepairKit = Input.GetKeyDown(KeyCode.Alpha4) ||
@@ -271,6 +283,8 @@ namespace ClaudeOfTanks.Runtime
                 case KeyCode.RightArrow: return pressed || keyboard.rightArrowKey.isPressed;
                 case KeyCode.LeftShift: return pressed || keyboard.leftShiftKey.isPressed;
                 case KeyCode.RightShift: return pressed || keyboard.rightShiftKey.isPressed;
+                case KeyCode.LeftControl: return pressed || keyboard.leftCtrlKey.isPressed;
+                case KeyCode.RightControl: return pressed || keyboard.rightCtrlKey.isPressed;
                 case KeyCode.Space: return pressed || keyboard.spaceKey.isPressed;
             }
 #endif
@@ -284,6 +298,80 @@ namespace ClaudeOfTanks.Runtime
             pressed |= Mouse.current != null && Mouse.current.leftButton.isPressed;
 #endif
             return pressed;
+        }
+
+        private void UpdateCameraControls()
+        {
+            if (IsKeyPressedThisFrame(KeyCode.LeftShift) ||
+                IsKeyPressedThisFrame(KeyCode.RightShift))
+            {
+                _cameraRig.ToggleSniper();
+                _aimHoldOwnsSniper = false;
+            }
+
+            int zoomSteps = ReadZoomSteps();
+            if (zoomSteps != 0)
+            {
+                _cameraRig.StepZoom(zoomSteps);
+                _aimHoldOwnsSniper = false;
+            }
+
+            bool aimHeld = IsSecondaryButtonPressed();
+            if (aimHeld && !_aimHeldLastFrame &&
+                _cameraRig.Mode == BattleCameraMode.Arcade)
+            {
+                _cameraRig.ToggleSniper();
+                _aimHoldOwnsSniper = true;
+            }
+            else if (!aimHeld && _aimHeldLastFrame && _aimHoldOwnsSniper)
+            {
+                if (_cameraRig.Mode == BattleCameraMode.Sniper)
+                {
+                    _cameraRig.ToggleSniper();
+                }
+                _aimHoldOwnsSniper = false;
+            }
+            _aimHeldLastFrame = aimHeld;
+        }
+
+        private static bool IsKeyPressedThisFrame(KeyCode keyCode)
+        {
+            bool pressed = Input.GetKeyDown(keyCode);
+#if ENABLE_INPUT_SYSTEM
+            Keyboard keyboard = Keyboard.current;
+            if (keyboard == null)
+            {
+                return pressed;
+            }
+            if (keyCode == KeyCode.LeftShift) return pressed || keyboard.leftShiftKey.wasPressedThisFrame;
+            if (keyCode == KeyCode.RightShift) return pressed || keyboard.rightShiftKey.wasPressedThisFrame;
+#endif
+            return pressed;
+        }
+
+        private static bool IsSecondaryButtonPressed()
+        {
+            bool pressed = Input.GetMouseButton(1);
+#if ENABLE_INPUT_SYSTEM
+            pressed |= Mouse.current != null && Mouse.current.rightButton.isPressed;
+#endif
+            return pressed;
+        }
+
+        private static int ReadZoomSteps()
+        {
+            float scroll = Input.mouseScrollDelta.y;
+#if ENABLE_INPUT_SYSTEM
+            if (Mouse.current != null)
+            {
+                float inputSystemScroll = Mouse.current.scroll.ReadValue().y;
+                if (Mathf.Abs(inputSystemScroll) > Mathf.Abs(scroll))
+                {
+                    scroll = inputSystemScroll;
+                }
+            }
+#endif
+            return scroll > 0.01f ? 1 : scroll < -0.01f ? -1 : 0;
         }
 
         private static Vector2 PointerPosition()
@@ -390,12 +478,12 @@ namespace ClaudeOfTanks.Runtime
             Renderer renderer = shell != null ? shell.GetComponent<Renderer>() : null;
             if (renderer != null && renderer.sharedMaterial != null)
             {
-                DestroyObject(renderer.sharedMaterial);
+                ReleaseObject(renderer.sharedMaterial);
             }
-            DestroyObject(shell);
+            ReleaseObject(shell);
         }
 
-        private static void DestroyObject(UnityEngine.Object value)
+        private static void ReleaseObject(UnityEngine.Object value)
         {
             if (value == null) return;
             if (Application.isPlaying) Destroy(value);

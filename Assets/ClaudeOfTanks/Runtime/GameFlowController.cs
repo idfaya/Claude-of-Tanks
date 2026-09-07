@@ -46,7 +46,7 @@ namespace ClaudeOfTanks.Runtime
 
         private void ShowGarage()
         {
-            if (_battle != null) DestroyObject(_battle.gameObject);
+            if (_battle != null) ReleaseObject(_battle.gameObject);
             _battle = null;
             DestroyGarage();
             _garage = new GameObject("Garage");
@@ -257,12 +257,12 @@ namespace ClaudeOfTanks.Runtime
             }
             if (_garageFloorMaterial != null)
             {
-                DestroyObject(_garageFloorMaterial);
+                ReleaseObject(_garageFloorMaterial);
                 _garageFloorMaterial = null;
             }
             if (_garage != null)
             {
-                DestroyObject(_garage);
+                ReleaseObject(_garage);
                 _garage = null;
             }
         }
@@ -276,12 +276,12 @@ namespace ClaudeOfTanks.Runtime
             }
             if (_garageFloorMaterial != null)
             {
-                DestroyObject(_garageFloorMaterial);
+                ReleaseObject(_garageFloorMaterial);
                 _garageFloorMaterial = null;
             }
         }
 
-        private static void DestroyObject(UnityEngine.Object value)
+        private static void ReleaseObject(UnityEngine.Object value)
         {
             if (Application.isPlaying) Destroy(value);
             else DestroyImmediate(value);

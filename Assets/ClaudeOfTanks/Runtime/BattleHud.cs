@@ -14,9 +14,13 @@ namespace ClaudeOfTanks.Runtime
         private Text _status;
         private Image _healthFill;
         private GameObject _touchRoot;
+        private GameObject _scopeRoot;
+        private Text _scopeZoom;
         private Vector2 _touchDrive;
         private bool _fireHeld;
         private readonly bool[] _consumables = new bool[3];
+        private BattleCameraMode _cameraMode = (BattleCameraMode)(-1);
+        private float _cameraZoom = -1f;
         private Action _restart;
         private Action _garage;
 
@@ -65,6 +69,20 @@ namespace ClaudeOfTanks.Runtime
             _touchRoot.SetActive(visible);
         }
 
+        public void SetCamera(BattleCameraMode mode, float zoom)
+        {
+            if (_cameraMode == mode && Mathf.Approximately(_cameraZoom, zoom))
+            {
+                return;
+            }
+
+            _cameraMode = mode;
+            _cameraZoom = zoom;
+            bool scoped = mode == BattleCameraMode.Sniper;
+            _scopeRoot.SetActive(scoped);
+            _scopeZoom.text = scoped ? string.Format("x{0:0}", zoom) : string.Empty;
+        }
+
         private void Build()
         {
             Canvas canvas = gameObject.AddComponent<Canvas>();
@@ -106,6 +124,7 @@ namespace ClaudeOfTanks.Runtime
             Text reticle = Label("Reticle", transform, font, 28, TextAnchor.MiddleCenter);
             reticle.text = "+";
             Rect(reticle.rectTransform, new Vector2(-20f, -20f), new Vector2(20f, 20f), new Vector2(0.5f, 0.5f));
+            BuildScopeOverlay(font);
 
             CreateButton("Repair", "4", new Vector2(430f, 20f), () => _consumables[0] = true);
             CreateButton("FirstAid", "5", new Vector2(486f, 20f), () => _consumables[1] = true);
@@ -115,6 +134,38 @@ namespace ClaudeOfTanks.Runtime
             CreateButton("Garage", "GARAGE", new Vector2(20f, -48f), _garage,
                 new Vector2(90f, 34f), new Vector2(0f, 1f));
             BuildTouchControls(font);
+        }
+
+        private void BuildScopeOverlay(Font font)
+        {
+            _scopeRoot = new GameObject("SniperScope", typeof(RectTransform));
+            _scopeRoot.transform.SetParent(transform, false);
+            Rect(_scopeRoot.GetComponent<RectTransform>(), Vector2.zero, Vector2.zero, Vector2.zero, Vector2.one);
+
+            Image left = Image("LeftShade", _scopeRoot.transform, new Color(0f, 0f, 0f, 0.32f));
+            Rect(left.rectTransform, Vector2.zero, new Vector2(48f, 0f), Vector2.zero, new Vector2(0f, 1f));
+            Image right = Image("RightShade", _scopeRoot.transform, new Color(0f, 0f, 0f, 0.32f));
+            Rect(right.rectTransform, new Vector2(-48f, 0f), Vector2.zero, new Vector2(1f, 0f), Vector2.one);
+            Image top = Image("TopShade", _scopeRoot.transform, new Color(0f, 0f, 0f, 0.24f));
+            Rect(top.rectTransform, new Vector2(0f, -36f), Vector2.zero, new Vector2(0f, 1f), Vector2.one);
+            Image bottom = Image("BottomShade", _scopeRoot.transform, new Color(0f, 0f, 0f, 0.24f));
+            Rect(bottom.rectTransform, Vector2.zero, new Vector2(0f, 36f), Vector2.zero, new Vector2(1f, 0f));
+            Image horizontal = Image("Horizontal", _scopeRoot.transform, new Color(1f, 1f, 1f, 0.38f));
+            Rect(horizontal.rectTransform, new Vector2(40f, -1f), new Vector2(-40f, 1f),
+                new Vector2(0f, 0.5f), new Vector2(1f, 0.5f));
+            Image vertical = Image("Vertical", _scopeRoot.transform, new Color(1f, 1f, 1f, 0.38f));
+            Rect(vertical.rectTransform, new Vector2(-1f, 40f), new Vector2(1f, -40f),
+                new Vector2(0.5f, 0f), new Vector2(0.5f, 1f));
+            foreach (Image image in _scopeRoot.GetComponentsInChildren<Image>())
+            {
+                image.raycastTarget = false;
+            }
+
+            _scopeZoom = Label("Zoom", _scopeRoot.transform, font, 16, TextAnchor.MiddleCenter);
+            _scopeZoom.raycastTarget = false;
+            Rect(_scopeZoom.rectTransform, new Vector2(-60f, -126f), new Vector2(60f, -96f),
+                new Vector2(0.5f, 1f));
+            _scopeRoot.SetActive(false);
         }
 
         private void BuildTouchControls(Font font)
