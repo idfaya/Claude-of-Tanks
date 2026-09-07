@@ -2,10 +2,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Threading.Tasks;
+using ClaudeOfTanks.Network;
+using ClaudeOfTanks.Simulation;
 using ClaudeOfTanks.WebRTC;
 using NUnit.Framework;
 using UnityEngine;
@@ -19,13 +18,11 @@ namespace ClaudeOfTanks.Tests
 
     public sealed class PrivateRoomRtcSessionTests
     {
-        private const string TestOrigin = "https://unity.test";
-
         [UnityTest]
         public IEnumerator RealSignalingComposesAndRotatesRtcPeer()
         {
-            int port = ReservePort();
-            Process server = StartServer(port);
+            int port = SignalingServerTestHarness.ReservePort();
+            Process server = SignalingServerTestHarness.StartServer(port);
             GameObject ownerObject = new GameObject("PrivateRoomRtcTest");
             RtcTestCoroutineOwner owner =
                 ownerObject.AddComponent<RtcTestCoroutineOwner>();
@@ -35,16 +32,21 @@ namespace ClaudeOfTanks.Tests
             PrivateRoomHostRtcSession host = null;
             PrivateRoomClientRtcSession client = null;
             PrivateRoomClientRtcSession secondClient = null;
+            PrivateRoomAuthoritativeHostRuntime hostMatch = null;
+            PrivateRoomNetworkClientRuntime clientMatch = null;
+            PrivateRoomNetworkClientRuntime secondClientMatch = null;
             try
             {
-                yield return WaitForServer(
+                yield return SignalingServerTestHarness.WaitForServer(
                     server,
                     port,
                     TimeSpan.FromSeconds(5));
                 Uri endpoint =
                     new Uri("ws://127.0.0.1:" + port + "/signal");
-                hostSignaling = CreateSignaling(endpoint, "host-session-one");
-                clientSignaling = CreateSignaling(
+                hostSignaling = SignalingServerTestHarness.CreateClient(
+                    endpoint,
+                    "host-session-one");
+                clientSignaling = SignalingServerTestHarness.CreateClient(
                     endpoint,
                     "client-session-one");
 
@@ -53,7 +55,9 @@ namespace ClaudeOfTanks.Tests
                         "unity-host",
                         "Unity Host",
                         4);
-                yield return WaitForTask(create, TimeSpan.FromSeconds(8));
+                yield return SignalingServerTestHarness.WaitForTask(
+                    create,
+                    TimeSpan.FromSeconds(8));
                 SignalingRoomInfo created = create.GetAwaiter().GetResult();
                 host = new PrivateRoomHostRtcSession(
                     hostSignaling,
@@ -65,7 +69,9 @@ namespace ClaudeOfTanks.Tests
                         created.RoomCode,
                         "unity-client",
                         "Unity Client");
-                yield return WaitForTask(join, TimeSpan.FromSeconds(8));
+                yield return SignalingServerTestHarness.WaitForTask(
+                    join,
+                    TimeSpan.FromSeconds(8));
                 SignalingRoomInfo joined = join.GetAwaiter().GetResult();
                 client = new PrivateRoomClientRtcSession(
                     clientSignaling,
@@ -77,7 +83,8 @@ namespace ClaudeOfTanks.Tests
                         DisconnectedRebuildDelayMs = 500
                     });
 
-                secondClientSignaling = CreateSignaling(
+                secondClientSignaling =
+                    SignalingServerTestHarness.CreateClient(
                     endpoint,
                     "second-client-session-one");
                 Task<SignalingRoomInfo> secondJoin =
@@ -85,7 +92,7 @@ namespace ClaudeOfTanks.Tests
                         created.RoomCode,
                         "unity-client-two",
                         "Unity Client Two");
-                yield return WaitForTask(
+                yield return SignalingServerTestHarness.WaitForTask(
                     secondJoin,
                     TimeSpan.FromSeconds(8));
                 SignalingRoomInfo secondJoined =
@@ -144,6 +151,70 @@ namespace ClaudeOfTanks.Tests
                     () => firstPayload == 41,
                     TimeSpan.FromSeconds(3));
 
+                BattleState battle = new BattleState(
+                    new FlatHeightField(),
+                    1701u);
+                TankState hostTank = AddTank(
+                    battle,
+                    "host-entity",
+                    Team.Alpha,
+                    -15f);
+                TankState clientTank = AddTank(
+                    battle,
+                    "client-entity",
+                    Team.Alpha,
+                    0f);
+                AddTank(
+                    battle,
+                    "second-client-entity",
+                    Team.Bravo,
+                    15f);
+                AuthoritativeMatchHost authority =
+                    new AuthoritativeMatchHost(
+                        new BattleSimulation(battle));
+                authority.RegisterPlayer("unity-host", hostTank.Id);
+                authority.RegisterPlayer("unity-client", clientTank.Id);
+                authority.RegisterPlayer(
+                    "unity-client-two",
+                    "second-client-entity");
+                hostMatch = new PrivateRoomAuthoritativeHostRuntime(
+                    host,
+                    authority,
+                    "unity-host",
+                    hostTank.Id);
+                clientMatch = new PrivateRoomNetworkClientRuntime(
+                    client,
+                    "unity-client",
+                    clientTank.Id);
+                secondClientMatch = new PrivateRoomNetworkClientRuntime(
+                    secondClient,
+                    "unity-client-two",
+                    "second-client-entity");
+
+                long tickBefore = authority.Tick;
+                Assert.That(hostMatch.Update(1), Is.EqualTo(1));
+                Assert.That(
+                    authority.Tick,
+                    Is.EqualTo(tickBefore + 1),
+                    "authority must advance once regardless of peer count");
+                Assert.That(clientMatch.SendInput(new NetworkInputCommand
+                {
+                    Sequence = 1u,
+                    ClientTick = authority.Tick,
+                    SnapshotAckTick = -1,
+                    Throttle = 1f,
+                    AimDistanceM = 100f
+                }), Is.True);
+                yield return PumpMatchUntil(
+                    hostMatch,
+                    new[] { clientMatch, secondClientMatch },
+                    () => clientMatch.LatestSnapshot != null &&
+                        secondClientMatch.LatestSnapshot != null &&
+                        clientTank.Position.Z > 0f,
+                    TimeSpan.FromSeconds(5));
+                long snapshotTickBeforeRotation =
+                    clientMatch.LatestSnapshot.Tick;
+
                 string oldSessionId = clientSignaling.SessionId;
                 WebRtcNetworkEndpoint oldClientTransport =
                     clientTransports[0];
@@ -161,6 +232,9 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     clientSignaling.SessionId,
                     Is.Not.EqualTo(oldSessionId));
+                Assert.That(
+                    clientMatch.TransportGeneration,
+                    Is.EqualTo(2));
                 Assert.That(oldClientTransport.IsOpen, Is.False);
                 Assert.That(host.PeerCount, Is.EqualTo(2));
                 Assert.That(secondClientTransports[0].IsOpen, Is.True);
@@ -185,6 +259,20 @@ namespace ClaudeOfTanks.Tests
                     clientTransports[1],
                     () => replacementPayload == 82,
                     TimeSpan.FromSeconds(3));
+                Assert.That(clientMatch.SendInput(new NetworkInputCommand
+                {
+                    Sequence = 2u,
+                    ClientTick = authority.Tick,
+                    SnapshotAckTick = snapshotTickBeforeRotation,
+                    Throttle = 1f,
+                    AimDistanceM = 100f
+                }), Is.True);
+                yield return PumpMatchUntil(
+                    hostMatch,
+                    new[] { clientMatch, secondClientMatch },
+                    () => clientMatch.LatestSnapshot.Tick >
+                        snapshotTickBeforeRotation,
+                    TimeSpan.FromSeconds(5));
 
                 string oldHostSessionId = hostSignaling.SessionId;
                 WebRtcNetworkEndpoint oldSecondClientTransport =
@@ -210,6 +298,11 @@ namespace ClaudeOfTanks.Tests
                     hostSignaling.SessionId));
                 Assert.That(oldSecondClientTransport.IsOpen, Is.False);
                 Assert.That(host.PeerCount, Is.EqualTo(2));
+                Assert.That(hostMatch.RemotePeerCount, Is.EqualTo(2));
+                Assert.That(clientMatch.TransportGeneration, Is.EqualTo(3));
+                Assert.That(
+                    secondClientMatch.TransportGeneration,
+                    Is.EqualTo(2));
 
                 PrivateRoomPeerTransport secondReplacementHostTransport =
                     hostTransports.FindLast(
@@ -228,9 +321,20 @@ namespace ClaudeOfTanks.Tests
                     secondClientTransports[1],
                     () => secondPayload == 123,
                     TimeSpan.FromSeconds(3));
+                long secondSnapshotTick =
+                    secondClientMatch.LatestSnapshot.Tick;
+                yield return PumpMatchUntil(
+                    hostMatch,
+                    new[] { clientMatch, secondClientMatch },
+                    () => secondClientMatch.LatestSnapshot.Tick >
+                        secondSnapshotTick,
+                    TimeSpan.FromSeconds(5));
             }
             finally
             {
+                secondClientMatch?.Dispose();
+                clientMatch?.Dispose();
+                hostMatch?.Dispose();
                 secondClient?.Dispose();
                 client?.Dispose();
                 host?.Dispose();
@@ -238,7 +342,7 @@ namespace ClaudeOfTanks.Tests
                 clientSignaling?.Dispose();
                 hostSignaling?.Dispose();
                 UnityEngine.Object.DestroyImmediate(ownerObject);
-                StopServer(server);
+                SignalingServerTestHarness.StopServer(server);
             }
         }
 
@@ -282,146 +386,39 @@ namespace ClaudeOfTanks.Tests
             Assert.Fail("Private-room RTC packet timed out.");
         }
 
-        private static RoomSignalingClient CreateSignaling(
-            Uri endpoint,
-            string sessionId)
-        {
-            return new RoomSignalingClient(
-                endpoint,
-                new RoomSignalingClientOptions
-                {
-                    SessionId = sessionId,
-                    ConnectTimeoutMs = 2000,
-                    RequestTimeoutMs = 3000,
-                    EventPollIntervalMs = 50,
-                    EventPollTimeoutMs = 2000,
-                    ReconnectDelaysMs = new[] { 20, 50, 100 },
-                    Origin = TestOrigin
-                });
-        }
-
-        private static IEnumerator WaitForTask(
-            Task task,
-            TimeSpan timeout)
-        {
-            DateTime deadline = DateTime.UtcNow + timeout;
-            while (!task.IsCompleted && DateTime.UtcNow < deadline)
-                yield return null;
-            Assert.That(task.IsCompleted, Is.True, "Async operation timed out.");
-            if (task.IsFaulted)
-                throw task.Exception?.InnerException ?? task.Exception;
-        }
-
-        private static IEnumerator WaitForServer(
-            Process server,
-            int port,
+        private static IEnumerator PumpMatchUntil(
+            PrivateRoomAuthoritativeHostRuntime host,
+            PrivateRoomNetworkClientRuntime[] clients,
+            Func<bool> condition,
             TimeSpan timeout)
         {
             DateTime deadline = DateTime.UtcNow + timeout;
             while (DateTime.UtcNow < deadline)
             {
-                if (server.HasExited)
-                    Assert.Fail(
-                        "Signaling server exited: " +
-                        server.StandardError.ReadToEnd());
-                using (TcpClient probe = new TcpClient())
-                {
-                    Task connect = probe.ConnectAsync(
-                        IPAddress.Loopback,
-                        port);
-                    DateTime attemptDeadline =
-                        DateTime.UtcNow.AddMilliseconds(250);
-                    while (!connect.IsCompleted &&
-                        DateTime.UtcNow < attemptDeadline)
-                    {
-                        yield return null;
-                    }
-                    if (connect.Status == TaskStatus.RanToCompletion)
-                        yield break;
-                }
+                for (int i = 0; i < clients.Length; i++)
+                    clients[i].Pump();
+                host.Update(1);
+                if (condition()) yield break;
                 yield return null;
             }
-            Assert.Fail("Signaling server did not become ready.");
+            Assert.Fail("Private-room authoritative match timed out.");
         }
 
-        private static Process StartServer(int port)
+        private static TankState AddTank(
+            BattleState battle,
+            string id,
+            Team team,
+            float x)
         {
-            string root = Directory.GetParent(Application.dataPath).FullName;
-            Process process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = ResolveNodeExecutable(),
-                    Arguments = "\"" +
-                        Path.Combine(root, "server/signalingServer.ts") +
-                        "\" --host 127.0.0.1 --port " + port,
-                    WorkingDirectory = root,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                }
-            };
-            process.StartInfo.EnvironmentVariables["COT_ALLOWED_ORIGINS"] =
-                TestOrigin;
-            Assert.That(process.Start(), Is.True);
-            return process;
+            TankState tank = new TankState(
+                id,
+                team,
+                TankSpec.Medium(),
+                new Float3(x, 0f, 0f),
+                0f);
+            battle.Tanks.Add(tank);
+            return tank;
         }
 
-        private static string ResolveNodeExecutable()
-        {
-            string[] pathEntries = (
-                Environment.GetEnvironmentVariable("PATH") ??
-                string.Empty).Split(Path.PathSeparator);
-            for (int i = 0; i < pathEntries.Length; i++)
-            {
-                string candidate = Path.Combine(pathEntries[i], "node");
-                if (File.Exists(candidate)) return candidate;
-            }
-            string localBin = Path.Combine(
-                Environment.GetFolderPath(
-                    Environment.SpecialFolder.UserProfile),
-                ".local/bin");
-            if (Directory.Exists(localBin))
-            {
-                string[] installs = Directory.GetDirectories(
-                    localBin,
-                    ".node-*",
-                    SearchOption.TopDirectoryOnly);
-                Array.Sort(installs, StringComparer.Ordinal);
-                for (int i = installs.Length - 1; i >= 0; i--)
-                {
-                    string candidate =
-                        Path.Combine(installs[i], "bin/node");
-                    if (File.Exists(candidate)) return candidate;
-                }
-            }
-            Assert.Fail("Node executable was not found for signaling test.");
-            return string.Empty;
-        }
-
-        private static int ReservePort()
-        {
-            TcpListener listener =
-                new TcpListener(IPAddress.Loopback, 0);
-            listener.Start();
-            int port = ((IPEndPoint)listener.LocalEndpoint).Port;
-            listener.Stop();
-            return port;
-        }
-
-        private static void StopServer(Process server)
-        {
-            if (server == null) return;
-            try
-            {
-                if (!server.HasExited) server.Kill();
-                server.WaitForExit(2000);
-            }
-            catch
-            {
-            }
-            server.Dispose();
-        }
     }
 }

@@ -44,6 +44,22 @@ namespace ClaudeOfTanks.WebRTC
         public event Action<string, string> PeerLeft;
         public event Action<string, string> Failed;
 
+        public PrivateRoomPeerTransport[] GetReadyTransports()
+        {
+            List<PrivateRoomPeerTransport> result =
+                new List<PrivateRoomPeerTransport>();
+            foreach (HostPeer peer in _peers.Values)
+            {
+                if (peer.Transport == null || !peer.Transport.IsOpen) continue;
+                result.Add(new PrivateRoomPeerTransport(
+                    peer.PeerId,
+                    peer.SessionId,
+                    peer.Player,
+                    peer.Transport));
+            }
+            return result.ToArray();
+        }
+
         public int Pump(int maximumEvents = int.MaxValue)
         {
             RequireOpen();

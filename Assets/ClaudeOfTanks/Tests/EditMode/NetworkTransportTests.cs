@@ -99,6 +99,46 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void HostPumpRejectsInputClaimingAnotherTransportIdentity()
+        {
+            BattleState state = new BattleState(new FlatHeightField(), 503u);
+            TankState owner = new TankState(
+                "owner-entity", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f);
+            TankState victim = new TankState(
+                "victim-entity",
+                Team.Alpha,
+                TankSpec.Medium(),
+                new Float3(10f, 0f, 0f),
+                0f);
+            state.Tanks.Add(owner);
+            state.Tanks.Add(victim);
+            AuthoritativeMatchHost host =
+                new AuthoritativeMatchHost(new BattleSimulation(state));
+            host.RegisterPlayer("owner-peer", owner.Id);
+            host.RegisterPlayer("victim-peer", victim.Id);
+            LoopbackNetworkTransportPair pair =
+                LoopbackNetworkTransportPair.Create();
+
+            using (AuthoritativeHostPump hostPump =
+                new AuthoritativeHostPump(host, "owner-peer", pair.Host))
+            {
+                NetworkInputCommand spoofed = Command(1u, 0);
+                spoofed.PlayerId = "victim-peer";
+                Assert.That(
+                    pair.Client.SendControl(InputWireCodec.Encode(spoofed)),
+                    Is.True);
+
+                Assert.That(hostPump.PumpIncoming(), Is.EqualTo(1));
+                Assert.That(hostPump.RejectedInputs, Is.EqualTo(1));
+                hostPump.Update(1);
+                Assert.That(owner.Position, Is.EqualTo(Float3.Zero));
+                Assert.That(
+                    victim.Position,
+                    Is.EqualTo(new Float3(10f, 0f, 0f)));
+            }
+        }
+
+        [Test]
         public void WebSocketLaneCodecRejectsInvalidFrames()
         {
             byte[] frame = WebSocketLaneCodec.Encode(

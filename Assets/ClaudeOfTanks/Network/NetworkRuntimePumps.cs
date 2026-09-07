@@ -80,6 +80,11 @@ namespace ClaudeOfTanks.Network
             try
             {
                 NetworkInputCommand command = InputWireCodec.Decode(packet);
+                if (command.PlayerId != _playerId)
+                {
+                    RejectedInputs++;
+                    return;
+                }
                 InputAdmission admission = _host.SubmitInput(command);
                 if (admission != InputAdmission.Accepted &&
                     admission != InputAdmission.Stale)
