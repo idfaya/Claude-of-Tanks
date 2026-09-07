@@ -73,6 +73,12 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(battle.IsReplaying, Is.True);
                 Assert.That(battle.Player.Id, Is.EqualTo("player"));
                 Assert.That(battle.Player.Spec.Id, Is.EqualTo("m1a1"));
+                Assert.That(
+                    battle.Player.Equipment,
+                    Is.EqualTo(new[] { "toolbox" }));
+                Assert.That(
+                    battle.PlayerCamouflageId,
+                    Is.EqualTo("winter"));
                 Assert.That(battle.State.Tanks, Has.Count.EqualTo(2));
                 battle.ExitReplay();
                 Assert.That(exited, Is.True);
@@ -100,7 +106,17 @@ namespace ClaudeOfTanks.Tests
                 catalog.GetVehicle("t90m").ToTankSpec(),
                 new Float3(0f, 0f, 80f),
                 MathUtil.Pi));
-            BattleReplayRecorder recorder = new BattleReplayRecorder(state, GameModeId.Standard);
+            LoadoutSimulation.ApplyEquipment(
+                state.Tanks[0],
+                new[] { "toolbox" });
+            BattleReplayRecorder recorder = new BattleReplayRecorder(
+                state,
+                GameModeId.Standard,
+                new Dictionary<string, string>
+                {
+                    ["player"] = "winter",
+                    ["enemy"] = "desert"
+                });
             Dictionary<string, TankInput> inputs = new Dictionary<string, TankInput>();
             for (int frame = 0; frame < 60; frame++)
             {

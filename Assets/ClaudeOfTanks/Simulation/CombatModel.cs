@@ -106,6 +106,7 @@ namespace ClaudeOfTanks.Simulation
         public int Kills;
         public float TraverseMultiplier = 1f;
         public float TurretMultiplier = 1f;
+        public string[] Equipment = Array.Empty<string>();
         public readonly float[] ConsumableReadyAt = new float[3];
         public readonly DamageCombatState Combat;
         public readonly DamageTankSpec DamageSpec;

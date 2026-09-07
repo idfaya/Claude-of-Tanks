@@ -35,6 +35,7 @@ namespace ClaudeOfTanks.Simulation
         {
             if (tank == null) throw new ArgumentNullException(nameof(tank));
             string[] loadout = SanitizeEquipment(ids, true, tank.Combat.Magazine != null);
+            tank.Equipment = (string[])loadout.Clone();
             for (int i = 0; i < loadout.Length; i++)
             {
                 switch (loadout[i])

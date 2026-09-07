@@ -13,7 +13,9 @@ namespace ClaudeOfTanks.Simulation
         public const int MaximumLandforms = 128;
         public const int MaximumStaticObstacles = BattleState.MaximumStaticObstacles;
         private const uint Magic = 0x52544f43u;
-        private const ushort Version = 3;
+        private const uint LoadoutMetadataMagic = 0x4c544f43u;
+        private const ushort Version = 4;
+        private const ushort CrushableObstacleVersion = 3;
         private const ushort StaticObstacleVersion = 2;
         private const ushort PreviousVersion = 1;
 
@@ -73,6 +75,7 @@ namespace ClaudeOfTanks.Simulation
                         WriteInput(writer, input);
                     }
                 }
+                WriteLoadoutMetadata(writer, recording);
                 writer.Flush();
                 if (stream.Length > MaximumEncodedBytes)
                     throw new InvalidDataException("Replay exceeds its encoded size limit.");
@@ -93,6 +96,7 @@ namespace ClaudeOfTanks.Simulation
                         throw new FormatException("Replay magic is invalid.");
                     ushort version = reader.ReadUInt16();
                     if (version != Version &&
+                        version != CrushableObstacleVersion &&
                         version != StaticObstacleVersion &&
                         version != PreviousVersion)
                         throw new FormatException("Replay version is unsupported.");
@@ -149,6 +153,8 @@ namespace ClaudeOfTanks.Simulation
                         }
                         recording.Frames.Add(frame);
                     }
+                    if (version >= Version)
+                        ReadLoadoutMetadata(reader, recording);
                     if (stream.Position != stream.Length)
                         throw new FormatException("Replay has trailing data.");
                     return recording;
@@ -265,8 +271,11 @@ namespace ClaudeOfTanks.Simulation
                 float yaw = ReadFinite(reader, "obstacle yaw");
                 StaticObstacleFlags flags = (StaticObstacleFlags)reader.ReadByte();
                 bool destructible = reader.ReadBoolean();
-                bool crushable = version >= 3 && reader.ReadBoolean();
-                float crushSpeedRetention = version >= 3
+                bool crushable =
+                    version >= CrushableObstacleVersion &&
+                    reader.ReadBoolean();
+                float crushSpeedRetention =
+                    version >= CrushableObstacleVersion
                     ? ReadFinite(reader, "obstacle crush speed retention")
                     : 0.94f;
                 if (halfWidth <= 0f || halfLength <= 0f || height <= 0f ||
@@ -289,6 +298,87 @@ namespace ClaudeOfTanks.Simulation
                     crushSpeedRetention);
             }
             return obstacles;
+        }
+
+        private static void WriteLoadoutMetadata(
+            BinaryWriter writer,
+            ReplayRecording recording)
+        {
+            writer.Write(LoadoutMetadataMagic);
+            writer.Write((byte)recording.Tanks.Count);
+            for (int i = 0; i < recording.Tanks.Count; i++)
+            {
+                ReplayTankSeed tank = recording.Tanks[i];
+                string[] equipment =
+                    tank.Equipment ?? Array.Empty<string>();
+                ValidateCount(
+                    equipment.Length,
+                    0,
+                    LoadoutSimulation.EquipmentSlots,
+                    "equipment");
+                writer.Write((byte)equipment.Length);
+                for (int item = 0;
+                    item < equipment.Length;
+                    item++)
+                {
+                    WriteString(writer, equipment[item], 64);
+                }
+                WriteString(
+                    writer,
+                    string.IsNullOrEmpty(tank.CamouflageId)
+                        ? "factory"
+                        : tank.CamouflageId,
+                    64);
+            }
+        }
+
+        private static void ReadLoadoutMetadata(
+            BinaryReader reader,
+            ReplayRecording recording)
+        {
+            if (reader.ReadUInt32() != LoadoutMetadataMagic)
+                throw new FormatException(
+                    "Replay loadout metadata magic is invalid.");
+            int tankCount = reader.ReadByte();
+            if (tankCount != recording.Tanks.Count)
+                throw new FormatException(
+                    "Replay loadout metadata tank count is invalid.");
+            for (int i = 0; i < tankCount; i++)
+            {
+                int equipmentCount = reader.ReadByte();
+                ValidateCount(
+                    equipmentCount,
+                    0,
+                    LoadoutSimulation.EquipmentSlots,
+                    "equipment");
+                string[] equipment =
+                    new string[equipmentCount];
+                HashSet<string> equipmentIds =
+                    new HashSet<string>(StringComparer.Ordinal);
+                for (int item = 0;
+                    item < equipmentCount;
+                    item++)
+                {
+                    string id = ReadString(reader, 64);
+                    if (!equipmentIds.Add(id))
+                        throw new FormatException(
+                            "Replay equipment ids are duplicated.");
+                    equipment[item] = id;
+                }
+                recording.Tanks[i].Equipment =
+                    LoadoutSimulation.SanitizeEquipment(
+                        equipment,
+                        true,
+                        false);
+                if (recording.Tanks[i].Equipment.Length !=
+                    equipment.Length)
+                {
+                    throw new FormatException(
+                        "Replay equipment id is invalid.");
+                }
+                recording.Tanks[i].CamouflageId =
+                    ReadString(reader, 64);
+            }
         }
 
         private static void WriteTankSpec(BinaryWriter writer, TankSpec spec)

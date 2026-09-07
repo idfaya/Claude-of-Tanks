@@ -13,7 +13,10 @@ namespace ClaudeOfTanks.Simulation
         internal readonly List<ReplayTankSeed> Tanks = new List<ReplayTankSeed>();
         internal readonly List<ReplayFrame> Frames = new List<ReplayFrame>();
 
-        internal ReplayRecording(BattleState state, GameModeId gameMode)
+        internal ReplayRecording(
+            BattleState state,
+            GameModeId gameMode,
+            IReadOnlyDictionary<string, string> camouflageIds = null)
         {
             HeightField = state.HeightField;
             Seed = state.InitialSeed;
@@ -29,7 +32,18 @@ namespace ClaudeOfTanks.Simulation
                     Team = tank.Team,
                     Spec = tank.Spec,
                     Position = tank.Position,
-                    Yaw = tank.Yaw
+                    Yaw = tank.Yaw,
+                    Equipment = tank.Equipment == null
+                        ? Array.Empty<string>()
+                        : (string[])tank.Equipment.Clone(),
+                    CamouflageId =
+                        camouflageIds != null &&
+                        camouflageIds.TryGetValue(
+                            tank.Id,
+                            out string camouflageId) &&
+                        !string.IsNullOrEmpty(camouflageId)
+                            ? camouflageId
+                            : "factory"
                 });
             }
         }
@@ -50,6 +64,14 @@ namespace ClaudeOfTanks.Simulation
         public string GetTankId(int index) { return Tanks[index].Id; }
         public string GetTankSpecId(int index) { return Tanks[index].Spec.Id; }
         public Team GetTankTeam(int index) { return Tanks[index].Team; }
+        public string[] GetTankEquipment(int index)
+        {
+            return (string[])Tanks[index].Equipment.Clone();
+        }
+        public string GetTankCamouflageId(int index)
+        {
+            return Tanks[index].CamouflageId;
+        }
     }
 
     internal sealed class ReplayTankSeed
@@ -59,6 +81,8 @@ namespace ClaudeOfTanks.Simulation
         public TankSpec Spec;
         public Float3 Position;
         public float Yaw;
+        public string[] Equipment = Array.Empty<string>();
+        public string CamouflageId = "factory";
     }
 
     internal sealed class ReplayFrame
@@ -72,9 +96,15 @@ namespace ClaudeOfTanks.Simulation
     {
         public readonly ReplayRecording Recording;
 
-        public BattleReplayRecorder(BattleState initialState, GameModeId gameMode)
+        public BattleReplayRecorder(
+            BattleState initialState,
+            GameModeId gameMode,
+            IReadOnlyDictionary<string, string> camouflageIds = null)
         {
-            Recording = new ReplayRecording(initialState, gameMode);
+            Recording = new ReplayRecording(
+                initialState,
+                gameMode,
+                camouflageIds);
         }
 
         public void Record(IReadOnlyDictionary<string, TankInput> inputs, float dt)
@@ -158,8 +188,16 @@ namespace ClaudeOfTanks.Simulation
             for (int i = 0; i < _recording.Tanks.Count; i++)
             {
                 ReplayTankSeed seed = _recording.Tanks[i];
-                state.Tanks.Add(new TankState(
-                    seed.Id, seed.Team, seed.Spec, seed.Position, seed.Yaw));
+                TankState tank = new TankState(
+                    seed.Id,
+                    seed.Team,
+                    seed.Spec,
+                    seed.Position,
+                    seed.Yaw);
+                LoadoutSimulation.ApplyEquipment(
+                    tank,
+                    seed.Equipment);
+                state.Tanks.Add(tank);
             }
             Simulation = new BattleSimulation(state, _recording.GameMode);
             CurrentFrame = 0;

@@ -108,7 +108,17 @@ namespace ClaudeOfTanks.Tests
                 "alpha", Team.Alpha, TankSpec.Medium(), new Float3(0f, 0f, -20f), 0f));
             state.Tanks.Add(new TankState(
                 "bravo", Team.Bravo, TankSpec.Heavy(), new Float3(0f, 0f, 30f), MathUtil.Pi));
-            BattleReplayRecorder recorder = new BattleReplayRecorder(state, GameModeId.Standard);
+            LoadoutSimulation.ApplyEquipment(
+                state.Tanks[0],
+                new[] { "rammer", "toolbox" });
+            BattleReplayRecorder recorder = new BattleReplayRecorder(
+                state,
+                GameModeId.Standard,
+                new Dictionary<string, string>
+                {
+                    ["alpha"] = "winter",
+                    ["bravo"] = "desert"
+                });
             BattleSimulation original = new BattleSimulation(state, GameModeId.Standard);
             Dictionary<string, TankInput> inputs = new Dictionary<string, TankInput>();
             for (int tick = 0; tick < 240; tick++)
@@ -132,6 +142,15 @@ namespace ClaudeOfTanks.Tests
             Assert.That(decoded.GetTankId(0), Is.EqualTo("alpha"));
             Assert.That(decoded.GetTankSpecId(1), Is.EqualTo("heavy"));
             Assert.That(decoded.GetTankTeam(1), Is.EqualTo(Team.Bravo));
+            Assert.That(
+                decoded.GetTankEquipment(0),
+                Is.EqualTo(new[] { "rammer", "toolbox" }));
+            Assert.That(
+                decoded.GetTankCamouflageId(0),
+                Is.EqualTo("winter"));
+            Assert.That(
+                decoded.GetTankCamouflageId(1),
+                Is.EqualTo("desert"));
             Assert.That(decoded.StaticObstacleCount, Is.EqualTo(1));
             Assert.That(replay.State.StaticObstacles[0].Id, Is.EqualTo("replay-building"));
             Assert.That(replay.State.StaticObstacles[0].Center, Is.EqualTo(new Float3(30f, 1f, 40f)));
@@ -145,6 +164,13 @@ namespace ClaudeOfTanks.Tests
             Assert.That(replay.State.StaticObstacles[0].CrushSpeedRetention, Is.EqualTo(1f));
             Assert.That(replay.State.Tanks[0].Position, Is.EqualTo(original.State.Tanks[0].Position));
             Assert.That(replay.State.Tanks[1].Health, Is.EqualTo(original.State.Tanks[1].Health));
+            Assert.That(
+                replay.State.Tanks[0].DamageSpec.Gun.ReloadS,
+                Is.EqualTo(
+                    original.State.Tanks[0].DamageSpec.Gun.ReloadS));
+            Assert.That(
+                replay.State.Tanks[0].Combat.Equipment.RepairRate,
+                Is.EqualTo(1.25f));
             Assert.That(replay.State.HeightField.HeightAt(12f, -8f), Is.EqualTo(5f).Within(0.001f));
         }
 
@@ -167,22 +193,49 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
-        public void ReplayWireCodecReadsVersionOneWithoutStaticObstacles()
+        public void ReplayWireCodecReadsVersionsOneAndThreeWithoutLoadouts()
         {
             BattleState state = new BattleState(new FlatHeightField(), 23u);
             state.Tanks.Add(new TankState(
                 "alpha", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f));
             BattleReplayRecorder recorder = new BattleReplayRecorder(state, GameModeId.Standard);
-            byte[] versionTwo = ReplayWireCodec.Encode(recorder.Recording);
+            byte[] versionFour = ReplayWireCodec.Encode(recorder.Recording);
             const int obstacleCountOffset = 16;
-            byte[] versionOne = new byte[versionTwo.Length - 2];
-            Buffer.BlockCopy(versionTwo, 0, versionOne, 0, obstacleCountOffset);
+            const int defaultLoadoutMetadataBytes = 15;
+            byte[] versionThree = new byte[
+                versionFour.Length -
+                defaultLoadoutMetadataBytes];
             Buffer.BlockCopy(
-                versionTwo,
+                versionFour,
+                0,
+                versionThree,
+                0,
+                versionThree.Length);
+            versionThree[4] = 3;
+            versionThree[5] = 0;
+            ReplayRecording decodedVersionThree =
+                ReplayWireCodec.Decode(versionThree);
+            Assert.That(
+                decodedVersionThree.GetTankEquipment(0),
+                Is.Empty);
+            Assert.That(
+                decodedVersionThree.GetTankCamouflageId(0),
+                Is.EqualTo("factory"));
+
+            byte[] versionOne = new byte[
+                versionFour.Length -
+                2 -
+                defaultLoadoutMetadataBytes];
+            Buffer.BlockCopy(versionFour, 0, versionOne, 0, obstacleCountOffset);
+            Buffer.BlockCopy(
+                versionFour,
                 obstacleCountOffset + 2,
                 versionOne,
                 obstacleCountOffset,
-                versionTwo.Length - obstacleCountOffset - 2);
+                versionFour.Length -
+                obstacleCountOffset -
+                2 -
+                defaultLoadoutMetadataBytes);
             versionOne[4] = 1;
             versionOne[5] = 0;
 

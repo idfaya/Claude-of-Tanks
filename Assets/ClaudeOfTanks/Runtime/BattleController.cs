@@ -67,6 +67,18 @@ namespace ClaudeOfTanks.Runtime
         public MatchModeState MatchMode => _simulation?.MatchMode;
         public bool IsReplaying => _replaySession != null;
         public string ArchivedReplayId => _archivedReplayId;
+        public string PlayerCamouflageId
+        {
+            get
+            {
+                if (_player == null) return null;
+                return _camouflageIds.TryGetValue(
+                    _player.Id,
+                    out string camouflageId)
+                        ? camouflageId
+                        : null;
+            }
+        }
 
         public void Configure(
             string selectedVehicleId, string selectedMapId, GameModeId selectedMode,
@@ -254,7 +266,10 @@ namespace ClaudeOfTanks.Runtime
                     "auto");
             }
             _simulation = new BattleSimulation(state, gameMode);
-            _replayRecorder = new BattleReplayRecorder(state, gameMode);
+            _replayRecorder = new BattleReplayRecorder(
+                state,
+                gameMode,
+                _camouflageIds);
             _botController = new BotController(
                 new SpottingSimulation(),
                 state.IsVisionOccluded);
@@ -353,7 +368,9 @@ namespace ClaudeOfTanks.Runtime
                 string specId = archived.Recording.GetTankSpecId(i);
                 VehicleDefinition definition = _catalog.GetVehicle(specId);
                 _vehicleDefinitions.Add(entityId, definition);
-                _camouflageIds.Add(entityId, "factory");
+                _camouflageIds.Add(
+                    entityId,
+                    archived.Recording.GetTankCamouflageId(i));
             }
 
             _replaySession = new BattleReplaySession(archived.Recording);

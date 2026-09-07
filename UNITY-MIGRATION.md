@@ -155,7 +155,8 @@ The port preserves the source project's runtime units and conventions:
   status, and restoration of the final live battle state
 - Persistent replay archive with strict 64 MiB binary simulation codec,
   SHA-256-verified compressed atomic files, 12-match retention, corrupt-file
-  isolation, and Garage browse/play/delete controls
+  isolation, Garage browse/play/delete controls, and backward-compatible
+  per-vehicle equipment/camouflage restoration
 - Renderer-free multiplayer authority baseline with bounded 60 Hz catch-up,
   validated sequenced input, deduplicated action edges, 20 Hz snapshot cadence,
   spectator views, and pre-serialization spotting filters
