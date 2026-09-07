@@ -101,6 +101,10 @@ The port preserves the source project's runtime units and conventions:
 - Bounded dual-channel loopback transport and host/client pumps: reliable FIFO
   input, replaceable latest-state delivery, prediction reconciliation, and
   automatic keyframe recovery after state loss
+- Transport-independent C# host/client pumps plus a real `ClientWebSocket`
+  adapter with versioned binary lane framing, bounded control queues,
+  replaceable state backpressure, fragmented-frame assembly, strict rejection,
+  and main-thread event dispatch
 - Persistent authoritative room policy for 1v1 through 7v7, spectators,
   readiness and selection locks, host-owned rules, round retention, reserved
   disconnect seats, hashed rotating resume tokens, and deterministic host
@@ -125,7 +129,8 @@ These systems still use the TypeScript implementation as their specification:
 - progression, loadout editing, replay browser, and production garage;
 - input rebinding, settings, minimap, damage panel, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
-- WebSocket/WebRTC transports and signaling service deployment;
+- Unity headless dedicated-service hosting, ranked HTTP/session wiring,
+  WebRTC private-room transport, and signaling deployment;
 - per-family procedural vehicle geometry/pattern parity and generated technical assets.
 
 Migrate these by extending the simulation contracts rather than moving

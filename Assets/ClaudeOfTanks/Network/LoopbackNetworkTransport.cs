@@ -15,7 +15,7 @@ namespace ClaudeOfTanks.Network
         public int PeakControlQueue { get; internal set; }
     }
 
-    public sealed class LoopbackNetworkEndpoint
+    public sealed class LoopbackNetworkEndpoint : INetworkTransportEndpoint
     {
         private readonly Queue<byte[]> _controlQueue = new Queue<byte[]>();
         private readonly int _maximumControlQueue;
@@ -106,6 +106,11 @@ namespace ClaudeOfTanks.Network
         public void Close(string reason = "closed")
         {
             FinishClose(reason, true);
+        }
+
+        public void Dispose()
+        {
+            Close("disposed");
         }
 
         private bool EnqueueControl(byte[] packet)

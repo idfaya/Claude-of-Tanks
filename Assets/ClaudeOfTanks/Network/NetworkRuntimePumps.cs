@@ -9,7 +9,7 @@ namespace ClaudeOfTanks.Network
         public const int SnapshotHistoryCapacity = 128;
         private readonly AuthoritativeMatchHost _host;
         private readonly string _playerId;
-        private readonly LoopbackNetworkEndpoint _transport;
+        private readonly INetworkTransportEndpoint _transport;
         private readonly Dictionary<long, NetworkWorldSnapshot> _snapshots =
             new Dictionary<long, NetworkWorldSnapshot>();
         private readonly Queue<long> _snapshotOrder = new Queue<long>();
@@ -18,7 +18,7 @@ namespace ClaudeOfTanks.Network
         public AuthoritativeHostPump(
             AuthoritativeMatchHost host,
             string playerId,
-            LoopbackNetworkEndpoint transport)
+            INetworkTransportEndpoint transport)
         {
             _host = host ?? throw new ArgumentNullException(nameof(host));
             _playerId = !string.IsNullOrEmpty(playerId)
@@ -116,7 +116,7 @@ namespace ClaudeOfTanks.Network
     {
         private readonly string _playerId;
         private readonly string _entityId;
-        private readonly LoopbackNetworkEndpoint _transport;
+        private readonly INetworkTransportEndpoint _transport;
         private readonly SnapshotFrameReceiver _receiver;
         private readonly SnapshotBuffer _buffer;
         private readonly LocalTankPredictor _predictor;
@@ -125,7 +125,7 @@ namespace ClaudeOfTanks.Network
         public NetworkClientPump(
             string playerId,
             string entityId,
-            LoopbackNetworkEndpoint transport,
+            INetworkTransportEndpoint transport,
             LocalTankPredictor predictor = null,
             SnapshotFrameReceiver receiver = null,
             SnapshotBuffer buffer = null)
