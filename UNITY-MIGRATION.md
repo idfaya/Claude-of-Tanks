@@ -100,6 +100,9 @@ The port preserves the source project's runtime units and conventions:
 - Authoritative post-battle replay playback with seekable deterministic
   simulation, last-eight-second Killcam, full-current-battle replay, timeline
   status, and restoration of the final live battle state
+- Persistent replay archive with strict 64 MiB binary simulation codec,
+  SHA-256-verified compressed atomic files, 12-match retention, corrupt-file
+  isolation, and Garage browse/play/delete controls
 - Renderer-free multiplayer authority baseline with bounded 60 Hz catch-up,
   validated sequenced input, deduplicated action edges, 20 Hz snapshot cadence,
   spectator views, and pre-serialization spotting filters
@@ -144,7 +147,6 @@ These systems still use the TypeScript implementation as their specification:
   destructibles, complete vegetation recipes, and world streaming for all 20 maps;
 - progression, loadout editing, and production garage;
 - controller glyph polish, accessibility options, and production UI polish;
-- persistent cross-session replay archive and Garage replay browser;
 - audio, particles, decals, postprocessing, and adaptive quality;
 - Unity headless build/bootstrap, ranked HTTP matchmaking endpoints,
   WebRTC private-room transport, and signaling deployment;

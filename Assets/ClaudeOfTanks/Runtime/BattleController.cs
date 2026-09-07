@@ -31,6 +31,7 @@ namespace ClaudeOfTanks.Runtime
         private MapRuntime _mapRuntime;
         private BattleHud _hud;
         private BattleEffects _effects;
+        private ReplayArchive _replayArchive;
         [SerializeField] private string mapId = "verdant";
         [SerializeField] private GameModeId gameMode = GameModeId.Standard;
         [SerializeField] private string vehicleId = "m1a2";
@@ -46,6 +47,9 @@ namespace ClaudeOfTanks.Runtime
         private float _accumulator;
         private float _replayStartTimeS;
         private bool _replayIsKillcam;
+        private bool _archivePlayback;
+        private bool _archiveWritten;
+        private string _archivedReplayId;
         private string _status = "BATTLE";
         private float _statusUntil;
         private GUIStyle _labelStyle;
@@ -58,15 +62,18 @@ namespace ClaudeOfTanks.Runtime
         public BattleState State => _simulation?.State;
         public MatchModeState MatchMode => _simulation?.MatchMode;
         public bool IsReplaying => _replaySession != null;
+        public string ArchivedReplayId => _archivedReplayId;
 
         public void Configure(
             string selectedVehicleId, string selectedMapId, GameModeId selectedMode,
-            Action returnToGarage)
+            Action returnToGarage,
+            ReplayArchive replayArchive = null)
         {
             vehicleId = selectedVehicleId;
             mapId = selectedMapId;
             gameMode = selectedMode;
             _returnToGarage = returnToGarage;
+            _replayArchive = replayArchive ?? ReplayArchive.Current;
         }
 
         private void Awake()
@@ -186,6 +193,9 @@ namespace ClaudeOfTanks.Runtime
             _replaySession = null;
             _liveSimulation = null;
             _livePlayer = null;
+            _archivePlayback = false;
+            _archiveWritten = false;
+            _archivedReplayId = null;
             _hud?.SetReplayState(false, false, 0f, 0f, false);
             _effects?.ResetAll();
             foreach (TankView view in _tankViews.Values)
@@ -248,6 +258,7 @@ namespace ClaudeOfTanks.Runtime
                 return;
             _liveSimulation = _simulation;
             _livePlayer = _player;
+            _archivePlayback = false;
             _replaySession = new BattleReplaySession(_replayRecorder.Recording);
             _replayIsKillcam = killcam;
             _replayStartTimeS = killcam
@@ -271,6 +282,11 @@ namespace ClaudeOfTanks.Runtime
         public void ExitReplay()
         {
             if (_replaySession == null) return;
+            if (_archivePlayback)
+            {
+                _returnToGarage?.Invoke();
+                return;
+            }
             _simulation = _liveSimulation;
             _player = _livePlayer;
             _replaySession = null;
@@ -281,6 +297,47 @@ namespace ClaudeOfTanks.Runtime
             ClearShellViews();
             SyncViews();
             _hud.SetReplayState(false, false, 0f, 0f, false);
+        }
+
+        public void LoadArchivedReplay(ArchivedReplay archived)
+        {
+            if (archived == null || archived.Entry == null || archived.Recording == null)
+                throw new ArgumentNullException(nameof(archived));
+            if (archived.Entry.MapId != mapId ||
+                archived.Entry.GameMode != gameMode)
+                throw new InvalidOperationException("Archived replay does not match battle configuration.");
+
+            _effects?.ResetAll();
+            foreach (TankView view in _tankViews.Values) view.Destroy();
+            _tankViews.Clear();
+            ClearShellViews();
+            _vehicleDefinitions.Clear();
+            for (int i = 0; i < archived.Recording.TankCount; i++)
+            {
+                string entityId = archived.Recording.GetTankId(i);
+                string specId = archived.Recording.GetTankSpecId(i);
+                VehicleDefinition definition = _catalog.GetVehicle(specId);
+                _vehicleDefinitions.Add(entityId, definition);
+            }
+
+            _replaySession = new BattleReplaySession(archived.Recording);
+            _simulation = _replaySession.Simulation;
+            _player = FindTank(_simulation.State, archived.Entry.PlayerEntityId);
+            _liveSimulation = null;
+            _livePlayer = null;
+            _archivePlayback = true;
+            _replayIsKillcam = false;
+            _replayStartTimeS = 0f;
+            _accumulator = 0f;
+            _cameraRig.Reset();
+            _cameraAimPoint = _player.Position.ToUnity() + new Vector3(0f, 1.6f, 100f);
+            for (int i = 0; i < _simulation.State.Tanks.Count; i++)
+            {
+                TankState tank = _simulation.State.Tanks[i];
+                _tankViews.Add(tank.Id, TankView.Create(tank, _vehicleDefinitions[tank.Id]));
+            }
+            SyncViews();
+            _hud.SetReplayState(true, false, 0f, _replaySession.DurationS, false);
         }
 
         private void UpdateReplay()
@@ -294,6 +351,21 @@ namespace ClaudeOfTanks.Runtime
                 _accumulator -= BattleState.FixedDeltaTime;
             }
             SyncViews();
+            _hud.SetState(
+                _player,
+                _simulation.MatchMode,
+                string.Empty,
+                false,
+                new BattleHudStats
+                {
+                    ShotsFired = _shotsFired,
+                    Hits = _hits,
+                    Penetrations = _penetrations,
+                    DamageDealt = _damageDealt,
+                    DamageReceived = _damageReceived,
+                    Kills = _player.Kills,
+                    TimeS = _simulation.State.TimeS
+                });
             _hud.SetCamera(_cameraRig.Mode, _cameraRig.Zoom);
             _hud.SetMinimap(
                 _player,
@@ -615,11 +687,31 @@ namespace ClaudeOfTanks.Runtime
             {
                 _status = winner.Value == Team.Alpha ? "VICTORY" : "DEFEAT";
                 _statusUntil = float.PositiveInfinity;
+                ArchiveReplay();
             }
             else if (_simulation.MatchMode.Draw)
             {
                 _status = "DRAW";
                 _statusUntil = float.PositiveInfinity;
+                ArchiveReplay();
+            }
+        }
+
+        private void ArchiveReplay()
+        {
+            if (_archiveWritten || _archivePlayback || _replayArchive == null) return;
+            _archiveWritten = true;
+            try
+            {
+                ReplayArchiveEntry entry = _replayArchive.Save(
+                    _replayRecorder.Recording,
+                    mapId,
+                    _player.Id);
+                _archivedReplayId = entry.Id;
+            }
+            catch (Exception error)
+            {
+                Debug.LogError("Replay archive failed: " + error.Message);
             }
         }
 

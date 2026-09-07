@@ -18,6 +18,8 @@ namespace ClaudeOfTanks.Runtime
         private Camera _camera;
         private BattleController _battle;
         private GameSettingsPanel _settingsPanel;
+        private ReplayBrowserPanel _replayBrowser;
+        private ReplayArchive _replayArchive;
         private Material _garageFloorMaterial;
 
         public bool IsGarageVisible => _garage != null;
@@ -27,6 +29,7 @@ namespace ClaudeOfTanks.Runtime
         public string SelectedVehicleId => _catalog.ProductionVehicleIds[_vehicle.value];
         public string SelectedMapId => _catalog.Maps[_map.value].id;
         public GameModeId SelectedMode => (GameModeId)_mode.value;
+        public int ReplayCount => _replayArchive != null ? _replayArchive.List().Length : 0;
 
         private void Awake()
         {
@@ -41,6 +44,7 @@ namespace ClaudeOfTanks.Runtime
             }
 
             _catalog = ContentCatalog.Load();
+            _replayArchive = ReplayArchive.Current;
             EnsureEventSystem();
             ShowGarage();
         }
@@ -67,7 +71,7 @@ namespace ClaudeOfTanks.Runtime
             battleObject.transform.SetParent(transform, false);
             battleObject.SetActive(false);
             _battle = battleObject.AddComponent<BattleController>();
-            _battle.Configure(vehicleId, mapId, mode, ShowGarage);
+            _battle.Configure(vehicleId, mapId, mode, ShowGarage, _replayArchive);
             battleObject.SetActive(true);
             _battle.Initialize();
         }
@@ -105,6 +109,25 @@ namespace ClaudeOfTanks.Runtime
         public void ReturnToGarage()
         {
             ShowGarage();
+        }
+
+        public void PlayReplay(string replayId)
+        {
+            ArchivedReplay replay = _replayArchive.Load(replayId);
+            DestroyGarage();
+            GameObject battleObject = new GameObject("Replay");
+            battleObject.transform.SetParent(transform, false);
+            battleObject.SetActive(false);
+            _battle = battleObject.AddComponent<BattleController>();
+            _battle.Configure(
+                replay.Entry.PlayerVehicleId,
+                replay.Entry.MapId,
+                replay.Entry.GameMode,
+                ShowGarage,
+                _replayArchive);
+            battleObject.SetActive(true);
+            _battle.Initialize();
+            _battle.LoadArchivedReplay(replay);
         }
 
         private void BuildGarageStage()
@@ -164,7 +187,10 @@ namespace ClaudeOfTanks.Runtime
             deploy.onClick.AddListener(StartBattle);
             Button settings = Button("Settings", ui.transform, font, "SETTINGS", new Vector2(220f, -328f));
             settings.onClick.AddListener(() => _settingsPanel.Open());
+            Button replays = Button("Replays", ui.transform, font, "REPLAYS", new Vector2(412f, -328f));
+            replays.onClick.AddListener(() => _replayBrowser.Open());
             _settingsPanel = GameSettingsPanel.Create(ui.transform, GameSettings.Current);
+            _replayBrowser = ReplayBrowserPanel.Create(ui.transform, _replayArchive, PlayReplay);
         }
 
         private void RefreshPreview(int index)
@@ -269,6 +295,7 @@ namespace ClaudeOfTanks.Runtime
                 ReleaseObject(_garage);
                 _garage = null;
                 _settingsPanel = null;
+                _replayBrowser = null;
             }
         }
 
