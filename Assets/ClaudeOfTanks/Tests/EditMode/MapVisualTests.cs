@@ -26,12 +26,45 @@ namespace ClaudeOfTanks.Tests
             int totalStructureTriangles = 0;
             int totalAuthoritativeObstacles = 0;
             int totalTerrainTriangles = 0;
+            int totalVegetationStands = 0;
+            int totalTrees = 0;
             bool foundRaisedTerrain = false;
             bool foundDepressedTerrain = false;
             for (int i = 0; i < catalog.Maps.Length; i++)
             {
                 MapDefinition definition = catalog.Maps[i];
                 AssertSurfaceData(definition);
+                Assert.That(definition.unityVegetation, Is.Not.Null, definition.id);
+                Assert.That(
+                    definition.unityVegetation.stands,
+                    Is.Not.Null.And.Not.Empty,
+                    definition.id);
+                int manifestTreeCount = 0;
+                for (int standIndex = 0;
+                    standIndex < definition.unityVegetation.stands.Length;
+                    standIndex++)
+                {
+                    MapVegetationStand stand =
+                        definition.unityVegetation.stands[standIndex];
+                    Assert.That(
+                        stand.zone,
+                        Is.EqualTo("cluster")
+                            .Or.EqualTo("lone")
+                            .Or.EqualTo("rim")
+                            .Or.EqualTo("belt"),
+                        definition.id);
+                    Assert.That(stand.species, Is.Not.Empty, definition.id);
+                    Assert.That(stand.count, Is.GreaterThan(0), definition.id);
+                    Assert.That(Mathf.Abs(stand.x), Is.LessThan(500f), definition.id);
+                    Assert.That(Mathf.Abs(stand.z), Is.LessThan(500f), definition.id);
+                    manifestTreeCount += stand.count;
+                }
+                Assert.That(
+                    manifestTreeCount,
+                    Is.EqualTo(definition.unityVegetation.treeCount),
+                    definition.id);
+                totalVegetationStands += definition.unityVegetation.stands.Length;
+                totalTrees += manifestTreeCount;
                 IHeightField heightField = MapSimulationAdapter.BuildHeightField(definition);
                 StaticObstacle[] obstacles =
                     MapSimulationAdapter.BuildStaticObstacles(definition, heightField);
@@ -87,6 +120,29 @@ namespace ClaudeOfTanks.Tests
                     }
                     totalTerrainTriangles += runtime.TerrainTriangleCount;
                     Assert.That(runtime.Root.Find("Surface-GroundVariation"), Is.Not.Null, definition.id);
+                    Transform vegetation = runtime.Root.Find("Vegetation");
+                    Assert.That(vegetation, Is.Not.Null, definition.id);
+                    Assert.That(runtime.TreeCount, Is.EqualTo(manifestTreeCount), definition.id);
+                    Assert.That(runtime.VegetationChunkCount, Is.InRange(1, 16), definition.id);
+                    Assert.That(
+                        runtime.VegetationMeshCount,
+                        Is.InRange(1, MapVegetationRuntime.MaximumMeshCount),
+                        definition.id);
+                    Assert.That(
+                        runtime.VegetationVertexCount,
+                        Is.InRange(manifestTreeCount * 14, 300000),
+                        definition.id);
+                    Assert.That(
+                        vegetation.GetComponentsInChildren<Collider>(),
+                        Is.Empty,
+                        definition.id);
+                    runtime.UpdateVegetationVisibility(new Vector3(5000f, 0f, 5000f), 0f);
+                    Assert.That(runtime.ActiveVegetationChunkCount, Is.Zero, definition.id);
+                    runtime.UpdateVegetationVisibility(Vector3.zero);
+                    Assert.That(
+                        runtime.ActiveVegetationChunkCount,
+                        Is.EqualTo(runtime.VegetationChunkCount),
+                        definition.id);
                     Assert.That(runtime.Root.Find("Surface-RoadCasing"), Is.Not.Null, definition.id);
                     Transform roads = runtime.Root.Find("Surface-Roads");
                     Assert.That(roads, Is.Not.Null, definition.id);
@@ -232,6 +288,8 @@ namespace ClaudeOfTanks.Tests
                 totalAuthoritativeObstacles,
                 Is.GreaterThan(totalBuildings + totalWallRuns));
             Assert.That(totalTerrainTriangles, Is.GreaterThan(600000));
+            Assert.That(totalVegetationStands, Is.EqualTo(4579));
+            Assert.That(totalTrees, Is.EqualTo(65170));
             Assert.That(foundRaisedTerrain, Is.True);
             Assert.That(foundDepressedTerrain, Is.True);
         }

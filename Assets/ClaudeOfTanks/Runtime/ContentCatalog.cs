@@ -7,7 +7,7 @@ namespace ClaudeOfTanks.Runtime
     public sealed class ContentCatalog
     {
         private const string ResourcePath = "Generated/content-catalog";
-        private const int SupportedSchemaVersion = 3;
+        private const int SupportedSchemaVersion = 4;
         private readonly CatalogData _data;
 
         private ContentCatalog(CatalogData data)
@@ -237,6 +237,7 @@ namespace ClaudeOfTanks.Runtime
         public MapVegetation vegetation;
         public MapSurface unitySurface;
         public MapStructures unityStructures;
+        public MapVegetationLayout unityVegetation;
     }
 
     [Serializable] public sealed class MapSky
@@ -330,5 +331,20 @@ namespace ClaudeOfTanks.Runtime
         public int rimCount;
         public int clusterCount;
         public string bushSpecies;
+    }
+    [Serializable] public sealed class MapVegetationLayout
+    {
+        public MapVegetationStand[] stands;
+        public int treeCount;
+    }
+    [Serializable] public sealed class MapVegetationStand
+    {
+        public string zone;
+        public float x;
+        public float z;
+        public float radius;
+        public int count;
+        public string species;
+        public uint seed;
     }
 }

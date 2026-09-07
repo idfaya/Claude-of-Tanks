@@ -221,11 +221,125 @@ function structureLayout(config, layout) {
   };
 }
 
+function pickSpecies(mix, rng) {
+  const choices = Array.isArray(mix) && mix.length ? mix : [['oak', 1]];
+  const total = choices.reduce((sum, entry) => sum + Math.max(0, entry[1] || 0), 0) || 1;
+  let roll = rng() * total;
+  for (const [species, weight] of choices) {
+    roll -= Math.max(0, weight || 0);
+    if (roll <= 0) return species;
+  }
+  return choices[choices.length - 1][0];
+}
+
+function vegetationLayout(config, layout, structures) {
+  const vegetation = config.vegetation || {};
+  const rng = mulberry32(stableHash(config.id + '-unity-vegetation'));
+  const stands = [];
+  const lakes = layout.lakes || [];
+  const avoid = vegetation.avoid || [];
+  const buildings = structures.buildings || [];
+  const spawns = [layout.spawns?.player, ...(layout.spawns?.enemies || [])].filter(Boolean);
+  const clear = (x, z, padding = 0) => {
+    if (Math.max(Math.abs(x), Math.abs(z)) > 490) return false;
+    if (lakes.some((disc) => Math.hypot(x - disc.x, z - disc.z) < disc.r + padding)) return false;
+    if (avoid.some((disc) => Math.hypot(x - disc.x, z - disc.z) < disc.r + padding)) return false;
+    if (spawns.some((spawn) => Math.hypot(x - spawn.x, z - spawn.z) < 34 + padding)) return false;
+    if (buildings.some((building) =>
+      Math.abs(x - building.x) < building.w * 0.5 + 7 + padding &&
+      Math.abs(z - building.z) < building.d * 0.5 + 7 + padding)) return false;
+    return true;
+  };
+  const addStand = (zone, x, z, radius, count, species) => {
+    stands.push({
+      zone, x, z, radius, count, species,
+      seed: stableHash(`${config.id}-${zone}-${stands.length}`),
+    });
+  };
+  const placeRandom = (zone, count, extent, mix, radiusFor, treesFor) => {
+    for (let index = 0; index < count; index++) {
+      let x = 0, z = 0, placed = false;
+      for (let attempt = 0; attempt < 300; attempt++) {
+        x = (rng() * 2 - 1) * extent;
+        z = (rng() * 2 - 1) * extent;
+        if (clear(x, z, radiusFor(index) * 0.2)) {
+          placed = true;
+          break;
+        }
+      }
+      if (!placed) {
+        const angle = index * 2.399963229728653;
+        const radius = 120 + (index % 17) * 17;
+        x = Math.cos(angle) * radius;
+        z = Math.sin(angle) * radius;
+      }
+      addStand(
+        zone, x, z, radiusFor(index), treesFor(index),
+        pickSpecies(mix, rng));
+    }
+  };
+
+  placeRandom(
+    'cluster',
+    vegetation.clusterCount || 0,
+    420,
+    vegetation.clusterMix,
+    () => 16 + rng() * 26,
+    () => 24 + Math.floor(rng() * 34));
+  placeRandom(
+    'lone',
+    vegetation.loneCount || 0,
+    460,
+    vegetation.loneMix,
+    () => 0,
+    () => 1);
+
+  const rimCount = vegetation.rimCount || 0;
+  for (let index = 0; index < rimCount; index++) {
+    const angle = ((index + (rng() - 0.5)) / Math.max(1, rimCount)) * Math.PI * 2;
+    const radius = 442 + rng() * 42;
+    const x = Math.cos(angle) * radius;
+    const z = Math.sin(angle) * radius;
+    addStand(
+      'rim',
+      x,
+      z,
+      13 + rng() * 22,
+      6 + Math.floor(rng() * 22),
+      pickSpecies(vegetation.rimMix, rng));
+  }
+
+  for (const belt of vegetation.belts || []) {
+    const length = Math.hypot(belt.x1 - belt.x0, belt.z1 - belt.z0);
+    const count = Math.max(2, Math.round(length / (belt.gap || 8)));
+    for (let index = 0; index <= count; index++) {
+      const t = index / count;
+      const jitter = belt.jitter ?? 2.5;
+      const x = belt.x0 + (belt.x1 - belt.x0) * t + (rng() - 0.5) * jitter;
+      const z = belt.z0 + (belt.z1 - belt.z0) * t + (rng() - 0.5) * jitter;
+      if (rng() < (belt.skip ?? 0.12) || !clear(x, z, 1)) continue;
+      addStand(
+        'belt',
+        x,
+        z,
+        0,
+        1,
+        belt.species || pickSpecies(vegetation.loneMix, rng));
+    }
+  }
+
+  return {
+    stands,
+    treeCount: stands.reduce((sum, stand) => sum + stand.count, 0),
+  };
+}
+
 function mapRecord(id) {
   const config = getMapConfig(id);
   const layout = createLayout(config);
   const minimap = config.minimap || {};
   const fallbackGround = { r: 0.28, g: 0.34, b: 0.22 };
+  const structures = structureLayout(config, layout);
   return {
     ...config,
     unitySurface: {
@@ -248,12 +362,13 @@ function mapRecord(id) {
       roadCasingColor: cssColor(minimap.roadCasing, { r: 0.2, g: 0.18, b: 0.14 }),
       waterColor: cssColor(minimap.water, { r: 0.2, g: 0.36, b: 0.4 }),
     },
-    unityStructures: structureLayout(config, layout),
+    unityStructures: structures,
+    unityVegetation: vegetationLayout(config, layout, structures),
   };
 }
 
 const payload = canonical({
-  schemaVersion: 3,
+  schemaVersion: 4,
   counts: {
     savedVehicles: SAVED_TANK_IDS.length,
     releaseVehicles: ALL_TANK_IDS.length,

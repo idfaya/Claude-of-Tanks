@@ -74,6 +74,10 @@ The port preserves the source project's runtime units and conventions:
   bounded terrain chunks per battlefield, analytic normals, exact seam
   vertices, terrain-draped roads/marshes/craters/scatter, and authored
   horizontal water levels.
+- Source-configured vegetation manifests for all 20 maps with 4,579
+  cluster/lone/rim/belt stands and 65,170 trees. Runtime expansion uses stable
+  per-stand seeds, terrain grounding, species-shaped low-poly crowns, sixteen
+  distance-managed chunks, and at most 48 merged vegetation meshes per map.
 - Source-layout-driven surface presentation for all 20 maps: country/grid/path
   road networks with casings, lake and frozen-water sheets, marsh/soft-ground
   discs, map palettes, ground variation, and all 1,420 configured craters.
@@ -162,7 +166,8 @@ These systems still use the TypeScript implementation as their specification:
 
 - complete 126-vehicle production fleet and authored armor/module geometry;
 - per-family structure geometry/material parity, complete vegetation recipes,
-  and world streaming for all 20 maps;
+  authoritative tree interaction/toppling, and broader world streaming for all
+  20 maps;
 - progression, loadout editing, and production garage;
 - controller glyph polish, accessibility options, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;

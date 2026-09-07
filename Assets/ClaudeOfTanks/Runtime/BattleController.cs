@@ -178,6 +178,7 @@ namespace ClaudeOfTanks.Runtime
             }
 
             _cameraRig.Apply(_camera, _player, _cameraAimPoint, Time.deltaTime);
+            _mapRuntime?.UpdateVegetationVisibility(_camera.transform.position);
             TankView playerView;
             if (_tankViews.TryGetValue(_player.Id, out playerView))
             {

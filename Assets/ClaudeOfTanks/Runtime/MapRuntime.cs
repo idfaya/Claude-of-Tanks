@@ -19,6 +19,7 @@ namespace ClaudeOfTanks.Runtime
         private readonly List<Mesh> _meshes = new List<Mesh>();
         private IHeightField _heightField;
         private MapStructureRuntime _structures;
+        private MapVegetationRuntime _vegetation;
 
         private MapRuntime(GameObject root)
         {
@@ -39,6 +40,15 @@ namespace ClaudeOfTanks.Runtime
         public int HedgehogCount => _structures != null ? _structures.HedgehogCount : 0;
         public int DestroyedBuildingCount =>
             _structures != null ? _structures.DestroyedBuildingCount : 0;
+        public int TreeCount => _vegetation != null ? _vegetation.TreeCount : 0;
+        public int VegetationMeshCount =>
+            _vegetation != null ? _vegetation.MeshCount : 0;
+        public int VegetationVertexCount =>
+            _vegetation != null ? _vegetation.VertexCount : 0;
+        public int VegetationChunkCount =>
+            _vegetation != null ? _vegetation.ChunkCount : 0;
+        public int ActiveVegetationChunkCount =>
+            _vegetation != null ? _vegetation.ActiveChunkCount : 0;
         public const int TerrainChunkCount =
             TerrainChunksPerAxis * TerrainChunksPerAxis;
         public int TerrainVertexCount { get; private set; }
@@ -58,9 +68,17 @@ namespace ClaudeOfTanks.Runtime
             _structures?.SyncDestroyedStructures(state);
         }
 
+        public void UpdateVegetationVisibility(
+            Vector3 cameraPosition,
+            float visibleDistanceM = MapVegetationRuntime.DefaultVisibleDistanceM)
+        {
+            _vegetation?.UpdateVisibility(cameraPosition, visibleDistanceM);
+        }
+
         public void Dispose()
         {
             _structures?.Dispose();
+            _vegetation?.Dispose();
             for (int i = 0; i < _materials.Count; i++) DestroyObject(_materials[i]);
             for (int i = 0; i < _meshes.Count; i++) DestroyObject(_meshes[i]);
             DestroyObject(_root);
@@ -102,10 +120,13 @@ namespace ClaudeOfTanks.Runtime
             CreateRoads(surface);
             CreateCraters(map.id, map.props?.craters ?? 0, groundColor);
             _structures = MapStructureRuntime.Create(_root.transform, map);
+            _vegetation = MapVegetationRuntime.Create(
+                _root.transform,
+                map,
+                _heightField);
 
             int rocks = Mathf.Clamp((map.props?.rocks ?? 0) / 18, 3, 18);
-            int trees = Mathf.Clamp((map.vegetation?.loneCount ?? 0) / 24, 0, 14);
-            DeterministicScatter(map.id, rocks, trees, groundColor);
+            DeterministicScatter(map.id, rocks, groundColor);
         }
 
         private void CreateTerrain(Color color)
@@ -542,7 +563,7 @@ namespace ClaudeOfTanks.Runtime
         }
 
         private void DeterministicScatter(
-            string mapId, int rockCount, int treeCount, Color groundColor)
+            string mapId, int rockCount, Color groundColor)
         {
             System.Random random = new System.Random(StableHash(mapId));
             for (int i = 0; i < rockCount; i++)
@@ -551,17 +572,6 @@ namespace ClaudeOfTanks.Runtime
                 CreatePrimitive("Rock", PrimitiveType.Sphere,
                     Position(random, scale * 0.35f), new Vector3(scale, scale * 0.7f, scale),
                     Color.Lerp(groundColor, new Color(0.3f, 0.3f, 0.28f), 0.65f));
-            }
-            for (int i = 0; i < treeCount; i++)
-            {
-                Vector3 position = Position(random, 0f);
-                GameObject tree = new GameObject("Tree");
-                tree.transform.SetParent(_root.transform, false);
-                tree.transform.position = position;
-                CreatePrimitive("Trunk", PrimitiveType.Cylinder, position + Vector3.up * 2.5f,
-                    new Vector3(0.5f, 2.5f, 0.5f), new Color(0.25f, 0.16f, 0.09f), tree.transform);
-                CreatePrimitive("Crown", PrimitiveType.Sphere, position + Vector3.up * 6f,
-                    new Vector3(4f, 5f, 4f), new Color(0.16f, 0.28f, 0.12f), tree.transform);
             }
         }
 
