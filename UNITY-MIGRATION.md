@@ -70,6 +70,10 @@ The port preserves the source project's runtime units and conventions:
   presentation for every production vehicle
 - Data-driven map environment, authored spawns, landforms, props, vegetation,
   sky and authoritative terrain height queries for all 20 maps
+- Shared authoritative/rendered height fields for all 20 maps with sixteen
+  bounded terrain chunks per battlefield, analytic normals, exact seam
+  vertices, terrain-draped roads/marshes/craters/scatter, and authored
+  horizontal water levels.
 - Source-layout-driven surface presentation for all 20 maps: country/grid/path
   road networks with casings, lake and frozen-water sheets, marsh/soft-ground
   discs, map palettes, ground variation, and all 1,420 configured craters.
@@ -150,9 +154,9 @@ The original release is substantially larger than this first playable port.
 These systems still use the TypeScript implementation as their specification:
 
 - complete 126-vehicle production fleet and authored armor/module geometry;
-- full terrain height-field rendering, per-family structure geometry/material
-  parity, authoritative structure destruction/debris synchronization, complete
-  vegetation recipes, and world streaming for all 20 maps;
+- per-family structure geometry/material parity, authoritative structure
+  destruction/debris synchronization, complete vegetation recipes, and world
+  streaming for all 20 maps;
 - progression, loadout editing, and production garage;
 - controller glyph polish, accessibility options, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;

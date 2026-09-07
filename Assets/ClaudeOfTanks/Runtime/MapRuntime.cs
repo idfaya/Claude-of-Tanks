@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ClaudeOfTanks.Simulation;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -9,10 +10,14 @@ namespace ClaudeOfTanks.Runtime
     {
         private const float GroundSurfaceY = 0.025f;
         private const int DiscSegments = 24;
+        private const int TerrainChunksPerAxis = 4;
+        private const int TerrainQuadsPerChunk = 32;
+        private const float TerrainHalfExtentM = 500f;
 
         private readonly GameObject _root;
         private readonly List<Material> _materials = new List<Material>();
         private readonly List<Mesh> _meshes = new List<Mesh>();
+        private IHeightField _heightField;
         private MapStructureRuntime _structures;
 
         private MapRuntime(GameObject root)
@@ -32,6 +37,10 @@ namespace ClaudeOfTanks.Runtime
         public int RubblePileCount => _structures != null ? _structures.RubblePileCount : 0;
         public int SandbagLineCount => _structures != null ? _structures.SandbagLineCount : 0;
         public int HedgehogCount => _structures != null ? _structures.HedgehogCount : 0;
+        public const int TerrainChunkCount =
+            TerrainChunksPerAxis * TerrainChunksPerAxis;
+        public int TerrainVertexCount { get; private set; }
+        public int TerrainTriangleCount { get; private set; }
 
         public static MapRuntime Create(MapDefinition map)
         {
@@ -58,6 +67,7 @@ namespace ClaudeOfTanks.Runtime
 
         private void Build(MapDefinition map)
         {
+            _heightField = MapSimulationAdapter.BuildHeightField(map);
             Color fog = HexColor(map.sky != null ? map.sky.fogTintHex : 0x8799a0);
             RenderSettings.fog = true;
             RenderSettings.fogColor = fog;
@@ -79,20 +89,93 @@ namespace ClaudeOfTanks.Runtime
             Color groundColor = surface != null
                 ? surface.groundColor.ToColor()
                 : GroundColor(map.id);
-            CreatePrimitive("Battlefield", PrimitiveType.Plane, Vector3.zero,
-                new Vector3(100f, 1f, 100f), groundColor);
+            CreateTerrain(groundColor);
             CreateGroundVariation(map.id, surface, groundColor);
             CreateWetGround(surface);
             CreateRoads(surface);
             CreateCraters(map.id, map.props?.craters ?? 0, groundColor);
             _structures = MapStructureRuntime.Create(_root.transform, map);
 
-            LandformDefinition[] landforms = map.terrain?.landforms ?? Array.Empty<LandformDefinition>();
-            for (int i = 0; i < landforms.Length; i++) CreateLandform(landforms[i], groundColor);
-
             int rocks = Mathf.Clamp((map.props?.rocks ?? 0) / 18, 3, 18);
             int trees = Mathf.Clamp((map.vegetation?.loneCount ?? 0) / 24, 0, 14);
             DeterministicScatter(map.id, rocks, trees, groundColor);
+        }
+
+        private void CreateTerrain(Color color)
+        {
+            GameObject root = new GameObject("Battlefield");
+            root.transform.SetParent(_root.transform, false);
+            Material material = CreateMaterial(color);
+            float chunkSize = TerrainHalfExtentM * 2f / TerrainChunksPerAxis;
+            float step = chunkSize / TerrainQuadsPerChunk;
+            ITerrainSurface terrainSurface = _heightField as ITerrainSurface;
+            for (int chunkZ = 0; chunkZ < TerrainChunksPerAxis; chunkZ++)
+            {
+                for (int chunkX = 0; chunkX < TerrainChunksPerAxis; chunkX++)
+                {
+                    int vertexAxis = TerrainQuadsPerChunk + 1;
+                    Vector3[] vertices = new Vector3[vertexAxis * vertexAxis];
+                    Vector3[] normals = new Vector3[vertices.Length];
+                    Vector2[] uvs = new Vector2[vertices.Length];
+                    int[] triangles = new int[
+                        TerrainQuadsPerChunk * TerrainQuadsPerChunk * 6];
+                    float originX = -TerrainHalfExtentM + chunkX * chunkSize;
+                    float originZ = -TerrainHalfExtentM + chunkZ * chunkSize;
+                    for (int z = 0; z < vertexAxis; z++)
+                    {
+                        for (int x = 0; x < vertexAxis; x++)
+                        {
+                            int index = z * vertexAxis + x;
+                            float worldX = originX + x * step;
+                            float worldZ = originZ + z * step;
+                            vertices[index] = new Vector3(
+                                worldX,
+                                _heightField.HeightAt(worldX, worldZ),
+                                worldZ);
+                            Float3 normal = terrainSurface != null
+                                ? terrainSurface.NormalAt(worldX, worldZ)
+                                : new Float3(0f, 1f, 0f);
+                            normals[index] = new Vector3(normal.X, normal.Y, normal.Z);
+                            uvs[index] = new Vector2(
+                                (worldX + TerrainHalfExtentM) / (TerrainHalfExtentM * 2f),
+                                (worldZ + TerrainHalfExtentM) / (TerrainHalfExtentM * 2f));
+                        }
+                    }
+                    int triangle = 0;
+                    for (int z = 0; z < TerrainQuadsPerChunk; z++)
+                    {
+                        for (int x = 0; x < TerrainQuadsPerChunk; x++)
+                        {
+                            int current = z * vertexAxis + x;
+                            triangles[triangle++] = current;
+                            triangles[triangle++] = current + vertexAxis;
+                            triangles[triangle++] = current + 1;
+                            triangles[triangle++] = current + 1;
+                            triangles[triangle++] = current + vertexAxis;
+                            triangles[triangle++] = current + vertexAxis + 1;
+                        }
+                    }
+
+                    Mesh mesh = new Mesh
+                    {
+                        name = "Battlefield-" + chunkX + "-" + chunkZ + "-Mesh"
+                    };
+                    mesh.vertices = vertices;
+                    mesh.normals = normals;
+                    mesh.uv = uvs;
+                    mesh.triangles = triangles;
+                    mesh.RecalculateBounds();
+                    _meshes.Add(mesh);
+                    TerrainVertexCount += vertices.Length;
+                    TerrainTriangleCount += triangles.Length / 3;
+
+                    GameObject chunk = new GameObject(
+                        "Terrain-" + chunkX + "-" + chunkZ);
+                    chunk.transform.SetParent(root.transform, false);
+                    chunk.AddComponent<MeshFilter>().sharedMesh = mesh;
+                    chunk.AddComponent<MeshRenderer>().sharedMaterial = material;
+                }
+            }
         }
 
         private void CreateGroundVariation(string mapId, MapSurface surface, Color groundColor)
@@ -108,7 +191,14 @@ namespace ClaudeOfTanks.Runtime
             {
                 float radius = Mathf.Lerp(22f, 68f, (float)random.NextDouble());
                 Vector3 center = Position(random, GroundSurfaceY);
-                AddDisc(vertices, triangles, center, radius, DiscSegments);
+                AddTerrainDisc(
+                    vertices,
+                    triangles,
+                    center.x,
+                    center.z,
+                    radius,
+                    DiscSegments,
+                    GroundSurfaceY);
             }
             CreateSurfaceMesh("Surface-GroundVariation", vertices, triangles, variation);
         }
@@ -125,7 +215,12 @@ namespace ClaudeOfTanks.Runtime
                     surface.softColor.ToColor(),
                     surface.waterColor.ToColor(),
                     surface.frozenWater ? 0.38f : 0.16f);
-                CreateDiscSurface("Surface-Marshes", marshes, GroundSurfaceY + 0.012f, marshColor);
+                CreateDiscSurface(
+                    "Surface-Marshes",
+                    marshes,
+                    GroundSurfaceY + 0.012f,
+                    marshColor,
+                    true);
             }
 
             MapDisc[] lakes = surface.lakes ?? Array.Empty<MapDisc>();
@@ -144,7 +239,8 @@ namespace ClaudeOfTanks.Runtime
                     surface.frozenWater ? "Surface-FrozenWater" : "Surface-Water",
                     lakes,
                     GroundSurfaceY + 0.024f,
-                    material);
+                    material,
+                    false);
             }
         }
 
@@ -193,8 +289,18 @@ namespace ClaudeOfTanks.Runtime
                     tangent.Normalize();
                     Vector2 perpendicular = new Vector2(-tangent.y, tangent.x) * halfWidth;
                     MapPoint point = points[pointIndex];
-                    vertices.Add(new Vector3(point.x + perpendicular.x, height, point.z + perpendicular.y));
-                    vertices.Add(new Vector3(point.x - perpendicular.x, height, point.z - perpendicular.y));
+                    float leftX = point.x + perpendicular.x;
+                    float leftZ = point.z + perpendicular.y;
+                    float rightX = point.x - perpendicular.x;
+                    float rightZ = point.z - perpendicular.y;
+                    vertices.Add(new Vector3(
+                        leftX,
+                        _heightField.HeightAt(leftX, leftZ) + height,
+                        leftZ));
+                    vertices.Add(new Vector3(
+                        rightX,
+                        _heightField.HeightAt(rightX, rightZ) + height,
+                        rightZ));
                 }
                 for (int pointIndex = 0; pointIndex < points.Length - 1; pointIndex++)
                 {
@@ -214,29 +320,52 @@ namespace ClaudeOfTanks.Runtime
             string name,
             MapDisc[] discs,
             float baseHeight,
-            Color color)
+            Color color,
+            bool conformToTerrain)
         {
-            CreateDiscSurface(name, discs, baseHeight, CreateMaterial(color));
+            CreateDiscSurface(
+                name,
+                discs,
+                baseHeight,
+                CreateMaterial(color),
+                conformToTerrain);
         }
 
         private void CreateDiscSurface(
             string name,
             MapDisc[] discs,
             float baseHeight,
-            Material material)
+            Material material,
+            bool conformToTerrain)
         {
             List<Vector3> vertices = new List<Vector3>(discs.Length * (DiscSegments + 1));
             List<int> triangles = new List<int>(discs.Length * DiscSegments * 3);
             for (int i = 0; i < discs.Length; i++)
             {
                 MapDisc disc = discs[i];
-                float height = baseHeight + Mathf.Clamp(disc.level, -0.01f, 0.08f);
-                AddDisc(
-                    vertices,
-                    triangles,
-                    new Vector3(disc.x, height, disc.z),
-                    Mathf.Max(1f, disc.r),
-                    DiscSegments);
+                float height = baseHeight + (conformToTerrain
+                    ? Mathf.Clamp(disc.level, -0.01f, 0.08f)
+                    : disc.level);
+                if (conformToTerrain)
+                {
+                    AddTerrainDisc(
+                        vertices,
+                        triangles,
+                        disc.x,
+                        disc.z,
+                        Mathf.Max(1f, disc.r),
+                        DiscSegments,
+                        height);
+                }
+                else
+                {
+                    AddDisc(
+                        vertices,
+                        triangles,
+                        new Vector3(disc.x, height, disc.z),
+                        Mathf.Max(1f, disc.r),
+                        DiscSegments);
+                }
             }
             CreateSurfaceMesh(name, vertices, triangles, material);
         }
@@ -262,10 +391,13 @@ namespace ClaudeOfTanks.Runtime
                     for (int segment = 0; segment < DiscSegments; segment++)
                     {
                         float angle = segment * Mathf.PI * 2f / DiscSegments;
-                        vertices.Add(center + new Vector3(
-                            Mathf.Cos(angle) * ringRadius,
-                            ringHeight,
-                            Mathf.Sin(angle) * ringRadius));
+                        float x = center.x + Mathf.Cos(angle) * ringRadius;
+                        float z = center.z + Mathf.Sin(angle) * ringRadius;
+                        vertices.Add(new Vector3(
+                            x,
+                            _heightField.HeightAt(x, z) +
+                                GroundSurfaceY + 0.01f + ringHeight,
+                            z));
                     }
                 }
                 for (int segment = 0; segment < DiscSegments; segment++)
@@ -331,6 +463,38 @@ namespace ClaudeOfTanks.Runtime
             }
         }
 
+        private void AddTerrainDisc(
+            List<Vector3> vertices,
+            List<int> triangles,
+            float centerX,
+            float centerZ,
+            float radius,
+            int segments,
+            float heightOffset)
+        {
+            int start = vertices.Count;
+            vertices.Add(new Vector3(
+                centerX,
+                _heightField.HeightAt(centerX, centerZ) + heightOffset,
+                centerZ));
+            for (int segment = 0; segment < segments; segment++)
+            {
+                float angle = segment * Mathf.PI * 2f / segments;
+                float x = centerX + Mathf.Cos(angle) * radius;
+                float z = centerZ + Mathf.Sin(angle) * radius;
+                vertices.Add(new Vector3(
+                    x,
+                    _heightField.HeightAt(x, z) + heightOffset,
+                    z));
+            }
+            for (int segment = 0; segment < segments; segment++)
+            {
+                triangles.Add(start);
+                triangles.Add(start + 1 + (segment + 1) % segments);
+                triangles.Add(start + 1 + segment);
+            }
+        }
+
         private GameObject CreateSurfaceMesh(
             string name,
             List<Vector3> vertices,
@@ -370,22 +534,6 @@ namespace ClaudeOfTanks.Runtime
             return material;
         }
 
-        private void CreateLandform(LandformDefinition landform, Color color)
-        {
-            float width = landform.width > 0f ? landform.width : landform.rx * 2f;
-            float length = landform.length > 0f ? landform.length : landform.rz * 2f;
-            GameObject form = CreatePrimitive(
-                "Landform-" + landform.kind,
-                PrimitiveType.Sphere,
-                new Vector3(landform.x, landform.height * 0.4f - 2f, landform.z),
-                new Vector3(
-                    Mathf.Max(8f, width),
-                    Mathf.Max(1f, Mathf.Abs(landform.height)),
-                    Mathf.Max(8f, length)),
-                Color.Lerp(color, Color.gray, 0.12f));
-            form.transform.rotation = Quaternion.Euler(0f, landform.yawDeg, 0f);
-        }
-
         private void DeterministicScatter(
             string mapId, int rockCount, int treeCount, Color groundColor)
         {
@@ -423,12 +571,14 @@ namespace ClaudeOfTanks.Runtime
             return result;
         }
 
-        private static Vector3 Position(System.Random random, float y)
+        private Vector3 Position(System.Random random, float heightOffset)
         {
+            float x = Mathf.Lerp(-430f, 430f, (float)random.NextDouble());
+            float z = Mathf.Lerp(-430f, 430f, (float)random.NextDouble());
             return new Vector3(
-                Mathf.Lerp(-430f, 430f, (float)random.NextDouble()),
-                y,
-                Mathf.Lerp(-430f, 430f, (float)random.NextDouble()));
+                x,
+                _heightField.HeightAt(x, z) + heightOffset,
+                z);
         }
 
         private static int StableHash(string value)

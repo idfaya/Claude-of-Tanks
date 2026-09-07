@@ -389,7 +389,7 @@ namespace ClaudeOfTanks.Runtime
 
         public void Destroy()
         {
-            DestroyObject(_root.gameObject);
+            if (_root != null) DestroyObject(_root.gameObject);
             for (int i = 0; i < _meshes.Length; i++) DestroyObject(_meshes[i]);
             for (int i = 0; i < _materials.Length; i++) DestroyObject(_materials[i]);
         }

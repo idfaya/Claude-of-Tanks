@@ -25,6 +25,9 @@ namespace ClaudeOfTanks.Tests
             int totalHedgehogs = 0;
             int totalStructureTriangles = 0;
             int totalAuthoritativeObstacles = 0;
+            int totalTerrainTriangles = 0;
+            bool foundRaisedTerrain = false;
+            bool foundDepressedTerrain = false;
             for (int i = 0; i < catalog.Maps.Length; i++)
             {
                 MapDefinition definition = catalog.Maps[i];
@@ -56,11 +59,48 @@ namespace ClaudeOfTanks.Tests
                 {
                     Assert.That(runtime.Root.name, Is.EqualTo("Map-" + definition.id));
                     Assert.That(runtime.Root.Find("Sun"), Is.Not.Null, definition.id);
-                    Assert.That(runtime.Root.Find("Battlefield"), Is.Not.Null, definition.id);
+                    Transform battlefield = runtime.Root.Find("Battlefield");
+                    Assert.That(battlefield, Is.Not.Null, definition.id);
+                    MeshFilter[] terrainMeshes = battlefield.GetComponentsInChildren<MeshFilter>();
+                    Assert.That(
+                        terrainMeshes.Length,
+                        Is.EqualTo(MapRuntime.TerrainChunkCount),
+                        definition.id);
+                    Assert.That(runtime.TerrainVertexCount, Is.GreaterThan(16000), definition.id);
+                    Assert.That(runtime.TerrainTriangleCount, Is.GreaterThan(30000), definition.id);
+                    Assert.That(
+                        battlefield.GetComponentsInChildren<Collider>(),
+                        Is.Empty,
+                        definition.id);
+                    for (int terrainIndex = 0; terrainIndex < terrainMeshes.Length; terrainIndex++)
+                    {
+                        Vector3[] vertices = terrainMeshes[terrainIndex].sharedMesh.vertices;
+                        for (int vertexIndex = 0; vertexIndex < vertices.Length; vertexIndex += 97)
+                        {
+                            Vector3 world = terrainMeshes[terrainIndex].transform.TransformPoint(
+                                vertices[vertexIndex]);
+                            float expected = heightField.HeightAt(world.x, world.z);
+                            Assert.That(world.y, Is.EqualTo(expected).Within(0.0001f), definition.id);
+                            if (world.y > 0.25f) foundRaisedTerrain = true;
+                            if (world.y < -0.25f) foundDepressedTerrain = true;
+                        }
+                    }
+                    totalTerrainTriangles += runtime.TerrainTriangleCount;
                     Assert.That(runtime.Root.Find("Surface-GroundVariation"), Is.Not.Null, definition.id);
                     Assert.That(runtime.Root.Find("Surface-RoadCasing"), Is.Not.Null, definition.id);
                     Transform roads = runtime.Root.Find("Surface-Roads");
                     Assert.That(roads, Is.Not.Null, definition.id);
+                    Vector3[] roadVertices =
+                        roads.GetComponent<MeshFilter>().sharedMesh.vertices;
+                    for (int roadVertex = 0; roadVertex < roadVertices.Length; roadVertex += 11)
+                    {
+                        Vector3 world = roads.TransformPoint(roadVertices[roadVertex]);
+                        Assert.That(
+                            world.y,
+                            Is.EqualTo(heightField.HeightAt(world.x, world.z) + 0.069f)
+                                .Within(0.0001f),
+                            definition.id);
+                    }
                     Assert.That(runtime.Root.Find("Surface-Craters"), Is.Not.Null, definition.id);
                     Assert.That(runtime.RoadPolylineCount, Is.EqualTo(definition.unitySurface.roads.Length), definition.id);
                     Assert.That(runtime.LakeCount, Is.EqualTo(definition.unitySurface.lakes.Length), definition.id);
@@ -142,6 +182,9 @@ namespace ClaudeOfTanks.Tests
             Assert.That(
                 totalAuthoritativeObstacles,
                 Is.GreaterThan(totalBuildings + totalWallRuns));
+            Assert.That(totalTerrainTriangles, Is.GreaterThan(600000));
+            Assert.That(foundRaisedTerrain, Is.True);
+            Assert.That(foundDepressedTerrain, Is.True);
         }
 
         private static void AssertSurfaceData(MapDefinition map)

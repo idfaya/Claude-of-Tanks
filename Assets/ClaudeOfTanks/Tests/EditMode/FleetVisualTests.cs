@@ -70,5 +70,22 @@ namespace ClaudeOfTanks.Tests
             Assert.That(armorSurfaceCount, Is.GreaterThan(1000));
             Assert.That(trackTriangleCount, Is.GreaterThan(150000));
         }
+
+        [Test]
+        public void TankViewCleanupToleratesDestroyedParentHierarchy()
+        {
+            VehicleDefinition definition = ContentCatalog.Load().GetVehicle("m1a2");
+            TankView view = TankView.Create(
+                new TankState(
+                    "cleanup",
+                    Team.Alpha,
+                    definition.ToTankSpec(),
+                    Float3.Zero,
+                    0f),
+                definition);
+            Object.DestroyImmediate(view.Root.gameObject);
+
+            Assert.DoesNotThrow(view.Destroy);
+        }
     }
 }
