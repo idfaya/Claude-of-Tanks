@@ -21,6 +21,11 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(flow.VehicleOptionCount, Is.EqualTo(126));
                 Assert.That(flow.MapOptionCount, Is.EqualTo(20));
                 Assert.That(Object.FindObjectsOfType<EventSystem>(), Has.Length.EqualTo(1));
+                Assert.That(flow.PrivateRoom, Is.Not.Null);
+                Assert.That(flow.PrivateRoomPanel, Is.Not.Null);
+                flow.PrivateRoomPanel.Open();
+                Assert.That(flow.PrivateRoomPanel.IsVisible, Is.True);
+                flow.PrivateRoomPanel.Close();
 
                 flow.Select(125, 19, GameModeId.EndlessHorde);
                 string vehicleId = flow.SelectedVehicleId;

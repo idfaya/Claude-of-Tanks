@@ -3,6 +3,8 @@
   "rootNamespace": "ClaudeOfTanks.Runtime",
   "references": [
     "ClaudeOfTanks.Simulation",
+    "ClaudeOfTanks.Network",
+    "ClaudeOfTanks.WebRTC",
     "Unity.InputSystem"
   ],
   "includePlatforms": [],

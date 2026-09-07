@@ -19,11 +19,15 @@ namespace ClaudeOfTanks.Runtime
         private BattleController _battle;
         private GameSettingsPanel _settingsPanel;
         private ReplayBrowserPanel _replayBrowser;
+        private PrivateRoomCoordinator _privateRoom;
+        private PrivateRoomPanel _privateRoomPanel;
         private ReplayArchive _replayArchive;
         private Material _garageFloorMaterial;
 
         public bool IsGarageVisible => _garage != null;
         public BattleController ActiveBattle => _battle;
+        public PrivateRoomCoordinator PrivateRoom => _privateRoom;
+        public PrivateRoomPanel PrivateRoomPanel => _privateRoomPanel;
         public int VehicleOptionCount => _catalog.ProductionVehicleIds.Length;
         public int MapOptionCount => _catalog.Maps.Length;
         public string SelectedVehicleId => _catalog.ProductionVehicleIds[_vehicle.value];
@@ -45,6 +49,10 @@ namespace ClaudeOfTanks.Runtime
 
             _catalog = ContentCatalog.Load();
             _replayArchive = ReplayArchive.Current;
+            _privateRoom = gameObject.AddComponent<PrivateRoomCoordinator>();
+            _privateRoom.ConfigureContent(
+                _catalog.ProductionVehicleIds,
+                MapIds());
             EnsureEventSystem();
             ShowGarage();
         }
@@ -63,6 +71,10 @@ namespace ClaudeOfTanks.Runtime
 
         private void StartBattle()
         {
+            if (_privateRoom != null && _privateRoom.IsInLobby)
+            {
+                return;
+            }
             string vehicleId = SelectedVehicleId;
             string mapId = SelectedMapId;
             GameModeId mode = SelectedMode;
@@ -182,15 +194,36 @@ namespace ClaudeOfTanks.Runtime
             Fill(_vehicle, VehicleNames());
             Fill(_map, MapNames());
             Fill(_mode, new[] { "Standard", "Capture the Flag", "Zone Control", "Turbo Ball", "Endless Horde" });
-            _vehicle.onValueChanged.AddListener(RefreshPreview);
+            _vehicle.onValueChanged.AddListener(index =>
+            {
+                RefreshPreview(index);
+                _privateRoom.SelectVehicle(SelectedVehicleId);
+            });
+            _map.onValueChanged.AddListener(
+                _ => _privateRoom.SelectMap(SelectedMapId));
+            _mode.onValueChanged.AddListener(
+                _ => _privateRoom.SelectMode(SelectedMode));
             Button deploy = Button("Deploy", ui.transform, font, "DEPLOY", new Vector2(28f, -328f));
             deploy.onClick.AddListener(StartBattle);
             Button settings = Button("Settings", ui.transform, font, "SETTINGS", new Vector2(220f, -328f));
             settings.onClick.AddListener(() => _settingsPanel.Open());
             Button replays = Button("Replays", ui.transform, font, "REPLAYS", new Vector2(412f, -328f));
             replays.onClick.AddListener(() => _replayBrowser.Open());
+            Button privateRoom = Button(
+                "PrivateRoom",
+                ui.transform,
+                font,
+                "PRIVATE ROOM",
+                new Vector2(28f, -394f));
             _settingsPanel = GameSettingsPanel.Create(ui.transform, GameSettings.Current);
             _replayBrowser = ReplayBrowserPanel.Create(ui.transform, _replayArchive, PlayReplay);
+            _privateRoomPanel = PrivateRoomPanel.Create(
+                ui.transform,
+                _privateRoom,
+                () => SelectedVehicleId,
+                () => SelectedMapId,
+                () => SelectedMode);
+            privateRoom.onClick.AddListener(_privateRoomPanel.Open);
         }
 
         private void RefreshPreview(int index)
@@ -214,6 +247,12 @@ namespace ClaudeOfTanks.Runtime
             List<string> values = new List<string>();
             foreach (MapDefinition map in _catalog.Maps) values.Add(map.name);
             return values;
+        }
+
+        private IEnumerable<string> MapIds()
+        {
+            foreach (MapDefinition map in _catalog.Maps)
+                yield return map.id;
         }
 
         private static void Fill(Dropdown dropdown, IEnumerable<string> values)
@@ -296,6 +335,7 @@ namespace ClaudeOfTanks.Runtime
                 _garage = null;
                 _settingsPanel = null;
                 _replayBrowser = null;
+                _privateRoomPanel = null;
             }
         }
 

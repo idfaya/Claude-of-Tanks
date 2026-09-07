@@ -77,7 +77,9 @@ namespace ClaudeOfTanks.Tests
             Assert.Fail("Signaling server did not become ready.");
         }
 
-        public static Process StartServer(int port)
+        public static Process StartServer(
+            int port,
+            string allowedOrigin = Origin)
         {
             string root = Directory.GetParent(Application.dataPath).FullName;
             Process process = new Process
@@ -96,7 +98,7 @@ namespace ClaudeOfTanks.Tests
                 }
             };
             process.StartInfo.EnvironmentVariables["COT_ALLOWED_ORIGINS"] =
-                Origin;
+                allowedOrigin;
             Assert.That(process.Start(), Is.True);
             return process;
         }

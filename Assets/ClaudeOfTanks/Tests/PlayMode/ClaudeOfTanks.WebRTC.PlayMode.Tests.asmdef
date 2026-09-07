@@ -4,6 +4,7 @@
   "references": [
     "ClaudeOfTanks.Simulation",
     "ClaudeOfTanks.Network",
+    "ClaudeOfTanks.Runtime",
     "ClaudeOfTanks.WebRTC",
     "Unity.WebRTC"
   ],

@@ -230,8 +230,18 @@ namespace ClaudeOfTanks.Network
         public void Close(string reason = "lobby_client_closed")
         {
             if (_released) return;
-            _transport.SendControl(
-                LobbyWireCodec.EncodeLeave(NextSequence()));
+            if (_transport.IsOpen)
+            {
+                try
+                {
+                    _transport.SendControl(
+                        LobbyWireCodec.EncodeLeave(NextSequence()));
+                }
+                catch (InvalidOperationException)
+                {
+                    // The remote may close between the state check and send.
+                }
+            }
             _released = true;
             Unsubscribe();
             _transport.Close(reason);
