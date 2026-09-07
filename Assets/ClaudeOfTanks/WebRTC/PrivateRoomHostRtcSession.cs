@@ -37,6 +37,7 @@ namespace ClaudeOfTanks.WebRTC
         }
 
         public string RoomCode => _room.RoomCode;
+        public string LocalPeerId => _room.PeerId;
         public int PeerCount => _peers.Count;
         public bool IsRestarting => _restartTask != null;
 

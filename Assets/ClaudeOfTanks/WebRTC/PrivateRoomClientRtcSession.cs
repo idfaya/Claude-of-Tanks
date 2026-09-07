@@ -59,6 +59,7 @@ namespace ClaudeOfTanks.WebRTC
         }
 
         public string RoomCode => _room.RoomCode;
+        public string LocalPeerId => _room.PeerId;
         public string HostPeerId => _room.HostId;
         public string HostSessionId => _hostSessionId;
         public WebRtcNetworkEndpoint Transport => _transport;
