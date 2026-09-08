@@ -300,6 +300,15 @@ The port preserves the source project's runtime units and conventions:
   launcher package across Garage, solo, replay, and network. Its 29 catalog
   hit surfaces remain authoritative and it adds no collider or generic side
   armor
+- Catalog-authored hydropneumatic aim is authoritative for UDES 03,
+  Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
+  nose-up, slew-rate, compression, and droop envelopes survive content and
+  replay conversion; pitch advances deterministically at 60 Hz,
+  toggle through keyboard/gamepad/touch input, drive the shared TankView hull
+  pose, survive local prediction and snapshot interpolation, and persist
+  through replay v6. UDES 03 and Strv 103/103A also pin gun yaw and
+  auto-traverse the hull onto the sight line. Snapshot v5 carries active state
+  and pitch while retaining v1-v4 decoding; replay v6 retains v1-v5 decoding
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
@@ -386,9 +395,6 @@ These systems still use the TypeScript implementation as their specification:
   126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
   Challenger 2/3, Merkava, Korean, Japanese, French, and Italian identity
   suites plus the Swedish turreted, siege, and IFV lines;
-- parse and simulate the catalog-authored hydropneumatic aim envelopes for
-  MBT-70, Type 74/90/10, K2-family and Swedish siege vehicles through the
-  authoritative C# input, replay, snapshot, prediction, and presentation path;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;

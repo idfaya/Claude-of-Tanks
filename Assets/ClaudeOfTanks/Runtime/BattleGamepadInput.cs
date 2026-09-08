@@ -15,6 +15,7 @@ namespace ClaudeOfTanks.Runtime
         public bool RepairPressed;
         public bool FirstAidPressed;
         public bool ExtinguisherPressed;
+        public bool HydropneumaticAimPressed;
     }
 
     internal static class BattleGamepadInput
@@ -42,6 +43,8 @@ namespace ClaudeOfTanks.Runtime
                 gamepad.buttonNorth.wasPressedThisFrame;
             frame.ExtinguisherPressed =
                 gamepad.buttonEast.wasPressedThisFrame;
+            frame.HydropneumaticAimPressed =
+                gamepad.rightStickButton.wasPressedThisFrame;
 #endif
             return frame;
         }

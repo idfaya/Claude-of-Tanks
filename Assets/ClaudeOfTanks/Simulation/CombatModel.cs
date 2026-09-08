@@ -56,6 +56,8 @@ namespace ClaudeOfTanks.Simulation
         public int MagazineSize = 1;
         public float MagazineReloadS;
         public float IntraClipS;
+        public HydropneumaticAimSpec HydropneumaticAim;
+        public bool FixedHydraulicGun;
         public ShellSpec Shell = new ShellSpec();
 
         public static TankSpec Medium()
@@ -97,6 +99,22 @@ namespace ClaudeOfTanks.Simulation
         }
     }
 
+    public sealed class HydropneumaticAimSpec
+    {
+        public float NoseDownRad;
+        public float NoseUpRad;
+        public float SpeedRadS;
+        public float CompressionM;
+        public float DroopM;
+
+        public bool IsValid =>
+            NoseDownRad >= 0f &&
+            NoseUpRad >= 0f &&
+            SpeedRadS > 0f &&
+            CompressionM >= 0f &&
+            DroopM >= 0f;
+    }
+
     public struct TankInput
     {
         public float Throttle;
@@ -106,6 +124,7 @@ namespace ClaudeOfTanks.Simulation
         public bool UseRepairKit;
         public bool UseFirstAidKit;
         public bool UseFireExtinguisher;
+        public bool ToggleHydropneumaticAim;
         public Float3 AimPoint;
     }
 
@@ -118,6 +137,8 @@ namespace ClaudeOfTanks.Simulation
         public float Yaw;
         public float SpeedMps;
         public float TurretYaw;
+        public bool HydropneumaticAimActive;
+        public float HullPitchRad;
         public float HullYawRateRadS;
         public float TurretYawRateRadS;
         public float AimBloom = 1f;

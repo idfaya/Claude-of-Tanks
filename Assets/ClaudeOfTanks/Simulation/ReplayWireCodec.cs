@@ -15,7 +15,8 @@ namespace ClaudeOfTanks.Simulation
         private const uint Magic = 0x52544f43u;
         private const uint LoadoutMetadataMagic = 0x4c544f43u;
         private const uint SimulationMetadataMagic = 0x534d4f43u;
-        private const ushort Version = 5;
+        private const ushort Version = 6;
+        private const ushort SimulationMetadataVersion = 5;
         private const ushort LoadoutMetadataVersion = 4;
         private const ushort CrushableObstacleVersion = 3;
         private const ushort StaticObstacleVersion = 2;
@@ -102,7 +103,8 @@ namespace ClaudeOfTanks.Simulation
                         version != LoadoutMetadataVersion &&
                         version != CrushableObstacleVersion &&
                         version != StaticObstacleVersion &&
-                        version != PreviousVersion)
+                        version != PreviousVersion &&
+                        version != SimulationMetadataVersion)
                         throw new FormatException("Replay version is unsupported.");
                     uint seed = reader.ReadUInt32();
                     float worldExtent = ReadFinite(reader, "world extent");
@@ -153,14 +155,19 @@ namespace ClaudeOfTanks.Simulation
                                 throw new FormatException("Replay input tank index is invalid.");
                             if (frame.Inputs.ContainsKey(tankIds[tankIndex]))
                                 throw new FormatException("Replay frame has duplicate tank inputs.");
-                            frame.Inputs.Add(tankIds[tankIndex], ReadInput(reader));
+                            frame.Inputs.Add(
+                                tankIds[tankIndex],
+                                ReadInput(reader, version));
                         }
                         recording.Frames.Add(frame);
                     }
                     if (version >= LoadoutMetadataVersion)
                         ReadLoadoutMetadata(reader, recording);
-                    if (version >= Version)
-                        ReadSimulationMetadata(reader, recording);
+                    if (version >= SimulationMetadataVersion)
+                        ReadSimulationMetadata(
+                            reader,
+                            recording,
+                            version);
                     if (stream.Position != stream.Length)
                         throw new FormatException("Replay has trailing data.");
                     return recording;
@@ -436,12 +443,40 @@ namespace ClaudeOfTanks.Simulation
                     spec.MagazineReloadS,
                     "magazine reload");
                 WriteFinite(writer, spec.IntraClipS, "intra-clip");
+                HydropneumaticAimSpec hydropneumatic =
+                    spec.HydropneumaticAim;
+                writer.Write(hydropneumatic != null);
+                if (hydropneumatic != null)
+                {
+                    WriteFinite(
+                        writer,
+                        hydropneumatic.NoseDownRad,
+                        "hydropneumatic nose down");
+                    WriteFinite(
+                        writer,
+                        hydropneumatic.NoseUpRad,
+                        "hydropneumatic nose up");
+                    WriteFinite(
+                        writer,
+                        hydropneumatic.SpeedRadS,
+                        "hydropneumatic speed");
+                    WriteFinite(
+                        writer,
+                        hydropneumatic.CompressionM,
+                        "hydropneumatic compression");
+                    WriteFinite(
+                        writer,
+                        hydropneumatic.DroopM,
+                        "hydropneumatic droop");
+                }
+                writer.Write(spec.FixedHydraulicGun);
             }
         }
 
         private static void ReadSimulationMetadata(
             BinaryReader reader,
-            ReplayRecording recording)
+            ReplayRecording recording,
+            ushort version)
         {
             if (reader.ReadUInt32() != SimulationMetadataMagic)
                 throw new FormatException(
@@ -477,6 +512,34 @@ namespace ClaudeOfTanks.Simulation
                     ReadFinite(reader, "magazine reload");
                 spec.IntraClipS =
                     ReadFinite(reader, "intra-clip");
+                if (version >= Version &&
+                    reader.ReadBoolean())
+                {
+                    spec.HydropneumaticAim =
+                        new HydropneumaticAimSpec
+                        {
+                            NoseDownRad = ReadFinite(
+                                reader,
+                                "hydropneumatic nose down"),
+                            NoseUpRad = ReadFinite(
+                                reader,
+                                "hydropneumatic nose up"),
+                            SpeedRadS = ReadFinite(
+                                reader,
+                                "hydropneumatic speed"),
+                            CompressionM = ReadFinite(
+                                reader,
+                                "hydropneumatic compression"),
+                            DroopM = ReadFinite(
+                                reader,
+                                "hydropneumatic droop")
+                        };
+                }
+                if (version >= Version)
+                {
+                    spec.FixedHydraulicGun =
+                        reader.ReadBoolean();
+                }
                 if (spec.AimTimeS <= 0f ||
                     spec.BaseAccuracyMAt100 <= 0f ||
                     spec.AimBloomMove < 0f ||
@@ -492,7 +555,11 @@ namespace ClaudeOfTanks.Simulation
                     spec.MagazineSize < 1 ||
                     spec.MagazineSize > 64 ||
                     spec.MagazineReloadS < 0f ||
-                    spec.IntraClipS < 0f)
+                    spec.IntraClipS < 0f ||
+                    (spec.HydropneumaticAim != null &&
+                     !spec.HydropneumaticAim.IsValid) ||
+                    (spec.FixedHydraulicGun &&
+                     spec.HydropneumaticAim == null))
                 {
                     throw new FormatException(
                         "Replay simulation metadata is invalid.");
@@ -584,7 +651,7 @@ namespace ClaudeOfTanks.Simulation
             if (spec.MaxHealth <= 0f || spec.WeightTons <= 0f ||
                 spec.CollisionRadiusM <= 0f || spec.Shell.ReloadS <= 0f)
                 throw new FormatException("Replay tank spec has invalid bounds.");
-            if (version < Version)
+            if (version < SimulationMetadataVersion)
             {
                 // v1-v4 predate era/autoloader metadata. Preserve their
                 // original permissive equipment behavior during playback.
@@ -611,18 +678,27 @@ namespace ClaudeOfTanks.Simulation
             if (input.UseRepairKit) flags |= 4;
             if (input.UseFirstAidKit) flags |= 8;
             if (input.UseFireExtinguisher) flags |= 16;
+            if (input.ToggleHydropneumaticAim) flags |= 32;
             writer.Write(flags);
             WriteFloat3(writer, input.AimPoint);
         }
 
-        private static TankInput ReadInput(BinaryReader reader)
+        private static TankInput ReadInput(
+            BinaryReader reader,
+            ushort version)
         {
             float throttle = ReadFinite(reader, "throttle");
             float steer = ReadFinite(reader, "steer");
             if (throttle < -1f || throttle > 1f || steer < -1f || steer > 1f)
                 throw new FormatException("Replay input axis is invalid.");
             byte flags = reader.ReadByte();
-            if ((flags & ~31) != 0) throw new FormatException("Replay input flags are invalid.");
+            byte knownFlags =
+                version >= Version
+                    ? (byte)63
+                    : (byte)31;
+            if ((flags & ~knownFlags) != 0)
+                throw new FormatException(
+                    "Replay input flags are invalid.");
             return new TankInput
             {
                 Throttle = throttle,
@@ -632,6 +708,9 @@ namespace ClaudeOfTanks.Simulation
                 UseRepairKit = (flags & 4) != 0,
                 UseFirstAidKit = (flags & 8) != 0,
                 UseFireExtinguisher = (flags & 16) != 0,
+                ToggleHydropneumaticAim =
+                    version >= Version &&
+                    (flags & 32) != 0,
                 AimPoint = ReadFloat3(reader)
             };
         }

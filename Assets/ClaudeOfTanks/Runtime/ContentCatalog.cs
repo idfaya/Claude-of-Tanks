@@ -227,6 +227,7 @@ namespace ClaudeOfTanks.Runtime
         public VehicleGun gun;
         public VehicleVisual visual;
         public VehicleArmor armor;
+        public VehicleHydropneumaticAim hydropneumaticAim;
 
         public bool IsModern =>
             era == "cold-war" ||
@@ -303,6 +304,16 @@ namespace ClaudeOfTanks.Runtime
                     gun != null && gun.autoloader != null
                         ? gun.autoloader.intraClipS
                         : 0f,
+                HydropneumaticAim =
+                    hydropneumaticAim != null &&
+                    hydropneumaticAim.IsValid
+                        ? hydropneumaticAim.ToSpec()
+                        : null,
+                FixedHydraulicGun =
+                    armor != null &&
+                    armor.turretless &&
+                    hydropneumaticAim != null &&
+                    hydropneumaticAim.IsValid,
                 Shell = new ShellSpec
                 {
                     Name = source.name,
@@ -316,6 +327,40 @@ namespace ClaudeOfTanks.Runtime
                     ReloadS = gun != null ? gun.reloadS : 5.5f,
                     Guided = source.guided
                 }
+            };
+        }
+    }
+
+    [Serializable] public sealed class VehicleHydropneumaticAim
+    {
+        public float noseDownDeg;
+        public float noseUpDeg;
+        public float rateDegS;
+        public float compressionM;
+        public float droopM;
+
+        public bool IsValid =>
+            noseDownDeg > 0f &&
+            noseUpDeg > 0f &&
+            rateDegS > 0f;
+
+        public HydropneumaticAimSpec ToSpec()
+        {
+            return new HydropneumaticAimSpec
+            {
+                NoseDownRad =
+                    Mathf.Max(0f, noseDownDeg) *
+                    Mathf.Deg2Rad,
+                NoseUpRad =
+                    Mathf.Max(0f, noseUpDeg) *
+                    Mathf.Deg2Rad,
+                SpeedRadS =
+                    Mathf.Max(0f, rateDegS) *
+                    Mathf.Deg2Rad,
+                CompressionM =
+                    Mathf.Max(0f, compressionM),
+                DroopM =
+                    Mathf.Max(0f, droopM)
             };
         }
     }
@@ -385,6 +430,7 @@ namespace ClaudeOfTanks.Runtime
 
     [Serializable] public sealed class VehicleArmor
     {
+        public bool turretless;
         public CatalogPoint turretPivot;
         public CatalogPoint gunPivot;
         public VehicleGunBarrel gunBarrel;

@@ -302,6 +302,9 @@ namespace ClaudeOfTanks.Network
                 a.Position.Equals(b.Position) &&
                 a.Yaw == b.Yaw &&
                 a.TurretYaw == b.TurretYaw &&
+                a.HydropneumaticAimActive ==
+                    b.HydropneumaticAimActive &&
+                a.HullPitchRad == b.HullPitchRad &&
                 a.SpeedMps == b.SpeedMps &&
                 a.Health == b.Health &&
                 a.MaxHealth == b.MaxHealth &&

@@ -19,7 +19,8 @@ namespace ClaudeOfTanks.Runtime
         Sniper,
         Repair,
         FirstAid,
-        Extinguisher
+        Extinguisher,
+        HydropneumaticAim
     }
 
     public interface ISettingsStore
@@ -301,6 +302,7 @@ namespace ClaudeOfTanks.Runtime
             _bindings[GameInputAction.Repair] = KeyCode.Alpha4;
             _bindings[GameInputAction.FirstAid] = KeyCode.Alpha5;
             _bindings[GameInputAction.Extinguisher] = KeyCode.Alpha6;
+            _bindings[GameInputAction.HydropneumaticAim] = KeyCode.E;
         }
 
         private void SaveBindings()

@@ -10,7 +10,8 @@ namespace ClaudeOfTanks.Network
         Fire = 1,
         RepairKit = 2,
         FirstAidKit = 4,
-        FireExtinguisher = 8
+        FireExtinguisher = 8,
+        HydropneumaticAim = 16
     }
 
     public struct NetworkInputCommand
@@ -41,7 +42,7 @@ namespace ClaudeOfTanks.Network
 
     public static class NetworkProtocol
     {
-        public const int Version = 1;
+        public const int Version = 2;
         public const int TickRate = 60;
         public const int SnapshotRate = 20;
         public const int MaximumFutureTicks = 120;
@@ -70,7 +71,8 @@ namespace ClaudeOfTanks.Network
                 (command.Actions & ~(NetworkActionBits.Fire |
                     NetworkActionBits.RepairKit |
                     NetworkActionBits.FirstAidKit |
-                    NetworkActionBits.FireExtinguisher)) == 0 &&
+                    NetworkActionBits.FireExtinguisher |
+                    NetworkActionBits.HydropneumaticAim)) == 0 &&
                 command.AimDistanceM >= MinimumAimDistanceM &&
                 command.AimDistanceM <= MaximumAimDistanceM;
         }
@@ -97,6 +99,9 @@ namespace ClaudeOfTanks.Network
                 UseFirstAidKit = (command.Actions & NetworkActionBits.FirstAidKit) != 0,
                 UseFireExtinguisher =
                     (command.Actions & NetworkActionBits.FireExtinguisher) != 0,
+                ToggleHydropneumaticAim =
+                    (command.Actions &
+                     NetworkActionBits.HydropneumaticAim) != 0,
                 AimPoint = tank.Position + new Float3(0f, 1.65f, 0f) +
                     direction * command.AimDistanceM
             };

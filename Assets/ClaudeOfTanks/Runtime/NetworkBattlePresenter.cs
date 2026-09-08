@@ -240,6 +240,9 @@ namespace ClaudeOfTanks.Runtime
             tank.Position = sample.Position;
             tank.Yaw = sample.Yaw;
             tank.TurretYaw = sample.TurretYaw;
+            tank.HydropneumaticAimActive =
+                sample.HydropneumaticAimActive;
+            tank.HullPitchRad = sample.HullPitchRad;
             tank.SpeedMps = sample.SpeedMps;
             tank.Health = sample.Health;
             tank.ReloadRemainingS = sample.ReloadRemainingS;
@@ -268,6 +271,9 @@ namespace ClaudeOfTanks.Runtime
             target.Position = predictor.PresentedPosition;
             target.Yaw = predictor.PresentedYaw;
             target.TurretYaw = source.TurretYaw;
+            target.HydropneumaticAimActive =
+                source.HydropneumaticAimActive;
+            target.HullPitchRad = source.HullPitchRad;
             target.SpeedMps = source.SpeedMps;
             target.Health = source.Health;
             target.ReloadRemainingS = source.ReloadRemainingS;
@@ -405,6 +411,9 @@ namespace ClaudeOfTanks.Runtime
                 Position = source.Position,
                 Yaw = source.Yaw,
                 TurretYaw = source.TurretYaw,
+                HydropneumaticAimActive =
+                    source.HydropneumaticAimActive,
+                HullPitchRad = source.HullPitchRad,
                 SpeedMps = source.SpeedMps,
                 Health = source.Health,
                 MaxHealth = source.MaxHealth,

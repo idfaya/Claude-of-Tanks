@@ -21,6 +21,10 @@ namespace ClaudeOfTanks.Simulation
             float previousTurretYaw = tank.TurretYaw;
             float throttle = MathUtil.Clamp(input.Throttle, -1f, 1f);
             float steer = MathUtil.Clamp(input.Steer, -1f, 1f);
+            steer = HydropneumaticAimSimulation.ResolveSteer(
+                tank,
+                input,
+                steer);
             float forwardLimit = tank.Spec.TopSpeedKmh / 3.6f;
             float reverseLimit = tank.Spec.ReverseSpeedKmh / 3.6f;
             float targetSpeed = throttle >= 0f ? throttle * forwardLimit : throttle * reverseLimit;
@@ -61,9 +65,17 @@ namespace ClaudeOfTanks.Simulation
             Float3 next = tank.Position + forward * (tank.SpeedMps * dt);
             next.Y = heightField.HeightAt(next.X, next.Z);
             tank.Position = next;
+            HydropneumaticAimSimulation.Step(
+                tank,
+                input,
+                dt);
 
             Float3 toAim = input.AimPoint - tank.Position;
-            if (toAim.X * toAim.X + toAim.Z * toAim.Z > 0.001f)
+            if (tank.Spec.FixedHydraulicGun)
+            {
+                tank.TurretYaw = 0f;
+            }
+            else if (toAim.X * toAim.X + toAim.Z * toAim.Z > 0.001f)
             {
                 float desiredWorldYaw = MathF.Atan2(toAim.X, toAim.Z);
                 float desiredLocalYaw = MathUtil.DeltaAngle(tank.Yaw, desiredWorldYaw);

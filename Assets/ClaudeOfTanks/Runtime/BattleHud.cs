@@ -36,6 +36,7 @@ namespace ClaudeOfTanks.Runtime
         private BattleHudPause _pause;
         private readonly RectTransform[] _consumableButtons = new RectTransform[3];
         private readonly Text[] _consumableLabels = new Text[3];
+        private BattleHudHydropneumaticControl _hydropneumatic;
         private GameSettings _settings;
         private BattleHudAccessibilityPresentation _accessibility;
         private GameObject _resultRoot;
@@ -118,6 +119,11 @@ namespace ClaudeOfTanks.Runtime
             return value;
         }
 
+        public bool ConsumeHydropneumaticToggle()
+        {
+            return _hydropneumatic.Consume();
+        }
+
         public bool TryGetTouchAimPosition(out Vector2 position)
         {
             position = _touchAimPosition;
@@ -141,6 +147,7 @@ namespace ClaudeOfTanks.Runtime
                 : mode.Id == GameModeId.EndlessHorde ? "WAVE " + mode.HordeWave
                 : string.Format("{0:0}  {1}  {2:0}", mode.AlphaScore, ModeLabel(mode.Id), mode.BravoScore);
             _status.text = status;
+            _hydropneumatic.SetState(player);
             UpdateDamagePanel(player.Combat);
             UpdateResult(status, battleOver, stats);
         }
@@ -209,8 +216,8 @@ namespace ClaudeOfTanks.Runtime
                     position + new Vector2(48f, 48f),
                     Vector2.zero);
             }
+            _hydropneumatic.SetLayout(portrait);
         }
-
         public void SetMap(MapDefinition map)
         {
             _minimap.SetMap(map);
@@ -305,6 +312,15 @@ namespace ClaudeOfTanks.Runtime
                 _consumableLabels[i] =
                     consumables[i].GetComponentInChildren<Text>();
             }
+            Button hydropneumatic = CreateButton(
+                "HydropneumaticAim",
+                "E",
+                new Vector2(430f, 76f),
+                null,
+                new Vector2(64f, 40f));
+            _hydropneumatic =
+                new BattleHudHydropneumaticControl(
+                    hydropneumatic);
             CreateButton("Garage", "GARAGE", new Vector2(20f, -48f), _garage,
                 new Vector2(90f, 34f), new Vector2(0f, 1f));
             CreateButton("Settings", "SETTINGS", new Vector2(120f, -48f),
@@ -328,7 +344,6 @@ namespace ClaudeOfTanks.Runtime
                 _settings);
             UiAudioFeedback.BindTree(transform, _settings);
         }
-
         private void OnDestroy()
         {
             _pause?.Dispose();
@@ -356,6 +371,7 @@ namespace ClaudeOfTanks.Runtime
             _brakeHeld = false;
             _touchAimActive = false;
             _sniperToggleQueued = false;
+            _hydropneumatic.Clear();
         }
 
         private void BuildDamagePanel(Font font)

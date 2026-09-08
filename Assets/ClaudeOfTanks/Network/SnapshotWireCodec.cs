@@ -14,7 +14,7 @@ namespace ClaudeOfTanks.Network
         public const int MaximumDestroyedStaticObstacles =
             BattleState.MaximumStaticObstacles;
         private const uint Magic = 0x4e544f43u;
-        private const ushort Version = 4;
+        private const ushort Version = 5;
         private const ushort MinimumSupportedVersion = 1;
 
         public static byte[] Encode(NetworkWorldSnapshot snapshot)
@@ -141,6 +141,8 @@ namespace ClaudeOfTanks.Network
             WriteFloat3(writer, entity.Position);
             writer.Write(entity.Yaw);
             writer.Write(entity.TurretYaw);
+            writer.Write(entity.HydropneumaticAimActive);
+            writer.Write(entity.HullPitchRad);
             writer.Write(entity.SpeedMps);
             writer.Write(entity.Health);
             writer.Write(entity.MaxHealth);
@@ -214,13 +216,17 @@ namespace ClaudeOfTanks.Network
                 Position = ReadFloat3(reader),
                 Yaw = reader.ReadSingle(),
                 TurretYaw = reader.ReadSingle(),
-                SpeedMps = reader.ReadSingle(),
-                Health = reader.ReadSingle(),
-                MaxHealth = reader.ReadSingle(),
-                ReloadRemainingS = reader.ReadSingle(),
-                Destroyed = reader.ReadBoolean(),
-                Burning = reader.ReadBoolean()
+                HydropneumaticAimActive =
+                    version >= 5 && reader.ReadBoolean(),
+                HullPitchRad =
+                    version >= 5 ? reader.ReadSingle() : 0f,
+                SpeedMps = reader.ReadSingle()
             };
+            entity.Health = reader.ReadSingle();
+            entity.MaxHealth = reader.ReadSingle();
+            entity.ReloadRemainingS = reader.ReadSingle();
+            entity.Destroyed = reader.ReadBoolean();
+            entity.Burning = reader.ReadBoolean();
             if (version >= 4)
             {
                 entity.ModuleYellowMask = reader.ReadUInt32();
@@ -368,6 +374,9 @@ namespace ClaudeOfTanks.Network
                     !IsFinite(entity.Position) ||
                     !IsFinite(entity.Yaw) ||
                     !IsFinite(entity.TurretYaw) ||
+                    !IsFinite(entity.HullPitchRad) ||
+                    Math.Abs(entity.HullPitchRad) >
+                        NetworkProtocol.MaximumAimPitchRad ||
                     !IsFinite(entity.SpeedMps) ||
                     !IsFinite(entity.Health) ||
                     !IsFinite(entity.MaxHealth) ||

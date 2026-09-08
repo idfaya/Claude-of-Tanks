@@ -12,6 +12,8 @@ namespace ClaudeOfTanks.Network
         public Float3 Position;
         public float Yaw;
         public float TurretYaw;
+        public bool HydropneumaticAimActive;
+        public float HullPitchRad;
         public float SpeedMps;
         public float Health;
         public float MaxHealth;
@@ -158,6 +160,9 @@ namespace ClaudeOfTanks.Network
                 Position = source.Position,
                 Yaw = source.Yaw,
                 TurretYaw = source.TurretYaw,
+                HydropneumaticAimActive =
+                    source.HydropneumaticAimActive,
+                HullPitchRad = source.HullPitchRad,
                 SpeedMps = source.SpeedMps,
                 Health = source.Health,
                 MaxHealth = source.MaxHealth,
@@ -182,6 +187,10 @@ namespace ClaudeOfTanks.Network
             result.Yaw = older.Yaw + MathUtil.DeltaAngle(older.Yaw, newer.Yaw) * t;
             result.TurretYaw = older.TurretYaw +
                 MathUtil.DeltaAngle(older.TurretYaw, newer.TurretYaw) * t;
+            result.HullPitchRad = Lerp(
+                older.HullPitchRad,
+                newer.HullPitchRad,
+                t);
             result.SpeedMps = Lerp(older.SpeedMps, newer.SpeedMps, t);
             result.Health = Lerp(older.Health, newer.Health, t);
             result.ReloadRemainingS = Lerp(

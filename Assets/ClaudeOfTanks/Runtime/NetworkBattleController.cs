@@ -177,14 +177,17 @@ namespace ClaudeOfTanks.Runtime
             UpdateCameraControls();
             float frameTime = Mathf.Min(Time.deltaTime, 0.25f);
             _accumulator += frameTime;
+            bool allowHydropneumaticAction = true;
             while (_accumulator >= BattleState.FixedDeltaTime)
             {
                 if (!IsSpectator)
                 {
-                    NetworkInputCommand command = ReadInput();
+                    NetworkInputCommand command = ReadInput(
+                        allowHydropneumaticAction);
                     if (_host != null) _host.SendLocalInput(command);
                     else _client?.SendInput(command);
                 }
+                allowHydropneumaticAction = false;
                 if (_host != null) _host.Update(1);
                 _commandTick++;
                 _accumulator -= BattleState.FixedDeltaTime;
@@ -223,7 +226,8 @@ namespace ClaudeOfTanks.Runtime
                 _cameraRig.Mode != BattleCameraMode.Sniper);
         }
 
-        private NetworkInputCommand ReadInput()
+        private NetworkInputCommand ReadInput(
+            bool allowHydropneumaticAction)
         {
             if (_hud.IsPaused) return ReadPausedInput();
             float throttle = 0f;
@@ -256,6 +260,15 @@ namespace ClaudeOfTanks.Runtime
                 settings.WasPressedThisFrame(GameInputAction.Extinguisher) ||
                 _hud.ConsumeConsumable(2))
                 actions |= NetworkActionBits.FireExtinguisher;
+            if (allowHydropneumaticAction &&
+                _predictor.State.Spec.HydropneumaticAim != null &&
+                (gamepad.HydropneumaticAimPressed ||
+                 settings.WasPressedThisFrame(
+                     GameInputAction.HydropneumaticAim) ||
+                 _hud.ConsumeHydropneumaticToggle()))
+            {
+                actions |= NetworkActionBits.HydropneumaticAim;
+            }
 
             Float3 origin = _predictor.State.Position +
                 new Float3(0f, 1.65f, 0f);

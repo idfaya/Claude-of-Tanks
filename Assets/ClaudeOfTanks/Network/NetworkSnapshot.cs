@@ -10,6 +10,8 @@ namespace ClaudeOfTanks.Network
         public Float3 Position;
         public float Yaw;
         public float TurretYaw;
+        public bool HydropneumaticAimActive;
+        public float HullPitchRad;
         public float SpeedMps;
         public float Health;
         public float MaxHealth;

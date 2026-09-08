@@ -164,6 +164,7 @@ namespace ClaudeOfTanks.Runtime
                     BuildInputs(playerInput);
                     _replayRecorder.Record(_inputs, BattleState.FixedDeltaTime);
                     _simulation.Step(_inputs, BattleState.FixedDeltaTime);
+                    playerInput.ToggleHydropneumaticAim = false;
                     ConsumeEvents(false);
                     _accumulator -= BattleState.FixedDeltaTime;
                 }
@@ -563,6 +564,13 @@ namespace ClaudeOfTanks.Runtime
                 UseFireExtinguisher = gamepad.ExtinguisherPressed ||
                     settings.WasPressedThisFrame(GameInputAction.Extinguisher) ||
                     (_hud != null && _hud.ConsumeConsumable(2)),
+                ToggleHydropneumaticAim =
+                    _player.Spec.HydropneumaticAim != null &&
+                    (gamepad.HydropneumaticAimPressed ||
+                     settings.WasPressedThisFrame(
+                         GameInputAction.HydropneumaticAim) ||
+                     (_hud != null &&
+                      _hud.ConsumeHydropneumaticToggle())),
                 AimPoint = aimPoint
             };
         }

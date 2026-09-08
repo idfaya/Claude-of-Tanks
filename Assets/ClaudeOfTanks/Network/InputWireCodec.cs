@@ -68,7 +68,8 @@ namespace ClaudeOfTanks.Network
                         (command.Actions & ~(NetworkActionBits.Fire |
                             NetworkActionBits.RepairKit |
                             NetworkActionBits.FirstAidKit |
-                            NetworkActionBits.FireExtinguisher)) != 0)
+                            NetworkActionBits.FireExtinguisher |
+                            NetworkActionBits.HydropneumaticAim)) != 0)
                     {
                         throw new FormatException("Input packet payload is invalid.");
                     }

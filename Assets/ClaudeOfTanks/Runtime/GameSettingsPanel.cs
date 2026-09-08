@@ -323,6 +323,8 @@ namespace ClaudeOfTanks.Runtime
             {
                 case GameInputAction.FirstAid: return "FIRST AID";
                 case GameInputAction.Extinguisher: return "EXTINGUISHER";
+                case GameInputAction.HydropneumaticAim:
+                    return "SUSPENSION AIM";
                 default: return action.ToString().ToUpperInvariant();
             }
         }

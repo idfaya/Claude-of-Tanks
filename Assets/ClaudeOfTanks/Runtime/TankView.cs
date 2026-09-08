@@ -411,7 +411,10 @@ namespace ClaudeOfTanks.Runtime
         public void Sync(TankState tank)
         {
             _root.position = tank.Position.ToUnity();
-            _root.rotation = Quaternion.Euler(0f, tank.Yaw * Mathf.Rad2Deg, 0f);
+            _root.rotation = Quaternion.Euler(
+                -tank.HullPitchRad * Mathf.Rad2Deg,
+                tank.Yaw * Mathf.Rad2Deg,
+                0f);
             _turret.localRotation = Quaternion.Euler(0f, tank.TurretYaw * Mathf.Rad2Deg, 0f);
 
             Color color = tank.Destroyed ? new Color(0.08f, 0.08f, 0.075f) : _aliveColor;

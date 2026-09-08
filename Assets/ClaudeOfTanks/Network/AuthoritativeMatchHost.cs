@@ -270,6 +270,9 @@ namespace ClaudeOfTanks.Network
                 Position = tank.Position,
                 Yaw = tank.Yaw,
                 TurretYaw = tank.TurretYaw,
+                HydropneumaticAimActive =
+                    tank.HydropneumaticAimActive,
+                HullPitchRad = tank.HullPitchRad,
                 SpeedMps = tank.SpeedMps,
                 Health = tank.Health,
                 MaxHealth = tank.Spec.MaxHealth,
@@ -328,6 +331,9 @@ namespace ClaudeOfTanks.Network
             input.UseFirstAidKit = (actions & NetworkActionBits.FirstAidKit) != 0;
             input.UseFireExtinguisher =
                 (actions & NetworkActionBits.FireExtinguisher) != 0;
+            input.ToggleHydropneumaticAim =
+                (actions &
+                 NetworkActionBits.HydropneumaticAim) != 0;
         }
 
         private sealed class PeerState
