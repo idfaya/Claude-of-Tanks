@@ -292,6 +292,14 @@ The port preserves the source project's runtime units and conventions:
   basket, and gun-owned butterfly mantlet/L7A3 package across Garage, solo,
   replay, and network. Its 39 catalog-authored hit surfaces remain the only
   armor and it adds no collider or generic side armor
+- Production MBT-70 now retains its skirtless M1-derived fenders, exact
+  seven-wheel running gear, closed rear shoulders, 8+6 visual applique
+  cassettes, broad bustle doors, raised commander/M2 station, gunner optics,
+  eight-bank plus paired signature smoke launchers, loaded rear basket, spare
+  track racks, twin antennas, and gun-owned five-course parabolic XM150
+  launcher package across Garage, solo, replay, and network. Its 29 catalog
+  hit surfaces remain authoritative and it adds no collider or generic side
+  armor
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
@@ -378,6 +386,9 @@ These systems still use the TypeScript implementation as their specification:
   126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
   Challenger 2/3, Merkava, Korean, Japanese, French, and Italian identity
   suites plus the Swedish turreted, siege, and IFV lines;
+- parse and simulate the catalog-authored hydropneumatic aim envelopes for
+  MBT-70, Type 74/90/10, K2-family and Swedish siege vehicles through the
+  authoritative C# input, replay, snapshot, prediction, and presentation path;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;

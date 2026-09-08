@@ -102,8 +102,12 @@ namespace ClaudeOfTanks.Runtime
             CreatePart("UpperHull", PrimitiveType.Cube, root.transform,
                 new Vector3(0f, trackY + height * 0.35f, length * 0.02f),
                 new Vector3(width * 0.72f, height * 0.18f, length * 0.62f), teamColor * 1.08f);
-            CreateTrack(root.transform, -width * 0.47f, trackY, length, trackWidth);
-            CreateTrack(root.transform, width * 0.47f, trackY, length, trackWidth);
+            int roadWheelCount =
+                TankRunningGearLayout.RoadWheelCount(
+                    definition,
+                    length);
+            CreateTrack(root.transform, -width * 0.47f, trackY, length, trackWidth, roadWheelCount);
+            CreateTrack(root.transform, width * 0.47f, trackY, length, trackWidth, roadWheelCount);
 
             bool casemate = definition != null &&
                 (definition.role == "td" || definition.id.StartsWith("strv103"));
@@ -234,7 +238,12 @@ namespace ClaudeOfTanks.Runtime
         }
 
         private static void CreateTrack(
-            Transform root, float x, float y, float length, float width)
+            Transform root,
+            float x,
+            float y,
+            float length,
+            float width,
+            int wheelCount)
         {
             string side = x < 0f ? "L" : "R";
             GameObject gear = new GameObject("RunningGear-" + side);
@@ -242,7 +251,6 @@ namespace ClaudeOfTanks.Runtime
             Color trackColor = new Color(0.09f, 0.09f, 0.08f);
             Color wheelColor = new Color(0.15f, 0.16f, 0.13f);
             Color hubColor = new Color(0.23f, 0.25f, 0.2f);
-            int wheelCount = Mathf.Clamp(Mathf.RoundToInt(length * 0.9f), 4, 8);
             float roadRadius = y * 0.72f;
             float wheelThickness = width * 0.72f;
             float wheelFront = -length * 0.38f;
