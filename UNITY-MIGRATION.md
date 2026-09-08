@@ -364,6 +364,15 @@ The port preserves the source project's runtime units and conventions:
   4+4 smoke banks, roof machine gun, twin antennas, and gun-owned MK30.
   Its 17 catalog hit surfaces remain authoritative across Garage, solo,
   replay, and network with no added collider or generic side armor/pod
+- Upior now uses its independent compact faceted hull with the corrected
+  shackled wedge bow facing forward, twin-door and waterjet stern, crowned
+  roof, forward engine deck, 26 shallow skirt panels, and exposed narrow
+  six-wheel course with front idler and rear sprocket. Its rear-of-mid
+  faceted drum carries twin crew stations, the defining left L-pedestal
+  sensor and roof ATGM, 3+3 smoke, roof machine gun, twin antennas, and a
+  gun-owned 30 mm/coax plant. All 19 catalog hit surfaces remain
+  authoritative across Garage, solo, replay, and network with no added
+  collider or generic side armor/pod
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

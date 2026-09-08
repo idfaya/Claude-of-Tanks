@@ -59,6 +59,17 @@ namespace ClaudeOfTanks.Runtime
                 -2.15f
             };
 
+        private static readonly float[]
+            UpiorWheelStations =
+            {
+                1.577f,
+                0.978f,
+                0.345f,
+                -0.435f,
+                -1.032f,
+                -1.628f
+            };
+
         public static int RoadWheelCount(
             VehicleDefinition definition,
             float hullLength)
@@ -77,6 +88,9 @@ namespace ClaudeOfTanks.Runtime
                     definition?.id))
                 return 6;
             if (TankBmp3FamilyDetails.Supports(
+                    definition?.id))
+                return 6;
+            if (TankUpiorFamilyDetails.Supports(
                     definition?.id))
                 return 6;
 
@@ -106,6 +120,9 @@ namespace ClaudeOfTanks.Runtime
                 return 1.205f;
             if (definition?.id == "bmp3")
                 return 1.32f;
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return 0.94f;
 
             return width * 0.47f;
         }
@@ -126,6 +143,9 @@ namespace ClaudeOfTanks.Runtime
                 return 0.3f;
             if (definition?.id == "bmp3")
                 return 0.38f;
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return 0.36f;
 
             return fallback;
         }
@@ -150,6 +170,9 @@ namespace ClaudeOfTanks.Runtime
                 return 0.3f;
             if (definition?.id == "bmp3")
                 return 0.37f;
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return 0.29f;
 
             return Mathf.Max(0.4f, height * 0.21f);
         }
@@ -172,6 +195,9 @@ namespace ClaudeOfTanks.Runtime
             if (TankBmp3FamilyDetails.Supports(
                     definition?.id))
                 return 0.3f;
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return 0.235f;
 
             return wheelY * 0.72f;
         }
@@ -198,6 +224,9 @@ namespace ClaudeOfTanks.Runtime
                 return Bmp2WheelStations[index];
             if (definition?.id == "bmp3")
                 return Bmp3WheelStations[index];
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return UpiorWheelStations[index];
 
             return Mathf.Lerp(
                 -length * 0.38f,
@@ -227,6 +256,9 @@ namespace ClaudeOfTanks.Runtime
                 return new Vector2(2.256f, 0.8f);
             if (definition?.id == "bmp3")
                 return new Vector2(-2.98f, 0.72f);
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return new Vector2(-2.1f, 0.5f);
 
             return new Vector2(
                 -length * 0.45f,
@@ -255,6 +287,9 @@ namespace ClaudeOfTanks.Runtime
                 return new Vector2(-2.44f, 0.6f);
             if (definition?.id == "bmp3")
                 return new Vector2(2.73f, 0.88f);
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return new Vector2(2.2f, 0.58f);
 
             return new Vector2(
                 length * 0.45f,
@@ -277,6 +312,9 @@ namespace ClaudeOfTanks.Runtime
                 return 0.26f;
             if (definition?.id == "bmp3")
                 return 0.35f;
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return 0.18f;
 
             return roadWheelRadius * 0.82f;
         }
@@ -297,6 +335,9 @@ namespace ClaudeOfTanks.Runtime
                 return 0.24f;
             if (definition?.id == "bmp3")
                 return 0.29f;
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return 0.18f;
 
             return roadWheelRadius * 0.82f * 0.94f;
         }
@@ -305,6 +346,9 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float length)
         {
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return 2.0384f;
             return definition?.id == "bmp3"
                 ? 2.4785f
                 : length * 0.45f;
@@ -314,6 +358,9 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float length)
         {
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return -1.9385f;
             return definition?.id == "bmp3"
                 ? -2.7875f
                 : -length * 0.45f;
@@ -324,6 +371,9 @@ namespace ClaudeOfTanks.Runtime
             float wheelY,
             float roadWheelRadius)
         {
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return 0.045f;
             return definition?.id == "bmp3"
                 ? 0.01f
                 : Mathf.Max(
@@ -336,6 +386,9 @@ namespace ClaudeOfTanks.Runtime
             float wheelY,
             float roadWheelRadius)
         {
+            if (TankUpiorFamilyDetails.Supports(
+                    definition?.id))
+                return 0.82f;
             return definition?.id == "bmp3"
                 ? 1.18f
                 : wheelY + roadWheelRadius * 0.98f;
