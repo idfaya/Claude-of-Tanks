@@ -275,6 +275,16 @@ The port preserves the source project's runtime units and conventions:
   deck extension, skirt cage, protected searchlight, open bustle, electronics,
   and 30 mm remote autocannon. Both variants use only their 38/118
   catalog-authored ERA surfaces and add no colliders or generic side armor
+- Both production KF51 variants retain their Leopard-derived hull fittings,
+  closed shoulder mudguards, seven-station skirt carriers, eight smoke
+  launchers, twin antennas, open-yoke roof weapon and gun-owned Rh-130 package
+  across Garage, solo, replay, and network. KF51 keeps its broad closed-chevron
+  front, recessed cheek sensors, SEOSS tower, three-rail/eight-brace flank cage
+  and five-light RWS; KF51B keeps its convex low crown, seven flank-panel
+  stations, raised multispectral sight, upper service grille, bustle cages,
+  two-course thermal shroud and three gun cinches. Both use exactly their 60
+  catalog hit surfaces, including 44 catalog-authored ERA surfaces, and add no
+  colliders, duplicate armor, or generic side armor
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
