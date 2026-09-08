@@ -247,6 +247,16 @@ The port preserves the source project's runtime units and conventions:
   RWS, gun shroud, smoke, optics, and IFV weapon package, removing the generic
   missile pod and adding a twin-cell guided launcher only to Mk IV without
   duplicating catalog armor or generic side armor
+- The five production Chinese vehicles preserve their distinct cast, welded,
+  and export-turret identities across Garage, solo, replay, and network
+  presentation. Type 59 retains its twin cupola weapons, Type 59-II
+  searchlight, segmented field package, snorkel and rear rack; ZTZ-85-III
+  retains its long welded bustle, side/rear baskets, ISFCS-212, W-85 and radio
+  mast; Type 99A retains its twin-row smoke, tall stabilized sights and QJC-88;
+  ZTZ-99A2 retains its dense rear service complex; VT-4A1 retains its low
+  export roof, warning heads, remote weapon station and deep bustle fittings.
+  The modern trio use only their 64/30/41 catalog-authored ERA surfaces and
+  never receive generic side armor
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with

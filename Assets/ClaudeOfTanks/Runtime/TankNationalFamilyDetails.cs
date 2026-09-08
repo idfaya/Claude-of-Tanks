@@ -15,7 +15,8 @@ namespace ClaudeOfTanks.Runtime
                 TankJapaneseFamilyDetails.Supports(id) ||
                 TankFrenchFamilyDetails.Supports(id) ||
                 TankItalianFamilyDetails.Supports(id) ||
-                TankSwedishFamilyDetails.Supports(id);
+                TankSwedishFamilyDetails.Supports(id) ||
+                TankChineseFamilyDetails.Supports(id);
         }
 
         public static bool OwnsIfvWeaponPackage(
@@ -99,6 +100,14 @@ namespace ClaudeOfTanks.Runtime
                 height,
                 length);
             TankSwedishFamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
+            TankChineseFamilyDetails.Build(
                 root,
                 turret,
                 definition,
