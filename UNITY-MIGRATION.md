@@ -192,6 +192,13 @@ The port preserves the source project's runtime units and conventions:
   rangefinders, sensors, remote stations, mine armor, cages, stowage, APU,
   cooling, ADS, and roof equipment without duplicating authored turret or
   side armor
+- All six production Challenger 2/3 variants share catalog-seated engine
+  grilles, bustle racks, antennas, crew hatches, smoke banks, sights, and
+  remote weapon stations across Garage, solo, replay, and network
+  presentation. FV4034, 2E, Ukrainian, Challenger 3, and 3 X packages add
+  their distinct manual weapons, segmented skirts, fuel drums, cages,
+  Trophy sensors, twin autocannons, radar mast, searchlight, bustle cage,
+  and field stowage without duplicating catalog-authored ERA or side armor
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
@@ -275,8 +282,8 @@ The original release is substantially larger than this first playable port.
 These systems still use the TypeScript implementation as their specification:
 
 - complete remaining per-variant exterior fitting parity across the
-  126-vehicle production fleet beyond the landed Abrams, Soviet, and
-  Leopard 2 identity suites;
+  126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
+  and Challenger 2/3 identity suites;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;

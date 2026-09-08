@@ -17,6 +17,9 @@ namespace ClaudeOfTanks.Runtime
             bool leopard =
                 TankLeopardFamilyDetails.Supports(
                     definition.id);
+            bool challenger =
+                TankChallengerFamilyDetails.Supports(
+                    definition.id);
             if (definition.role == "ifv" &&
                 definition.id != "bmpt_t90")
             {
@@ -35,7 +38,8 @@ namespace ClaudeOfTanks.Runtime
                     color * 0.78f);
             }
             if (definition.era == "modern" &&
-                !leopard)
+                !leopard &&
+                !challenger)
             {
                 for (int side = -1;
                     side <= 1;
@@ -65,6 +69,14 @@ namespace ClaudeOfTanks.Runtime
                 height,
                 length);
             TankLeopardFamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
+            TankChallengerFamilyDetails.Build(
                 root,
                 turret,
                 definition,
