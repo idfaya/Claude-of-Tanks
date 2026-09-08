@@ -403,6 +403,15 @@ The port preserves the source project's runtime units and conventions:
   optics, panoramic station, compact 12.7 mm RWS, 6+6 smoke and gun-owned
   KDE/coax plant. All 24 catalog hit surfaces remain authoritative with no
   added collider or generic side armor/pod
+- M1A1 Abrams and M1A1HA now share their source-authored Tejas-family long
+  glacis, faceted deep-bustle turret, exact seven-wheel rear-drive course,
+  blow-off roof, twin roof weapons and gun-owned M256 plant across Garage,
+  solo, replay, and network. M1A1 retains normal-width skirts, binocular
+  commander optics, a left-side tow cable and unshielded M2; M1A1HA adds
+  widened heavy side modules, one protected commander window, a shielded M2,
+  right-side tow cable, three spare track links and a mantlet searchlight.
+  Both retain exactly 32 catalog-authored hit surfaces with no added collider
+  or generic side armor
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

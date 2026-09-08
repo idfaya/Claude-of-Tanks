@@ -1,0 +1,31 @@
+namespace ClaudeOfTanks.Runtime
+{
+    internal static class TankRunningGearStations
+    {
+        private static readonly float[] Puma =
+            { 1.791f, 1.009f, 0.247f, -0.68f, -1.43f, -2.173f };
+        private static readonly float[] PumaS1 =
+            { 2.178f, 1.359f, 0.531f, -0.306f, -1.152f, -1.98f };
+        private static readonly float[] Bradley =
+            { 1.88f, 1.13f, 0.38f, -0.37f, -1.12f, -1.87f };
+        private static readonly float[] Bmp2 =
+            { 1.506f, 0.786f, 0.066f, -0.654f, -1.374f, -2.094f };
+        private static readonly float[] Bmp3 =
+            { 1.79f, 1.04f, 0.055f, -0.62f, -1.315f, -2.15f };
+        private static readonly float[] Upior =
+            { 1.577f, 0.978f, 0.345f, -0.435f, -1.032f, -1.628f };
+        private static readonly float[] Bmpt2 =
+            { 0.883f, 0.107f, -0.669f, -1.445f, -2.221f, -2.997f };
+        private static readonly float[] AbramsM1 =
+            { 2.19f, 1.46f, 0.73f, 0f, -0.73f, -1.46f, -2.19f };
+
+        public static float PumaAt(int index) => Puma[index];
+        public static float PumaS1At(int index) => PumaS1[index];
+        public static float BradleyAt(int index) => Bradley[index];
+        public static float Bmp2At(int index) => Bmp2[index];
+        public static float Bmp3At(int index) => Bmp3[index];
+        public static float UpiorAt(int index) => Upior[index];
+        public static float Bmpt2At(int index) => Bmpt2[index];
+        public static float AbramsM1At(int index) => AbramsM1[index];
+    }
+}

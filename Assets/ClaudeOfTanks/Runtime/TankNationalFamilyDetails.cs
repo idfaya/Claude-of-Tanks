@@ -8,6 +8,7 @@ namespace ClaudeOfTanks.Runtime
             string id)
         {
             return
+                TankAbramsM1FamilyDetails.Supports(id) ||
                 TankLeopardFamilyDetails.Supports(id) ||
                 TankChallengerFamilyDetails.Supports(id) ||
                 TankMerkavaFamilyDetails.Supports(id) ||
@@ -64,6 +65,14 @@ namespace ClaudeOfTanks.Runtime
             float height,
             float length)
         {
+            TankAbramsM1FamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
             TankSovietFamilyDetails.Build(
                 root,
                 turret,
