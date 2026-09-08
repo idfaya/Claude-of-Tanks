@@ -309,6 +309,17 @@ The port preserves the source project's runtime units and conventions:
   2A82 thermal package across Garage, solo, replay, and network. Its 101
   catalog hit surfaces, including 82 catalog-authored ERA surfaces, remain
   authoritative and it adds no collider or generic side armor
+- Production SPz Puma and Puma S1 now retain their exact six-wheel stations,
+  raised drive/idler geometry, narrow monocoque hulls, high one-plane bows,
+  rear troop ramps, heavy segmented side protection, low unmanned RCT30
+  citadels, gun-owned MK30/coax packages, ROSY and sensor suites, and distinct
+  launcher fits across Garage, solo, replay, and network. The production Puma
+  keeps its pitching twin-round Spike pod and PERI mast; S1 keeps its
+  two-layer eight-cassette-per-side AMAP jacket, twin square-cell MELLS,
+  four-camera suite, unarmed panoramic yoke, independent compact RWS, and
+  open slash-port gun cradle. Their 19/24 catalog hit surfaces remain
+  authoritative; catalog track surfaces stay mapped but no longer render over
+  the wheels, and neither vehicle adds a collider or generic side armor/pod
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
