@@ -185,6 +185,13 @@ The port preserves the source project's runtime units and conventions:
   authored-armor-safe smoke banks, rear drums/logs, T-80 turbine decks,
   searchlight and Shtora distinctions, modern panoramic sights and stowage,
   Ukrainian service kit, and the BMPT T-90 twin-cannon/missile station
+- All 11 production Leopard 2 variants share catalog-seated Wegmann smoke
+  banks, hatches, MG3, antennas, bustle rack, engine grilles, and optics
+  across Garage, solo, and network presentation. Prototype, OTCO, A5NL,
+  A4M, A6M, Revolution, A7V, and Ukrainian packages add their distinct
+  rangefinders, sensors, remote stations, mine armor, cages, stowage, APU,
+  cooling, ADS, and roof equipment without duplicating authored turret or
+  side armor
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
@@ -268,8 +275,8 @@ The original release is substantially larger than this first playable port.
 These systems still use the TypeScript implementation as their specification:
 
 - complete remaining per-variant exterior fitting parity across the
-  126-vehicle production fleet beyond the landed Abrams and Soviet identity
-  suites;
+  126-vehicle production fleet beyond the landed Abrams, Soviet, and
+  Leopard 2 identity suites;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;

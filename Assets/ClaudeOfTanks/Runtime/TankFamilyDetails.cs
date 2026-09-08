@@ -14,6 +14,9 @@ namespace ClaudeOfTanks.Runtime
             float length)
         {
             if (definition == null) return;
+            bool leopard =
+                TankLeopardFamilyDetails.Supports(
+                    definition.id);
             if (definition.role == "ifv" &&
                 definition.id != "bmpt_t90")
             {
@@ -31,7 +34,8 @@ namespace ClaudeOfTanks.Runtime
                         width * 0.38f),
                     color * 0.78f);
             }
-            if (definition.era == "modern")
+            if (definition.era == "modern" &&
+                !leopard)
             {
                 for (int side = -1;
                     side <= 1;
@@ -60,6 +64,14 @@ namespace ClaudeOfTanks.Runtime
                 width,
                 height,
                 length);
+            TankLeopardFamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
             if (IsAbrams(definition.id))
                 AddAbrams(
                     root,
@@ -69,23 +81,6 @@ namespace ClaudeOfTanks.Runtime
                     width,
                     height,
                     length);
-            if (definition.id.Contains("leopard") ||
-                definition.id.StartsWith("leo2"))
-            {
-                Part(
-                    "TurretWedge",
-                    PrimitiveType.Cube,
-                    turret,
-                    new Vector3(
-                        0f,
-                        0f,
-                        width * 0.4f),
-                    new Vector3(
-                        width * 0.78f,
-                        height * 0.24f,
-                        width * 0.42f),
-                    color * 1.05f);
-            }
         }
 
         private static bool IsAbrams(string id)
