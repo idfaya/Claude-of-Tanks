@@ -206,6 +206,13 @@ The port preserves the source project's runtime units and conventions:
   retain distinct mortar, gun-cradle weapon, panoramic sight, roof-load, and
   rear-lattice arrangements without duplicating catalog-authored ERA,
   arrowhead armor, or side armor
+- The three production Korean variants share catalog-seated rear service
+  fields, engine decks, smoke banks, hatches, antennas, roof optics, weapons,
+  and bustle fittings across Garage, solo, replay, and network presentation.
+  K1A1 retains its low gunner doghouse, K6/loader weapons, and fully seated
+  wrap-around side cages; K2B adds its 16-panel stealth side package, diamond
+  turret shell, paired EO heads, twin remote stations, and gun-owned mask
+  without duplicating catalog-authored armor or generic side armor
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
@@ -290,7 +297,7 @@ These systems still use the TypeScript implementation as their specification:
 
 - complete remaining per-variant exterior fitting parity across the
   126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
-  Challenger 2/3, and Merkava identity suites;
+  Challenger 2/3, Merkava, and Korean identity suites;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;
