@@ -293,7 +293,8 @@ namespace ClaudeOfTanks.Runtime
                         tank,
                         _vehicleDefinitions[tank.Id],
                         _camouflageIds[tank.Id],
-                        mapId));
+                        mapId,
+                        _catalog));
             }
 
             _accumulator = 0f;
@@ -393,7 +394,8 @@ namespace ClaudeOfTanks.Runtime
                         tank,
                         _vehicleDefinitions[tank.Id],
                         _camouflageIds[tank.Id],
-                        mapId));
+                        mapId,
+                        _catalog));
             }
             SyncViews();
             _hud.SetReplayState(true, false, 0f, _replaySession.DurationS, false);

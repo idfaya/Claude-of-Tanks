@@ -199,7 +199,8 @@ namespace ClaudeOfTanks.Runtime
                     tank,
                     definition,
                     camouflageId,
-                    _mapId));
+                    _mapId,
+                    _catalog));
             return tank;
         }
 

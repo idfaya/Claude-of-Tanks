@@ -10,7 +10,12 @@ import { EQUIPMENT_CATALOG } from '../src/game/equipment.ts';
 import {
   CAMO_CATALOG_PATTERN_IDS,
   CAMO_PATTERN_LABEL,
+  defaultCamoPatternId,
+  factoryCamoPatternIdFor,
+  sharedCamoPreset,
+  signatureCamoPatternId,
 } from '../src/vehicles/camoPolicy.ts';
+import { resolveCamoVisual } from '../src/vehicles/materials.ts';
 import { MAP_IDS, getMapConfig } from '../src/world/maps/index.ts';
 import { createLayout } from '../src/world/terrain.ts';
 
@@ -36,6 +41,9 @@ function vehicleRecord(spec) {
   });
   return {
     id: spec.id, name: spec.name, nation: spec.nation, era: spec.era, role: spec.role,
+    factoryCamouflageId: factoryCamoPatternIdFor(spec.nation, spec.era),
+    signatureCamouflageId: signatureCamoPatternId(spec.id),
+    defaultCamouflageId: defaultCamoPatternId(spec.id),
     variantOf: spec.variantOf, hp: spec.hp, enginePowerHp: spec.enginePowerHp,
     weightTons: spec.weightTons, topSpeedKmh: spec.topSpeedKmh,
     reverseSpeedKmh: spec.reverseSpeedKmh, hullTraverseDegS: spec.hullTraverseDegS,
@@ -54,6 +62,59 @@ function vehicleRecord(spec) {
       bodyContactPoints: armor.bodyContactPoints,
     },
     visual: spec.visual, roster: spec.roster,
+  };
+}
+
+const CAMOUFLAGE_PROBE_VISUAL = Object.freeze({
+  base: '#5a6b46',
+  weather: '#6f7d55',
+  scheme: 'solid',
+  patches: [],
+  camoScale: 0.34,
+});
+const CAMOUFLAGE_NATIONS = Object.freeze(
+  [...new Set(SAVED_TANK_IDS.map((id) => TANK_SPECS[id].nation))].sort(),
+);
+
+function camouflageRecipe(id, nation = 'USA') {
+  const visual = resolveCamoVisual({
+    id: 'unity-camouflage-probe',
+    nation,
+    era: 'modern',
+    visual: CAMOUFLAGE_PROBE_VISUAL,
+  }, id);
+  return {
+    scheme: visual.scheme || 'solid',
+    baseColor: visual.base || CAMOUFLAGE_PROBE_VISUAL.base,
+    weatherColor: visual.weather || visual.base || CAMOUFLAGE_PROBE_VISUAL.weather,
+    patchColors: visual.patches || [],
+    camoScale: visual.camoScale ?? CAMOUFLAGE_PROBE_VISUAL.camoScale,
+    patchK: visual.patchK ?? 1,
+    digitalCellK: visual.digitalCellK ?? 1,
+    solidWeatheringIntensity: visual.solidWeatheringIntensity ?? 1,
+    bandAngle: visual.bandAngle ?? 0,
+    blackK: visual.blackK ?? 1,
+    rainK: visual.rainK ?? 1,
+  };
+}
+
+function camouflageRecord(id) {
+  const recipe = camouflageRecipe(id);
+  const variants = id === 'auto' || id === 'factory' || id === 'signature'
+    ? []
+    : CAMOUFLAGE_NATIONS.flatMap((nation) => {
+      const candidate = camouflageRecipe(id, nation);
+      return JSON.stringify(candidate) === JSON.stringify(recipe)
+        ? []
+        : [{ nation, recipe: candidate }];
+    });
+  return {
+    id,
+    name: CAMO_PATTERN_LABEL[id],
+    recipe,
+    nationVariants: variants,
+    usesVehicleScale: sharedCamoPreset(id) == null,
+    usesAuthoredBasePatch: id === 'winter' || id === 'washworn',
   };
 }
 
@@ -373,7 +434,7 @@ function mapRecord(id) {
 }
 
 const payload = canonical({
-  schemaVersion: 5,
+  schemaVersion: 6,
   counts: {
     savedVehicles: SAVED_TANK_IDS.length,
     releaseVehicles: ALL_TANK_IDS.length,
@@ -394,10 +455,7 @@ const payload = canonical({
       era: item.era,
       description: item.desc,
     })),
-    camouflage: CAMO_CATALOG_PATTERN_IDS.map((id) => ({
-      id,
-      name: CAMO_PATTERN_LABEL[id],
-    })),
+    camouflage: CAMO_CATALOG_PATTERN_IDS.map(camouflageRecord),
   },
   vehicles: SAVED_TANK_IDS.map((id) => vehicleRecord(TANK_SPECS[id])),
   maps: MAP_IDS.map(mapRecord),

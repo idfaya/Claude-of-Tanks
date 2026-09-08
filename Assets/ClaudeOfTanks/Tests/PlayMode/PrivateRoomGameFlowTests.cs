@@ -104,6 +104,12 @@ namespace ClaudeOfTanks.Tests
                     client.ActiveNetworkBattle.VisibleTankCount,
                     Is.GreaterThanOrEqualTo(1));
                 Assert.That(
+                    HasActiveCamouflageTexture("winter"),
+                    Is.True);
+                Assert.That(
+                    HasActiveCamouflageTexture("desert"),
+                    Is.True);
+                Assert.That(
                     client.ActiveNetworkBattle.LatestSnapshot.GameMode,
                     Is.EqualTo(GameModeId.ZoneControl));
                 Assert.That(
@@ -208,6 +214,31 @@ namespace ClaudeOfTanks.Tests
                     Array.IndexOf(
                         player.Equipment,
                         equipment) >= 0;
+            }
+            return false;
+        }
+
+        private static bool HasActiveCamouflageTexture(
+            string camouflageId)
+        {
+            Renderer[] renderers =
+                Resources.FindObjectsOfTypeAll<Renderer>();
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                Renderer renderer = renderers[i];
+                if (renderer.gameObject.name != "Hull" ||
+                    !renderer.gameObject.activeInHierarchy)
+                {
+                    continue;
+                }
+                Texture texture =
+                    renderer.sharedMaterial.mainTexture;
+                if (texture != null &&
+                    texture.name.Contains(
+                        "-" + camouflageId + "-"))
+                {
+                    return true;
+                }
             }
             return false;
         }

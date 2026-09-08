@@ -74,6 +74,43 @@ namespace ClaudeOfTanks.Tests
             Assert.That(
                 catalog.ContainsCamouflage("custom"),
                 Is.False);
+            Assert.That(catalog.Camouflage, Has.Length.EqualTo(112));
+            for (int i = 0; i < catalog.Camouflage.Length; i++)
+            {
+                CamouflageDefinition camouflage =
+                    catalog.Camouflage[i];
+                Assert.That(
+                    camouflage.recipe,
+                    Is.Not.Null,
+                    camouflage.id);
+                Assert.That(
+                    camouflage.recipe.scheme,
+                    Is.Not.Empty,
+                    camouflage.id);
+                Assert.That(
+                    camouflage.recipe.baseColor,
+                    Does.StartWith("#"),
+                    camouflage.id);
+            }
+
+            CamouflageDefinition service =
+                catalog.GetCamouflage("service_t90m");
+            Assert.That(service.recipe.scheme, Is.EqualTo("digital"));
+            Assert.That(service.recipe.patchColors, Has.Length.EqualTo(3));
+            Assert.That(service.recipe.camoScale, Is.EqualTo(0.42f));
+
+            Assert.That(
+                TankCamouflage.ResolveId(
+                    catalog.GetVehicle("m1a2"),
+                    "factory",
+                    "desert"),
+                Is.EqualTo("service_usa_desert"));
+            Assert.That(
+                TankCamouflage.ResolveId(
+                    catalog.GetVehicle("t90m"),
+                    "signature",
+                    "desert"),
+                Is.EqualTo("sig_t90m"));
         }
 
         private sealed class MemoryStore :

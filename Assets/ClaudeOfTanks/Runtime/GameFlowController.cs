@@ -319,7 +319,8 @@ namespace ClaudeOfTanks.Runtime
                 tank,
                 definition,
                 _loadout.CamouflageId,
-                SelectedMapId);
+                SelectedMapId,
+                _catalog);
             _preview.Root.SetParent(_garage.transform, true);
         }
 

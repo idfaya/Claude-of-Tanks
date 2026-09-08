@@ -134,6 +134,10 @@ The port preserves the source project's runtime units and conventions:
   catalog, with 14 era/vehicle-gated equipment choices, three slots, all 112
   match-safe camouflage choices, per-vehicle persistence, live preview paint,
   and selection handoff to solo, private-room, and ranked battles
+- Deterministic Unity camouflage textures generated from all 112 canonical
+  TypeScript recipes, including national Factory and per-vehicle Signature
+  resolution, vehicle-scale tiling, projected armor UVs, and shared rendering
+  across Garage, solo, network battle, Killcam, and archived replay surfaces
 - Shared production-fleet running gear with closed discrete-link track meshes,
   road-wheel hubs, sprockets, idlers, return rollers, and inboard suspension
   arms/joints derived from each vehicle's dimensions and track width
@@ -218,12 +222,12 @@ These systems still use the TypeScript implementation as their specification:
 - complete 126-vehicle production fleet and authored armor/module geometry;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
-- progression and production garage presentation;
+- production garage presentation;
 - controller glyph polish, accessibility options, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
 - installable build-target release artifacts, WebRTC signaling/private-room
   session composition, and signaling deployment;
-- per-family procedural vehicle geometry/pattern parity and generated technical assets.
+- per-family procedural vehicle geometry parity and generated technical assets.
 
 Migrate these by extending the simulation contracts rather than moving
 authority into MonoBehaviours or PhysX. The TypeScript project should remain

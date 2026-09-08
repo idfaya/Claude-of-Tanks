@@ -10,9 +10,15 @@ namespace ClaudeOfTanks.Runtime
         private readonly Renderer[] _renderers;
         private readonly Mesh[] _meshes;
         private readonly Material[] _materials;
+        private readonly Texture2D _camouflageTexture;
         private readonly Color _aliveColor;
 
-        private TankView(Transform root, Transform turret, Renderer[] renderers, Color aliveColor)
+        private TankView(
+            Transform root,
+            Transform turret,
+            Renderer[] renderers,
+            Color aliveColor,
+            Texture2D camouflageTexture)
         {
             _root = root;
             _turret = turret;
@@ -28,6 +34,7 @@ namespace ClaudeOfTanks.Runtime
                     _meshes[generatedIndex++] = filters[i].sharedMesh;
             _materials = new Material[renderers.Length];
             for (int i = 0; i < renderers.Length; i++) _materials[i] = renderers[i].sharedMaterial;
+            _camouflageTexture = camouflageTexture;
             _aliveColor = aliveColor;
         }
 
@@ -54,6 +61,21 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             string camouflageId,
             string mapId)
+        {
+            return Create(
+                tank,
+                definition,
+                camouflageId,
+                mapId,
+                null);
+        }
+
+        public static TankView Create(
+            TankState tank,
+            VehicleDefinition definition,
+            string camouflageId,
+            string mapId,
+            ContentCatalog catalog)
         {
             Color authored = definition != null && definition.visual != null
                 ? TankCamouflage.ResolveColor(
@@ -113,7 +135,23 @@ namespace ClaudeOfTanks.Runtime
             AddFamilyDetails(root.transform, turretRoot.transform, definition, teamColor, width, height, length);
 
             Renderer[] renderers = root.GetComponentsInChildren<Renderer>();
-            TankView view = new TankView(root.transform, turretRoot.transform, renderers, teamColor);
+            Texture2D camouflageTexture =
+                TankCamouflageMaterialApplicator.CreateAndApply(
+                    catalog,
+                    definition,
+                    camouflageId,
+                    mapId,
+                    tank.Team,
+                    renderers,
+                    teamColor);
+            TankView view = new TankView(
+                root.transform,
+                turretRoot.transform,
+                renderers,
+                camouflageTexture == null
+                    ? teamColor
+                    : Color.white,
+                camouflageTexture);
             view.Sync(tank);
             return view;
         }
@@ -153,6 +191,13 @@ namespace ClaudeOfTanks.Runtime
                 mesh.triangles = triangles;
                 mesh.RecalculateNormals();
                 mesh.RecalculateBounds();
+                mesh.uv =
+                    TankCamouflageMaterialApplicator.ProjectUvs(
+                    vertices,
+                    mesh.bounds,
+                    mesh.normals.Length > 0
+                        ? mesh.normals[0]
+                        : Vector3.up);
                 GameObject surface = new GameObject("Armor-" + plate.name);
                 surface.transform.SetParent(parent, false);
                 surface.AddComponent<MeshFilter>().sharedMesh = mesh;
@@ -405,6 +450,7 @@ namespace ClaudeOfTanks.Runtime
             if (_root != null) DestroyObject(_root.gameObject);
             for (int i = 0; i < _meshes.Length; i++) DestroyObject(_meshes[i]);
             for (int i = 0; i < _materials.Length; i++) DestroyObject(_materials[i]);
+            DestroyObject(_camouflageTexture);
         }
 
         private static void DestroyObject(Object value)

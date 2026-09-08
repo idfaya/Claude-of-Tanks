@@ -1,10 +1,13 @@
 using System;
+using ClaudeOfTanks.Simulation;
 using UnityEngine;
 
 namespace ClaudeOfTanks.Runtime
 {
     public static class TankCamouflage
     {
+        private const int DefaultTextureSize = 128;
+
         public static Color ResolveColor(
             VehicleDefinition vehicle,
             string camouflageId,
@@ -76,6 +79,71 @@ namespace ClaudeOfTanks.Runtime
             return Variation(
                 new Color(0.24f, 0.34f, 0.2f),
                 resolved);
+        }
+
+        public static Texture2D CreateTexture(
+            ContentCatalog catalog,
+            VehicleDefinition vehicle,
+            string camouflageId,
+            string mapId,
+            Team team,
+            int size = DefaultTextureSize)
+        {
+            return TankCamouflageTexturePainter.Create(
+                catalog,
+                vehicle,
+                camouflageId,
+                mapId,
+                team,
+                size);
+        }
+
+        public static float ResolveScale(
+            VehicleDefinition vehicle,
+            CamouflageDefinition definition)
+        {
+            CamouflageRecipe recipe =
+                definition?.RecipeFor(vehicle?.nation);
+            if (definition != null &&
+                definition.usesVehicleScale &&
+                vehicle?.visual != null &&
+                vehicle.visual.camoScale > 0f)
+            {
+                return vehicle.visual.camoScale;
+            }
+            return recipe != null && recipe.camoScale > 0f
+                ? recipe.camoScale
+                : 0.34f;
+        }
+
+        public static string ResolveId(
+            VehicleDefinition vehicle,
+            string camouflageId,
+            string mapId)
+        {
+            string resolved = ResolveId(
+                camouflageId,
+                mapId);
+            if (resolved == "factory")
+            {
+                return string.IsNullOrEmpty(
+                    vehicle?.factoryCamouflageId)
+                        ? resolved
+                        : vehicle.factoryCamouflageId;
+            }
+            if (resolved == "signature")
+            {
+                if (!string.IsNullOrEmpty(
+                        vehicle?.signatureCamouflageId))
+                {
+                    return vehicle.signatureCamouflageId;
+                }
+                return string.IsNullOrEmpty(
+                    vehicle?.factoryCamouflageId)
+                        ? "factory"
+                        : vehicle.factoryCamouflageId;
+            }
+            return resolved;
         }
 
         public static string ResolveId(

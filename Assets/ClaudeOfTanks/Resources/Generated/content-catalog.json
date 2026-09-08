@@ -444,451 +444,2739 @@
     "camouflage": [
       {
         "id": "auto",
-        "name": "Auto (map)"
+        "name": "Auto (map)",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#5a6b46",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "solid",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#6f7d55"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "factory",
-        "name": "Factory"
+        "name": "Factory",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#b09466",
+          "blackK": 1,
+          "camoScale": 0.52,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#7a5f43",
+            "#947c52",
+            "#cbb489"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "desert",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#c4ad7d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "summer",
-        "name": "Summer"
+        "name": "Summer",
+        "nationVariants": [
+          {
+            "nation": "Russia",
+            "recipe": {
+              "bandAngle": 0,
+              "baseColor": "#4a5638",
+              "blackK": 1,
+              "camoScale": 0.34,
+              "digitalCellK": 1,
+              "patchColors": [
+                "#333d2a",
+                "#4a3f2e"
+              ],
+              "patchK": 1,
+              "rainK": 1,
+              "scheme": "nato",
+              "solidWeatheringIntensity": 1,
+              "weatherColor": "#556042"
+            }
+          },
+          {
+            "nation": "USSR",
+            "recipe": {
+              "bandAngle": 0,
+              "baseColor": "#4a5638",
+              "blackK": 1,
+              "camoScale": 0.34,
+              "digitalCellK": 1,
+              "patchColors": [
+                "#333d2a",
+                "#4a3f2e"
+              ],
+              "patchK": 1,
+              "rainK": 1,
+              "scheme": "nato",
+              "solidWeatheringIntensity": 1,
+              "weatherColor": "#556042"
+            }
+          }
+        ],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#49543e",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#292929",
+            "#3e352a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "nato",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#545f47"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "desert",
-        "name": "Desert"
+        "name": "Desert",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#b09466",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#7a5f43",
+            "#947c52",
+            "#cbb489"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "desert",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#c4ad7d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "winter",
-        "name": "Winter"
+        "name": "Winter",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#99a1a2",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#5a6b46"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "winter",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#7b8384"
+        },
+        "usesAuthoredBasePatch": true,
+        "usesVehicleScale": true
       },
       {
         "id": "digital",
-        "name": "Digital"
+        "name": "Digital",
+        "nationVariants": [
+          {
+            "nation": "Germany",
+            "recipe": {
+              "bandAngle": 0,
+              "baseColor": "#57604a",
+              "blackK": 1,
+              "camoScale": 0.34,
+              "digitalCellK": 1,
+              "patchColors": [
+                "#39492f",
+                "#584a39",
+                "#2b2d26"
+              ],
+              "patchK": 1,
+              "rainK": 1,
+              "scheme": "fleck",
+              "solidWeatheringIntensity": 1,
+              "weatherColor": "#616a53"
+            }
+          },
+          {
+            "nation": "Russia",
+            "recipe": {
+              "bandAngle": 0,
+              "baseColor": "#3f5138",
+              "blackK": 1,
+              "camoScale": 0.34,
+              "digitalCellK": 2.2,
+              "patchColors": [
+                "#262a20",
+                "#7d7355",
+                "#54683f"
+              ],
+              "patchK": 1,
+              "rainK": 1,
+              "scheme": "digital",
+              "solidWeatheringIntensity": 1,
+              "weatherColor": "#47593f"
+            }
+          },
+          {
+            "nation": "USSR",
+            "recipe": {
+              "bandAngle": 0,
+              "baseColor": "#3f5138",
+              "blackK": 1,
+              "camoScale": 0.34,
+              "digitalCellK": 2.2,
+              "patchColors": [
+                "#262a20",
+                "#7d7355",
+                "#54683f"
+              ],
+              "patchK": 1,
+              "rainK": 1,
+              "scheme": "digital",
+              "solidWeatheringIntensity": 1,
+              "weatherColor": "#47593f"
+            }
+          }
+        ],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4a5442",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#333d30",
+            "#79806a",
+            "#23261f"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#525c49"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "merdc",
-        "name": "MERDC"
+        "name": "MERDC",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#44513a",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#5f6a4c",
+            "#8f8259",
+            "#2b2e28"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "merdc",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4e5b41"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "tropic",
-        "name": "Tropic"
+        "name": "Tropic",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#3d4a33",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#262f1e",
+            "#535f3c",
+            "#3a3126"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "blotch",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#46543a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "ambushdot",
-        "name": "Ambush"
+        "name": "Ambush",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#a08b5e",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#5d6334",
+            "#553826"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "ambush",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#8f7c52"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "splinter",
-        "name": "Splinter"
+        "name": "Splinter",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#9c8a5f",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#49573a",
+            "#54372a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "splinter",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#a89468"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "pinkdesert",
-        "name": "Desert Pink"
+        "name": "Desert Pink",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#b49a7d",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#68757d",
+            "#5c5442"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "caunter",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#c2a98a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "autumn",
-        "name": "Autumn"
+        "name": "Autumn",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#6f6242",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#6e4527",
+            "#4c482e",
+            "#33291d"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "blotch",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#7c6f4b"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "urbanblock",
-        "name": "Urban Block"
+        "name": "Urban Block",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#6e716f",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#494c4b",
+            "#8b8d8b",
+            "#303233"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "blocks",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#787b79"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "washworn",
-        "name": "Whitewash"
+        "name": "Whitewash",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#8f9694",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#5a6b46"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "washworn",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#767d7c"
+        },
+        "usesAuthoredBasePatch": true,
+        "usesVehicleScale": true
       },
       {
         "id": "naval",
-        "name": "Naval"
+        "name": "Naval",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0.06,
+          "baseColor": "#5d666d",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#39434d",
+            "#7d868e"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#67707a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "dazzle",
-        "name": "Dazzle"
+        "name": "Dazzle",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#667077",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2b2e32",
+            "#b4bac0",
+            "#46525f"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "dazzle",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5d666d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "flecktarn",
-        "name": "Flecktarn"
+        "name": "Flecktarn",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#525a45",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#36452c",
+            "#594b3b",
+            "#2a2d25"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "fleck",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5c644e"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "amoeba",
-        "name": "Amoeba"
+        "name": "Amoeba",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4a5638",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2e3325",
+            "#655a35"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "amoeba",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#535f41"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "dpm",
-        "name": "DPM"
+        "name": "DPM",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#7d7350",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#4c5738",
+            "#4f3d2c",
+            "#2c2e28"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "brush",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#877d59"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "tigerstripe",
-        "name": "Tiger Stripe"
+        "name": "Tiger Stripe",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4d5340",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#272b22",
+            "#6c7050",
+            "#3b4530"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "tigerstripe",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#575d47"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "m90",
-        "name": "M90 Splinter"
+        "name": "M90 Splinter",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#47523c",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2b3728",
+            "#26292b",
+            "#5d6852"
+          ],
+          "patchK": 1.3,
+          "rainK": 0,
+          "scheme": "splinter",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#505b44"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "chocchip",
-        "name": "Choc-Chip"
+        "name": "Choc-Chip",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#b39c72",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#8a6f4e",
+            "#c7b68c",
+            "#c3c7c6",
+            "#33342f"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "chip6",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#c1ab80"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "digitaldesert",
-        "name": "Digital Sand"
+        "name": "Digital Sand",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#a8905f",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1.5,
+          "patchColors": [
+            "#c6b487",
+            "#7a6041",
+            "#57503f"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#b59d6d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "merdcwinter",
-        "name": "MERDC Winter"
+        "name": "MERDC Winter",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#939a9b",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#46523e",
+            "#8b7f5c",
+            "#2c2f2a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "merdc",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#7d8486"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "winterbands",
-        "name": "Winter Bands"
+        "name": "Winter Bands",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#43503a",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#a8adad",
+            "#909698"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4b5842"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "berlin",
-        "name": "Berlin Bde"
+        "name": "Berlin Bde",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#9aa0a3",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#c0c4c7",
+            "#5f6a74",
+            "#7f868c"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "blocks",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#8b9195"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "oakleaf",
-        "name": "Oak Leaf"
+        "name": "Oak Leaf",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#6b5f40",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#6e4a2b",
+            "#4d4a2e",
+            "#3a2f20"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "fleck",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#776a49"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "hexfield",
-        "name": "Hex Mesh"
+        "name": "Hex Mesh",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4b5443",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#333c30",
+            "#5f6852"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "hexfield",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#535c4a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "midnight",
-        "name": "Night Ops"
+        "name": "Night Ops",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#33373a",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#26292c",
+            "#41464a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "nato",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#3a3e41"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "claude",
-        "name": "Claude"
+        "name": "Claude",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#d3ccbc",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#b25a3d",
+            "#3d3b37"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "claude",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#c2b9a7"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "spark",
-        "name": "Claude Spark"
+        "name": "Claude Spark",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#d8cbb5",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#b4593a",
+            "#3a3733"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "spark",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#c6b8a0"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "ducky",
-        "name": "Rubber Ducky"
+        "name": "Rubber Ducky",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#8798a3",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#d9b13f",
+            "#2e3338"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "ducky",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#7b8c97"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "suits",
-        "name": "High Roller"
+        "name": "High Roller",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#d6cdbd",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#9e3a3a",
+            "#2b2b2e"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "suits",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#c5bba9"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "flames",
-        "name": "Hot Rod"
+        "name": "Hot Rod",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#292a2e",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#a83226",
+            "#d97b35",
+            "#e0b23f"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "flames",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#303136"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "leopardprint",
-        "name": "Leopard Print"
+        "name": "Leopard Print",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#c2a878",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#8a5f38",
+            "#2e2a26"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "leopardprint",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#b39a6c"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "bolt",
-        "name": "Thunderbolt"
+        "name": "Thunderbolt",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4a4f57",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#d9b13f",
+            "#26292d"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "bolt",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#42474e"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "stars",
-        "name": "Starfall"
+        "name": "Starfall",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#3a4254",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#e2d7ba",
+            "#d9b13f"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stars",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#333b4c"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "daisy",
-        "name": "Flower Power"
+        "name": "Flower Power",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#5a6b46",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#e6ded0",
+            "#c96a3a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "daisy",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#52623f"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "circuit",
-        "name": "Circuit Board"
+        "name": "Circuit Board",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#2b4536",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#c9a53f",
+            "#86b096"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "circuit",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#263d30"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "racing",
-        "name": "Racing Team"
+        "name": "Racing Team",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#c9c7bd",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#a83430",
+            "#26282c"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "racing",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#b9b7ab"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "paintball",
-        "name": "Paintball"
+        "name": "Paintball",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#b9b9b2",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#3f7fbf",
+            "#c9503f",
+            "#58a05a",
+            "#d9b13f"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "paintball",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#a9a9a2"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "normandy44",
-        "name": "Normandy '44"
+        "name": "Normandy '44",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#57603f",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#ded8c8"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "star",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4e5738"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "berlin45",
-        "name": "Berlin '45"
+        "name": "Berlin '45",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4a5138",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#e0dccb"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "idband",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#525a3e"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "ardennes44",
-        "name": "Ardennes '44"
+        "name": "Ardennes '44",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#9aa09c",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#4c5539",
+            "#6e6f64"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "brushwash",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#878d89"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "pacific45",
-        "name": "Pacific '45"
+        "name": "Pacific '45",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#46543d",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#282e26",
+            "#c2ab84",
+            "#e3ded1"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "usmc",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#3e4b36"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "jungleops",
-        "name": "Jungle Ops"
+        "name": "Jungle Ops",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#5d6b44",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#3a4931",
+            "#5a4632",
+            "#262a24"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "erdl",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#556240"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "rasputitsa",
-        "name": "Rasputitsa '42"
+        "name": "Rasputitsa '42",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#575843",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#4a3b2a",
+            "#6b5a42",
+            "#332a20"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "mudwash",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4e4f3c"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": true
       },
       {
         "id": "service_usa_desert",
-        "name": "US Desert Service"
+        "name": "US Desert Service",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#b09466",
+          "blackK": 1,
+          "camoScale": 0.52,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#7a5f43",
+            "#947c52",
+            "#cbb489"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "desert",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#c4ad7d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_marder1a3",
-        "name": "Marder Bundeswehr"
+        "name": "Marder Bundeswehr",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#46503f",
+          "blackK": 1,
+          "camoScale": 0.5,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#28302a",
+            "#5f5643"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#57604b"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_leo2a4m",
-        "name": "Leopard 2A4M Service"
+        "name": "Leopard 2A4M Service",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4a5141",
+          "blackK": 1,
+          "camoScale": 0.42,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2b3329",
+            "#625941",
+            "#77705b"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#656b58"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_leo2a6m",
-        "name": "Leopard 2A6M Service"
+        "name": "Leopard 2A6M Service",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#48503f",
+          "blackK": 1,
+          "camoScale": 0.4,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#293128",
+            "#605640",
+            "#746d58"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#626956"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_soviet_ww2",
-        "name": "Soviet 4BO Field Blotch"
+        "name": "Soviet 4BO Field Blotch",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4a5635",
+          "blackK": 1,
+          "camoScale": 0.62,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2e3828",
+            "#6b6044",
+            "#34322a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "blotch",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#596343"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_soviet_coldwar",
-        "name": "Soviet Cold War Amoeba"
+        "name": "Soviet Cold War Amoeba",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#465238",
+          "blackK": 1,
+          "camoScale": 0.52,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#273128",
+            "#71664a",
+            "#343a30"
+          ],
+          "patchK": 1.22,
+          "rainK": 1,
+          "scheme": "amoeba",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#586048"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_t90m",
-        "name": "Modern Russian Service Digital"
+        "name": "Modern Russian Service Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#40513a",
+          "blackK": 1,
+          "camoScale": 0.42,
+          "digitalCellK": 1.35,
+          "patchColors": [
+            "#263228",
+            "#6d7154",
+            "#84785a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#566149"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_challenger_3",
-        "name": "Challenger 3 Service"
+        "name": "Challenger 3 Service",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#414c38",
+          "blackK": 1,
+          "camoScale": 0.48,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#1e201d"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4a5540"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_leclerc_xlr",
-        "name": "Leclerc XLR Service"
+        "name": "Leclerc XLR Service",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#3e4d3a",
+          "blackK": 1,
+          "camoScale": 0.45,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#5b4a38",
+            "#1d1f1c"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "nato",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#48573f"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_type99a",
-        "name": "Type 99A Service Digital"
+        "name": "Type 99A Service Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4d573f",
+          "blackK": 1,
+          "camoScale": 0.42,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#6f684c",
+            "#39412f",
+            "#23261e"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#57614a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_ariete_c1",
-        "name": "Ariete C1 Service"
+        "name": "Ariete C1 Service",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#48533e",
+          "blackK": 1,
+          "camoScale": 0.56,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#384431",
+            "#2c3529"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#53604a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_type10",
-        "name": "Type 10 Service"
+        "name": "Type 10 Service",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#39463a",
+          "blackK": 1,
+          "camoScale": 0.5,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#63523c",
+            "#2e392f"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#445144"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_pl01",
-        "name": "PL-01 Service Digital"
+        "name": "PL-01 Service Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#313b38",
+          "blackK": 1,
+          "camoScale": 0.36,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#202725",
+            "#4e5750",
+            "#67685e"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#47504a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_bmp3_rok",
-        "name": "BMP-3 ROK Service"
+        "name": "BMP-3 ROK Service",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#465341",
+          "blackK": 1,
+          "camoScale": 0.5,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2d352c",
+            "#69604b",
+            "#81765b"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5e6753"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_strv122",
-        "name": "Strv 122 Splinter"
+        "name": "Strv 122 Splinter",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#34493c",
+          "blackK": 1,
+          "camoScale": 0.42,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#202b26",
+            "#5c644c",
+            "#81745a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "splinter",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4b5b4c"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_merkava2d",
-        "name": "Merkava 2D Sinai Gray"
+        "name": "Merkava 2D Sinai Gray",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#6f7566",
+          "blackK": 1,
+          "camoScale": 0.46,
+          "digitalCellK": 1,
+          "patchColors": [],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "solid",
+          "solidWeatheringIntensity": 0.68,
+          "weatherColor": "#7b8172"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "service_ua_m2a3_bradley",
-        "name": "UA Bradley Digital"
+        "name": "UA Bradley Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4c5142",
+          "blackK": 1,
+          "camoScale": 0.5,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#30352d",
+            "#625b46",
+            "#77705a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#666956"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_abramsx",
-        "name": "AbramsX Prototype"
+        "name": "AbramsX Prototype",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#373b30",
+          "blackK": 1,
+          "camoScale": 0.45,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#232720",
+            "#5b4d40"
+          ],
+          "patchK": 1.55,
+          "rainK": 1,
+          "scheme": "nato",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4b5144"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_m551_sheridan",
-        "name": "M551 Sheridan Field"
+        "name": "M551 Sheridan Field",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4a5138",
+          "blackK": 1,
+          "camoScale": 0.78,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#252b20",
+            "#66513a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "nato",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#62684d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_leo2a4_otco",
-        "name": "Leopard 2A4 OTCO"
+        "name": "Leopard 2A4 OTCO",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4b5140",
+          "blackK": 1,
+          "camoScale": 0.44,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2d3328",
+            "#665a42",
+            "#77725e"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#666a57"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_mbt70",
-        "name": "MBT-70 Flecktarn"
+        "name": "MBT-70 Flecktarn",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4b5142",
+          "blackK": 1,
+          "camoScale": 0.42,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2c332a",
+            "#6a5640",
+            "#1d211f"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "fleck",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5b604f"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_kf51b",
-        "name": "KF51B Panther"
+        "name": "KF51B Panther",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#56573e",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#303c30",
+            "#473729"
+          ],
+          "patchK": 1.28,
+          "rainK": 1,
+          "scheme": "nato",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#51533f"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_bmpt_t90",
-        "name": "BMPT T-90 Digital"
+        "name": "BMPT T-90 Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#414c39",
+          "blackK": 1,
+          "camoScale": 0.5,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2b3329",
+            "#615a43",
+            "#6f6852"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#565f48"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_t90",
-        "name": "T-90 obr. 1992 Field"
+        "name": "T-90 obr. 1992 Field",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#48563a",
+          "blackK": 1,
+          "camoScale": 0.55,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#242c25",
+            "#75664a",
+            "#394431"
+          ],
+          "patchK": 1.28,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5b644a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_t90sm",
-        "name": "T-90SM Export Digital"
+        "name": "T-90SM Export Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#46533b",
+          "blackK": 1,
+          "camoScale": 0.36,
+          "digitalCellK": 1.18,
+          "patchColors": [
+            "#252f27",
+            "#75694d",
+            "#8b7d5c"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5c654b"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_t90ms",
-        "name": "T-90MS Tagil Demonstrator"
+        "name": "T-90MS Tagil Demonstrator",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#8b805f",
+          "blackK": 1,
+          "camoScale": 0.46,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#514b39",
+            "#667054",
+            "#b0a078"
+          ],
+          "patchK": 1.18,
+          "rainK": 1,
+          "scheme": "desert",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#9b8d69"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_t90a_burlak",
-        "name": "T-90A Burlak Digital"
+        "name": "T-90A Burlak Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#435039",
+          "blackK": 1,
+          "camoScale": 0.4,
+          "digitalCellK": 1.25,
+          "patchColors": [
+            "#252d26",
+            "#75654a",
+            "#927f5b"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5a614a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_t90m",
-        "name": "T-90M Field Digital"
+        "name": "T-90M Field Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#3f5138",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1.1,
+          "patchColors": [
+            "#283529",
+            "#667156",
+            "#86795a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5d6549"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_t90m_proryv",
-        "name": "T-90M Proryv Digital"
+        "name": "T-90M Proryv Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#384c35",
+          "blackK": 1,
+          "camoScale": 0.3,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#202b24",
+            "#637050",
+            "#786c51"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#566247"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_t90a",
-        "name": "T-90A Service Digital"
+        "name": "T-90A Service Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#43553a",
+          "blackK": 1,
+          "camoScale": 0.46,
+          "digitalCellK": 1.4,
+          "patchColors": [
+            "#2c362a",
+            "#6a7053",
+            "#85775a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5b664b"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_t90a_vladimir",
-        "name": "T-90A Vladimir Digital"
+        "name": "T-90A Vladimir Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#3d4f36",
+          "blackK": 1,
+          "camoScale": 0.38,
+          "digitalCellK": 1.2,
+          "patchColors": [
+            "#273128",
+            "#616c50",
+            "#776c52"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#596348"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_challenger2e",
-        "name": "Challenger 2E"
+        "name": "Challenger 2E",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4b513d",
+          "blackK": 1,
+          "camoScale": 0.48,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#22251f",
+            "#615642"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5c6049"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_challenger_3x",
-        "name": "Challenger 3 X"
+        "name": "Challenger 3 X",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#384436",
+          "blackK": 1,
+          "camoScale": 0.4,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#171d1a",
+            "#69705a",
+            "#2a322b"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#59624c"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_amx56",
-        "name": "AMX 56"
+        "name": "AMX 56",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#35483a",
+          "blackK": 1,
+          "camoScale": 0.45,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#1e2521",
+            "#5f4b37"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "nato",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#405544"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_leclerc",
-        "name": "Leclerc S2"
+        "name": "Leclerc S2",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#394936",
+          "blackK": 1,
+          "camoScale": 0.38,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#614d39",
+            "#20231f"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "nato",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4b5940"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_ariete_c2",
-        "name": "Ariete C2"
+        "name": "Ariete C2",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#3f4d3b",
+          "blackK": 1,
+          "camoScale": 0.5,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2e3b2d",
+            "#5b5140"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4b5945"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_type10b",
-        "name": "Type 10B"
+        "name": "Type 10B",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#3a4937",
+          "blackK": 1,
+          "camoScale": 0.4,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#243026",
+            "#65583b",
+            "#7a7054"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#59604b"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_type90",
-        "name": "Type 90 Kyū-maru"
+        "name": "Type 90 Kyū-maru",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#46503d",
+          "blackK": 1,
+          "camoScale": 0.48,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#70563e",
+            "#303a30"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#555d49"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_type90a",
-        "name": "Type 90A"
+        "name": "Type 90A",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#3f4c39",
+          "blackK": 1,
+          "camoScale": 0.44,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#253127",
+            "#6b5d3c",
+            "#807458"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5c624d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_type59",
-        "name": "Type 59"
+        "name": "Type 59",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#374836",
+          "blackK": 1,
+          "camoScale": 0.52,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2a3629",
+            "#5c6349",
+            "#6f684e"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "nato",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#49573f"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_ztz85_iii",
-        "name": "ZTZ-85-III"
+        "name": "ZTZ-85-III",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#35483a",
+          "blackK": 1,
+          "camoScale": 0.5,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#263229",
+            "#59634c",
+            "#736a4d"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4a5947"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_type99a",
-        "name": "Type 99A Tight Digital"
+        "name": "Type 99A Tight Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4d573f",
+          "blackK": 1,
+          "camoScale": 0.34,
+          "digitalCellK": 1.2,
+          "patchColors": [
+            "#6f684c",
+            "#39412f",
+            "#23261e"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#57614a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_ztz99a2",
-        "name": "ZTZ-99A2"
+        "name": "ZTZ-99A2",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#36463a",
+          "blackK": 1,
+          "camoScale": 0.43,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#232f28",
+            "#5e654d",
+            "#766b52"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4c5a49"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_pt91m",
-        "name": "PT-91M Pendekar"
+        "name": "PT-91M Pendekar",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#394b3c",
+          "blackK": 1,
+          "camoScale": 0.42,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#202820",
+            "#4a3b30",
+            "#70634a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#53604a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_t72m1_jaguar",
-        "name": "T-72M1 Jaguar"
+        "name": "T-72M1 Jaguar",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#39453a",
+          "blackK": 1,
+          "camoScale": 0.48,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#202820",
+            "#665b43",
+            "#77705a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "woodland",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#505b4a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_pt91_twardy",
-        "name": "PT-91A Twardy"
+        "name": "PT-91A Twardy",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#34453a",
+          "blackK": 1,
+          "camoScale": 0.46,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#222b24",
+            "#5b5843",
+            "#77664a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "stripes",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4b5747"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_pl01_105",
-        "name": "PL-01 105 Stealth"
+        "name": "PL-01 105 Stealth",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#3b4641",
+          "blackK": 1,
+          "camoScale": 0.3,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#252d2a",
+            "#56615a",
+            "#73746a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#525c55"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_bwp1",
-        "name": "BWP-1 Polish Digital"
+        "name": "BWP-1 Polish Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#3f4a3e",
+          "blackK": 1,
+          "camoScale": 0.5,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#28312b",
+            "#5d5948",
+            "#706750"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#535d4d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_upior",
-        "name": "Upiór Digital"
+        "name": "Upiór Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#3d4639",
+          "blackK": 1,
+          "camoScale": 0.42,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#262e26",
+            "#565243",
+            "#6a6252"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4b5344"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_k2",
-        "name": "K2 Black Panther"
+        "name": "K2 Black Panther",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4c5844",
+          "blackK": 1,
+          "camoScale": 0.5,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#23261f",
+            "#5a4a38"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "nato",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#56624d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_k1a1",
-        "name": "K1A1"
+        "name": "K1A1",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4a5743",
+          "blackK": 1,
+          "camoScale": 0.5,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#242720",
+            "#584936"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "nato",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#545f4c"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_k2b",
-        "name": "K2B Stealth Digital"
+        "name": "K2B Stealth Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#313b38",
+          "blackK": 1,
+          "camoScale": 0.36,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#202725",
+            "#4e5750",
+            "#67685e"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#47504a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_merkava1b",
-        "name": "Merkava 1B Desert Chip"
+        "name": "Merkava 1B Desert Chip",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#b39c72",
+          "blackK": 1,
+          "camoScale": 0.56,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#8a6f4e",
+            "#c7b68c",
+            "#c3c7c6",
+            "#33342f"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "chip6",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#c1ab80"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_merkava2b",
-        "name": "Merkava 2B Desert Field"
+        "name": "Merkava 2B Desert Field",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#b09466",
+          "blackK": 1,
+          "camoScale": 0.52,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#7a5f43",
+            "#947c52",
+            "#cbb489"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "desert",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#c4ad7d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_merkava3c",
-        "name": "Merkava 3C Desert Digital"
+        "name": "Merkava 3C Desert Digital",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#a8905f",
+          "blackK": 1,
+          "camoScale": 0.42,
+          "digitalCellK": 1.5,
+          "patchColors": [
+            "#c6b487",
+            "#7a6041",
+            "#57503f"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#b59d6d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_merkava3d",
-        "name": "Merkava 3D Sinai Caunter"
+        "name": "Merkava 3D Sinai Caunter",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#b49a7d",
+          "blackK": 1,
+          "camoScale": 0.46,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#68757d",
+            "#5c5442"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "caunter",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#c2a98a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_merkava4b",
-        "name": "Merkava 4B Sinai Hex"
+        "name": "Merkava 4B Sinai Hex",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#827f6a",
+          "blackK": 1,
+          "camoScale": 0.38,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#5f6254",
+            "#aaa287"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "hexfield",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#918d77"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_t84",
-        "name": "T-84 Oplot"
+        "name": "T-84 Oplot",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#3a4832",
+          "blackK": 1,
+          "camoScale": 0.5,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#272d22",
+            "#71684a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "nato",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#44523c"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_ua_challenger2",
-        "name": "UA Challenger 2"
+        "name": "UA Challenger 2",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4a523d",
+          "blackK": 1,
+          "camoScale": 0.42,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2e352b",
+            "#77715a",
+            "#91866d"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#65684d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_ua_t64bv",
-        "name": "T-64BV Donbas"
+        "name": "T-64BV Donbas",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#46503d",
+          "blackK": 1,
+          "camoScale": 0.48,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#30382f",
+            "#655f49",
+            "#776c52"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5a604d"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_ua_t80bv",
-        "name": "UA T-80BV"
+        "name": "UA T-80BV",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#38483b",
+          "blackK": 1,
+          "camoScale": 0.56,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#263329",
+            "#5c5942",
+            "#71644b"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#4b5848"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_ua_t80u_kursk",
-        "name": "T-80U Kursk"
+        "name": "T-80U Kursk",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4b5039",
+          "blackK": 1,
+          "camoScale": 0.64,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#303329",
+            "#6b634a",
+            "#80745a"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#5c5b45"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_ua_t84_oplot_m",
-        "name": "T-84BM Oplot-M"
+        "name": "T-84BM Oplot-M",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#42483a",
+          "blackK": 1,
+          "camoScale": 0.42,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2d3029",
+            "#77705b",
+            "#8a8068"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#56594a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_ua_m1a1",
-        "name": "M1A1 Abrams UA"
+        "name": "M1A1 Abrams UA",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#55594b",
+          "blackK": 1,
+          "camoScale": 0.55,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#393c34",
+            "#77705b",
+            "#82755c"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#69695a"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       },
       {
         "id": "sig_leo2a6_ua",
-        "name": "Leopard 2A6 UA"
+        "name": "Leopard 2A6 UA",
+        "nationVariants": [],
+        "recipe": {
+          "bandAngle": 0,
+          "baseColor": "#4d5343",
+          "blackK": 1,
+          "camoScale": 0.46,
+          "digitalCellK": 1,
+          "patchColors": [
+            "#2d382f",
+            "#6c654d",
+            "#4b5141"
+          ],
+          "patchK": 1,
+          "rainK": 1,
+          "scheme": "digital",
+          "solidWeatheringIntensity": 1,
+          "weatherColor": "#686858"
+        },
+        "usesAuthoredBasePatch": false,
+        "usesVehicleScale": false
       }
     ],
     "equipment": [
@@ -77762,7 +80050,7 @@
       }
     }
   ],
-  "schemaVersion": 5,
+  "schemaVersion": 6,
   "vehicles": [
     {
       "armor": {
@@ -78807,6 +81095,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.97,
         "hullLengthM": 6.27,
@@ -78815,6 +81104,7 @@
       },
       "enginePowerHp": 450,
       "era": "ww2",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 2,
         "baseAccuracy": 0.36,
@@ -78880,6 +81170,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1,
         "medium": 1.2,
@@ -81041,6 +83332,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3,
         "hullLengthM": 6.32,
@@ -81049,6 +83341,7 @@
       },
       "enginePowerHp": 700,
       "era": "ww2",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.34,
@@ -81114,6 +83407,7 @@
         "reason": "production-curation",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.1,
         "medium": 1.3,
@@ -82210,6 +84504,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.72,
         "hullLengthM": 6.1,
@@ -82218,6 +84513,7 @@
       },
       "enginePowerHp": 500,
       "era": "ww2",
+      "factoryCamouflageId": "service_soviet_ww2",
       "gun": {
         "aimTimeS": 2.3,
         "baseAccuracy": 0.42,
@@ -82283,6 +84579,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.9,
         "medium": 1.1,
@@ -83373,6 +85670,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.73,
         "hullLengthM": 6.77,
@@ -83381,6 +85679,7 @@
       },
       "enginePowerHp": 520,
       "era": "ww2",
+      "factoryCamouflageId": "service_soviet_ww2",
       "gun": {
         "aimTimeS": 3.2,
         "baseAccuracy": 0.46,
@@ -83446,6 +85745,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.2,
         "medium": 1.4,
@@ -85527,6 +87827,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.99,
         "hullLengthM": 6.87,
@@ -85535,6 +87836,7 @@
       },
       "enginePowerHp": 700,
       "era": "ww2",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 2.1,
         "baseAccuracy": 0.32,
@@ -85600,6 +87902,7 @@
         "reason": "production-curation",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1,
         "medium": 1.2,
@@ -88067,6 +90370,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.44,
         "hullLengthM": 7.93,
@@ -88075,6 +90379,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -88141,6 +90446,7 @@
         "reason": "production-curation",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -90150,6 +92456,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.4,
         "hullLengthM": 6.63,
@@ -90161,6 +92468,7 @@
       },
       "enginePowerHp": 830,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -90227,6 +92535,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -95103,6 +97412,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.17,
         "hullLengthM": 6.54,
@@ -95114,6 +97424,7 @@
       },
       "enginePowerHp": 840,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.38,
@@ -95180,6 +97491,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -96433,6 +98745,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.23,
         "hullLengthM": 6.67,
@@ -96441,6 +98754,7 @@
       },
       "enginePowerHp": 840,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.38,
@@ -96507,6 +98821,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -104347,6 +106662,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.23,
         "hullLengthM": 6.67,
@@ -104355,6 +106671,7 @@
       },
       "enginePowerHp": 1130,
       "era": "modern",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.38,
@@ -104421,6 +106738,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -111140,6 +113458,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.23,
         "hullLengthM": 6.86,
@@ -111148,6 +113467,7 @@
       },
       "enginePowerHp": 1000,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 2.1,
         "baseAccuracy": 0.34,
@@ -111214,6 +113534,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -115604,6 +117925,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_pt91m",
       "dims": {
         "heightM": 2.19,
         "hullLengthM": 6.86,
@@ -115612,6 +117934,7 @@
       },
       "enginePowerHp": 840,
       "era": "modern",
+      "factoryCamouflageId": "service_pl01",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.38,
@@ -115678,6 +118001,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_pt91m",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -117886,6 +120210,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.2,
         "hullLengthM": 6.78,
@@ -117894,6 +120219,7 @@
       },
       "enginePowerHp": 1000,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 2.2,
         "baseAccuracy": 0.36,
@@ -117960,6 +120286,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -120170,6 +122497,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.2,
         "hullLengthM": 6.78,
@@ -120178,6 +122506,7 @@
       },
       "enginePowerHp": 1100,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 2.2,
         "baseAccuracy": 0.36,
@@ -120244,6 +122573,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -125937,6 +128267,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.2,
         "hullLengthM": 6.78,
@@ -125945,6 +128276,7 @@
       },
       "enginePowerHp": 1100,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 2.2,
         "baseAccuracy": 0.36,
@@ -126011,6 +128343,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -131394,6 +133727,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.38,
         "hullLengthM": 7.01,
@@ -131402,6 +133736,7 @@
       },
       "enginePowerHp": 1250,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 2.2,
         "baseAccuracy": 0.36,
@@ -131468,6 +133803,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -134255,6 +136591,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_t84",
       "dims": {
         "heightM": 2.22,
         "hullLengthM": 7.08,
@@ -134263,6 +136600,7 @@
       },
       "enginePowerHp": 1200,
       "era": "modern",
+      "factoryCamouflageId": "service_ua_m2a3_bradley",
       "gun": {
         "aimTimeS": 2.2,
         "baseAccuracy": 0.36,
@@ -134329,6 +136667,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_t84",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -140947,6 +143286,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_t90",
       "dims": {
         "heightM": 2.23,
         "hullLengthM": 6.86,
@@ -140955,6 +143295,7 @@
       },
       "enginePowerHp": 840,
       "era": "modern",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 2.1,
         "baseAccuracy": 0.34,
@@ -141021,6 +143362,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_t90",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -146891,6 +149233,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_t90a",
       "dims": {
         "heightM": 2.23,
         "hullLengthM": 6.86,
@@ -146899,6 +149242,7 @@
       },
       "enginePowerHp": 1000,
       "era": "modern",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 2.1,
         "baseAccuracy": 0.34,
@@ -146965,6 +149309,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_t90a",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -152846,6 +155191,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_t90a_vladimir",
       "dims": {
         "heightM": 2.23,
         "hullLengthM": 6.86,
@@ -152854,6 +155200,7 @@
       },
       "enginePowerHp": 1000,
       "era": "modern",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 2.1,
         "baseAccuracy": 0.34,
@@ -152920,6 +155267,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_t90a_vladimir",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -158386,6 +160734,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_t90a_burlak",
       "dims": {
         "heightM": 2.3,
         "hullLengthM": 6.86,
@@ -158394,6 +160743,7 @@
       },
       "enginePowerHp": 1000,
       "era": "modern",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 2.1,
         "baseAccuracy": 0.34,
@@ -158460,6 +160810,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_t90a_burlak",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -161746,6 +164097,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_t90sm",
       "dims": {
         "heightM": 2.23,
         "hullLengthM": 6.86,
@@ -161754,6 +164106,7 @@
       },
       "enginePowerHp": 1130,
       "era": "modern",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.31,
@@ -161820,6 +164173,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_t90sm",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -171445,6 +173799,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_t90m",
       "dims": {
         "heightM": 2.39,
         "hullLengthM": 6.86,
@@ -171453,6 +173808,7 @@
       },
       "enginePowerHp": 1130,
       "era": "modern",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.31,
@@ -171519,6 +173875,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_t90m",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -177298,6 +179655,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_t90ms",
       "dims": {
         "heightM": 2.23,
         "hullLengthM": 6.86,
@@ -177306,6 +179664,7 @@
       },
       "enginePowerHp": 1130,
       "era": "modern",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 2.1,
         "baseAccuracy": 0.34,
@@ -177372,6 +179731,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_t90ms",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -187664,6 +190024,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_t90m_proryv",
       "dims": {
         "heightM": 2.39,
         "hullLengthM": 6.86,
@@ -187672,6 +190033,7 @@
       },
       "enginePowerHp": 1130,
       "era": "modern",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.31,
@@ -187738,6 +190100,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_t90m_proryv",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -188973,6 +191336,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.64,
         "hullLengthM": 7.72,
@@ -188981,6 +191345,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.28,
@@ -189047,6 +191412,7 @@
         "reason": "saved-development-model",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -191584,6 +193950,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.44,
         "hullLengthM": 7.92,
@@ -191592,6 +193959,7 @@
       },
       "enginePowerHp": 1500,
       "era": "cold-war",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.32,
@@ -191658,6 +194026,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -194310,6 +196679,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.8,
         "hullLengthM": 7.92,
@@ -194318,6 +196688,7 @@
       },
       "enginePowerHp": 1500,
       "era": "cold-war",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.32,
@@ -194384,6 +196755,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -197006,6 +199378,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.3,
         "hullLengthM": 7.93,
@@ -197014,6 +199387,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -197080,6 +199454,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -202722,6 +205097,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.29,
         "hullLengthM": 7.93,
@@ -202730,6 +205106,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -202796,6 +205173,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -208240,6 +210618,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.44,
         "hullLengthM": 7.93,
@@ -208248,6 +210627,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -208314,6 +210694,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -214488,6 +216869,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.18,
         "hullLengthM": 7.93,
@@ -214496,6 +216878,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -214562,6 +216945,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -218491,6 +220875,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.46,
         "hullLengthM": 8.08,
@@ -218499,6 +220884,7 @@
       },
       "enginePowerHp": 1800,
       "era": "next-generation",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.25,
         "autoloader": {
@@ -218577,6 +220963,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.62,
         "medium": 0.72,
@@ -220775,6 +223162,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_abramsx",
       "dims": {
         "heightM": 3.47,
         "hullLengthM": 7.93,
@@ -220783,6 +223171,7 @@
       },
       "enginePowerHp": 1500,
       "era": "next-generation",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.5,
         "autoloader": {
@@ -220854,6 +223243,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_abramsx",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -223282,6 +225672,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.01,
         "hullLengthM": 7.82,
@@ -223290,6 +225681,7 @@
       },
       "enginePowerHp": 650,
       "era": "cold-war",
+      "factoryCamouflageId": "service_strv122",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.32,
@@ -223356,6 +225748,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.85,
         "medium": 1,
@@ -224704,6 +227097,7 @@
         "turretPlates": [],
         "turretless": true
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 1.9,
         "hullLengthM": 5.91,
@@ -224712,6 +227106,7 @@
       },
       "enginePowerHp": 340,
       "era": "cold-war",
+      "factoryCamouflageId": "service_strv122",
       "gun": {
         "aimTimeS": 1.4,
         "baseAccuracy": 0.23,
@@ -224785,6 +227180,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.66,
         "medium": 0.82,
@@ -226240,6 +228636,7 @@
         "turretPlates": [],
         "turretless": true
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.14,
         "hullLengthM": 7.04,
@@ -226248,6 +228645,7 @@
       },
       "enginePowerHp": 650,
       "era": "cold-war",
+      "factoryCamouflageId": "service_strv122",
       "gun": {
         "aimTimeS": 1.25,
         "baseAccuracy": 0.21,
@@ -226321,6 +228719,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.62,
         "medium": 0.78,
@@ -227759,6 +230158,7 @@
         "turretPlates": [],
         "turretless": true
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.14,
         "hullLengthM": 7.04,
@@ -227767,6 +230167,7 @@
       },
       "enginePowerHp": 900,
       "era": "cold-war",
+      "factoryCamouflageId": "service_strv122",
       "gun": {
         "aimTimeS": 1.05,
         "baseAccuracy": 0.18,
@@ -227840,6 +230241,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.55,
         "medium": 0.7,
@@ -229836,6 +232238,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.06,
         "hullLengthM": 5.904,
@@ -229844,6 +232247,7 @@
       },
       "enginePowerHp": 670,
       "era": "modern",
+      "factoryCamouflageId": "service_strv122",
       "gun": {
         "aimTimeS": 1.08,
         "baseAccuracy": 0.25,
@@ -229919,6 +232323,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.66,
         "medium": 0.76,
@@ -232544,6 +234949,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.02,
         "hullLengthM": 7.72,
@@ -232552,6 +234958,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_strv122",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.27,
@@ -232618,6 +235025,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -234790,6 +237198,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.528,
         "hullLengthM": 6.282,
@@ -234798,6 +237207,7 @@
       },
       "enginePowerHp": 1000,
       "era": "next-generation",
+      "factoryCamouflageId": "service_strv122",
       "gun": {
         "aimTimeS": 0.92,
         "baseAccuracy": 0.225,
@@ -234874,6 +237284,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.62,
         "medium": 0.71,
@@ -235883,6 +238294,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.45,
         "hullLengthM": 6.77,
@@ -235891,6 +238303,7 @@
       },
       "enginePowerHp": 520,
       "era": "ww2",
+      "factoryCamouflageId": "service_soviet_ww2",
       "gun": {
         "aimTimeS": 3.1,
         "baseAccuracy": 0.44,
@@ -235956,6 +238369,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.15,
         "medium": 1.35,
@@ -236960,6 +239374,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.72,
         "hullLengthM": 6.1,
@@ -236968,6 +239383,7 @@
       },
       "enginePowerHp": 500,
       "era": "ww2",
+      "factoryCamouflageId": "service_soviet_ww2",
       "gun": {
         "aimTimeS": 2.3,
         "baseAccuracy": 0.42,
@@ -237033,6 +239449,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.9,
         "medium": 1.1,
@@ -238041,6 +240458,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3,
         "hullLengthM": 6.32,
@@ -238049,6 +240467,7 @@
       },
       "enginePowerHp": 700,
       "era": "ww2",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.34,
@@ -238114,6 +240533,7 @@
         "reason": "production-curation",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.1,
         "medium": 1.3,
@@ -239122,6 +241542,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.5,
         "hullLengthM": 5.56,
@@ -239130,6 +241551,7 @@
       },
       "enginePowerHp": 300,
       "era": "ww2",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.38,
@@ -239195,6 +241617,7 @@
         "reason": "production-curation",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.95,
         "medium": 1.15,
@@ -240199,6 +242622,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.5,
         "hullLengthM": 5.52,
@@ -240207,6 +242631,7 @@
       },
       "enginePowerHp": 285,
       "era": "ww2",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.4,
@@ -240272,6 +242697,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.95,
         "medium": 1.15,
@@ -241276,6 +243702,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.4,
         "hullLengthM": 4.4,
@@ -241284,6 +243711,7 @@
       },
       "enginePowerHp": 100,
       "era": "interwar",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.42,
@@ -241349,6 +243777,7 @@
         "reason": "saved-development-model",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.9,
         "medium": 1.1,
@@ -242353,6 +244782,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.5,
         "hullLengthM": 6.2,
@@ -242361,6 +244791,7 @@
       },
       "enginePowerHp": 600,
       "era": "modern",
+      "factoryCamouflageId": null,
       "gun": {
         "aimTimeS": 1.5,
         "baseAccuracy": 0.34,
@@ -242427,6 +244858,7 @@
         "reason": "reference-placeholder",
         "tag": "REF"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.65,
         "medium": 0.85,
@@ -243435,6 +245867,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3,
         "hullLengthM": 7.2,
@@ -243443,6 +245876,7 @@
       },
       "enginePowerHp": 650,
       "era": "ww2",
+      "factoryCamouflageId": null,
       "gun": {
         "aimTimeS": 2.8,
         "baseAccuracy": 0.4,
@@ -243508,6 +245942,7 @@
         "reason": "reference-placeholder",
         "tag": "REF"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.1,
         "medium": 1.3,
@@ -245389,6 +247824,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.25,
         "hullLengthM": 6.95,
@@ -245397,6 +247833,7 @@
       },
       "enginePowerHp": 600,
       "era": "ww2",
+      "factoryCamouflageId": "service_soviet_ww2",
       "gun": {
         "aimTimeS": 4,
         "baseAccuracy": 0.6,
@@ -245462,6 +247899,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.25,
         "medium": 1.45,
@@ -246466,6 +248904,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.09,
         "hullLengthM": 7.38,
@@ -246474,6 +248913,7 @@
       },
       "enginePowerHp": 700,
       "era": "ww2",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 2.2,
         "baseAccuracy": 0.3,
@@ -246539,6 +248979,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.15,
         "medium": 1.35,
@@ -247547,6 +249988,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.95,
         "hullLengthM": 6.27,
@@ -247555,6 +249997,7 @@
       },
       "enginePowerHp": 450,
       "era": "ww2",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 2.1,
         "baseAccuracy": 0.4,
@@ -247620,6 +250063,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.05,
         "medium": 1.25,
@@ -248624,6 +251068,7 @@
         ],
         "turretless": true
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.95,
         "hullLengthM": 7.8,
@@ -248632,6 +251077,7 @@
       },
       "enginePowerHp": 700,
       "era": "ww2",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 2.6,
         "baseAccuracy": 0.35,
@@ -248698,6 +251144,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.2,
         "medium": 1.4,
@@ -250298,6 +252745,7 @@
         ],
         "turretless": true
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.48,
         "hullLengthM": 8.7,
@@ -250306,6 +252754,7 @@
       },
       "enginePowerHp": 1500,
       "era": "ww2",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 2.8,
         "baseAccuracy": 0.36,
@@ -250372,6 +252821,7 @@
         "reason": "production-curation",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.05,
         "medium": 1.25,
@@ -251900,6 +254350,7 @@
         ],
         "turretless": true
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.2,
         "hullLengthM": 6.28,
@@ -251908,6 +254359,7 @@
       },
       "enginePowerHp": 700,
       "era": "ww2",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 3.6,
         "baseAccuracy": 0.55,
@@ -251963,6 +254415,7 @@
         "reason": "production-curation",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.15,
         "medium": 1.35,
@@ -253612,6 +256065,7 @@
         ],
         "turretless": true
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.9,
         "hullLengthM": 7.6,
@@ -253620,6 +256074,7 @@
       },
       "enginePowerHp": 500,
       "era": "ww2",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 2.8,
         "baseAccuracy": 0.36,
@@ -253686,6 +256141,7 @@
         "reason": "production-curation",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.35,
         "medium": 1.55,
@@ -254690,6 +257146,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.25,
         "hullLengthM": 7.6,
@@ -254698,6 +257155,7 @@
       },
       "enginePowerHp": 704,
       "era": "ww2",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 3,
         "baseAccuracy": 0.42,
@@ -254763,6 +257221,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.15,
         "medium": 1.35,
@@ -255767,6 +258226,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.6,
         "hullLengthM": 7.38,
@@ -255775,6 +258235,7 @@
       },
       "enginePowerHp": 1050,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 2.6,
         "baseAccuracy": 0.36,
@@ -255840,6 +258301,7 @@
         "reason": "saved-development-model",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.1,
         "medium": 1.3,
@@ -256844,6 +259306,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.6,
         "hullLengthM": 6.99,
@@ -256852,6 +259315,7 @@
       },
       "enginePowerHp": 950,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 2.5,
         "baseAccuracy": 0.35,
@@ -256917,6 +259381,7 @@
         "reason": "saved-development-model",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.2,
         "medium": 1.3,
@@ -257921,6 +260386,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.5,
         "hullLengthM": 6.9,
@@ -257929,6 +260395,7 @@
       },
       "enginePowerHp": 700,
       "era": "ww2",
+      "factoryCamouflageId": "service_soviet_ww2",
       "gun": {
         "aimTimeS": 3,
         "baseAccuracy": 0.43,
@@ -257994,6 +260461,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.15,
         "medium": 1.35,
@@ -258998,6 +261466,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.73,
         "hullLengthM": 6.77,
@@ -259006,6 +261475,7 @@
       },
       "enginePowerHp": 520,
       "era": "ww2",
+      "factoryCamouflageId": "service_soviet_ww2",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.4,
@@ -259071,6 +261541,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.1,
         "medium": 1.3,
@@ -260854,6 +263325,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.9,
         "hullLengthM": 7.52,
@@ -260862,6 +263334,7 @@
       },
       "enginePowerHp": 750,
       "era": "cold-war",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.32,
@@ -260928,6 +263401,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.85,
         "medium": 1,
@@ -262719,6 +265193,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.9,
         "hullLengthM": 7.52,
@@ -262727,6 +265202,7 @@
       },
       "enginePowerHp": 750,
       "era": "cold-war",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.32,
@@ -262793,6 +265269,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.85,
         "medium": 1,
@@ -264911,6 +267388,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.95,
         "hullLengthM": 8.32,
@@ -264919,6 +267397,7 @@
       },
       "enginePowerHp": 1200,
       "era": "cold-war",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.26,
@@ -264985,6 +267464,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -267843,6 +270323,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.5,
         "hullLengthM": 8.33,
@@ -267851,6 +270332,7 @@
       },
       "enginePowerHp": 1200,
       "era": "cold-war",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.29,
@@ -267917,6 +270399,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.72,
         "medium": 0.84,
@@ -270497,6 +272980,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.54,
         "hullLengthM": 8.33,
@@ -270505,6 +272989,7 @@
       },
       "enginePowerHp": 1200,
       "era": "modern",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.26,
@@ -270571,6 +273056,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -276188,6 +278674,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_challenger2e",
       "dims": {
         "heightM": 2.78,
         "hullLengthM": 8.33,
@@ -276196,6 +278683,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.25,
@@ -276262,6 +278750,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_challenger2e",
       "terrainResistance": {
         "hard": 0.68,
         "medium": 0.78,
@@ -281880,6 +284369,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_ua_challenger2",
       "dims": {
         "heightM": 2.95,
         "hullLengthM": 8.33,
@@ -281888,6 +284378,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_ua_m2a3_bradley",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.25,
@@ -281954,6 +284445,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_ua_challenger2",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.82,
@@ -284277,6 +286769,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.25,
         "hullLengthM": 9.16,
@@ -284285,6 +286778,7 @@
       },
       "enginePowerHp": 1500,
       "era": "next-generation",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.25,
@@ -284351,6 +286845,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -292468,6 +294963,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_challenger_3x",
       "dims": {
         "heightM": 3.58,
         "hullLengthM": 9.16,
@@ -292476,6 +294972,7 @@
       },
       "enginePowerHp": 1800,
       "era": "next-generation",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 1.55,
         "baseAccuracy": 0.23,
@@ -292542,6 +295039,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_challenger_3x",
       "terrainResistance": {
         "hard": 0.72,
         "medium": 0.84,
@@ -294949,6 +297447,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_k2",
       "dims": {
         "heightM": 2.4,
         "hullLengthM": 7.5,
@@ -294957,6 +297456,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_bmp3_rok",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.29,
@@ -295023,6 +297523,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_k2",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -296960,6 +299461,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_k1a1",
       "dims": {
         "heightM": 2.58,
         "hullLengthM": 7.48,
@@ -296968,6 +299470,7 @@
       },
       "enginePowerHp": 1200,
       "era": "modern",
+      "factoryCamouflageId": "service_bmp3_rok",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.3,
@@ -297034,6 +299537,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_k1a1",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -299331,6 +301835,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.25,
         "hullLengthM": 6.7,
@@ -299339,6 +301844,7 @@
       },
       "enginePowerHp": 750,
       "era": "cold-war",
+      "factoryCamouflageId": "service_type10",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.29,
@@ -299412,6 +301918,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -301508,6 +304015,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.7,
         "hullLengthM": 6.7,
@@ -301516,6 +304024,7 @@
       },
       "enginePowerHp": 720,
       "era": "cold-war",
+      "factoryCamouflageId": "service_type10",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.29,
@@ -301589,6 +304098,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -303571,6 +306081,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_type90",
       "dims": {
         "heightM": 2.55,
         "hullLengthM": 7.45,
@@ -303579,6 +306090,7 @@
       },
       "enginePowerHp": 1500,
       "era": "cold-war",
+      "factoryCamouflageId": "service_type10",
       "gun": {
         "aimTimeS": 1.8,
         "autoloader": {
@@ -303650,6 +306162,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_type90",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -305827,6 +308340,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_type90a",
       "dims": {
         "heightM": 2.34,
         "hullLengthM": 7.55,
@@ -305835,6 +308349,7 @@
       },
       "enginePowerHp": 1500,
       "era": "cold-war",
+      "factoryCamouflageId": "service_type10",
       "gun": {
         "aimTimeS": 1.65,
         "autoloader": {
@@ -305906,6 +308421,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_type90a",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -307948,6 +310464,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.948,
         "hullLengthM": 7.524,
@@ -307956,6 +310473,7 @@
       },
       "enginePowerHp": 1200,
       "era": "modern",
+      "factoryCamouflageId": "service_type10",
       "gun": {
         "aimTimeS": 1.5,
         "baseAccuracy": 0.27,
@@ -308022,6 +310540,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -311582,6 +314101,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_type10b",
       "dims": {
         "heightM": 2.838,
         "hullLengthM": 7.513,
@@ -311590,6 +314110,7 @@
       },
       "enginePowerHp": 1200,
       "era": "next-generation",
+      "factoryCamouflageId": "service_type10",
       "gun": {
         "aimTimeS": 1.35,
         "baseAccuracy": 0.25,
@@ -311656,6 +314177,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_type10b",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -313631,6 +316153,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "summer",
       "dims": {
         "heightM": 2.98,
         "hullLengthM": 6.55,
@@ -313643,6 +316166,7 @@
       },
       "enginePowerHp": 600,
       "era": "cold-war",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.4,
         "baseAccuracy": 0.3,
@@ -313718,6 +316242,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.75,
         "medium": 0.85,
@@ -315630,6 +318155,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.45,
         "hullLengthM": 6.72,
@@ -315638,6 +318164,7 @@
       },
       "enginePowerHp": 300,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 1.4,
         "baseAccuracy": 0.32,
@@ -315713,6 +318240,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.75,
         "medium": 0.9,
@@ -317674,6 +320202,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.6,
         "hullLengthM": 7.6,
@@ -317682,6 +320211,7 @@
       },
       "enginePowerHp": 1088,
       "era": "modern",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.3,
         "baseAccuracy": 0.28,
@@ -317757,6 +320287,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -319888,6 +322419,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.24,
         "hullLengthM": 6.84,
@@ -319896,6 +322428,7 @@
       },
       "enginePowerHp": 1088,
       "era": "modern",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.05,
         "baseAccuracy": 0.245,
@@ -319972,6 +322505,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.64,
         "medium": 0.73,
@@ -322027,6 +324561,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.06,
         "hullLengthM": 6.12,
@@ -322035,6 +324570,7 @@
       },
       "enginePowerHp": 1000,
       "era": "next-generation",
+      "factoryCamouflageId": "service_type10",
       "gun": {
         "aimTimeS": 0.98,
         "baseAccuracy": 0.235,
@@ -322111,6 +324647,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.62,
         "medium": 0.72,
@@ -324001,6 +326538,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.5,
         "hullLengthM": 6.8,
@@ -324009,6 +326547,7 @@
       },
       "enginePowerHp": 600,
       "era": "cold-war",
+      "factoryCamouflageId": "service_type10",
       "gun": {
         "aimTimeS": 1.4,
         "baseAccuracy": 0.3,
@@ -324084,6 +326623,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.75,
         "medium": 0.85,
@@ -326007,6 +328547,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.95,
         "hullLengthM": 6.98,
@@ -326016,6 +328557,7 @@
       },
       "enginePowerHp": 850,
       "era": "cold-war",
+      "factoryCamouflageId": "service_ariete_c1",
       "gun": {
         "aimTimeS": 2,
         "autoloader": {
@@ -326087,6 +328629,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.76,
         "medium": 0.88,
@@ -328124,6 +330667,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.5,
         "hullLengthM": 7.59,
@@ -328132,6 +330676,7 @@
       },
       "enginePowerHp": 1250,
       "era": "modern",
+      "factoryCamouflageId": "service_ariete_c1",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.29,
@@ -328198,6 +330743,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -330372,6 +332918,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.805,
         "hullLengthM": 8.349,
@@ -330380,6 +332927,7 @@
       },
       "enginePowerHp": 1270,
       "era": "modern",
+      "factoryCamouflageId": "service_ariete_c1",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.28,
@@ -330446,6 +332994,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.68,
         "medium": 0.79,
@@ -335787,6 +338336,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_ariete_c2",
       "dims": {
         "heightM": 2.827,
         "hullLengthM": 8.349,
@@ -335795,6 +338345,7 @@
       },
       "enginePowerHp": 1500,
       "era": "next-generation",
+      "factoryCamouflageId": "service_ariete_c1",
       "gun": {
         "aimTimeS": 1.45,
         "baseAccuracy": 0.26,
@@ -335861,6 +338412,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_ariete_c2",
       "terrainResistance": {
         "hard": 0.65,
         "medium": 0.76,
@@ -337900,6 +340452,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.62,
         "hullLengthM": 6.8,
@@ -337908,6 +340461,7 @@
       },
       "enginePowerHp": 1100,
       "era": "cold-war",
+      "factoryCamouflageId": "service_leclerc_xlr",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.3,
@@ -337974,6 +340528,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -340890,6 +343445,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.62,
         "hullLengthM": 7.09,
@@ -340898,6 +343454,7 @@
       },
       "enginePowerHp": 830,
       "era": "cold-war",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -340964,6 +343521,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -343336,6 +345894,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.48,
         "hullLengthM": 7.72,
@@ -343344,6 +345903,7 @@
       },
       "enginePowerHp": 1500,
       "era": "cold-war",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.3,
@@ -343410,6 +345970,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -345455,6 +348016,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.76,
         "hullLengthM": 7.72,
@@ -345463,6 +348025,7 @@
       },
       "enginePowerHp": 1500,
       "era": "cold-war",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.3,
@@ -345529,6 +348092,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -347673,6 +350237,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_leo2a4_otco",
       "dims": {
         "heightM": 2.9,
         "hullLengthM": 7.72,
@@ -347681,6 +350246,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.3,
@@ -347747,6 +350313,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_leo2a4_otco",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -349839,6 +352406,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.62,
         "hullLengthM": 7.72,
@@ -349847,6 +352415,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.3,
@@ -349913,6 +352482,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -352345,6 +354915,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.64,
         "hullLengthM": 7.72,
@@ -352353,6 +354924,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.27,
@@ -352419,6 +354991,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -356711,6 +359284,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.12,
         "hullLengthM": 7.72,
@@ -356719,6 +359293,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.27,
@@ -356785,6 +359360,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -358988,6 +361564,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.64,
         "hullLengthM": 7.72,
@@ -358996,6 +361573,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.27,
@@ -359062,6 +361640,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -367462,6 +370041,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.03,
         "hullLengthM": 7.72,
@@ -367470,6 +370050,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.27,
@@ -367536,6 +370117,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -370304,6 +372886,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.64,
         "hullLengthM": 7.72,
@@ -370312,6 +372895,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.28,
@@ -370378,6 +372962,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -375530,6 +378115,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.87,
         "hullLengthM": 7.72,
@@ -375539,6 +378125,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.28,
@@ -375605,6 +378192,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -377607,6 +380195,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_leclerc",
       "dims": {
         "heightM": 2.53,
         "hullLengthM": 6.88,
@@ -377615,6 +380204,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_leclerc_xlr",
       "gun": {
         "aimTimeS": 1.8,
         "autoloader": {
@@ -377686,6 +380276,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_leclerc",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -380311,6 +382902,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.78,
         "hullLengthM": 6.88,
@@ -380319,6 +382911,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_leclerc_xlr",
       "gun": {
         "aimTimeS": 1.8,
         "autoloader": {
@@ -380390,6 +382983,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -384528,6 +387122,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_amx56",
       "dims": {
         "heightM": 2.88,
         "hullLengthM": 6.88,
@@ -384536,6 +387131,7 @@
       },
       "enginePowerHp": 1550,
       "era": "modern",
+      "factoryCamouflageId": "service_leclerc_xlr",
       "gun": {
         "aimTimeS": 1.6,
         "autoloader": {
@@ -384607,6 +387203,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_amx56",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -386500,6 +389097,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_type59",
       "dims": {
         "heightM": 2.23,
         "hullLengthM": 5.67,
@@ -386511,6 +389109,7 @@
       },
       "enginePowerHp": 520,
       "era": "cold-war",
+      "factoryCamouflageId": "service_type99a",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -386577,6 +389176,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_type59",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -388494,6 +391094,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_ztz85_iii",
       "dims": {
         "heightM": 2.3,
         "hullLengthM": 6.4,
@@ -388505,6 +391106,7 @@
       },
       "enginePowerHp": 1000,
       "era": "cold-war",
+      "factoryCamouflageId": "service_type99a",
       "gun": {
         "aimTimeS": 2,
         "baseAccuracy": 0.33,
@@ -388571,6 +391173,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_ztz85_iii",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -393102,6 +395705,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_type99a",
       "dims": {
         "heightM": 3.16,
         "hullLengthM": 7.76,
@@ -393112,6 +395716,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_type99a",
       "gun": {
         "aimTimeS": 2.1,
         "baseAccuracy": 0.33,
@@ -393178,6 +395783,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_type99a",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -396729,6 +399335,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_ztz99a2",
       "dims": {
         "heightM": 2.45,
         "hullLengthM": 7.6,
@@ -396740,6 +399347,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_type99a",
       "gun": {
         "aimTimeS": 2.1,
         "baseAccuracy": 0.33,
@@ -396806,6 +399414,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_ztz99a2",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -400580,6 +403189,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.45,
         "hullLengthM": 7.6,
@@ -400591,6 +403201,7 @@
       },
       "enginePowerHp": 1300,
       "era": "modern",
+      "factoryCamouflageId": "service_type99a",
       "gun": {
         "aimTimeS": 1.85,
         "baseAccuracy": 0.29,
@@ -400657,6 +403268,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -403157,6 +405769,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_mbt70",
       "dims": {
         "heightM": 2.59,
         "hullLengthM": 7.42,
@@ -403166,6 +405779,7 @@
       },
       "enginePowerHp": 1475,
       "era": "cold-war",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.3,
@@ -403221,6 +405835,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_mbt70",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -408179,6 +410794,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.16,
         "hullLengthM": 8.7,
@@ -408187,6 +410803,7 @@
       },
       "enginePowerHp": 1500,
       "era": "next-generation",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 2,
         "baseAccuracy": 0.32,
@@ -408253,6 +410870,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -409505,6 +412123,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.23,
         "hullLengthM": 6.67,
@@ -409513,6 +412132,7 @@
       },
       "enginePowerHp": 840,
       "era": "modern",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.38,
@@ -409579,6 +412199,7 @@
         "reason": "saved-development-model",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -410727,6 +413348,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.66,
         "hullLengthM": 7.6,
@@ -410735,6 +413357,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_merkava2d",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.31,
@@ -410801,6 +413424,7 @@
         "reason": "saved-development-model",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -414150,6 +416774,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3,
         "hullLengthM": 7.7,
@@ -414158,6 +416783,7 @@
       },
       "enginePowerHp": 1475,
       "era": "next-generation",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.28,
@@ -414224,6 +416850,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -417769,6 +420396,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "sig_kf51b",
       "dims": {
         "heightM": 3,
         "hullLengthM": 7.7,
@@ -417777,6 +420405,7 @@
       },
       "enginePowerHp": 1475,
       "era": "next-generation",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.28,
@@ -417843,6 +420472,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_kf51b",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -419784,6 +422414,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.8,
         "hullLengthM": 6.34,
@@ -419796,6 +422427,7 @@
       },
       "enginePowerHp": 600,
       "era": "cold-war",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 1.4,
         "baseAccuracy": 0.3,
@@ -419857,6 +422489,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.75,
         "medium": 0.85,
@@ -421866,6 +424499,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.27,
         "hullLengthM": 6.946,
@@ -421874,6 +424508,7 @@
       },
       "enginePowerHp": 830,
       "era": "cold-war",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -421940,6 +424575,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -424745,6 +427381,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_merkava1b",
       "dims": {
         "heightM": 2.65,
         "hullLengthM": 7.45,
@@ -424753,6 +427390,7 @@
       },
       "enginePowerHp": 1500,
       "era": "cold-war",
+      "factoryCamouflageId": "service_merkava2d",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.31,
@@ -424819,6 +427457,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_merkava1b",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -427754,6 +430393,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_merkava2b",
       "dims": {
         "heightM": 2.65,
         "hullLengthM": 7.45,
@@ -427762,6 +430402,7 @@
       },
       "enginePowerHp": 1000,
       "era": "cold-war",
+      "factoryCamouflageId": "service_merkava2d",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.31,
@@ -427828,6 +430469,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_merkava2b",
       "terrainResistance": {
         "hard": 0.85,
         "medium": 0.95,
@@ -431021,6 +433663,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.65,
         "hullLengthM": 7.45,
@@ -431029,6 +433672,7 @@
       },
       "enginePowerHp": 1500,
       "era": "cold-war",
+      "factoryCamouflageId": "service_merkava2d",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.31,
@@ -431095,6 +433739,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -434469,6 +437114,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_merkava3c",
       "dims": {
         "heightM": 2.66,
         "hullLengthM": 7.6,
@@ -434477,6 +437123,7 @@
       },
       "enginePowerHp": 1200,
       "era": "modern",
+      "factoryCamouflageId": "service_merkava2d",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.29,
@@ -434543,6 +437190,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_merkava3c",
       "terrainResistance": {
         "hard": 0.78,
         "medium": 0.88,
@@ -437967,6 +440615,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_merkava3d",
       "dims": {
         "heightM": 2.66,
         "hullLengthM": 7.6,
@@ -437975,6 +440624,7 @@
       },
       "enginePowerHp": 1200,
       "era": "modern",
+      "factoryCamouflageId": "service_merkava2d",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.28,
@@ -438041,6 +440691,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_merkava3d",
       "terrainResistance": {
         "hard": 0.75,
         "medium": 0.85,
@@ -441248,6 +443899,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_merkava4b",
       "dims": {
         "heightM": 2.66,
         "hullLengthM": 7.6,
@@ -441256,6 +443908,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_merkava2d",
       "gun": {
         "aimTimeS": 1.5,
         "baseAccuracy": 0.27,
@@ -441322,6 +443975,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_merkava4b",
       "terrainResistance": {
         "hard": 0.68,
         "medium": 0.78,
@@ -443331,6 +445985,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.8,
         "hullLengthM": 6.34,
@@ -443343,6 +445998,7 @@
       },
       "enginePowerHp": 600,
       "era": "cold-war",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 1.4,
         "baseAccuracy": 0.3,
@@ -443420,6 +446076,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.75,
         "medium": 0.85,
@@ -444515,6 +447172,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.72,
         "hullLengthM": 6.07,
@@ -444523,6 +447181,7 @@
       },
       "enginePowerHp": 500,
       "era": "ww2",
+      "factoryCamouflageId": "service_soviet_ww2",
       "gun": {
         "aimTimeS": 2.3,
         "baseAccuracy": 0.42,
@@ -444588,6 +447247,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.9,
         "medium": 1.1,
@@ -445679,6 +448339,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.65,
         "hullLengthM": 6.45,
@@ -445690,6 +448351,7 @@
       },
       "enginePowerHp": 520,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -445756,6 +448418,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -448073,6 +450736,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.29,
         "hullLengthM": 6.59,
@@ -448082,6 +450746,7 @@
       },
       "enginePowerHp": 720,
       "era": "cold-war",
+      "factoryCamouflageId": "service_leclerc_xlr",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -448148,6 +450813,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -452550,6 +455216,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.29,
         "hullLengthM": 6.59,
@@ -452559,6 +455226,7 @@
       },
       "enginePowerHp": 750,
       "era": "cold-war",
+      "factoryCamouflageId": "service_leclerc_xlr",
       "gun": {
         "aimTimeS": 1.7,
         "baseAccuracy": 0.29,
@@ -452625,6 +455293,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -454717,6 +457386,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "summer",
       "dims": {
         "heightM": 3.09,
         "hullLengthM": 6.87,
@@ -454725,6 +457395,7 @@
       },
       "enginePowerHp": 750,
       "era": "cold-war",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.31,
@@ -454791,6 +457462,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -456699,6 +459371,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.11,
         "hullLengthM": 6.95,
@@ -456707,6 +459380,7 @@
       },
       "enginePowerHp": 750,
       "era": "cold-war",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.32,
@@ -456781,6 +459455,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -458553,6 +461228,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.71,
         "hullLengthM": 7.92,
@@ -458561,6 +461237,7 @@
       },
       "enginePowerHp": 650,
       "era": "cold-war",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.32,
@@ -458627,6 +461304,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.85,
         "medium": 1,
@@ -459636,6 +462314,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.45,
         "hullLengthM": 6.77,
@@ -459644,6 +462323,7 @@
       },
       "enginePowerHp": 520,
       "era": "ww2",
+      "factoryCamouflageId": "service_soviet_ww2",
       "gun": {
         "aimTimeS": 3.1,
         "baseAccuracy": 0.44,
@@ -459709,6 +462389,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.15,
         "medium": 1.35,
@@ -461493,6 +464174,7 @@
         ],
         "turretless": true
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.48,
         "hullLengthM": 6.77,
@@ -461501,6 +464183,7 @@
       },
       "enginePowerHp": 700,
       "era": "ww2",
+      "factoryCamouflageId": "service_soviet_ww2",
       "gun": {
         "aimTimeS": 3.6,
         "baseAccuracy": 0.55,
@@ -461556,6 +464239,7 @@
         "reason": "production-curation",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.15,
         "medium": 1.35,
@@ -463333,6 +466017,7 @@
         ],
         "turretless": true
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.48,
         "hullLengthM": 6.77,
@@ -463341,6 +466026,7 @@
       },
       "enginePowerHp": 700,
       "era": "ww2",
+      "factoryCamouflageId": "service_soviet_ww2",
       "gun": {
         "aimTimeS": 2.6,
         "baseAccuracy": 0.35,
@@ -463407,6 +466093,7 @@
         "reason": "production-curation",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.2,
         "medium": 1.4,
@@ -465678,6 +468365,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.94,
         "hullLengthM": 7.56,
@@ -465686,6 +468374,7 @@
       },
       "enginePowerHp": 750,
       "era": "cold-war",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.32,
@@ -465752,6 +468441,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.85,
         "medium": 1,
@@ -468070,6 +470760,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.94,
         "hullLengthM": 7.56,
@@ -468078,6 +470769,7 @@
       },
       "enginePowerHp": 750,
       "era": "cold-war",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.32,
@@ -468144,6 +470836,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.85,
         "medium": 1,
@@ -469210,6 +471903,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.68,
         "hullLengthM": 6.55,
@@ -469218,6 +471912,7 @@
       },
       "enginePowerHp": 700,
       "era": "ww2",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 2.1,
         "baseAccuracy": 0.32,
@@ -469283,6 +471978,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1,
         "medium": 1.2,
@@ -470349,6 +473045,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.77,
         "hullLengthM": 8.03,
@@ -470357,6 +473054,7 @@
       },
       "enginePowerHp": 700,
       "era": "ww2",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 2.1,
         "baseAccuracy": 0.32,
@@ -470422,6 +473120,7 @@
         "reason": "historical-archive",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1,
         "medium": 1.2,
@@ -471431,6 +474130,7 @@
         ],
         "turretless": false
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.58,
         "hullLengthM": 6.55,
@@ -471439,6 +474139,7 @@
       },
       "enginePowerHp": 700,
       "era": "cold-war",
+      "factoryCamouflageId": "service_challenger_3",
       "gun": {
         "aimTimeS": 2.6,
         "baseAccuracy": 0.35,
@@ -471505,6 +474206,7 @@
         "reason": "saved-development-model",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1.2,
         "medium": 1.4,
@@ -473716,6 +476418,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "summer",
       "dims": {
         "heightM": 3.18,
         "hullLengthM": 6.33,
@@ -473724,6 +476427,7 @@
       },
       "enginePowerHp": 830,
       "era": "cold-war",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -473790,6 +476494,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -476060,6 +478765,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "summer",
       "dims": {
         "heightM": 3.35,
         "hullLengthM": 6.33,
@@ -476068,6 +478774,7 @@
       },
       "enginePowerHp": 830,
       "era": "cold-war",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.3,
@@ -476134,6 +478841,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -478261,6 +480969,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.08,
         "hullLengthM": 6.33,
@@ -478269,6 +480978,7 @@
       },
       "enginePowerHp": 450,
       "era": "ww2",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 2.2,
         "baseAccuracy": 0.34,
@@ -478334,6 +481044,7 @@
         "reason": "production-curation",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1,
         "medium": 1.2,
@@ -480219,6 +482930,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3,
         "hullLengthM": 6.33,
@@ -480227,6 +482939,7 @@
       },
       "enginePowerHp": 450,
       "era": "ww2",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 2.6,
         "baseAccuracy": 0.39,
@@ -480292,6 +483005,7 @@
         "reason": "production-curation",
         "tag": "DEV"
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 1,
         "medium": 1.2,
@@ -484258,6 +486972,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.27,
         "hullLengthM": 6.946,
@@ -484266,6 +486981,7 @@
       },
       "enginePowerHp": 830,
       "era": "cold-war",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.28,
@@ -484332,6 +487048,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -489716,6 +492433,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_ua_t64bv",
       "dims": {
         "heightM": 2.17,
         "hullLengthM": 6.54,
@@ -489724,6 +492442,7 @@
       },
       "enginePowerHp": 850,
       "era": "modern",
+      "factoryCamouflageId": "service_ua_m2a3_bradley",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.38,
@@ -489790,6 +492509,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_ua_t64bv",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -495155,6 +497875,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_ua_t80bv",
       "dims": {
         "heightM": 2.2,
         "hullLengthM": 6.78,
@@ -495163,6 +497884,7 @@
       },
       "enginePowerHp": 1100,
       "era": "modern",
+      "factoryCamouflageId": "service_ua_m2a3_bradley",
       "gun": {
         "aimTimeS": 2.2,
         "baseAccuracy": 0.36,
@@ -495229,6 +497951,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_ua_t80bv",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -499736,6 +502459,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_ua_t80u_kursk",
       "dims": {
         "heightM": 2.38,
         "hullLengthM": 7.01,
@@ -499744,6 +502468,7 @@
       },
       "enginePowerHp": 1250,
       "era": "modern",
+      "factoryCamouflageId": "service_ua_m2a3_bradley",
       "gun": {
         "aimTimeS": 2.2,
         "baseAccuracy": 0.36,
@@ -499810,6 +502535,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_ua_t80u_kursk",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -503696,6 +506422,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_ua_t84_oplot_m",
       "dims": {
         "heightM": 2.285,
         "hullLengthM": 7.08,
@@ -503704,6 +506431,7 @@
       },
       "enginePowerHp": 1200,
       "era": "modern",
+      "factoryCamouflageId": "service_ua_m2a3_bradley",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.31,
@@ -503770,6 +506498,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_ua_t84_oplot_m",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -506473,6 +509202,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_ua_m1a1",
       "dims": {
         "heightM": 2.8,
         "hullLengthM": 7.92,
@@ -506481,6 +509211,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_ua_m2a3_bradley",
       "gun": {
         "aimTimeS": 1.9,
         "baseAccuracy": 0.32,
@@ -506547,6 +509278,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_ua_m1a1",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -514556,6 +517288,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_leo2a6_ua",
       "dims": {
         "heightM": 3.28,
         "hullLengthM": 7.72,
@@ -514564,6 +517297,7 @@
       },
       "enginePowerHp": 1500,
       "era": "modern",
+      "factoryCamouflageId": "service_ua_m2a3_bradley",
       "gun": {
         "aimTimeS": 1.6,
         "baseAccuracy": 0.27,
@@ -514630,6 +517364,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_leo2a6_ua",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -518041,6 +520776,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_t72m1_jaguar",
       "dims": {
         "heightM": 2.23,
         "hullLengthM": 6.86,
@@ -518049,6 +520785,7 @@
       },
       "enginePowerHp": 1000,
       "era": "modern",
+      "factoryCamouflageId": "service_pl01",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.38,
@@ -518115,6 +520852,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_t72m1_jaguar",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -521779,6 +524517,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_pt91_twardy",
       "dims": {
         "heightM": 2.19,
         "hullLengthM": 6.95,
@@ -521787,6 +524526,7 @@
       },
       "enginePowerHp": 1000,
       "era": "modern",
+      "factoryCamouflageId": "service_pl01",
       "gun": {
         "aimTimeS": 2.4,
         "baseAccuracy": 0.38,
@@ -521853,6 +524593,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_pt91_twardy",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -524718,6 +527459,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.8,
         "hullLengthM": 6.95,
@@ -524726,6 +527468,7 @@
       },
       "enginePowerHp": 1000,
       "era": "next-generation",
+      "factoryCamouflageId": "service_pl01",
       "gun": {
         "aimTimeS": 1.8,
         "autoloader": {
@@ -524797,6 +527540,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -527662,6 +530406,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_pl01_105",
       "dims": {
         "heightM": 2.8,
         "hullLengthM": 6.95,
@@ -527671,6 +530416,7 @@
       },
       "enginePowerHp": 1000,
       "era": "next-generation",
+      "factoryCamouflageId": "service_pl01",
       "gun": {
         "aimTimeS": 1.8,
         "autoloader": {
@@ -527742,6 +530488,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_pl01_105",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -530343,6 +533090,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_k2b",
       "dims": {
         "heightM": 2.8,
         "hullLengthM": 7,
@@ -530351,6 +533099,7 @@
       },
       "enginePowerHp": 1000,
       "era": "modern",
+      "factoryCamouflageId": "service_bmp3_rok",
       "gun": {
         "aimTimeS": 1.8,
         "baseAccuracy": 0.29,
@@ -530417,6 +533166,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_k2b",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -532221,6 +534971,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.4,
         "hullLengthM": 7.14,
@@ -532233,6 +534984,7 @@
       },
       "enginePowerHp": 500,
       "era": "modern",
+      "factoryCamouflageId": "service_bmp3_rok",
       "gun": {
         "aimTimeS": 1.35,
         "baseAccuracy": 0.29,
@@ -532311,6 +535063,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.75,
         "medium": 0.9,
@@ -534500,6 +537253,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.6,
         "hullLengthM": 6.55,
@@ -534512,6 +537266,7 @@
       },
       "enginePowerHp": 600,
       "era": "modern",
+      "factoryCamouflageId": "service_ua_m2a3_bradley",
       "gun": {
         "aimTimeS": 1.4,
         "baseAccuracy": 0.3,
@@ -534589,6 +537344,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.75,
         "medium": 0.85,
@@ -540261,6 +543017,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.33,
         "hullLengthM": 7.2,
@@ -540273,6 +543030,7 @@
       },
       "enginePowerHp": 1000,
       "era": "modern",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 1.25,
         "baseAccuracy": 0.27,
@@ -540360,6 +543118,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -542225,6 +544984,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_bwp1",
       "dims": {
         "heightM": 3.02,
         "hullLengthM": 6.9,
@@ -542237,6 +544997,7 @@
       },
       "enginePowerHp": 720,
       "era": "cold-war",
+      "factoryCamouflageId": "service_pl01",
       "gun": {
         "aimTimeS": 1.25,
         "baseAccuracy": 0.26,
@@ -542314,6 +545075,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_bwp1",
       "terrainResistance": {
         "hard": 0.75,
         "medium": 0.9,
@@ -544185,6 +546947,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.02,
         "hullLengthM": 6.88,
@@ -544197,6 +546960,7 @@
       },
       "enginePowerHp": 600,
       "era": "cold-war",
+      "factoryCamouflageId": "service_leo2a6m",
       "gun": {
         "aimTimeS": 1.3,
         "baseAccuracy": 0.3,
@@ -544272,6 +547036,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.75,
         "medium": 0.85,
@@ -549104,6 +551869,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.73,
         "hullLengthM": 6.55,
@@ -549116,6 +551882,7 @@
       },
       "enginePowerHp": 600,
       "era": "modern",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.05,
         "baseAccuracy": 0.25,
@@ -549192,6 +551959,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.75,
         "medium": 0.85,
@@ -551009,6 +553777,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 2.4,
         "hullLengthM": 7.14,
@@ -551017,6 +553786,7 @@
       },
       "enginePowerHp": 500,
       "era": "cold-war",
+      "factoryCamouflageId": "service_soviet_coldwar",
       "gun": {
         "aimTimeS": 1.35,
         "baseAccuracy": 0.3,
@@ -551093,6 +553863,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.72,
         "medium": 0.85,
@@ -552892,6 +555663,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_upior",
       "dims": {
         "heightM": 2.55,
         "hullLengthM": 5.15,
@@ -552900,6 +555672,7 @@
       },
       "enginePowerHp": 800,
       "era": "next-generation",
+      "factoryCamouflageId": "service_pl01",
       "gun": {
         "aimTimeS": 1.3,
         "baseAccuracy": 0.28,
@@ -552975,6 +555748,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_upior",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.82,
@@ -557627,6 +560401,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_bmpt_t90",
       "dims": {
         "heightM": 2.9,
         "hullLengthM": 6.86,
@@ -557639,6 +560414,7 @@
       },
       "enginePowerHp": 1130,
       "era": "modern",
+      "factoryCamouflageId": "service_t90m",
       "gun": {
         "aimTimeS": 1.2,
         "baseAccuracy": 0.26,
@@ -557726,6 +560502,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_bmpt_t90",
       "terrainResistance": {
         "hard": 0.7,
         "medium": 0.8,
@@ -561435,6 +564212,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "sig_m551_sheridan",
       "dims": {
         "heightM": 2.29,
         "hullLengthM": 6.3,
@@ -561447,6 +564225,7 @@
       },
       "enginePowerHp": 400,
       "era": "cold-war",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.45,
         "baseAccuracy": 0.28,
@@ -561496,6 +564275,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": "sig_m551_sheridan",
       "terrainResistance": {
         "hard": 0.58,
         "medium": 0.72,
@@ -567862,6 +570642,7 @@
           }
         ]
       },
+      "defaultCamouflageId": "factory",
       "dims": {
         "heightM": 3.45,
         "hullLengthM": 7.16,
@@ -567870,6 +570651,7 @@
       },
       "enginePowerHp": 520,
       "era": "next-generation",
+      "factoryCamouflageId": "service_usa_desert",
       "gun": {
         "aimTimeS": 1.25,
         "baseAccuracy": 0.24,
@@ -567945,6 +570727,7 @@
         "reason": "production",
         "tag": ""
       },
+      "signatureCamouflageId": null,
       "terrainResistance": {
         "hard": 0.55,
         "medium": 0.68,

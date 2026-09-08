@@ -80,6 +80,18 @@ namespace ClaudeOfTanks.Tests
                     battle.PlayerCamouflageId,
                     Is.EqualTo("winter"));
                 Assert.That(battle.State.Tanks, Has.Count.EqualTo(2));
+                Renderer playerHull = GameObject
+                    .Find("player/Hull")
+                    .GetComponent<Renderer>();
+                Renderer enemyHull = GameObject
+                    .Find("enemy/Hull")
+                    .GetComponent<Renderer>();
+                Assert.That(
+                    playerHull.sharedMaterial.mainTexture.name,
+                    Does.Contain("-winter-"));
+                Assert.That(
+                    enemyHull.sharedMaterial.mainTexture.name,
+                    Does.Contain("-desert-"));
                 battle.ExitReplay();
                 Assert.That(exited, Is.True);
             }

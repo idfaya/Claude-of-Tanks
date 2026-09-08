@@ -7,7 +7,7 @@ namespace ClaudeOfTanks.Runtime
     public sealed class ContentCatalog
     {
         private const string ResourcePath = "Generated/content-catalog";
-        private const int SupportedSchemaVersion = 5;
+        private const int SupportedSchemaVersion = 6;
         private readonly CatalogData _data;
 
         private ContentCatalog(CatalogData data)
@@ -99,6 +99,18 @@ namespace ClaudeOfTanks.Runtime
             return false;
         }
 
+        public CamouflageDefinition GetCamouflage(string id)
+        {
+            for (int i = 0; i < Camouflage.Length; i++)
+            {
+                if (Camouflage[i].id == id)
+                    return Camouflage[i];
+            }
+            throw new ArgumentException(
+                "Unknown camouflage id: " + id,
+                nameof(id));
+        }
+
         [Serializable]
         private sealed class CatalogData
         {
@@ -151,6 +163,46 @@ namespace ClaudeOfTanks.Runtime
     {
         public string id;
         public string name;
+        public CamouflageRecipe recipe;
+        public CamouflageNationVariant[] nationVariants;
+        public bool usesVehicleScale;
+        public bool usesAuthoredBasePatch;
+
+        public CamouflageRecipe RecipeFor(string nation)
+        {
+            if (nationVariants != null)
+            {
+                for (int i = 0; i < nationVariants.Length; i++)
+                {
+                    if (nationVariants[i].nation == nation)
+                        return nationVariants[i].recipe;
+                }
+            }
+            return recipe;
+        }
+    }
+
+    [Serializable]
+    public sealed class CamouflageNationVariant
+    {
+        public string nation;
+        public CamouflageRecipe recipe;
+    }
+
+    [Serializable]
+    public sealed class CamouflageRecipe
+    {
+        public string scheme;
+        public string baseColor;
+        public string weatherColor;
+        public string[] patchColors;
+        public float camoScale = 0.34f;
+        public float patchK = 1f;
+        public float digitalCellK = 1f;
+        public float solidWeatheringIntensity = 1f;
+        public float bandAngle;
+        public float blackK = 1f;
+        public float rainK = 1f;
     }
 
     [Serializable]
@@ -161,6 +213,9 @@ namespace ClaudeOfTanks.Runtime
         public string nation;
         public string era;
         public string role;
+        public string factoryCamouflageId;
+        public string signatureCamouflageId;
+        public string defaultCamouflageId;
         public float hp;
         public float enginePowerHp;
         public float weightTons;
@@ -317,6 +372,9 @@ namespace ClaudeOfTanks.Runtime
         public string baseColor;
         public string @base;
         public string scheme;
+        public string weather;
+        public string[] patches;
+        public float camoScale = 0.34f;
         public string marking;
         public string number;
         public float trackWidthM;
