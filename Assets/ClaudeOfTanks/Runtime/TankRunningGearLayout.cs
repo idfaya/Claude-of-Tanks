@@ -85,6 +85,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float hullLength)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id)) return 6;
             if (definition?.id == "mbt70" ||
                 definition?.id == "t14")
                 return 7;
@@ -118,6 +119,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float width)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id)) return 1.276f;
             if (definition?.id == "spz_puma")
                 return 1.25f;
             if (definition?.id == "spz_puma_s1")
@@ -148,6 +150,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float fallback)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.506f;
             if (UsesBradleyDonor(definition))
                 return 0.335f;
             if (TankBmp2FamilyDetails.Supports(
@@ -174,6 +177,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float height)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.44f;
             if (definition?.id == "spz_puma")
                 return 0.43f;
             if (definition?.id == "spz_puma_s1")
@@ -204,6 +208,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float wheelY)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.42f;
             if (definition?.id == "spz_puma")
                 return 0.36f;
             if (definition?.id == "spz_puma_s1")
@@ -234,6 +239,8 @@ namespace ClaudeOfTanks.Runtime
             int count,
             float length)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id))
+                return TankWarriorRunningGearLayout.RoadWheelZ(index);
             if (definition?.id == "spz_puma")
                 return PumaWheelStations[index];
             if (definition?.id == "spz_puma_s1")
@@ -269,6 +276,8 @@ namespace ClaudeOfTanks.Runtime
             float wheelY,
             float wheelRadius)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id))
+                return TankWarriorRunningGearLayout.Sprocket();
             if (definition?.id == "spz_puma")
                 return new Vector2(2.658f, 0.965f);
             if (definition?.id == "spz_puma_s1")
@@ -303,6 +312,8 @@ namespace ClaudeOfTanks.Runtime
             float wheelY,
             float wheelRadius)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id))
+                return TankWarriorRunningGearLayout.Idler();
             if (definition?.id == "spz_puma")
                 return new Vector2(-2.814f, 0.84f);
             if (definition?.id == "spz_puma_s1")
@@ -335,6 +346,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float roadWheelRadius)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.394f;
             if (UsesBradleyDonor(definition))
                 return 0.24f;
             if (TankBmp2FamilyDetails.Supports(
@@ -361,6 +373,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float roadWheelRadius)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.373f;
             if (UsesBradleyDonor(definition))
                 return 0.28f;
             if (TankBmp2FamilyDetails.Supports(
@@ -387,6 +400,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float length)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id)) return 2.6407f;
             if (TankUpiorFamilyDetails.Supports(
                     definition?.id))
                 return 2.0384f;
@@ -402,6 +416,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float length)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id)) return -2.5857f;
             if (TankUpiorFamilyDetails.Supports(
                     definition?.id))
                 return -1.9385f;
@@ -418,6 +433,7 @@ namespace ClaudeOfTanks.Runtime
             float wheelY,
             float roadWheelRadius)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.097f;
             if (TankUpiorFamilyDetails.Supports(
                     definition?.id))
                 return 0.045f;
@@ -436,6 +452,7 @@ namespace ClaudeOfTanks.Runtime
             float wheelY,
             float roadWheelRadius)
         {
+            if (TankWarriorFamilyDetails.Supports(definition?.id)) return 1.123f;
             if (TankUpiorFamilyDetails.Supports(
                     definition?.id))
                 return 0.82f;

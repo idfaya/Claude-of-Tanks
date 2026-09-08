@@ -382,6 +382,13 @@ The port preserves the source project's runtime units and conventions:
   protection pieces complete the donor hull. All 153 catalog hit surfaces
   remain authoritative with no added collider or generic side armor/pod,
   while the separate BMPT T-90 Soviet owner remains unchanged
+- FV510 Warrior and FV510 Warrior MILAN now share a dedicated low raked hull,
+  deep six-module WRAP flank package, open six-wheel front-drive course,
+  left exhaust cowl, troop roof and rear door, plus a welded two-man turret
+  and gun-owned RARDEN. The MILAN conversion adds six glacis tiles, twelve
+  shallow side modules, one live launcher and two bustle tubes without
+  replacing the base Warrior. Both retain 19 catalog hit surfaces with no
+  added collider or generic side armor/pod
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
