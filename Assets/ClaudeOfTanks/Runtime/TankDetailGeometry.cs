@@ -117,6 +117,32 @@ namespace ClaudeOfTanks.Runtime
             return part.transform;
         }
 
+        public static Transform GunFittingsRoot(
+            Transform gun,
+            string name)
+        {
+            GameObject root = new GameObject(name);
+            Transform transform = root.transform;
+            transform.SetParent(gun, false);
+            transform.localPosition =
+                new Vector3(0f, 0f, -0.5f);
+            transform.localRotation =
+                Quaternion.identity;
+            Vector3 scale = gun.localScale;
+            transform.localScale =
+                new Vector3(
+                    scale.x == 0f
+                        ? 1f
+                        : 1f / scale.x,
+                    scale.y == 0f
+                        ? 1f
+                        : 1f / scale.y,
+                    scale.z == 0f
+                        ? 1f
+                        : 1f / scale.z);
+            return transform;
+        }
+
         private static float PlateExtreme(
             ArmorPlateDefinition[] plates,
             string name,

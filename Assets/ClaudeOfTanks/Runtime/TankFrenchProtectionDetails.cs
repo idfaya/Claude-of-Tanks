@@ -64,7 +64,7 @@ namespace ClaudeOfTanks.Runtime
             Transform gun = turret.Find("Gun");
             if (gun == null) return;
             Transform fittings =
-                CreateGunFittingsRoot(
+                TankDetailGeometry.GunFittingsRoot(
                     gun,
                     "French-AMX30-GunFittings");
             TankDetailGeometry.Part(
@@ -182,7 +182,7 @@ namespace ClaudeOfTanks.Runtime
             Transform gun = turret.Find("Gun");
             if (gun == null) return;
             Transform fittings =
-                CreateGunFittingsRoot(
+                TankDetailGeometry.GunFittingsRoot(
                     gun,
                     "French-AMX40-GunFittings");
             TankDetailGeometry.Part(
@@ -231,7 +231,7 @@ namespace ClaudeOfTanks.Runtime
                         ? "French-AMX56"
                         : "French-Leclerc";
             Transform fittings =
-                CreateGunFittingsRoot(
+                TankDetailGeometry.GunFittingsRoot(
                     gun,
                     prefix + "-GunFittings");
             TankDetailGeometry.Part(
@@ -285,32 +285,6 @@ namespace ClaudeOfTanks.Runtime
                 new Vector3(0.15f, 0.1f, 5.02f),
                 new Vector3(0.18f, 0.15f, 0.36f),
                 "French-AMX56-MuzzleReference");
-        }
-
-        private static Transform CreateGunFittingsRoot(
-            Transform gun,
-            string name)
-        {
-            GameObject root = new GameObject(name);
-            Transform transform = root.transform;
-            transform.SetParent(gun, false);
-            transform.localPosition =
-                new Vector3(0f, 0f, -0.5f);
-            transform.localRotation =
-                Quaternion.identity;
-            Vector3 scale = gun.localScale;
-            transform.localScale =
-                new Vector3(
-                    scale.x == 0f
-                        ? 1f
-                        : 1f / scale.x,
-                    scale.y == 0f
-                        ? 1f
-                        : 1f / scale.y,
-                    scale.z == 0f
-                        ? 1f
-                        : 1f / scale.z);
-            return transform;
         }
 
         private static void AddRemoteWeaponStation(

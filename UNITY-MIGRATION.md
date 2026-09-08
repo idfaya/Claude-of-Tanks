@@ -228,6 +228,16 @@ The port preserves the source project's runtime units and conventions:
   rack; Leclerc derivatives retain the HL-70 tower, dual roof weapons, side
   baskets, stowage drum, and variant RWS without duplicating the 72 AMX-30B2
   or 58 AMX 56 catalog ERA surfaces, XLR armor, or generic side armor
+- The four production Italian variants share catalog-seated rear service
+  fields, engine decks, hatches, smoke systems, antenna stations, roof optics,
+  weapons, baskets, and gun-owned masks across Garage, solo, replay, and
+  network presentation. Carro 45t retains its asymmetric roof stations,
+  crown rails, rear rack, and long 105 mm gun plant; Ariete Preserie retains
+  its low M2 fit; C1 retains twin manual MAG stations and turret side racks;
+  C2 adds its commander thermal, APU, driver thermal, and remote weapon station
+  without duplicating its 100 catalog-authored ERA surfaces or generic side
+  armor. National-family dispatch now lives outside the shared generic detail
+  builder so additional families do not expand that hub
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
@@ -312,7 +322,8 @@ These systems still use the TypeScript implementation as their specification:
 
 - complete remaining per-variant exterior fitting parity across the
   126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
-  Challenger 2/3, Merkava, Korean, Japanese, and French identity suites;
+  Challenger 2/3, Merkava, Korean, Japanese, French, and Italian identity
+  suites;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;

@@ -14,24 +14,6 @@ namespace ClaudeOfTanks.Runtime
             float length)
         {
             if (definition == null) return;
-            bool leopard =
-                TankLeopardFamilyDetails.Supports(
-                    definition.id);
-            bool challenger =
-                TankChallengerFamilyDetails.Supports(
-                    definition.id);
-            bool merkava =
-                TankMerkavaFamilyDetails.Supports(
-                    definition.id);
-            bool korean =
-                TankKoreanFamilyDetails.Supports(
-                    definition.id);
-            bool japanese =
-                TankJapaneseFamilyDetails.Supports(
-                    definition.id);
-            bool french =
-                TankFrenchFamilyDetails.Supports(
-                    definition.id);
             if (definition.role == "ifv" &&
                 definition.id != "bmpt_t90")
             {
@@ -50,12 +32,9 @@ namespace ClaudeOfTanks.Runtime
                     color * 0.78f);
             }
             if (definition.era == "modern" &&
-                !leopard &&
-                !challenger &&
-                !merkava &&
-                !korean &&
-                !japanese &&
-                !french)
+                !TankNationalFamilyDetails
+                    .ExcludesGenericSideArmor(
+                        definition.id))
             {
                 for (int side = -1;
                     side <= 1;
@@ -76,55 +55,7 @@ namespace ClaudeOfTanks.Runtime
                         color * 0.82f);
                 }
             }
-            TankSovietFamilyDetails.Build(
-                root,
-                turret,
-                definition,
-                color,
-                width,
-                height,
-                length);
-            TankLeopardFamilyDetails.Build(
-                root,
-                turret,
-                definition,
-                color,
-                width,
-                height,
-                length);
-            TankChallengerFamilyDetails.Build(
-                root,
-                turret,
-                definition,
-                color,
-                width,
-                height,
-                length);
-            TankMerkavaFamilyDetails.Build(
-                root,
-                turret,
-                definition,
-                color,
-                width,
-                height,
-                length);
-            TankKoreanFamilyDetails.Build(
-                root,
-                turret,
-                definition,
-                color,
-                width,
-                height,
-                length);
-            TankJapaneseFamilyDetails.Build(
-                root,
-                turret,
-                definition,
-                color,
-                width,
-                height,
-                length);
-            TankFrenchFamilyDetails.Build(
+            TankNationalFamilyDetails.Build(
                 root,
                 turret,
                 definition,
