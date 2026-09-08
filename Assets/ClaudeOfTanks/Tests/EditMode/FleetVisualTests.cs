@@ -28,7 +28,9 @@ namespace ClaudeOfTanks.Tests
                     catalog);
                 try
                 {
-                    Assert.That(view.Root.Find("TurretRoot"), Is.Not.Null, ids[i]);
+                    Transform turret =
+                        view.Root.Find("TurretRoot");
+                    Assert.That(turret, Is.Not.Null, ids[i]);
                     Assert.That(view.Root.GetComponentsInChildren<Renderer>().Length,
                         Is.GreaterThan(30), ids[i]);
                     Transform[] transforms = view.Root.GetComponentsInChildren<Transform>();
@@ -39,9 +41,17 @@ namespace ClaudeOfTanks.Tests
                     int sprockets = 0;
                     int idlers = 0;
                     int trackRuns = 0;
+                    int authoredArmor = 0;
+                    int authoredModules = 0;
                     for (int child = 0; child < transforms.Length; child++)
                     {
-                        if (transforms[child].name.StartsWith("Armor-")) armorSurfaceCount++;
+                        if (transforms[child].name.StartsWith("Armor-"))
+                        {
+                            armorSurfaceCount++;
+                            authoredArmor++;
+                        }
+                        if (transforms[child].name.StartsWith("Module-"))
+                            authoredModules++;
                         if (transforms[child].name.StartsWith("RoadWheel-")) roadWheels++;
                         if (transforms[child].name.StartsWith("SuspensionArm-")) suspensionArms++;
                         if (transforms[child].name.StartsWith("SuspensionJoint-")) suspensionJoints++;
@@ -64,6 +74,42 @@ namespace ClaudeOfTanks.Tests
                     Assert.That(sprockets, Is.EqualTo(2), ids[i]);
                     Assert.That(idlers, Is.EqualTo(2), ids[i]);
                     Assert.That(trackRuns, Is.EqualTo(2), ids[i]);
+                    Assert.That(
+                        authoredArmor,
+                        Is.EqualTo(
+                            FleetVisualAssertions.ValidPlateCount(
+                                definition)),
+                        ids[i]);
+                    Assert.That(
+                        authoredModules,
+                        Is.EqualTo(
+                            FleetVisualAssertions.ValidModulePartCount(
+                                definition)),
+                        ids[i]);
+                    Assert.That(
+                        authoredModules,
+                        Is.GreaterThan(0),
+                        ids[i] +
+                        " must carry authored visible module geometry.");
+                    Assert.That(
+                        definition.armor.gunBarrel,
+                        Is.Not.Null,
+                        ids[i]);
+                    Assert.That(
+                        definition.armor.gunBarrel.lengthM,
+                        Is.GreaterThan(0.1f),
+                        ids[i]);
+                    Assert.That(
+                        definition.armor.gunBarrel.radiusM,
+                        Is.GreaterThan(0.01f),
+                        ids[i]);
+                    FleetVisualAssertions.AssertAuthoredRig(
+                        definition,
+                        view.Root,
+                        turret);
+                    FleetVisualAssertions.AssertRenderableMeshes(
+                        ids[i],
+                        view.Root);
                     Assert.That(view.Root.GetComponentsInChildren<Collider>(), Is.Empty, ids[i]);
                 }
                 finally
@@ -75,6 +121,95 @@ namespace ClaudeOfTanks.Tests
             Assert.That(ids, Has.Length.EqualTo(126));
             Assert.That(armorSurfaceCount, Is.GreaterThan(1000));
             Assert.That(trackTriangleCount, Is.GreaterThan(150000));
+        }
+
+        [Test]
+        public void AbramsProductionFamilyHasDistinctAuthoredEquipment()
+        {
+            string[] ids =
+            {
+                "m1a1",
+                "m1a1ha",
+                "m1a2",
+                "m1a2_tusk",
+                "m1a2_sepv2",
+                "m1a2_sepv3",
+                "m1a3",
+                "abramsx"
+            };
+            ContentCatalog catalog = ContentCatalog.Load();
+            for (int i = 0; i < ids.Length; i++)
+            {
+                VehicleDefinition definition =
+                    catalog.GetVehicle(ids[i]);
+                TankView view = TankView.Create(
+                    new TankState(
+                        "abrams-" + ids[i],
+                        Team.Alpha,
+                        definition.ToTankSpec(),
+                        Float3.Zero,
+                        0f),
+                    definition,
+                    "factory",
+                    "forest",
+                    catalog);
+                try
+                {
+                    Transform[] parts =
+                        view.Root.GetComponentsInChildren<Transform>();
+                    Assert.That(
+                        parts.Count(item =>
+                            item.name.Contains("Abrams-")),
+                        Is.GreaterThanOrEqualTo(20),
+                        ids[i]);
+                    Assert.That(
+                        parts.Count(item =>
+                            item.name.StartsWith("Module-optics-")),
+                        Is.EqualTo(
+                            FleetVisualAssertions.ValidModulePartCount(
+                                definition,
+                                "optics")),
+                        ids[i]);
+                    bool late = ids[i] == "m1a2_tusk" ||
+                        ids[i] == "m1a2_sepv2" ||
+                        ids[i] == "m1a2_sepv3";
+                    Transform station = parts.FirstOrDefault(
+                        item => item.name ==
+                            "Painted-Abrams-CommanderStation");
+                    Assert.That(
+                        station != null,
+                        Is.EqualTo(late),
+                        ids[i]);
+                    if (station != null)
+                    {
+                        float armorRoof = parts
+                            .Where(item =>
+                                item.parent ==
+                                    view.Root.Find("TurretRoot") &&
+                                item.name.StartsWith("Armor-"))
+                            .Max(item =>
+                                item.GetComponent<Renderer>()
+                                    .bounds.max.y);
+                        Assert.That(
+                            Mathf.Abs(
+                                station.GetComponent<Renderer>()
+                                    .bounds.min.y -
+                                armorRoof),
+                            Is.LessThan(0.04f),
+                            ids[i] +
+                            " commander station must seat on the roof.");
+                    }
+                    Assert.That(
+                        parts.Any(item =>
+                            item.name == "Abrams-EngineGrille"),
+                        Is.True,
+                        ids[i]);
+                }
+                finally
+                {
+                    view.Destroy();
+                }
+            }
         }
 
         [Test]
@@ -207,6 +342,15 @@ namespace ClaudeOfTanks.Tests
                     .GetComponentsInChildren<Transform>()
                     .First(item =>
                         item.name.StartsWith("Armor-"));
+                Renderer bustle = view.Root
+                    .GetComponentsInChildren<Renderer>()
+                    .First(item =>
+                        item.name ==
+                            "Painted-Abrams-Bustle");
+                Renderer optics = view.Root
+                    .GetComponentsInChildren<Renderer>()
+                    .First(item =>
+                        item.name.StartsWith("Module-optics-"));
                 Mesh armorMesh =
                     armor.GetComponent<MeshFilter>().sharedMesh;
 
@@ -221,6 +365,12 @@ namespace ClaudeOfTanks.Tests
                         .sharedMaterial.mainTexture,
                     Is.SameAs(hull.sharedMaterial.mainTexture));
                 Assert.That(
+                    bustle.sharedMaterial.mainTexture,
+                    Is.SameAs(hull.sharedMaterial.mainTexture));
+                Assert.That(
+                    optics.sharedMaterial.mainTexture,
+                    Is.Null);
+                Assert.That(
                     armorMesh.uv,
                     Has.Length.EqualTo(
                         armorMesh.vertexCount));
@@ -233,5 +383,6 @@ namespace ClaudeOfTanks.Tests
                 view.Destroy();
             }
         }
+
     }
 }

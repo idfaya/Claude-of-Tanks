@@ -158,6 +158,7 @@ namespace ClaudeOfTanks.Runtime
                 name == "ERA" ||
                 name == "TurretBustle" ||
                 name == "TurretWedge" ||
+                name.StartsWith("Painted-") ||
                 name.StartsWith("Armor-");
         }
 

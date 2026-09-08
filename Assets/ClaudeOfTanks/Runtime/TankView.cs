@@ -109,7 +109,11 @@ namespace ClaudeOfTanks.Runtime
                 (definition.role == "td" || definition.id.StartsWith("strv103"));
             GameObject turretRoot = new GameObject("TurretRoot");
             turretRoot.transform.SetParent(root.transform, false);
-            turretRoot.transform.localPosition = new Vector3(0f, height * 0.63f, length * 0.03f);
+            turretRoot.transform.localPosition =
+                TankAuthoredDetails.ResolveTurretPivot(
+                    definition,
+                    height,
+                    length);
             float turretScale = definition != null && definition.role == "ifv" ? 0.36f : 0.55f;
             if (casemate)
             {
@@ -122,17 +126,35 @@ namespace ClaudeOfTanks.Runtime
                 CreatePart("Turret", PrimitiveType.Cylinder, turretRoot.transform, Vector3.zero,
                     new Vector3(width * turretScale, height * 0.2f, width * turretScale), teamColor * 0.92f);
             }
-            float gunLength = definition?.gun != null && definition.gun.caliberMm < 80f
-                ? length * 0.35f : length * 0.62f;
-            float gunRadius = Mathf.Clamp(
-                (definition?.gun != null ? definition.gun.caliberMm : 120f) / 500f, 0.08f, 0.32f);
+            float gunLength =
+                TankAuthoredDetails.ResolveGunLength(
+                    definition,
+                    length);
+            float gunRadius =
+                TankAuthoredDetails.ResolveGunRadius(
+                    definition);
             Transform barrel = CreatePart("Gun", PrimitiveType.Cube, turretRoot.transform,
-                new Vector3(0f, 0.05f, width * turretScale + gunLength * 0.45f),
+                TankAuthoredDetails.ResolveGunCenter(
+                    definition,
+                    width * turretScale,
+                    gunLength),
                 new Vector3(gunRadius, gunRadius, gunLength),
                 new Color(0.12f, 0.14f, 0.12f));
             barrel.localRotation = Quaternion.identity;
             CreateArmorSurfaces(root.transform, turretRoot.transform, definition, teamColor);
-            AddFamilyDetails(root.transform, turretRoot.transform, definition, teamColor, width, height, length);
+            TankAuthoredDetails.Build(
+                root.transform,
+                turretRoot.transform,
+                definition,
+                teamColor);
+            TankFamilyDetails.Build(
+                root.transform,
+                turretRoot.transform,
+                definition,
+                teamColor,
+                width,
+                height,
+                length);
 
             Renderer[] renderers = root.GetComponentsInChildren<Renderer>();
             Texture2D camouflageTexture =
@@ -208,55 +230,6 @@ namespace ClaudeOfTanks.Runtime
                 Material material = new Material(Shader.Find("Standard")) { color = color };
                 material.SetInt("_Cull", 0);
                 renderer.sharedMaterial = material;
-            }
-        }
-
-        private static void AddFamilyDetails(
-            Transform root,
-            Transform turret,
-            VehicleDefinition definition,
-            Color color,
-            float width,
-            float height,
-            float length)
-        {
-            if (definition == null) return;
-            if (definition.role == "ifv")
-            {
-                CreatePart("MissilePod", PrimitiveType.Cube, turret,
-                    new Vector3(width * 0.3f, height * 0.05f, 0f),
-                    new Vector3(width * 0.22f, height * 0.18f, width * 0.38f), color * 0.78f);
-            }
-            if (definition.era == "modern")
-            {
-                for (int side = -1; side <= 1; side += 2)
-                {
-                    CreatePart("SideArmor", PrimitiveType.Cube, root,
-                        new Vector3(side * width * 0.48f, height * 0.46f, 0f),
-                        new Vector3(width * 0.06f, height * 0.24f, length * 0.58f), color * 0.82f);
-                }
-            }
-            if (definition.id.Contains("t90") || definition.id.Contains("t72") ||
-                definition.id.Contains("t80"))
-            {
-                for (int i = -2; i <= 2; i++)
-                {
-                    CreatePart("ERA", PrimitiveType.Cube, turret,
-                        new Vector3(i * width * 0.12f, 0f, width * 0.43f),
-                        new Vector3(width * 0.1f, height * 0.09f, 0.16f), color * 1.12f);
-                }
-            }
-            if (definition.id.Contains("abrams") || definition.id.StartsWith("m1a"))
-            {
-                CreatePart("TurretBustle", PrimitiveType.Cube, turret,
-                    new Vector3(0f, 0f, -width * 0.34f),
-                    new Vector3(width * 0.62f, height * 0.16f, width * 0.38f), color * 0.88f);
-            }
-            if (definition.id.Contains("leopard") || definition.id.StartsWith("leo2"))
-            {
-                CreatePart("TurretWedge", PrimitiveType.Cube, turret,
-                    new Vector3(0f, 0f, width * 0.4f),
-                    new Vector3(width * 0.78f, height * 0.24f, width * 0.42f), color * 1.05f);
             }
         }
 

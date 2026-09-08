@@ -175,6 +175,12 @@ The port preserves the source project's runtime units and conventions:
 - Shared production-fleet running gear with closed discrete-link track meshes,
   road-wheel hubs, sprockets, idlers, return rollers, and inboard suspension
   arms/joints derived from each vehicle's dimensions and track width
+- Authored Unity rig alignment for all 126 production vehicles: exact turret
+  and gun pivots, measured barrel length/radius, complete armor-plate meshes,
+  and catalog-derived visible optics/module parts now drive Garage, solo, and
+  network presentation. The eight-vehicle Abrams production family adds its
+  bustle/rack, smoke banks, roof hatches, turbine deck grilles, antennas, and
+  generation-specific commander stations with camouflage-aware surfaces
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
@@ -257,7 +263,8 @@ The port preserves the source project's runtime units and conventions:
 The original release is substantially larger than this first playable port.
 These systems still use the TypeScript implementation as their specification:
 
-- complete 126-vehicle production fleet and authored armor/module geometry;
+- complete non-Abrams family exterior fitting parity across the 126-vehicle
+  production fleet;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;

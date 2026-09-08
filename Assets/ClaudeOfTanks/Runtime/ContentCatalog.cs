@@ -387,8 +387,30 @@ namespace ClaudeOfTanks.Runtime
     {
         public CatalogPoint turretPivot;
         public CatalogPoint gunPivot;
+        public VehicleGunBarrel gunBarrel;
         public ArmorPlateDefinition[] hullPlates;
         public ArmorPlateDefinition[] turretPlates;
+        public ArmorModuleDefinition[] modules;
+    }
+
+    [Serializable] public sealed class VehicleGunBarrel
+    {
+        public float lengthM;
+        public float radiusM;
+    }
+
+    [Serializable] public sealed class ArmorModuleDefinition
+    {
+        public string module;
+        public bool turretLocal;
+        public string visualForm;
+        public ArmorModulePartDefinition[] parts;
+    }
+
+    [Serializable] public sealed class ArmorModulePartDefinition
+    {
+        public float[] min;
+        public float[] max;
     }
 
     [Serializable] public sealed class CatalogPoint
