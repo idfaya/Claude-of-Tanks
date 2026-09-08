@@ -238,6 +238,15 @@ The port preserves the source project's runtime units and conventions:
   without duplicating its 100 catalog-authored ERA surfaces or generic side
   armor. National-family dispatch now lives outside the shared generic detail
   builder so additional families do not expand that hub
+- The seven production Swedish vehicles retain three distinct presentation
+  architectures across Garage, solo, replay, and network. Strv 81 keeps its
+  cast-generation optics, Ksp 58, side ventilator, and open basket; Strv 122
+  reuses the Leopard 2A5 common package before adding Swedish roof stations
+  and basket fittings; UDES 03 and both S-tanks keep every roof, hydraulic,
+  fixed-gun, dozer, and nose-fence fitting hull-owned. CV90 and Mk IV own their
+  RWS, gun shroud, smoke, optics, and IFV weapon package, removing the generic
+  missile pod and adding a twin-cell guided launcher only to Mk IV without
+  duplicating catalog armor or generic side armor
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
@@ -323,7 +332,7 @@ These systems still use the TypeScript implementation as their specification:
 - complete remaining per-variant exterior fitting parity across the
   126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
   Challenger 2/3, Merkava, Korean, Japanese, French, and Italian identity
-  suites;
+  suites plus the Swedish turreted, siege, and IFV lines;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;

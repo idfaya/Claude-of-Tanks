@@ -15,6 +15,7 @@ namespace ClaudeOfTanks.Runtime
                 case "leo2a4m":
                 case "leo2a5":
                 case "leo2a5_a5nl":
+                case "strv122":
                 case "leo2a6":
                 case "leo2a6m":
                 case "leo2_revolution":
@@ -63,10 +64,13 @@ namespace ClaudeOfTanks.Runtime
                 definition,
                 color,
                 width);
-            AddLoaderMg3(
-                turret,
-                definition,
-                width);
+            if (definition.id != "strv122")
+            {
+                AddLoaderMg3(
+                    turret,
+                    definition,
+                    width);
+            }
             if (definition.id != "leopard2_proto")
             {
                 AddProductionOptics(
@@ -246,8 +250,12 @@ namespace ClaudeOfTanks.Runtime
                 side <= 1;
                 side += 2)
             {
+                int tubeCount =
+                    definition.id == "strv122"
+                        ? 6
+                        : 8;
                 for (int tube = 0;
-                    tube < 8;
+                    tube < tubeCount;
                     tube++)
                 {
                     Transform launcher =

@@ -15,7 +15,10 @@ namespace ClaudeOfTanks.Runtime
         {
             if (definition == null) return;
             if (definition.role == "ifv" &&
-                definition.id != "bmpt_t90")
+                definition.id != "bmpt_t90" &&
+                !TankNationalFamilyDetails
+                    .OwnsIfvWeaponPackage(
+                        definition.id))
             {
                 Part(
                     "MissilePod",
