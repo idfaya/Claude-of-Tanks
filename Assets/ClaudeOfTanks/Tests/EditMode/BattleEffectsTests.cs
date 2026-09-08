@@ -198,6 +198,92 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void ArmorDecalsClassifyAttachAndClearOnDestruction()
+        {
+            BattleEffects effects = BattleEffects.Create();
+            GameObject target = new GameObject("TargetTank");
+            GameObject armor = GameObject.CreatePrimitive(
+                PrimitiveType.Cube);
+            armor.name = "Armor-Glacis";
+            armor.transform.SetParent(target.transform, false);
+            armor.transform.position = new Vector3(0f, 1f, 0f);
+            GameObject articulation =
+                new GameObject("TurretRoot");
+            articulation.transform.SetParent(
+                target.transform,
+                false);
+            GameObject outerArmor = GameObject.CreatePrimitive(
+                PrimitiveType.Cube);
+            outerArmor.name = "Armor-Applique";
+            outerArmor.transform.SetParent(
+                articulation.transform,
+                false);
+            outerArmor.transform.position =
+                new Vector3(0f, 1f, -0.65f);
+            outerArmor.transform.localScale =
+                new Vector3(0.8f, 0.8f, 0.1f);
+            BattleEvent penetration = Hit("APFSDS", true);
+            BattleEvent ricochet = Hit("APFSDS", false);
+            ricochet.Direction = new Float3(1f, 0f, 0f);
+            ricochet.Normal = new Float3(0f, 1f, 0f);
+            BattleEvent highExplosive = Hit("HE", false);
+
+            try
+            {
+                Assert.That(
+                    BattleImpactDecals.Classify(penetration),
+                    Is.EqualTo(ImpactDecalKind.Penetration));
+                Assert.That(
+                    BattleImpactDecals.Classify(ricochet),
+                    Is.EqualTo(ImpactDecalKind.Gouge));
+                Assert.That(
+                    BattleImpactDecals.Classify(highExplosive),
+                    Is.EqualTo(ImpactDecalKind.Scorch));
+
+                effects.Play(penetration, target.transform);
+                Assert.That(effects.ActiveDecalCount, Is.EqualTo(1));
+                MeshFilter[] attached =
+                    target.GetComponentsInChildren<MeshFilter>(true);
+                Assert.That(attached, Has.Length.EqualTo(3));
+                MeshFilter decal = System.Array.Find(
+                    attached,
+                    filter => filter.sharedMesh.name ==
+                        "PenetrationDecalMesh");
+                Assert.That(decal, Is.Not.Null);
+                Assert.That(
+                    decal.transform.parent,
+                    Is.EqualTo(articulation.transform));
+                Assert.That(
+                    decal.transform.position.z,
+                    Is.LessThan(
+                        outerArmor.GetComponent<Renderer>()
+                            .bounds.min.z),
+                    "The mark must sit on the outermost visible armor.");
+
+                effects.Play(new BattleEvent
+                {
+                    Type = BattleEventType.TankDestroyed,
+                    Position = new Float3(0f, 0f, 0f),
+                    Direction = new Float3(0f, 0f, 1f),
+                    Normal = new Float3(0f, 1f, 0f),
+                    CaliberMm = 120f
+                }, target.transform);
+                Assert.That(
+                    effects.ActiveDecalCount,
+                    Is.EqualTo(1),
+                    "Old armor marks should be replaced by the ground scorch.");
+                Assert.That(
+                    target.GetComponentsInChildren<MeshFilter>(true),
+                    Has.Length.EqualTo(2));
+            }
+            finally
+            {
+                Object.DestroyImmediate(target);
+                Object.DestroyImmediate(effects.gameObject);
+            }
+        }
+
+        [Test]
         public void ReducedMotionKeepsFeedbackButSuppressesDynamicFlashes()
         {
             MemorySettingsStore store = new MemorySettingsStore();
