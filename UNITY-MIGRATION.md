@@ -126,8 +126,10 @@ The port preserves the source project's runtime units and conventions:
 - Standard, Capture the Flag, Zone Control, Turbo Ball, and Endless Horde modes
 - Equipment, consumables, deterministic replay recording, responsive HUD,
   keyboard, gamepad, and touch input
-- Bounded battle feedback with 24 pooled particle voices, two dynamic lights,
-  and 48 target-attached penetration/ricochet decals
+- Bounded layered battle feedback with 24 pooled muzzle/penetration/ricochet/
+  HE/structure/destruction particle voices, deterministic core/spark/cloud
+  channels, two dynamic lights, strict visual-event routing, and 48
+  target-attached penetration/ricochet decals
 - Viewer-filtered persistent battle FX with bounded 16-tank dust/exhaust/fire/
   smoke emitters, deterministic particle seeds, 96 fading paired-track prints,
   destruction scorches, reduced-motion budgets, and reset/rematch cleanup
@@ -253,8 +255,7 @@ These systems still use the TypeScript implementation as their specification:
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;
-- remaining one-shot particle/decal detail parity and advanced AO/aerial
-  perspective parity;
+- remaining advanced armor-decal and AO/aerial perspective parity;
 - installable build-target release artifacts, WebRTC signaling/private-room
   session composition, and signaling deployment;
 - per-family procedural vehicle geometry parity and generated technical assets.

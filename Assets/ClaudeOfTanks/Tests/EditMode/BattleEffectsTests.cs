@@ -140,6 +140,64 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void OneShotProfilesLayerImpactsAndIgnoreNonVisualEvents()
+        {
+            BattleEffects effects = BattleEffects.Create();
+            BattleEvent ricochet = Hit(
+                "APFSDS",
+                false);
+            BattleEvent penetration = Hit(
+                "APFSDS",
+                true);
+            BattleEvent highExplosive = Hit(
+                "HE",
+                false);
+            BattleOneShotProfile ricochetProfile =
+                BattleOneShotProfile.Resolve(ricochet, false);
+            BattleOneShotProfile penetrationProfile =
+                BattleOneShotProfile.Resolve(penetration, false);
+            BattleOneShotProfile heProfile =
+                BattleOneShotProfile.Resolve(highExplosive, false);
+
+            try
+            {
+                Assert.That(
+                    penetrationProfile.CoreCount,
+                    Is.GreaterThan(ricochetProfile.CoreCount));
+                Assert.That(
+                    penetrationProfile.CloudCount,
+                    Is.GreaterThan(ricochetProfile.CloudCount));
+                Assert.That(
+                    ricochetProfile.SparkSpeed,
+                    Is.GreaterThan(penetrationProfile.SparkSpeed));
+                Assert.That(
+                    heProfile.CloudCount,
+                    Is.GreaterThan(penetrationProfile.CloudCount));
+
+                effects.Play(new BattleEvent
+                {
+                    Type = BattleEventType.ConsumableUsed
+                });
+                Assert.That(effects.ActiveEffectCount, Is.Zero);
+
+                effects.Play(penetration);
+                Assert.That(effects.ActiveEffectCount, Is.EqualTo(1));
+                Transform oneShots =
+                    effects.transform.Find("OneShotEffects");
+                Assert.That(oneShots, Is.Not.Null);
+                Assert.That(
+                    oneShots.GetComponentsInChildren<
+                        ParticleSystem>(true),
+                    Has.Length.EqualTo(
+                        BattleOneShotEffects.PoolSize * 3));
+            }
+            finally
+            {
+                Object.DestroyImmediate(effects.gameObject);
+            }
+        }
+
+        [Test]
         public void ReducedMotionKeepsFeedbackButSuppressesDynamicFlashes()
         {
             MemorySettingsStore store = new MemorySettingsStore();
@@ -180,6 +238,22 @@ namespace ClaudeOfTanks.Tests
                 spec,
                 new Float3(index, 0f, 0f),
                 0f);
+        }
+
+        private static BattleEvent Hit(
+            string shellType,
+            bool penetrated)
+        {
+            return new BattleEvent
+            {
+                Type = BattleEventType.ShellHit,
+                Position = new Float3(0f, 1f, 0f),
+                Direction = new Float3(0f, 0f, 1f),
+                Normal = new Float3(0f, 0f, -1f),
+                ShellType = shellType,
+                CaliberMm = 120f,
+                Penetrated = penetrated
+            };
         }
 
         private sealed class MemorySettingsStore : ISettingsStore

@@ -7,27 +7,25 @@ namespace ClaudeOfTanks.Runtime
 {
     public sealed class BattleEffects : MonoBehaviour
     {
-        public const int EffectPoolSize = 24;
+        public const int EffectPoolSize =
+            BattleOneShotEffects.PoolSize;
         public const int DecalPoolSize = 48;
-        public const int LightPoolSize = 2;
+        public const int LightPoolSize =
+            BattleOneShotEffects.LightPoolSize;
 
-        private readonly Queue<EffectNode> _available = new Queue<EffectNode>();
-        private readonly List<EffectNode> _active = new List<EffectNode>();
-        private readonly List<EffectNode> _nodes = new List<EffectNode>();
         private readonly Queue<DecalNode> _availableDecals = new Queue<DecalNode>();
         private readonly List<DecalNode> _activeDecals = new List<DecalNode>();
         private readonly List<DecalNode> _decals = new List<DecalNode>();
-        private readonly LightNode[] _lights = new LightNode[LightPoolSize];
         private Material _particleMaterial;
         private Material _decalMaterial;
         private Texture2D _decalTexture;
         private MaterialPropertyBlock _decalProperties;
+        private BattleOneShotEffects _oneShots;
         private BattlePersistentEffects _persistent;
         private GameSettings _settings;
-        private int _lightCursor;
         private uint _noise = 0x91e10da5u;
 
-        public int ActiveEffectCount => _active.Count;
+        public int ActiveEffectCount => _oneShots.ActiveCount;
         public int ActiveDecalCount => _activeDecals.Count;
         public int ActivePersistentTankCount =>
             _persistent != null ? _persistent.ActiveTankCount : 0;
@@ -40,12 +38,7 @@ namespace ClaudeOfTanks.Runtime
         {
             get
             {
-                int count = 0;
-                for (int i = 0; i < _lights.Length; i++)
-                {
-                    if (_lights[i].Root.activeSelf) count++;
-                }
-                return count;
+                return _oneShots.ActiveLightCount;
             }
         }
 
@@ -60,15 +53,7 @@ namespace ClaudeOfTanks.Runtime
 
         public void Play(BattleEvent battleEvent, Transform target = null)
         {
-            EffectNode node = AcquireEffect();
-            Vector3 position = battleEvent.Position.ToUnity();
-            node.Root.transform.position = position;
-            node.Root.SetActive(true);
-            ConfigureParticles(node.Particles, battleEvent);
-            node.ExpiresAt = Time.unscaledTime + Lifetime(battleEvent.Type);
-            _active.Add(node);
-
-            TriggerLight(battleEvent, position);
+            _oneShots.Play(battleEvent);
             if (battleEvent.Type == BattleEventType.ShellHit && target != null)
             {
                 StampDecal(battleEvent, target);
@@ -84,15 +69,7 @@ namespace ClaudeOfTanks.Runtime
 
         public void ResetAll()
         {
-            _active.Clear();
-            _available.Clear();
-            for (int i = 0; i < _nodes.Count; i++)
-            {
-                EffectNode node = _nodes[i];
-                node.Particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-                node.Root.SetActive(false);
-                _available.Enqueue(node);
-            }
+            _oneShots.ResetAll();
 
             _activeDecals.Clear();
             _availableDecals.Clear();
@@ -104,40 +81,7 @@ namespace ClaudeOfTanks.Runtime
                 _availableDecals.Enqueue(decal);
             }
 
-            for (int i = 0; i < _lights.Length; i++)
-            {
-                _lights[i].Root.SetActive(false);
-                _lights[i].Light.intensity = 0f;
-            }
             _persistent.ResetAll();
-        }
-
-        private void Update()
-        {
-            float now = Time.unscaledTime;
-            for (int i = _active.Count - 1; i >= 0; i--)
-            {
-                EffectNode node = _active[i];
-                if (node.ExpiresAt > now) continue;
-                node.Particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-                node.Root.SetActive(false);
-                _active.RemoveAt(i);
-                _available.Enqueue(node);
-            }
-
-            for (int i = 0; i < _lights.Length; i++)
-            {
-                LightNode node = _lights[i];
-                if (!node.Root.activeSelf) continue;
-                float remaining = node.ExpiresAt - now;
-                if (remaining <= 0f)
-                {
-                    node.Light.intensity = 0f;
-                    node.Root.SetActive(false);
-                    continue;
-                }
-                node.Light.intensity = node.Peak * Mathf.Clamp01(remaining / node.Duration);
-            }
         }
 
         private void Initialize()
@@ -153,59 +97,21 @@ namespace ClaudeOfTanks.Runtime
             };
             _decalMaterial = BuildDecalMaterial(_decalTexture);
             _decalProperties = new MaterialPropertyBlock();
+            _oneShots = BattleOneShotEffects.Create(
+                transform,
+                _particleMaterial,
+                _settings);
             _persistent = BattlePersistentEffects.Create(
                 transform,
                 _particleMaterial,
                 _settings);
 
-            for (int i = 0; i < EffectPoolSize; i++)
-            {
-                EffectNode node = CreateEffectNode(i);
-                _nodes.Add(node);
-                _available.Enqueue(node);
-            }
             for (int i = 0; i < DecalPoolSize; i++)
             {
                 DecalNode decal = CreateDecalNode(i);
                 _decals.Add(decal);
                 _availableDecals.Enqueue(decal);
             }
-            for (int i = 0; i < LightPoolSize; i++)
-            {
-                GameObject root = new GameObject("CombatLight-" + i);
-                root.transform.SetParent(transform, false);
-                Light light = root.AddComponent<Light>();
-                light.type = LightType.Point;
-                light.shadows = LightShadows.None;
-                root.SetActive(false);
-                _lights[i] = new LightNode { Root = root, Light = light };
-            }
-        }
-
-        private EffectNode CreateEffectNode(int index)
-        {
-            GameObject root = new GameObject("Effect-" + index);
-            root.transform.SetParent(transform, false);
-            ParticleSystem particles = root.AddComponent<ParticleSystem>();
-            ParticleSystem.MainModule main = particles.main;
-            main.loop = false;
-            main.playOnAwake = false;
-            main.simulationSpace = ParticleSystemSimulationSpace.Local;
-            main.maxParticles = 64;
-            ParticleSystem.EmissionModule emission = particles.emission;
-            emission.enabled = false;
-            ParticleSystem.ShapeModule shape = particles.shape;
-            shape.enabled = false;
-            ParticleSystemRenderer particleRenderer = root.GetComponent<ParticleSystemRenderer>();
-            particleRenderer.renderMode = ParticleSystemRenderMode.Billboard;
-            particleRenderer.sharedMaterial = _particleMaterial;
-
-            root.SetActive(false);
-            return new EffectNode
-            {
-                Root = root,
-                Particles = particles
-            };
         }
 
         private DecalNode CreateDecalNode(int index)
@@ -221,96 +127,6 @@ namespace ClaudeOfTanks.Runtime
             renderer.receiveShadows = false;
             root.SetActive(false);
             return new DecalNode { Root = root, Renderer = renderer };
-        }
-
-        private EffectNode AcquireEffect()
-        {
-            if (_available.Count == 0)
-            {
-                EffectNode oldest = _active[0];
-                _active.RemoveAt(0);
-                oldest.Particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-                oldest.Root.SetActive(false);
-                _available.Enqueue(oldest);
-            }
-            return _available.Dequeue();
-        }
-
-        private void ConfigureParticles(ParticleSystem particles, BattleEvent battleEvent)
-        {
-            ParticleSystem.MainModule main = particles.main;
-            bool destroyed =
-                battleEvent.Type == BattleEventType.TankDestroyed ||
-                battleEvent.Type == BattleEventType.StructureDestroyed;
-            bool fired = battleEvent.Type == BattleEventType.ShellFired;
-            main.startLifetime = destroyed ? 1.4f : fired ? 0.28f : 0.55f;
-            main.startSize = destroyed ? 0.65f : fired ? 0.24f : 0.18f;
-            main.gravityModifier = destroyed ? 0.7f : 0.28f;
-            Color color = destroyed
-                ? new Color(1f, 0.24f, 0.025f, 1f)
-                : fired
-                    ? new Color(1f, 0.72f, 0.22f, 1f)
-                    : battleEvent.Penetrated
-                    ? new Color(1f, 0.32f, 0.06f, 1f)
-                    : new Color(0.86f, 0.8f, 0.62f, 1f);
-            int count = destroyed ? 34 : fired ? 16 : battleEvent.Penetrated ? 20 : 12;
-            if (_settings.ReducedMotion)
-            {
-                count = Mathf.Max(6, Mathf.CeilToInt(count * 0.45f));
-                main.startLifetime = Mathf.Min(
-                    main.startLifetime.constant,
-                    0.45f);
-            }
-            Vector3 baseDirection = battleEvent.Direction.ToUnity();
-            if (baseDirection.sqrMagnitude < 0.1f) baseDirection = Vector3.up;
-            baseDirection.Normalize();
-            Vector3 normal = battleEvent.Normal.ToUnity();
-            if (normal.sqrMagnitude < 0.1f) normal = Vector3.up;
-            normal.Normalize();
-            if (!fired) baseDirection = Vector3.Reflect(baseDirection, normal);
-
-            particles.Clear(true);
-            for (int i = 0; i < count; i++)
-            {
-                Vector3 spread = new Vector3(NextSigned(), Mathf.Abs(NextSigned()), NextSigned()).normalized;
-                float speed = destroyed ? Mathf.Lerp(4f, 12f, Next01()) : Mathf.Lerp(2f, 8f, Next01());
-                ParticleSystem.EmitParams emit = new ParticleSystem.EmitParams
-                {
-                    position = Vector3.zero,
-                    velocity = Vector3.Lerp(baseDirection, spread, destroyed ? 0.8f : 0.45f).normalized * speed,
-                    startColor = color,
-                    startSize = (destroyed ? 0.45f : 0.12f) * Mathf.Lerp(0.65f, 1.35f, Next01()),
-                    startLifetime = _settings.ReducedMotion
-                        ? Mathf.Lerp(0.16f, 0.38f, Next01())
-                        : destroyed
-                            ? Mathf.Lerp(0.8f, 1.5f, Next01())
-                            : Mathf.Lerp(0.2f, 0.65f, Next01())
-                };
-                particles.Emit(emit, 1);
-            }
-            particles.Play();
-        }
-
-        private void TriggerLight(BattleEvent battleEvent, Vector3 position)
-        {
-            if (_settings.ReducedMotion)
-            {
-                return;
-            }
-            LightNode node = _lights[_lightCursor];
-            _lightCursor = (_lightCursor + 1) % _lights.Length;
-            node.Root.transform.position = position;
-            node.Root.SetActive(true);
-            bool destroyed = battleEvent.Type == BattleEventType.TankDestroyed;
-            bool fired = battleEvent.Type == BattleEventType.ShellFired;
-            node.Light.color = fired
-                ? new Color(1f, 0.76f, 0.42f)
-                : new Color(1f, 0.28f, 0.06f);
-            node.Light.range = destroyed ? 18f : fired ? 10f : 7f;
-            node.Duration = destroyed ? 0.7f : fired ? 0.09f : 0.18f;
-            node.Peak = destroyed ? 7f : fired ? 4f : 2.5f;
-            node.ExpiresAt = Time.unscaledTime + node.Duration;
-            node.Light.intensity = node.Peak;
         }
 
         private void StampDecal(BattleEvent battleEvent, Transform target)
@@ -369,23 +185,10 @@ namespace ClaudeOfTanks.Runtime
             return oldest;
         }
 
-        private static float Lifetime(BattleEventType type)
-        {
-            return type == BattleEventType.TankDestroyed ||
-                type == BattleEventType.StructureDestroyed ? 1.5f
-                : type == BattleEventType.ShellFired ? 0.45f
-                : 0.7f;
-        }
-
         private float Next01()
         {
             _noise = _noise * 1664525u + 1013904223u;
             return (_noise >> 8) / 16777216f;
-        }
-
-        private float NextSigned()
-        {
-            return Next01() * 2f - 1f;
         }
 
         private static Texture2D BuildDecalTexture()
@@ -448,26 +251,11 @@ namespace ClaudeOfTanks.Runtime
             else DestroyImmediate(value);
         }
 
-        private sealed class EffectNode
-        {
-            public GameObject Root;
-            public ParticleSystem Particles;
-            public float ExpiresAt;
-        }
-
         private sealed class DecalNode
         {
             public GameObject Root;
             public Renderer Renderer;
         }
 
-        private sealed class LightNode
-        {
-            public GameObject Root;
-            public Light Light;
-            public float ExpiresAt;
-            public float Duration;
-            public float Peak;
-        }
     }
 }
