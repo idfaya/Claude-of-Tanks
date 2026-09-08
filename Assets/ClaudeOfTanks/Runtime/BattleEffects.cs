@@ -18,11 +18,6 @@ namespace ClaudeOfTanks.Runtime
         private readonly List<DecalNode> _activeDecals = new List<DecalNode>();
         private readonly List<DecalNode> _decals = new List<DecalNode>();
         private readonly LightNode[] _lights = new LightNode[LightPoolSize];
-        private AudioClip _shotLight;
-        private AudioClip _shotHeavy;
-        private AudioClip _penetration;
-        private AudioClip _ricochet;
-        private AudioClip _destroyed;
         private Material _particleMaterial;
         private Material _decalMaterial;
         private Texture2D _decalTexture;
@@ -63,7 +58,6 @@ namespace ClaudeOfTanks.Runtime
             node.Root.transform.position = position;
             node.Root.SetActive(true);
             ConfigureParticles(node.Particles, battleEvent);
-            ConfigureAudio(node.Audio, battleEvent);
             node.ExpiresAt = Time.unscaledTime + Lifetime(battleEvent.Type);
             _active.Add(node);
 
@@ -81,7 +75,6 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 0; i < _nodes.Count; i++)
             {
                 EffectNode node = _nodes[i];
-                node.Audio.Stop();
                 node.Particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                 node.Root.SetActive(false);
                 _available.Enqueue(node);
@@ -111,7 +104,6 @@ namespace ClaudeOfTanks.Runtime
             {
                 EffectNode node = _active[i];
                 if (node.ExpiresAt > now) continue;
-                node.Audio.Stop();
                 node.Particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                 node.Root.SetActive(false);
                 _active.RemoveAt(i);
@@ -135,11 +127,6 @@ namespace ClaudeOfTanks.Runtime
 
         private void Initialize()
         {
-            _shotLight = Tone("ShotLight", 92f, 0.16f, 0.34f, 0.32f);
-            _shotHeavy = Tone("ShotHeavy", 54f, 0.34f, 0.5f, 0.5f);
-            _penetration = Tone("Penetration", 145f, 0.16f, 0.3f, 0.62f);
-            _ricochet = Tone("Ricochet", 620f, 0.2f, 0.2f, 0.72f);
-            _destroyed = Tone("Destroyed", 42f, 0.8f, 0.58f, 0.55f);
             _decalTexture = BuildDecalTexture();
             Shader particleShader = Shader.Find("Legacy Shaders/Particles/Alpha Blended") ??
                 Shader.Find("Particles/Standard Unlit") ??
@@ -194,17 +181,11 @@ namespace ClaudeOfTanks.Runtime
             particleRenderer.renderMode = ParticleSystemRenderMode.Billboard;
             particleRenderer.sharedMaterial = _particleMaterial;
 
-            AudioSource audio = root.AddComponent<AudioSource>();
-            audio.playOnAwake = false;
-            audio.spatialBlend = 1f;
-            audio.maxDistance = 900f;
-            audio.rolloffMode = AudioRolloffMode.Logarithmic;
             root.SetActive(false);
             return new EffectNode
             {
                 Root = root,
-                Particles = particles,
-                Audio = audio
+                Particles = particles
             };
         }
 
@@ -229,7 +210,6 @@ namespace ClaudeOfTanks.Runtime
             {
                 EffectNode oldest = _active[0];
                 _active.RemoveAt(0);
-                oldest.Audio.Stop();
                 oldest.Particles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
                 oldest.Root.SetActive(false);
                 _available.Enqueue(oldest);
@@ -290,28 +270,6 @@ namespace ClaudeOfTanks.Runtime
                 particles.Emit(emit, 1);
             }
             particles.Play();
-        }
-
-        private void ConfigureAudio(AudioSource audio, BattleEvent battleEvent)
-        {
-            if (battleEvent.Type == BattleEventType.ShellFired)
-            {
-                audio.clip = battleEvent.CaliberMm > 105f ? _shotHeavy : _shotLight;
-                audio.volume = Mathf.Lerp(0.55f, 1f, Mathf.Clamp01(battleEvent.CaliberMm / 150f));
-            }
-            else if (battleEvent.Type == BattleEventType.TankDestroyed ||
-                battleEvent.Type == BattleEventType.StructureDestroyed)
-            {
-                audio.clip = _destroyed;
-                audio.volume = 1f;
-            }
-            else
-            {
-                audio.clip = battleEvent.Penetrated ? _penetration : _ricochet;
-                audio.volume = battleEvent.Penetrated ? 0.82f : 0.65f;
-            }
-            audio.pitch = 0.97f + Next01() * 0.06f;
-            if (Application.isPlaying) audio.Play();
         }
 
         private void TriggerLight(BattleEvent battleEvent, Vector3 position)
@@ -389,26 +347,6 @@ namespace ClaudeOfTanks.Runtime
             return Next01() * 2f - 1f;
         }
 
-        private static AudioClip Tone(
-            string name, float frequency, float duration, float gain, float noiseGain)
-        {
-            const int rate = 22050;
-            int count = Mathf.CeilToInt(duration * rate);
-            float[] samples = new float[count];
-            uint noise = 0x91e10da5u;
-            for (int i = 0; i < count; i++)
-            {
-                noise = noise * 1664525u + 1013904223u;
-                float random = ((noise >> 8) / 16777216f) * 2f - 1f;
-                float envelope = Mathf.Exp(-5f * i / (float)count);
-                samples[i] = (Mathf.Sin(2f * Mathf.PI * frequency * i / rate) *
-                    (1f - noiseGain) + random * noiseGain) * envelope * gain;
-            }
-            AudioClip clip = AudioClip.Create(name, count, 1, rate, false);
-            clip.SetData(samples, 0);
-            return clip;
-        }
-
         private static Texture2D BuildDecalTexture()
         {
             const int size = 64;
@@ -457,11 +395,6 @@ namespace ClaudeOfTanks.Runtime
 
         private void OnDestroy()
         {
-            Release(_shotLight);
-            Release(_shotHeavy);
-            Release(_penetration);
-            Release(_ricochet);
-            Release(_destroyed);
             Release(_particleMaterial);
             Release(_decalMaterial);
             Release(_decalTexture);
@@ -478,7 +411,6 @@ namespace ClaudeOfTanks.Runtime
         {
             public GameObject Root;
             public ParticleSystem Particles;
-            public AudioSource Audio;
             public float ExpiresAt;
         }
 

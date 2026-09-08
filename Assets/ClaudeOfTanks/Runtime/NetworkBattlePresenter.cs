@@ -15,6 +15,7 @@ namespace ClaudeOfTanks.Runtime
         private readonly MapRuntime _map;
         private readonly string _mapId;
         private readonly BattleEffects _effects;
+        private readonly BattleAudio _audio;
         private readonly Dictionary<string, TankState> _tanks =
             new Dictionary<string, TankState>(StringComparer.Ordinal);
         private readonly Dictionary<string, TankView> _views =
@@ -69,12 +70,15 @@ namespace ClaudeOfTanks.Runtime
             _map.Root.SetParent(parent, false);
             _effects = BattleEffects.Create();
             _effects.transform.SetParent(parent, false);
+            _audio = BattleAudio.Create();
+            _audio.transform.SetParent(parent, false);
         }
 
         public BattleState State => _state;
         public MatchModeState MatchMode => _matchMode;
         public IList<TankState> VisibleTanks => _visibleTanks;
         public BattleEffects Effects => _effects;
+        public BattleAudio Audio => _audio;
         public string Status { get; private set; } = "CONNECTED";
         public float StatusUntil { get; private set; }
         public int ShotsFired { get; private set; }
@@ -151,6 +155,18 @@ namespace ClaudeOfTanks.Runtime
             _map.UpdateVegetationVisibility(cameraPosition);
         }
 
+        public void UpdateAudio(
+            Vector3 listenerPosition,
+            string listenerOwnerId,
+            bool scoped)
+        {
+            _audio.SyncEngines(
+                _visibleTanks,
+                listenerOwnerId,
+                listenerPosition,
+                scoped);
+        }
+
         public void SetTankVisible(string entityId, bool visible)
         {
             TankView view;
@@ -168,6 +184,7 @@ namespace ClaudeOfTanks.Runtime
             _shells.Clear();
             _map.Dispose();
             Release(_effects.gameObject);
+            Release(_audio.gameObject);
         }
 
         private TankState EnsureTank(NetworkEntitySnapshot entity)
@@ -322,6 +339,7 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 0; i < events.Length; i++)
             {
                 BattleEvent battleEvent = events[i];
+                _audio.Play(battleEvent);
                 TankView target;
                 _views.TryGetValue(battleEvent.TargetId ?? string.Empty, out target);
                 _effects.Play(

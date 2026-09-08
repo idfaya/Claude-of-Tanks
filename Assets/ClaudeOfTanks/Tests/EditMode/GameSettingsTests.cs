@@ -16,6 +16,11 @@ namespace ClaudeOfTanks.Tests
             GameSettings settings = new GameSettings(store, target);
 
             Assert.That(settings.MasterVolume, Is.EqualTo(0.85f).Within(0.001f));
+            Assert.That(settings.EngineVolume, Is.EqualTo(1f).Within(0.001f));
+            Assert.That(settings.CombatVolume, Is.EqualTo(1f).Within(0.001f));
+            Assert.That(settings.AmbienceVolume, Is.EqualTo(1f).Within(0.001f));
+            Assert.That(settings.UiVolume, Is.EqualTo(1f).Within(0.001f));
+            Assert.That(settings.VoiceVolume, Is.EqualTo(1f).Within(0.001f));
             Assert.That(settings.QualityLevel, Is.EqualTo(3));
             Assert.That(settings.Fullscreen, Is.True);
             Assert.That(settings.ReducedMotion, Is.False);
@@ -23,12 +28,22 @@ namespace ClaudeOfTanks.Tests
             Assert.That(settings.HudScale, Is.EqualTo(1f).Within(0.001f));
 
             settings.SetMasterVolume(2f);
+            settings.SetEngineVolume(-1f);
+            settings.SetCombatVolume(0.2f);
+            settings.SetAmbienceVolume(0.3f);
+            settings.SetUiVolume(0.4f);
+            settings.SetVoiceVolume(2f);
             settings.SetQualityLevel(99);
             settings.SetFullscreen(false);
             settings.SetReducedMotion(true);
             settings.SetHighContrast(true);
             settings.SetHudScale(3f);
             Assert.That(settings.MasterVolume, Is.EqualTo(1f));
+            Assert.That(settings.EngineVolume, Is.Zero);
+            Assert.That(settings.CombatVolume, Is.EqualTo(0.2f).Within(0.001f));
+            Assert.That(settings.AmbienceVolume, Is.EqualTo(0.3f).Within(0.001f));
+            Assert.That(settings.UiVolume, Is.EqualTo(0.4f).Within(0.001f));
+            Assert.That(settings.VoiceVolume, Is.EqualTo(1f));
             Assert.That(settings.QualityLevel, Is.EqualTo(3));
             Assert.That(settings.Fullscreen, Is.False);
             Assert.That(settings.ReducedMotion, Is.True);
@@ -41,11 +56,24 @@ namespace ClaudeOfTanks.Tests
 
             GameSettings restored = new GameSettings(store, target);
             Assert.That(restored.MasterVolume, Is.EqualTo(1f));
+            Assert.That(restored.EngineVolume, Is.Zero);
+            Assert.That(restored.CombatVolume, Is.EqualTo(0.2f).Within(0.001f));
+            Assert.That(restored.AmbienceVolume, Is.EqualTo(0.3f).Within(0.001f));
+            Assert.That(restored.UiVolume, Is.EqualTo(0.4f).Within(0.001f));
+            Assert.That(restored.VoiceVolume, Is.EqualTo(1f));
             Assert.That(restored.QualityLevel, Is.EqualTo(3));
             Assert.That(restored.Fullscreen, Is.False);
             Assert.That(restored.ReducedMotion, Is.True);
             Assert.That(restored.HighContrast, Is.True);
             Assert.That(restored.HudScale, Is.EqualTo(1.25f).Within(0.001f));
+
+            restored.ResetDefaults();
+            Assert.That(restored.MasterVolume, Is.EqualTo(0.85f).Within(0.001f));
+            Assert.That(restored.EngineVolume, Is.EqualTo(1f));
+            Assert.That(restored.CombatVolume, Is.EqualTo(1f));
+            Assert.That(restored.AmbienceVolume, Is.EqualTo(1f));
+            Assert.That(restored.UiVolume, Is.EqualTo(1f));
+            Assert.That(restored.VoiceVolume, Is.EqualTo(1f));
         }
 
         [Test]
@@ -86,6 +114,18 @@ namespace ClaudeOfTanks.Tests
                 panel.Open();
                 Assert.That(panel.IsVisible, Is.True);
                 Assert.That(panel.transform.Find("Shade/Surface/Volume"), Is.Not.Null);
+                Slider engineVolume = panel.transform
+                    .Find("Shade/Surface/AudioMix/EngineVolume")
+                    .GetComponent<Slider>();
+                Slider combatVolume = panel.transform
+                    .Find("Shade/Surface/AudioMix/CombatVolume")
+                    .GetComponent<Slider>();
+                Assert.That(panel.transform.Find(
+                    "Shade/Surface/AudioMix/AmbienceVolume"), Is.Not.Null);
+                Assert.That(panel.transform.Find(
+                    "Shade/Surface/AudioMix/UiVolume"), Is.Not.Null);
+                Assert.That(panel.transform.Find(
+                    "Shade/Surface/AudioMix/VoiceVolume"), Is.Not.Null);
                 Assert.That(panel.transform.Find("Shade/Surface/Quality"), Is.Not.Null);
                 Assert.That(panel.transform.Find("Shade/Surface/Fullscreen"), Is.Not.Null);
                 Toggle reducedMotion = panel.transform
@@ -100,9 +140,13 @@ namespace ClaudeOfTanks.Tests
                 reducedMotion.isOn = true;
                 highContrast.isOn = true;
                 hudScale.value = 1.2f;
+                engineVolume.value = 0.35f;
+                combatVolume.value = 0.45f;
                 Assert.That(settings.ReducedMotion, Is.True);
                 Assert.That(settings.HighContrast, Is.True);
                 Assert.That(settings.HudScale, Is.EqualTo(1.2f).Within(0.001f));
+                Assert.That(settings.EngineVolume, Is.EqualTo(0.35f).Within(0.001f));
+                Assert.That(settings.CombatVolume, Is.EqualTo(0.45f).Within(0.001f));
 
                 panel.BeginRebind(GameInputAction.Forward);
                 Assert.That(panel.WaitingForBinding, Is.EqualTo(GameInputAction.Forward));

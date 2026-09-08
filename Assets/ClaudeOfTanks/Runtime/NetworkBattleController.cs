@@ -214,6 +214,10 @@ namespace ClaudeOfTanks.Runtime
                 _cameraAimPoint,
                 Time.deltaTime);
             _presenter.UpdateVisibility(_camera.transform.position);
+            _presenter.UpdateAudio(
+                _camera.transform.position,
+                _localEntityId,
+                _cameraRig.Mode == BattleCameraMode.Sniper);
             _presenter.SetTankVisible(
                 _cameraTarget.Id,
                 _cameraRig.Mode != BattleCameraMode.Sniper);

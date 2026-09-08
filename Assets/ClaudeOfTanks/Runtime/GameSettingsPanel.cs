@@ -15,6 +15,7 @@ namespace ClaudeOfTanks.Runtime
         private Image _surfaceImage;
         private RectTransform _surface;
         private Slider _volume;
+        private GameSettingsAudioSection _audioMix;
         private Dropdown _quality;
         private Toggle _fullscreen;
         private Toggle _reducedMotion;
@@ -107,11 +108,13 @@ namespace ClaudeOfTanks.Runtime
             PlaceHorizontal(title.rectTransform, 28f, -28f, -58f, -16f);
 
             Text audioTitle = Label("AudioTitle", surface.transform, font, 13, TextAnchor.MiddleLeft);
-            audioTitle.text = "MASTER VOLUME";
+            audioTitle.text = "MASTER";
             audioTitle.color = new Color(0.68f, 0.75f, 0.72f);
-            Place(audioTitle.rectTransform, new Vector2(28f, -104f), new Vector2(220f, -78f));
+            Place(audioTitle.rectTransform, new Vector2(28f, -104f), new Vector2(132f, -78f));
             _volume = Slider("Volume", surface.transform);
-            PlaceHorizontal(_volume.GetComponent<RectTransform>(), 230f, -28f, -102f, -78f);
+            Place(_volume.GetComponent<RectTransform>(),
+                new Vector2(140f, -100f),
+                new Vector2(320f, -82f));
             _volume.minValue = 0f;
             _volume.maxValue = 1f;
             _volume.onValueChanged.AddListener(_settings.SetMasterVolume);
@@ -119,22 +122,28 @@ namespace ClaudeOfTanks.Runtime
             Text qualityTitle = Label("QualityTitle", surface.transform, font, 13, TextAnchor.MiddleLeft);
             qualityTitle.text = "QUALITY";
             qualityTitle.color = new Color(0.68f, 0.75f, 0.72f);
-            Place(qualityTitle.rectTransform, new Vector2(28f, -150f), new Vector2(220f, -120f));
+            Place(qualityTitle.rectTransform, new Vector2(350f, -104f), new Vector2(424f, -78f));
             _quality = Dropdown("Quality", surface.transform, font);
-            Place(_quality.GetComponent<RectTransform>(), new Vector2(230f, -150f), new Vector2(430f, -116f));
+            Place(_quality.GetComponent<RectTransform>(), new Vector2(424f, -108f), new Vector2(520f, -74f));
             List<string> qualityNames = new List<string>(QualitySettings.names);
             if (qualityNames.Count == 0) qualityNames.Add("Default");
             _quality.AddOptions(qualityNames);
             _quality.onValueChanged.AddListener(_settings.SetQualityLevel);
 
             _fullscreen = Toggle("Fullscreen", surface.transform, font, "FULLSCREEN");
-            PlaceHorizontal(_fullscreen.GetComponent<RectTransform>(), 470f, -28f, -150f, -116f);
+            Place(_fullscreen.GetComponent<RectTransform>(),
+                new Vector2(528f, -108f),
+                new Vector2(672f, -74f));
             _fullscreen.onValueChanged.AddListener(_settings.SetFullscreen);
+            _audioMix = new GameSettingsAudioSection(
+                surface.transform,
+                font,
+                _settings);
 
             Text controlsTitle = Label("ControlsTitle", surface.transform, font, 13, TextAnchor.MiddleLeft);
             controlsTitle.text = "CONTROLS";
             controlsTitle.color = new Color(0.68f, 0.75f, 0.72f);
-            PlaceHorizontal(controlsTitle.rectTransform, 28f, -28f, -202f, -174f);
+            PlaceHorizontal(controlsTitle.rectTransform, 28f, -28f, -232f, -204f);
 
             Array actions = Enum.GetValues(typeof(GameInputAction));
             for (int i = 0; i < actions.Length; i++)
@@ -143,7 +152,7 @@ namespace ClaudeOfTanks.Runtime
                 int column = i / 5;
                 int row = i % 5;
                 float x = 28f + column * 326f;
-                float y = -244f - row * 58f;
+                float y = -274f - row * 58f;
                 Text label = Label(action + "Label", surface.transform, font, 13, TextAnchor.MiddleLeft);
                 label.text = ActionLabel(action);
                 Place(label.rectTransform, new Vector2(x, y), new Vector2(x + 150f, y + 38f));
@@ -168,8 +177,8 @@ namespace ClaudeOfTanks.Runtime
                 accessibilityTitle.rectTransform,
                 28f,
                 -28f,
-                -520f,
-                -492f);
+                -550f,
+                -522f);
 
             _reducedMotion = Toggle(
                 "ReducedMotion",
@@ -178,8 +187,8 @@ namespace ClaudeOfTanks.Runtime
                 "REDUCED MOTION");
             Place(
                 _reducedMotion.GetComponent<RectTransform>(),
-                new Vector2(28f, -566f),
-                new Vector2(224f, -532f));
+                new Vector2(28f, -596f),
+                new Vector2(224f, -562f));
             _reducedMotion.onValueChanged.AddListener(
                 _settings.SetReducedMotion);
 
@@ -190,8 +199,8 @@ namespace ClaudeOfTanks.Runtime
                 "HIGH CONTRAST");
             Place(
                 _highContrast.GetComponent<RectTransform>(),
-                new Vector2(238f, -566f),
-                new Vector2(430f, -532f));
+                new Vector2(238f, -596f),
+                new Vector2(430f, -562f));
             _highContrast.onValueChanged.AddListener(value =>
             {
                 _settings.SetHighContrast(value);
@@ -207,13 +216,13 @@ namespace ClaudeOfTanks.Runtime
             hudScaleTitle.text = "HUD SCALE";
             Place(
                 hudScaleTitle.rectTransform,
-                new Vector2(450f, -566f),
-                new Vector2(530f, -532f));
+                new Vector2(450f, -596f),
+                new Vector2(530f, -562f));
             _hudScale = Slider("HudScale", surface.transform);
             Place(
                 _hudScale.GetComponent<RectTransform>(),
-                new Vector2(536f, -562f),
-                new Vector2(672f, -536f));
+                new Vector2(536f, -592f),
+                new Vector2(672f, -566f));
             _hudScale.minValue = GameSettings.MinimumHudScale;
             _hudScale.maxValue = GameSettings.MaximumHudScale;
             _hudScale.onValueChanged.AddListener(_settings.SetHudScale);
@@ -235,6 +244,7 @@ namespace ClaudeOfTanks.Runtime
         private void Refresh()
         {
             _volume.SetValueWithoutNotify(_settings.MasterVolume);
+            _audioMix.Refresh();
             _quality.SetValueWithoutNotify(_settings.QualityLevel);
             _fullscreen.SetIsOnWithoutNotify(_settings.Fullscreen);
             _reducedMotion.SetIsOnWithoutNotify(
@@ -364,6 +374,10 @@ namespace ClaudeOfTanks.Runtime
             Text text = root.GetComponentInChildren<Text>();
             text.font = font;
             text.fontSize = 13;
+            text.resizeTextForBestFit = true;
+            text.resizeTextMinSize = 10;
+            text.resizeTextMaxSize = 13;
+            text.horizontalOverflow = HorizontalWrapMode.Overflow;
             text.text = label;
             text.color = Color.white;
             return root.GetComponent<Toggle>();

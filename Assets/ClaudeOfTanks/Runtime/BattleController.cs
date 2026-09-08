@@ -33,6 +33,7 @@ namespace ClaudeOfTanks.Runtime
         private MapRuntime _mapRuntime;
         private BattleHud _hud;
         private BattleEffects _effects;
+        private BattleAudio _audio;
         private ReplayArchive _replayArchive;
         [SerializeField] private string mapId = "verdant";
         [SerializeField] private GameModeId gameMode = GameModeId.Standard;
@@ -134,6 +135,8 @@ namespace ClaudeOfTanks.Runtime
                 ExitReplay);
             _effects = BattleEffects.Create();
             _effects.transform.SetParent(transform, false);
+            _audio = BattleAudio.Create();
+            _audio.transform.SetParent(transform, false);
         }
 
         private void Update()
@@ -203,6 +206,13 @@ namespace ClaudeOfTanks.Runtime
 
             _cameraRig.Apply(_camera, _player, _cameraAimPoint, Time.deltaTime);
             _mapRuntime?.UpdateVegetationVisibility(_camera.transform.position);
+            _audio?.SetKillcamDucking(
+                _replaySession != null && _replayIsKillcam);
+            _audio?.SyncEngines(
+                _simulation.State.Tanks,
+                _player.Id,
+                _camera.transform.position,
+                _cameraRig.Mode == BattleCameraMode.Sniper);
             TankView playerView;
             if (_tankViews.TryGetValue(_player.Id, out playerView))
             {
@@ -224,6 +234,8 @@ namespace ClaudeOfTanks.Runtime
             _archivedReplayId = null;
             _hud?.SetReplayState(false, false, 0f, 0f, false);
             _effects?.ResetAll();
+            _audio?.ResetAll();
+            _audio?.BeginBattle();
             foreach (TankView view in _tankViews.Values)
             {
                 view.Destroy();
@@ -319,6 +331,8 @@ namespace ClaudeOfTanks.Runtime
             _player = FindTank(_simulation.State, _livePlayer.Id);
             _accumulator = 0f;
             _effects?.ResetAll();
+            _audio?.ResetAll();
+            _audio?.BeginBattle();
             ClearShellViews();
             SyncViews();
             _hud.SetReplayState(
@@ -344,6 +358,8 @@ namespace ClaudeOfTanks.Runtime
             _livePlayer = null;
             _accumulator = 0f;
             _effects?.ResetAll();
+            _audio?.ResetAll();
+            _audio?.BeginBattle();
             ClearShellViews();
             SyncViews();
             _hud.SetReplayState(false, false, 0f, 0f, false);
@@ -358,6 +374,8 @@ namespace ClaudeOfTanks.Runtime
                 throw new InvalidOperationException("Archived replay does not match battle configuration.");
 
             _effects?.ResetAll();
+            _audio?.ResetAll();
+            _audio?.BeginBattle();
             foreach (TankView view in _tankViews.Values) view.Destroy();
             _tankViews.Clear();
             ClearShellViews();
@@ -650,6 +668,7 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 0; i < events.Count; i++)
             {
                 BattleEvent battleEvent = events[i];
+                _audio?.Play(battleEvent);
                 if (!replay &&
                     battleEvent.Type == BattleEventType.ShellFired &&
                     battleEvent.SourceId == _player.Id)

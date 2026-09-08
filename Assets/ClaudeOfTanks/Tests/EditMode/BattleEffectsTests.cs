@@ -28,6 +28,9 @@ namespace ClaudeOfTanks.Tests
 
             try
             {
+                Assert.That(
+                    effects.GetComponentsInChildren<AudioSource>(true),
+                    Is.Empty);
                 for (int i = 0; i < 60; i++)
                 {
                     hit.Position = new Float3(i * 0.01f, 1f, 0f);

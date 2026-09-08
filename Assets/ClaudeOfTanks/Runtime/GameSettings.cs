@@ -73,12 +73,18 @@ namespace ClaudeOfTanks.Runtime
         };
 
         public float MasterVolume { get; private set; }
+        public float EngineVolume { get; private set; }
+        public float CombatVolume { get; private set; }
+        public float AmbienceVolume { get; private set; }
+        public float UiVolume { get; private set; }
+        public float VoiceVolume { get; private set; }
         public int QualityLevel { get; private set; }
         public bool Fullscreen { get; private set; }
         public bool ReducedMotion { get; private set; }
         public bool HighContrast { get; private set; }
         public float HudScale { get; private set; }
         public event Action PresentationChanged;
+        public event Action AudioChanged;
 
         public KeyCode GetBinding(GameInputAction action)
         {
@@ -94,6 +100,37 @@ namespace ClaudeOfTanks.Runtime
             _store.SetFloat(Prefix + "volume", MasterVolume);
             _store.Save();
             _target.ApplyVolume(MasterVolume);
+            AudioChanged?.Invoke();
+        }
+
+        public void SetEngineVolume(float value)
+        {
+            EngineVolume = SaveVolume("volume.engine", value);
+            AudioChanged?.Invoke();
+        }
+
+        public void SetCombatVolume(float value)
+        {
+            CombatVolume = SaveVolume("volume.combat", value);
+            AudioChanged?.Invoke();
+        }
+
+        public void SetAmbienceVolume(float value)
+        {
+            AmbienceVolume = SaveVolume("volume.ambience", value);
+            AudioChanged?.Invoke();
+        }
+
+        public void SetUiVolume(float value)
+        {
+            UiVolume = SaveVolume("volume.ui", value);
+            AudioChanged?.Invoke();
+        }
+
+        public void SetVoiceVolume(float value)
+        {
+            VoiceVolume = SaveVolume("volume.voice", value);
+            AudioChanged?.Invoke();
         }
 
         public void SetQualityLevel(int value)
@@ -160,6 +197,11 @@ namespace ClaudeOfTanks.Runtime
         {
             InstallDefaults();
             SetMasterVolume(0.85f);
+            SetEngineVolume(1f);
+            SetCombatVolume(1f);
+            SetAmbienceVolume(1f);
+            SetUiVolume(1f);
+            SetVoiceVolume(1f);
             SetQualityLevel(Math.Max(0, _target.QualityLevelCount - 1));
             SetFullscreen(true);
             SetReducedMotion(false);
@@ -194,6 +236,11 @@ namespace ClaudeOfTanks.Runtime
         {
             InstallDefaults();
             MasterVolume = Mathf.Clamp01(_store.GetFloat(Prefix + "volume", 0.85f));
+            EngineVolume = LoadVolume("volume.engine");
+            CombatVolume = LoadVolume("volume.combat");
+            AmbienceVolume = LoadVolume("volume.ambience");
+            UiVolume = LoadVolume("volume.ui");
+            VoiceVolume = LoadVolume("volume.voice");
             int maximum = Math.Max(0, _target.QualityLevelCount - 1);
             QualityLevel = Mathf.Clamp(
                 _store.GetInt(Prefix + "quality", maximum),
@@ -226,6 +273,19 @@ namespace ClaudeOfTanks.Runtime
                 foreach (KeyValuePair<GameInputAction, KeyCode> binding in loaded)
                     _bindings[binding.Key] = binding.Value;
             Apply();
+        }
+
+        private float LoadVolume(string key)
+        {
+            return Mathf.Clamp01(_store.GetFloat(Prefix + key, 1f));
+        }
+
+        private float SaveVolume(string key, float value)
+        {
+            float clamped = Mathf.Clamp01(value);
+            _store.SetFloat(Prefix + key, clamped);
+            _store.Save();
+            return clamped;
         }
 
         private void InstallDefaults()
