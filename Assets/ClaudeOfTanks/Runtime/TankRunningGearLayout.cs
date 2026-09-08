@@ -8,7 +8,8 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float hullLength)
         {
-            if (definition?.id == "mbt70")
+            if (definition?.id == "mbt70" ||
+                definition?.id == "t14")
                 return 7;
 
             return Mathf.Clamp(

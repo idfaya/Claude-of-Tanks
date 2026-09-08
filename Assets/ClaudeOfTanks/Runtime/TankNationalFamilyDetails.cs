@@ -21,7 +21,8 @@ namespace ClaudeOfTanks.Runtime
                 TankSheridanFamilyDetails.Supports(id) ||
                 TankKf51FamilyDetails.Supports(id) ||
                 TankLeopard1A5FamilyDetails.Supports(id) ||
-                TankMbt70FamilyDetails.Supports(id);
+                TankMbt70FamilyDetails.Supports(id) ||
+                TankT14FamilyDetails.Supports(id);
         }
 
         public static bool OwnsIfvWeaponPackage(
@@ -153,6 +154,14 @@ namespace ClaudeOfTanks.Runtime
                 height,
                 length);
             TankMbt70FamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
+            TankT14FamilyDetails.Build(
                 root,
                 turret,
                 definition,

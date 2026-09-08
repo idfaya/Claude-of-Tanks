@@ -300,6 +300,15 @@ The port preserves the source project's runtime units and conventions:
   launcher package across Garage, solo, replay, and network. Its 29 catalog
   hit surfaces remain authoritative and it adds no collider or generic side
   armor
+- Production T-14 Armata now retains its exact seven-wheel stance, three-seat
+  hull crew capsule, full-length front-panel/rear-screen skirt architecture,
+  engine and stern service fields, low single-crown unmanned turret, six
+  recessed cheek channels, ten capped Afganit launchers, distributed
+  observation suite, panoramic and meteo masts, paired rear antennas,
+  independent 30 mm remote cannon and roof machine gun, and gun-owned clean
+  2A82 thermal package across Garage, solo, replay, and network. Its 101
+  catalog hit surfaces, including 82 catalog-authored ERA surfaces, remain
+  authoritative and it adds no collider or generic side armor
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
