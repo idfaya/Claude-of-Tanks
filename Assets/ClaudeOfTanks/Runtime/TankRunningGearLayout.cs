@@ -47,8 +47,7 @@ namespace ClaudeOfTanks.Runtime
             if (TankPumaFamilyDetails.Supports(
                     definition?.id))
                 return 6;
-            if (TankBradleyFamilyDetails.Supports(
-                    definition?.id))
+            if (UsesBradleyDonor(definition))
                 return 6;
 
             return Mathf.Clamp(
@@ -65,8 +64,7 @@ namespace ClaudeOfTanks.Runtime
                 return 1.25f;
             if (definition?.id == "spz_puma_s1")
                 return 1.323f;
-            if (TankBradleyFamilyDetails.Supports(
-                    definition?.id))
+            if (UsesBradleyDonor(definition))
                 return 1.1475f;
 
             return width * 0.47f;
@@ -76,8 +74,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float fallback)
         {
-            if (TankBradleyFamilyDetails.Supports(
-                    definition?.id))
+            if (UsesBradleyDonor(definition))
                 return 0.335f;
 
             return fallback;
@@ -91,8 +88,7 @@ namespace ClaudeOfTanks.Runtime
                 return 0.43f;
             if (definition?.id == "spz_puma_s1")
                 return 0.378f;
-            if (TankBradleyFamilyDetails.Supports(
-                    definition?.id))
+            if (UsesBradleyDonor(definition))
                 return 0.4f;
 
             return Mathf.Max(0.4f, height * 0.21f);
@@ -106,8 +102,7 @@ namespace ClaudeOfTanks.Runtime
                 return 0.36f;
             if (definition?.id == "spz_puma_s1")
                 return 0.3105f;
-            if (TankBradleyFamilyDetails.Supports(
-                    definition?.id))
+            if (UsesBradleyDonor(definition))
                 return 0.3f;
 
             return wheelY * 0.72f;
@@ -123,8 +118,7 @@ namespace ClaudeOfTanks.Runtime
                 return PumaWheelStations[index];
             if (definition?.id == "spz_puma_s1")
                 return PumaS1WheelStations[index];
-            if (TankBradleyFamilyDetails.Supports(
-                    definition?.id))
+            if (UsesBradleyDonor(definition))
                 return BradleyWheelStations[index];
 
             return Mathf.Lerp(
@@ -143,8 +137,7 @@ namespace ClaudeOfTanks.Runtime
                 return new Vector2(2.658f, 0.965f);
             if (definition?.id == "spz_puma_s1")
                 return new Vector2(2.853f, 0.8685f);
-            if (TankBradleyFamilyDetails.Supports(
-                    definition?.id))
+            if (UsesBradleyDonor(definition))
                 return new Vector2(2.53f, 0.63f);
 
             return new Vector2(
@@ -162,8 +155,7 @@ namespace ClaudeOfTanks.Runtime
                 return new Vector2(-2.814f, 0.84f);
             if (definition?.id == "spz_puma_s1")
                 return new Vector2(-2.835f, 0.756f);
-            if (TankBradleyFamilyDetails.Supports(
-                    definition?.id))
+            if (UsesBradleyDonor(definition))
                 return new Vector2(-2.68f, 0.81f);
 
             return new Vector2(
@@ -175,8 +167,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float roadWheelRadius)
         {
-            if (TankBradleyFamilyDetails.Supports(
-                    definition?.id))
+            if (UsesBradleyDonor(definition))
                 return 0.24f;
 
             return roadWheelRadius * 0.82f;
@@ -186,11 +177,19 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float roadWheelRadius)
         {
-            if (TankBradleyFamilyDetails.Supports(
-                    definition?.id))
+            if (UsesBradleyDonor(definition))
                 return 0.28f;
 
             return roadWheelRadius * 0.82f * 0.94f;
+        }
+
+        private static bool UsesBradleyDonor(
+            VehicleDefinition definition)
+        {
+            string id = definition?.id;
+            return
+                TankBradleyFamilyDetails.Supports(id) ||
+                TankMarder1A3FamilyDetails.Supports(id);
         }
     }
 }

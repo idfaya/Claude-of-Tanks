@@ -330,6 +330,15 @@ The port preserves the source project's runtime units and conventions:
   service bins, and deep bustle rack. Their 19/24/117 catalog hit surfaces
   remain authoritative, including all 88 M3A3 ERA surfaces, and none adds a
   collider or generic side armor/pod
+- Marder 1A3 now reuses only the Bradley donor hull closure and exact
+  six-wheel suspension, replacing the Bradley skirt and fighting compartment
+  with its passive eight-panel-per-side A3 applique course, low rounded cast
+  turret, external gun carriage, gun-owned MK20 Rh 202 and coaxial MG3. Its
+  right-side MILAN, PERI-Z11, ringed commander station, unequal service boxes,
+  closed rear equipment wall and basket, roof gun, twin antennas, and paired
+  three-round smoke banks remain visible in Garage and battle. All 19 catalog
+  hit surfaces remain authoritative, with no added collider or generic side
+  armor/pod
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
