@@ -22,12 +22,19 @@ namespace ClaudeOfTanks.Runtime
         private Material _decalMaterial;
         private Texture2D _decalTexture;
         private MaterialPropertyBlock _decalProperties;
+        private BattlePersistentEffects _persistent;
         private GameSettings _settings;
         private int _lightCursor;
         private uint _noise = 0x91e10da5u;
 
         public int ActiveEffectCount => _active.Count;
         public int ActiveDecalCount => _activeDecals.Count;
+        public int ActivePersistentTankCount =>
+            _persistent != null ? _persistent.ActiveTankCount : 0;
+        public int ActiveTrackPrintCount =>
+            _persistent != null ? _persistent.ActiveTrackPrintCount : 0;
+        public int ActivePersistentSystemCount =>
+            _persistent != null ? _persistent.ActiveSystemCount : 0;
 
         public int ActiveLightCount
         {
@@ -66,6 +73,13 @@ namespace ClaudeOfTanks.Runtime
             {
                 StampDecal(battleEvent, target);
             }
+            if (battleEvent.Type == BattleEventType.TankDestroyed)
+                StampGroundScorch(battleEvent);
+        }
+
+        public void SyncPersistent(IList<TankState> tanks)
+        {
+            _persistent.Sync(tanks);
         }
 
         public void ResetAll()
@@ -95,6 +109,7 @@ namespace ClaudeOfTanks.Runtime
                 _lights[i].Root.SetActive(false);
                 _lights[i].Light.intensity = 0f;
             }
+            _persistent.ResetAll();
         }
 
         private void Update()
@@ -138,6 +153,10 @@ namespace ClaudeOfTanks.Runtime
             };
             _decalMaterial = BuildDecalMaterial(_decalTexture);
             _decalProperties = new MaterialPropertyBlock();
+            _persistent = BattlePersistentEffects.Create(
+                transform,
+                _particleMaterial,
+                _settings);
 
             for (int i = 0; i < EffectPoolSize; i++)
             {
@@ -296,16 +315,7 @@ namespace ClaudeOfTanks.Runtime
 
         private void StampDecal(BattleEvent battleEvent, Transform target)
         {
-            DecalNode decal;
-            if (_availableDecals.Count > 0)
-            {
-                decal = _availableDecals.Dequeue();
-            }
-            else
-            {
-                decal = _activeDecals[0];
-                _activeDecals.RemoveAt(0);
-            }
+            DecalNode decal = AcquireDecal();
 
             Vector3 normal = battleEvent.Normal.ToUnity();
             if (normal.sqrMagnitude < 0.1f) normal = Vector3.up;
@@ -326,6 +336,37 @@ namespace ClaudeOfTanks.Runtime
             decal.Renderer.SetPropertyBlock(_decalProperties);
             decal.Root.SetActive(true);
             _activeDecals.Add(decal);
+        }
+
+        private void StampGroundScorch(BattleEvent battleEvent)
+        {
+            DecalNode decal = AcquireDecal();
+            decal.Root.transform.SetParent(transform, true);
+            decal.Root.transform.position =
+                battleEvent.Position.ToUnity() + Vector3.up * 0.035f;
+            decal.Root.transform.rotation =
+                Quaternion.Euler(-90f, Next01() * 360f, 0f);
+            float size = Mathf.Clamp(
+                battleEvent.CaliberMm / 22f,
+                4.4f,
+                7.2f);
+            decal.Root.transform.localScale =
+                new Vector3(size, size * 0.82f, 1f);
+            _decalProperties.SetColor(
+                "_Color",
+                new Color(0.035f, 0.028f, 0.022f, 0.82f));
+            decal.Renderer.SetPropertyBlock(_decalProperties);
+            decal.Root.SetActive(true);
+            _activeDecals.Add(decal);
+        }
+
+        private DecalNode AcquireDecal()
+        {
+            if (_availableDecals.Count > 0)
+                return _availableDecals.Dequeue();
+            DecalNode oldest = _activeDecals[0];
+            _activeDecals.RemoveAt(0);
+            return oldest;
         }
 
         private static float Lifetime(BattleEventType type)

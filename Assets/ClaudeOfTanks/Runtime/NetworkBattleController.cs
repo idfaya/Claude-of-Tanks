@@ -213,6 +213,7 @@ namespace ClaudeOfTanks.Runtime
                 _cameraAimPoint,
                 Time.deltaTime);
             _presenter.UpdateVisibility(_camera.transform.position);
+            _presenter.UpdateEffects();
             _presenter.UpdateAudio(
                 _camera.transform.position,
                 _localEntityId,

@@ -157,6 +157,11 @@ namespace ClaudeOfTanks.Runtime
             _map.UpdateVegetationVisibility(cameraPosition);
         }
 
+        public void UpdateEffects()
+        {
+            _effects.SyncPersistent(_visibleTanks);
+        }
+
         public void UpdateAudio(
             Vector3 listenerPosition,
             string listenerOwnerId,

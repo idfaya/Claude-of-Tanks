@@ -55,6 +55,91 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void PersistentTankEffectsAndTrackPrintsStayBounded()
+        {
+            BattleEffects effects = BattleEffects.Create();
+            List<TankState> tanks = new List<TankState>();
+            for (int i = 0;
+                i < BattlePersistentEffects.TankPoolSize + 4;
+                i++)
+            {
+                TankState tank = Tank("tank-" + i, i);
+                tank.SpeedMps = 12f;
+                if (i == 0) tank.Combat.Fire.Burning = true;
+                if (i == 1)
+                {
+                    tank.Destroyed = true;
+                    tank.Combat.Destroyed = true;
+                }
+                tanks.Add(tank);
+            }
+
+            try
+            {
+                effects.SyncPersistent(tanks);
+                Assert.That(
+                    effects.ActivePersistentTankCount,
+                    Is.EqualTo(BattlePersistentEffects.TankPoolSize));
+                Assert.That(
+                    effects.ActivePersistentSystemCount,
+                    Is.GreaterThan(0).And.LessThanOrEqualTo(
+                        BattlePersistentEffects.TankPoolSize * 4));
+
+                for (int i = 0;
+                    i < BattlePersistentEffects.TankPoolSize;
+                    i++)
+                {
+                    tanks[i].Position = new Float3(i, 0f, 2f);
+                }
+                effects.SyncPersistent(tanks);
+                Assert.That(
+                    effects.ActiveTrackPrintCount,
+                    Is.EqualTo(BattlePersistentEffects.TankPoolSize - 1));
+                Assert.That(
+                    effects.ActiveTrackPrintCount,
+                    Is.LessThanOrEqualTo(
+                        BattlePersistentEffects.TrackPrintLimit));
+
+                effects.SyncPersistent(new[] { tanks[0] });
+                Assert.That(effects.ActivePersistentTankCount, Is.EqualTo(1));
+                Assert.That(effects.ActiveTrackPrintCount, Is.EqualTo(1));
+
+                effects.ResetAll();
+                Assert.That(effects.ActivePersistentTankCount, Is.Zero);
+                Assert.That(effects.ActivePersistentSystemCount, Is.Zero);
+                Assert.That(effects.ActiveTrackPrintCount, Is.Zero);
+            }
+            finally
+            {
+                Object.DestroyImmediate(effects.gameObject);
+            }
+        }
+
+        [Test]
+        public void TankDestructionStampsGroundScorch()
+        {
+            BattleEffects effects = BattleEffects.Create();
+            BattleEvent destroyed = new BattleEvent
+            {
+                Type = BattleEventType.TankDestroyed,
+                Position = new Float3(4f, 0f, 7f),
+                Direction = new Float3(0f, 0f, 1f),
+                Normal = new Float3(0f, 1f, 0f),
+                CaliberMm = 120f
+            };
+
+            try
+            {
+                effects.Play(destroyed);
+                Assert.That(effects.ActiveDecalCount, Is.EqualTo(1));
+            }
+            finally
+            {
+                Object.DestroyImmediate(effects.gameObject);
+            }
+        }
+
+        [Test]
         public void ReducedMotionKeepsFeedbackButSuppressesDynamicFlashes()
         {
             MemorySettingsStore store = new MemorySettingsStore();
@@ -83,6 +168,18 @@ namespace ClaudeOfTanks.Tests
             {
                 Object.DestroyImmediate(effects.gameObject);
             }
+        }
+
+        private static TankState Tank(string id, int index)
+        {
+            TankSpec spec = TankSpec.Medium();
+            spec.Id = "medium-" + index;
+            return new TankState(
+                id,
+                index % 2 == 0 ? Team.Alpha : Team.Bravo,
+                spec,
+                new Float3(index, 0f, 0f),
+                0f);
         }
 
         private sealed class MemorySettingsStore : ISettingsStore

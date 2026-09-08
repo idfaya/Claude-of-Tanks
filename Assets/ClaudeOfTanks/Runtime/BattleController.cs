@@ -208,6 +208,7 @@ namespace ClaudeOfTanks.Runtime
 
             _cameraRig.Apply(_camera, _player, _cameraAimPoint, Time.deltaTime);
             _mapRuntime?.UpdateVegetationVisibility(_camera.transform.position);
+            _effects?.SyncPersistent(_simulation.State.Tanks);
             _audio?.SetKillcamDucking(
                 _replaySession != null && _replayIsKillcam);
             _audio?.SyncEngines(
