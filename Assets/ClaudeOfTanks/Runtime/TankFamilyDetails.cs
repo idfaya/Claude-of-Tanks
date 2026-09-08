@@ -26,6 +26,9 @@ namespace ClaudeOfTanks.Runtime
             bool korean =
                 TankKoreanFamilyDetails.Supports(
                     definition.id);
+            bool japanese =
+                TankJapaneseFamilyDetails.Supports(
+                    definition.id);
             if (definition.role == "ifv" &&
                 definition.id != "bmpt_t90")
             {
@@ -47,7 +50,8 @@ namespace ClaudeOfTanks.Runtime
                 !leopard &&
                 !challenger &&
                 !merkava &&
-                !korean)
+                !korean &&
+                !japanese)
             {
                 for (int side = -1;
                     side <= 1;
@@ -101,6 +105,14 @@ namespace ClaudeOfTanks.Runtime
                 height,
                 length);
             TankKoreanFamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
+            TankJapaneseFamilyDetails.Build(
                 root,
                 turret,
                 definition,

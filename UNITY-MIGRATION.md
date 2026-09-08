@@ -213,6 +213,13 @@ The port preserves the source project's runtime units and conventions:
   wrap-around side cages; K2B adds its 16-panel stealth side package, diamond
   turret shell, paired EO heads, twin remote stations, and gun-owned mask
   without duplicating catalog-authored armor or generic side armor
+- The six production Japanese variants share catalog-seated rear service
+  fields, engine decks, smoke banks, hatches, antennas, optics, weapons, and
+  generation-specific bustle fittings across Garage, solo, replay, and network
+  presentation. STB-1 and Type 74 retain their cast-generation searchlights
+  and open racks; Type 90A adds its visual NERA/service package; Type 10B adds
+  paired EO heads, compact RWS, joined Kai basket, and gun-owned mask without
+  duplicating its 52 catalog-authored ERA surfaces or generic side armor
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
@@ -297,7 +304,7 @@ These systems still use the TypeScript implementation as their specification:
 
 - complete remaining per-variant exterior fitting parity across the
   126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
-  Challenger 2/3, Merkava, and Korean identity suites;
+  Challenger 2/3, Merkava, Korean, and Japanese identity suites;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;
