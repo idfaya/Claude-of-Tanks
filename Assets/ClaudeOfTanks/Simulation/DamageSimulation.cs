@@ -89,6 +89,14 @@ namespace ClaudeOfTanks.Simulation
     {
         public float RepairRate = 1f;
         public float Reload = 1f;
+        public float AimTime = 1f;
+        public float Bloom = 1f;
+        public float ViewRange = 1f;
+        public float StationaryViewRange = 1f;
+        public float Camouflage;
+        public float StationaryCamouflage;
+        public float HeSplash = 1f;
+        public float CrewHe = 1f;
         public float Extinguish = 1f;
         public float FireTicks = 1f;
         public float EngineFire = 1f;
@@ -130,6 +138,13 @@ namespace ClaudeOfTanks.Simulation
         public bool Destroyed;
     }
 
+    public struct HeSplashResult
+    {
+        public float Damage;
+        public int CrewHitCount;
+        public bool Destroyed;
+    }
+
     public static class DamageSimulation
     {
         public const float RepairDurationS = 10f;
@@ -140,6 +155,8 @@ namespace ClaudeOfTanks.Simulation
         private const float FireExtinguishChance = 0.12f;
         private const float EngineFireChance = 0.15f;
         private const float AmmoRackReloadMultiplier = 1.5f;
+        private const float HeArmorAbsorption = 1.1f;
+        private const float HeCrewHitChance = 0.1f;
 
         private static readonly string[] DefaultModules =
         {
@@ -318,6 +335,54 @@ namespace ClaudeOfTanks.Simulation
             RequireState(state);
             state.Health = Math.Max(0f, state.Health - Math.Max(0f, damage));
             FinalizeState(state, false);
+        }
+
+        public static HeSplashResult ApplyHeSplash(
+            DamageCombatState state,
+            float shellDamage,
+            float armorMm,
+            Func<float> random01)
+        {
+            RequireState(state);
+            if (random01 == null)
+                throw new ArgumentNullException(nameof(random01));
+            if (float.IsNaN(shellDamage) || float.IsInfinity(shellDamage) ||
+                float.IsNaN(armorMm) || float.IsInfinity(armorMm))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(shellDamage),
+                    "HE splash inputs must be finite.");
+            }
+
+            float damage = Math.Max(
+                0f,
+                0.5f * Math.Max(0f, shellDamage) -
+                HeArmorAbsorption * Math.Max(0f, armorMm));
+            damage *= PositiveMultiplier(state.Equipment.HeSplash);
+            DamageHealth(state, damage);
+
+            int crewHitCount = 0;
+            List<string> crewIds = new List<string>(state.Crew.Keys);
+            crewIds.Sort(StringComparer.Ordinal);
+            float crewChance =
+                HeCrewHitChance * PositiveMultiplier(state.Equipment.CrewHe);
+            for (int i = 0; i < crewIds.Count; i++)
+            {
+                float roll = random01();
+                string crewId = crewIds[i];
+                if (state.Crew[crewId] && roll < crewChance)
+                {
+                    state.Crew[crewId] = false;
+                    crewHitCount++;
+                }
+            }
+            FinalizeState(state, false);
+            return new HeSplashResult
+            {
+                Damage = damage,
+                CrewHitCount = crewHitCount,
+                Destroyed = state.Destroyed
+            };
         }
 
         public static bool KnockOutCrew(DamageCombatState state, string crewId)

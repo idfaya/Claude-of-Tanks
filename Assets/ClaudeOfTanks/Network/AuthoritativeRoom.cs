@@ -106,6 +106,7 @@ namespace ClaudeOfTanks.Network
         private readonly Func<string, bool> _vehicleAllowed;
         private readonly Func<string, bool> _mapAllowed;
         private readonly Func<string, bool> _camoAllowed;
+        private readonly Func<string, string, bool> _equipmentAllowed;
         private int _nextEntityOrdinal = 1;
         private bool _disposed;
 
@@ -122,7 +123,8 @@ namespace ClaudeOfTanks.Network
             bool allowTeamSwitch = true,
             Func<string, bool> vehicleAllowed = null,
             Func<string, bool> mapAllowed = null,
-            Func<string, bool> camoAllowed = null)
+            Func<string, bool> camoAllowed = null,
+            Func<string, string, bool> equipmentAllowed = null)
         {
             RoomCode = CleanRoomCode(roomCode);
             if (teamSize < 1 || teamSize > MaximumTeamSize)
@@ -134,6 +136,8 @@ namespace ClaudeOfTanks.Network
             _vehicleAllowed = vehicleAllowed ?? (_ => true);
             _mapAllowed = mapAllowed ?? (_ => true);
             _camoAllowed = camoAllowed ?? (_ => true);
+            _equipmentAllowed =
+                equipmentAllowed ?? ((vehicleId, equipmentId) => true);
             TeamSize = teamSize;
             PlayerCapacity = maximumPlayers;
             SpectatorCapacity = maximumSpectators;
@@ -275,6 +279,9 @@ namespace ClaudeOfTanks.Network
             if (!_vehicleAllowed(id))
                 throw Policy("vehicle_not_allowed", "Vehicle is unavailable in this room.");
             player.VehicleSpecId = id;
+            player.Equipment = CleanEquipment(
+                player.VehicleSpecId,
+                player.Equipment);
             Touch();
         }
 
@@ -282,7 +289,9 @@ namespace ClaudeOfTanks.Network
         {
             RequireWaiting();
             PlayerRecord player = RequireEditablePlayer(playerId);
-            player.Equipment = CleanEquipment(equipment);
+            player.Equipment = CleanEquipment(
+                player.VehicleSpecId,
+                equipment);
             Touch();
         }
 
@@ -711,16 +720,28 @@ namespace ClaudeOfTanks.Network
             };
         }
 
-        private static string[] CleanEquipment(string[] equipment)
+        private string[] CleanEquipment(
+            string vehicleSpecId,
+            string[] equipment)
         {
             if (equipment == null || equipment.Length == 0) return Array.Empty<string>();
-            List<string> result = new List<string>(3);
-            for (int i = 0; i < equipment.Length && result.Count < 3; i++)
+            List<string> result =
+                new List<string>(LoadoutSimulation.EquipmentSlots);
+            for (int i = 0;
+                i < equipment.Length &&
+                result.Count < LoadoutSimulation.EquipmentSlots;
+                i++)
             {
                 string id;
                 try { id = CleanContentId(equipment[i], "invalid_equipment"); }
                 catch (RoomPolicyException) { continue; }
-                if (!result.Contains(id)) result.Add(id);
+                if (!LoadoutSimulation.IsEquipment(id) ||
+                    result.Contains(id) ||
+                    !_equipmentAllowed(vehicleSpecId, id))
+                {
+                    continue;
+                }
+                result.Add(id);
             }
             return result.ToArray();
         }

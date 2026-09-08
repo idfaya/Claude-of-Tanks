@@ -31,6 +31,15 @@ namespace ClaudeOfTanks.Server
             return !string.IsNullOrEmpty(id) && _productionVehicles.Contains(id);
         }
 
+        public bool IsEquipmentAllowed(
+            string vehicleId,
+            string equipmentId)
+        {
+            if (!IsVehicleAllowed(vehicleId)) return false;
+            return _catalog.GetVehicle(vehicleId)
+                .AllowsEquipment(equipmentId);
+        }
+
         public AuthoritativeMatchHost Create(RoomMatchPlan plan)
         {
             if (plan == null) throw new ArgumentNullException(nameof(plan));

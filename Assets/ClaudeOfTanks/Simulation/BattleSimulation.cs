@@ -93,7 +93,10 @@ namespace ClaudeOfTanks.Simulation
                 direction = Float3.Forward(gunYaw);
             }
 
-            direction = BallisticsSimulation.ApplyDispersion(direction, 0.0018f, _state.Random);
+            direction = BallisticsSimulation.ApplyDispersion(
+                direction,
+                TankMovement.DispersionSigmaRad(tank),
+                _state.Random);
 
             ShellState shell = new ShellState
             {
@@ -106,6 +109,7 @@ namespace ClaudeOfTanks.Simulation
                 Velocity = direction * tank.Spec.Shell.VelocityMps
             };
             _state.Shells.Add(shell);
+            TankMovement.ApplyPostShotBloom(tank);
             DamageSimulation.StartPostShotReload(tank.Combat, tank.DamageSpec);
             tank.ReloadRemainingS = tank.Combat.Reload.RemainingS;
             _state.Events.Add(new BattleEvent
@@ -251,8 +255,23 @@ namespace ClaudeOfTanks.Simulation
                 shell.DistanceM,
                 _state.Random);
             bool penetrated = armorResult.Penetrated;
-            float damage = penetrated ? shell.Spec.Damage * _state.Random.Range(0.9f, 1.1f) : 0f;
-            DamageSimulation.DamageHealth(target.Combat, damage);
+            float damage = 0f;
+            if (penetrated)
+            {
+                damage =
+                    shell.Spec.Damage * _state.Random.Range(0.9f, 1.1f);
+                DamageSimulation.DamageHealth(target.Combat, damage);
+            }
+            else if (shellType == ArmorShellType.HE ||
+                     shellType == ArmorShellType.HESH)
+            {
+                HeSplashResult splash = DamageSimulation.ApplyHeSplash(
+                    target.Combat,
+                    shell.Spec.Damage,
+                    armor,
+                    _nextRandom);
+                damage = splash.Damage;
+            }
             if (penetrated)
             {
                 float moduleRoll = _state.Random.NextFloat();

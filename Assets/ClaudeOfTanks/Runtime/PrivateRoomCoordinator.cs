@@ -30,6 +30,8 @@ namespace ClaudeOfTanks.Runtime
             new HashSet<string>(StringComparer.Ordinal);
         private readonly HashSet<string> _mapIds =
             new HashSet<string>(StringComparer.Ordinal);
+        private Func<string, string, bool> _equipmentAllowed =
+            (vehicleId, equipmentId) => true;
         private RoomSignalingClient _signaling;
         private PrivateRoomHostRtcSession _hostRtc;
         private PrivateRoomClientRtcSession _clientRtc;
@@ -66,7 +68,8 @@ namespace ClaudeOfTanks.Runtime
 
         public void ConfigureContent(
             IEnumerable<string> vehicleIds,
-            IEnumerable<string> mapIds)
+            IEnumerable<string> mapIds,
+            Func<string, string, bool> equipmentAllowed = null)
         {
             _vehicleIds.Clear();
             _mapIds.Clear();
@@ -80,6 +83,8 @@ namespace ClaudeOfTanks.Runtime
                 foreach (string id in mapIds)
                     if (!string.IsNullOrEmpty(id)) _mapIds.Add(id);
             }
+            _equipmentAllowed =
+                equipmentAllowed ?? ((vehicleId, equipmentId) => true);
         }
 
         public bool BeginCreate(
@@ -348,7 +353,8 @@ namespace ClaudeOfTanks.Runtime
                 gameMode: _pendingMode,
                 mapId: _pendingMapId,
                 vehicleAllowed: IsVehicleAllowed,
-                mapAllowed: IsMapAllowed);
+                mapAllowed: IsMapAllowed,
+                equipmentAllowed: _equipmentAllowed);
             room.SelectEquipment(_playerId, _desiredEquipment);
             room.SelectCamo(_playerId, _desiredCamoId);
             _hostLobby = new PrivateRoomHostLobbyRuntime(_hostRtc, room);

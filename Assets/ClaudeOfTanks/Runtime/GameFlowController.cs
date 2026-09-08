@@ -60,7 +60,10 @@ namespace ClaudeOfTanks.Runtime
             _privateRoom = gameObject.AddComponent<PrivateRoomCoordinator>();
             _privateRoom.ConfigureContent(
                 _catalog.ProductionVehicleIds,
-                MapIds());
+                MapIds(),
+                (vehicleId, equipmentId) =>
+                    _catalog.GetVehicle(vehicleId)
+                        .AllowsEquipment(equipmentId));
             _privateRoom.MatchHandoffReady += StartNetworkBattle;
             _privateRoom.Changed += OnPrivateRoomChanged;
             _ranked = gameObject.AddComponent<RankedCoordinator>();

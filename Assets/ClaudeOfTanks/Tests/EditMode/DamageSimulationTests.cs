@@ -80,6 +80,45 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void SpallLinerReducesHeSplashAndCrewHitChance()
+        {
+            TankState baselineTank = new TankState(
+                "baseline",
+                Team.Alpha,
+                TankSpec.Medium(),
+                Float3.Zero,
+                0f);
+            TankState protectedTank = new TankState(
+                "protected",
+                Team.Alpha,
+                TankSpec.Medium(),
+                Float3.Zero,
+                0f);
+            LoadoutSimulation.ApplyEquipment(
+                protectedTank,
+                new[] { "spall_liner" });
+
+            HeSplashResult baseline = DamageSimulation.ApplyHeSplash(
+                baselineTank.Combat,
+                400f,
+                50f,
+                () => 0.075f);
+            HeSplashResult protectedResult =
+                DamageSimulation.ApplyHeSplash(
+                    protectedTank.Combat,
+                    400f,
+                    50f,
+                    () => 0.075f);
+
+            Assert.That(
+                protectedResult.Damage,
+                Is.EqualTo(baseline.Damage * 0.75f)
+                    .Within(0.00001f));
+            Assert.That(baseline.CrewHitCount, Is.EqualTo(4));
+            Assert.That(protectedResult.CrewHitCount, Is.Zero);
+        }
+
+        [Test]
         public void RedModuleRepairsToYellowOnlyAfterFullDuration()
         {
             DamageCombatState state = DamageSimulation.CreateCombatState(MakeSpec());

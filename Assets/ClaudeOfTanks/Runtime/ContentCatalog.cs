@@ -173,15 +173,36 @@ namespace ClaudeOfTanks.Runtime
         public VehicleVisual visual;
         public VehicleArmor armor;
 
+        public bool IsModern =>
+            era == "cold-war" ||
+            era == "modern" ||
+            era == "next-generation";
+
+        public bool AllowsEquipment(string equipmentId)
+        {
+            return LoadoutSimulation.IsEquipmentAllowed(
+                equipmentId,
+                IsModern,
+                gun != null &&
+                gun.autoloader != null &&
+                gun.autoloader.magazineSize > 1);
+        }
+
         public TankSpec ToTankSpec()
         {
             VehicleShell source = gun != null && gun.shells != null && gun.shells.Length > 0
                 ? gun.shells[0] : new VehicleShell();
             float width = dims != null && dims.widthM > 0f ? dims.widthM : 3.4f;
+            VehicleGunBloom bloom =
+                gun != null && gun.bloom != null
+                    ? gun.bloom
+                    : new VehicleGunBloom();
             return new TankSpec
             {
                 Id = id,
                 DisplayName = name,
+                Role = string.IsNullOrEmpty(role) ? "medium" : role,
+                IsModern = IsModern,
                 MaxHealth = hp,
                 EnginePowerHp = enginePowerHp,
                 WeightTons = weightTons,
@@ -190,6 +211,43 @@ namespace ClaudeOfTanks.Runtime
                 HullTraverseDegS = hullTraverseDegS,
                 TurretTraverseDegS = turretTraverseDegS,
                 CollisionRadiusM = width * 0.62f,
+                AimTimeS = gun != null && gun.aimTimeS > 0f
+                    ? gun.aimTimeS
+                    : 2f,
+                BaseAccuracyMAt100 =
+                    gun != null && gun.baseAccuracy > 0f
+                        ? gun.baseAccuracy
+                        : 0.36f,
+                AimBloomMove = bloom.move,
+                AimBloomHullRotation = bloom.hullRot,
+                AimBloomTurretRotation = bloom.turret,
+                AimBloomAfterShot = bloom.afterShot,
+                ViewRangeM =
+                    SpottingSimulation.BaseViewRangeM(id, role),
+                CamouflageStill =
+                    SpottingSimulation.BaseCamouflage(
+                        id,
+                        role,
+                        false),
+                CamouflageMoving =
+                    SpottingSimulation.BaseCamouflage(
+                        id,
+                        role,
+                        true),
+                MagazineSize =
+                    gun != null &&
+                    gun.autoloader != null &&
+                    gun.autoloader.magazineSize > 1
+                        ? gun.autoloader.magazineSize
+                        : 1,
+                MagazineReloadS =
+                    gun != null && gun.autoloader != null
+                        ? gun.autoloader.fullReloadS
+                        : 0f,
+                IntraClipS =
+                    gun != null && gun.autoloader != null
+                        ? gun.autoloader.intraClipS
+                        : 0f,
                 Shell = new ShellSpec
                 {
                     Name = source.name,
@@ -219,8 +277,19 @@ namespace ClaudeOfTanks.Runtime
     {
         public float caliberMm;
         public float reloadS;
+        public float aimTimeS;
+        public float baseAccuracy;
+        public VehicleGunBloom bloom;
         public VehicleAutoloader autoloader;
         public VehicleShell[] shells;
+    }
+
+    [Serializable] public sealed class VehicleGunBloom
+    {
+        public float afterShot = 2.8f;
+        public float hullRot = 0.2f;
+        public float move = 0.2f;
+        public float turret = 0.12f;
     }
 
     [Serializable] public sealed class VehicleAutoloader

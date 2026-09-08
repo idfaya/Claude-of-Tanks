@@ -1,3 +1,4 @@
+using System;
 using ClaudeOfTanks.Network;
 using ClaudeOfTanks.Simulation;
 using NUnit.Framework;
@@ -124,7 +125,41 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
-        private static AuthoritativeRoom Room(int teamSize)
+        [Test]
+        public void EquipmentSelectionRejectsUnknownAndVehicleIllegalItems()
+        {
+            using (AuthoritativeRoom room = Room(
+                teamSize: 1,
+                equipmentAllowed: (vehicleId, equipmentId) =>
+                    vehicleId == "m1a2"
+                        ? equipmentId != "camo_net"
+                        : equipmentId != "vstab"))
+            {
+                room.SelectVehicle("host", "m1a2");
+                room.SelectEquipment(
+                    "host",
+                    "rammer",
+                    "unknown",
+                    "camo_net",
+                    "vents");
+                Assert.That(
+                    Player(room.Snapshot(), "host").Equipment,
+                    Is.EqualTo(new[] { "rammer", "vents" }));
+
+                room.SelectVehicle("host", "t90m");
+                Assert.That(
+                    Player(room.Snapshot(), "host").Equipment,
+                    Is.EqualTo(new[] { "rammer", "vents" }));
+                room.SelectEquipment("host", "vstab", "optics");
+                Assert.That(
+                    Player(room.Snapshot(), "host").Equipment,
+                    Is.EqualTo(new[] { "optics" }));
+            }
+        }
+
+        private static AuthoritativeRoom Room(
+            int teamSize,
+            Func<string, string, bool> equipmentAllowed = null)
         {
             return new AuthoritativeRoom(
                 "ABC123",
@@ -133,7 +168,8 @@ namespace ClaudeOfTanks.Tests
                 null,
                 teamSize,
                 vehicleAllowed: id => id == "m1a2" || id == "t90m" || id == "leo2a7",
-                mapAllowed: id => id == "random" || id == "cinder");
+                mapAllowed: id => id == "random" || id == "cinder",
+                equipmentAllowed: equipmentAllowed);
         }
 
         private static RoomPlayerSnapshot Player(

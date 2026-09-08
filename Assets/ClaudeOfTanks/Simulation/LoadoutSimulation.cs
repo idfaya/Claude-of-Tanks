@@ -22,9 +22,11 @@ namespace ClaudeOfTanks.Simulation
             if (ids == null) return result.ToArray();
             foreach (string id in ids)
             {
-                if (!IsEquipment(id) || result.Contains(id)) continue;
-                if ((id == "vstab" || id == "auto_ext") && !modern) continue;
-                if (id == "rammer" && autoloader) continue;
+                if (!IsEquipmentAllowed(id, modern, autoloader) ||
+                    result.Contains(id))
+                {
+                    continue;
+                }
                 result.Add(id);
                 if (result.Count == EquipmentSlots) break;
             }
@@ -34,22 +36,48 @@ namespace ClaudeOfTanks.Simulation
         public static void ApplyEquipment(TankState tank, IEnumerable<string> ids)
         {
             if (tank == null) throw new ArgumentNullException(nameof(tank));
-            string[] loadout = SanitizeEquipment(ids, true, tank.Combat.Magazine != null);
+            string[] loadout = SanitizeEquipment(
+                ids,
+                tank.Spec.IsModern,
+                tank.Combat.Magazine != null);
             tank.Equipment = (string[])loadout.Clone();
             for (int i = 0; i < loadout.Length; i++)
             {
                 switch (loadout[i])
                 {
                     case "rammer":
-                        tank.DamageSpec.Gun.ReloadS *= 0.9f;
-                        tank.Combat.Reload.TotalS *= 0.9f;
-                        tank.Combat.GunReload.TotalS *= 0.9f;
+                        ScaleReload(tank, 0.9f);
+                        break;
+                    case "vstab":
+                        tank.Combat.Equipment.Bloom *= 0.8f;
+                        break;
+                    case "gld":
+                        tank.Combat.Equipment.AimTime *= 0.9f;
+                        break;
+                    case "vents":
+                        ScaleReload(tank, 0.975f);
+                        tank.Combat.Equipment.AimTime *= 0.975f;
+                        tank.Combat.Equipment.ViewRange *= 1.025f;
+                        tank.Combat.Equipment.Camouflage += 0.02f;
+                        break;
+                    case "optics":
+                        tank.Combat.Equipment.ViewRange *= 1.1f;
+                        break;
+                    case "binoculars":
+                        tank.Combat.Equipment.StationaryViewRange *= 1.25f;
+                        break;
+                    case "camo_net":
+                        tank.Combat.Equipment.StationaryCamouflage += 0.12f;
                         break;
                     case "rotation":
                         tank.TraverseMultiplier *= 1.1f;
                         tank.TurretMultiplier *= 1.1f;
                         break;
                     case "toolbox": tank.Combat.Equipment.RepairRate *= 1.25f; break;
+                    case "spall_liner":
+                        tank.Combat.Equipment.HeSplash *= 0.75f;
+                        tank.Combat.Equipment.CrewHe *= 0.5f;
+                        break;
                     case "auto_ext":
                         tank.Combat.Equipment.FireTicks *= 0.5f;
                         tank.Combat.Equipment.Extinguish *= 2f;
@@ -65,6 +93,16 @@ namespace ClaudeOfTanks.Simulation
                         break;
                 }
             }
+        }
+
+        public static bool IsEquipmentAllowed(
+            string id,
+            bool modern,
+            bool autoloader)
+        {
+            if (!IsEquipment(id)) return false;
+            if ((id == "vstab" || id == "auto_ext") && !modern) return false;
+            return id != "rammer" || !autoloader;
         }
 
         public static bool UseConsumable(
@@ -104,7 +142,53 @@ namespace ClaudeOfTanks.Simulation
             module.Health *= multiplier;
         }
 
-        private static bool IsEquipment(string id)
+        private static void ScaleReload(
+            TankState tank,
+            float multiplier)
+        {
+            DamageGunSpec gun = tank.DamageSpec.Gun;
+            gun.ReloadS *= multiplier;
+            for (int i = 0; i < gun.Shells.Count; i++)
+            {
+                if (gun.Shells[i].ReloadS.HasValue)
+                {
+                    gun.Shells[i].ReloadS =
+                        gun.Shells[i].ReloadS.Value * multiplier;
+                }
+            }
+            if (gun.Autoloader != null &&
+                gun.Autoloader.FullReloadS.HasValue)
+            {
+                gun.Autoloader.FullReloadS =
+                    gun.Autoloader.FullReloadS.Value * multiplier;
+            }
+
+            HashSet<DamageReloadState> scaled =
+                new HashSet<DamageReloadState>();
+            ScaleReloadState(tank.Combat.GunReload, multiplier, scaled);
+            ScaleReloadState(tank.Combat.Reload, multiplier, scaled);
+            for (int i = 0;
+                i < tank.Combat.ReloadChannels.Length;
+                i++)
+            {
+                ScaleReloadState(
+                    tank.Combat.ReloadChannels[i],
+                    multiplier,
+                    scaled);
+            }
+        }
+
+        private static void ScaleReloadState(
+            DamageReloadState state,
+            float multiplier,
+            HashSet<DamageReloadState> scaled)
+        {
+            if (state == null || !scaled.Add(state)) return;
+            state.TotalS *= multiplier;
+            state.RemainingS *= multiplier;
+        }
+
+        public static bool IsEquipment(string id)
         {
             switch (id)
             {

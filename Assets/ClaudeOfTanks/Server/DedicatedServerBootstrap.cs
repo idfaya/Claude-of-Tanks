@@ -156,7 +156,8 @@ namespace ClaudeOfTanks.Server
                 _registry,
                 factory.Create,
                 factory.MapRotation,
-                factory.IsVehicleAllowed);
+                factory.IsVehicleAllowed,
+                equipmentAllowed: factory.IsEquipmentAllowed);
             _httpApi = new RankedHttpApi(ratings, matchmaker, _registry);
             _service = new DedicatedMatchWebSocketService(
                 _registry,

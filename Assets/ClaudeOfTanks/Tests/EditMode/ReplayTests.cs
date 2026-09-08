@@ -171,6 +171,12 @@ namespace ClaudeOfTanks.Tests
             Assert.That(
                 replay.State.Tanks[0].Combat.Equipment.RepairRate,
                 Is.EqualTo(1.25f));
+            Assert.That(
+                replay.State.Tanks[0].Spec.AimTimeS,
+                Is.EqualTo(original.State.Tanks[0].Spec.AimTimeS));
+            Assert.That(
+                replay.State.Tanks[0].Spec.ViewRangeM,
+                Is.EqualTo(original.State.Tanks[0].Spec.ViewRangeM));
             Assert.That(replay.State.HeightField.HeightAt(12f, -8f), Is.EqualTo(5f).Within(0.001f));
         }
 
@@ -193,18 +199,46 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
-        public void ReplayWireCodecReadsVersionsOneAndThreeWithoutLoadouts()
+        public void ReplayWireCodecReadsVersionsOneThreeAndFour()
         {
             BattleState state = new BattleState(new FlatHeightField(), 23u);
-            state.Tanks.Add(new TankState(
-                "alpha", Team.Alpha, TankSpec.Medium(), Float3.Zero, 0f));
+            TankSpec spec = TankSpec.Medium();
+            spec.IsModern = true;
+            TankState tank = new TankState(
+                "alpha", Team.Alpha, spec, Float3.Zero, 0f);
+            LoadoutSimulation.ApplyEquipment(tank, new[] { "vstab" });
+            state.Tanks.Add(tank);
             BattleReplayRecorder recorder = new BattleReplayRecorder(state, GameModeId.Standard);
-            byte[] versionFour = ReplayWireCodec.Encode(recorder.Recording);
+            byte[] versionFive = ReplayWireCodec.Encode(recorder.Recording);
             const int obstacleCountOffset = 16;
-            const int defaultLoadoutMetadataBytes = 15;
-            byte[] versionThree = new byte[
-                versionFour.Length -
-                defaultLoadoutMetadataBytes];
+            int simulationMetadataOffset =
+                FindMagic(versionFive, 0x534d4f43u);
+            byte[] versionFour =
+                new byte[simulationMetadataOffset];
+            Buffer.BlockCopy(
+                versionFive,
+                0,
+                versionFour,
+                0,
+                versionFour.Length);
+            versionFour[4] = 4;
+            versionFour[5] = 0;
+            ReplayRecording decodedVersionFour =
+                ReplayWireCodec.Decode(versionFour);
+            Assert.That(
+                decodedVersionFour.GetTankEquipment(0),
+                Is.EqualTo(new[] { "vstab" }));
+            BattleSimulation versionFourReplay =
+                BattleReplayPlayer.Play(decodedVersionFour);
+            Assert.That(
+                versionFourReplay.State.Tanks[0]
+                    .Combat.Equipment.Bloom,
+                Is.EqualTo(0.8f).Within(0.00001f));
+
+            int loadoutMetadataOffset =
+                FindMagic(versionFour, 0x4c544f43u);
+            byte[] versionThree =
+                new byte[loadoutMetadataOffset];
             Buffer.BlockCopy(
                 versionFour,
                 0,
@@ -223,19 +257,16 @@ namespace ClaudeOfTanks.Tests
                 Is.EqualTo("factory"));
 
             byte[] versionOne = new byte[
-                versionFour.Length -
-                2 -
-                defaultLoadoutMetadataBytes];
-            Buffer.BlockCopy(versionFour, 0, versionOne, 0, obstacleCountOffset);
+                versionThree.Length - 2];
+            Buffer.BlockCopy(versionThree, 0, versionOne, 0, obstacleCountOffset);
             Buffer.BlockCopy(
-                versionFour,
+                versionThree,
                 obstacleCountOffset + 2,
                 versionOne,
                 obstacleCountOffset,
-                versionFour.Length -
+                versionThree.Length -
                 obstacleCountOffset -
-                2 -
-                defaultLoadoutMetadataBytes);
+                2);
             versionOne[4] = 1;
             versionOne[5] = 0;
 
@@ -309,6 +340,17 @@ namespace ClaudeOfTanks.Tests
             Assert.That(session.Simulation.State.StaticObstacleRevision, Is.Zero);
             session.Seek(1);
             Assert.That(session.Simulation.State.IsStaticObstacleDestroyed(0), Is.True);
+        }
+
+        private static int FindMagic(byte[] packet, uint magic)
+        {
+            for (int i = packet.Length - 4; i >= 0; i--)
+            {
+                if (BitConverter.ToUInt32(packet, i) == magic)
+                    return i;
+            }
+            Assert.Fail("Replay metadata magic was not found.");
+            return -1;
         }
     }
 }

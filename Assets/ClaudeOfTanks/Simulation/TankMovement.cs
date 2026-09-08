@@ -7,6 +7,8 @@ namespace ClaudeOfTanks.Simulation
         private const float DriveAccelerationPerHpPerTon = 0.16f;
         private const float CoastDecelerationMps2 = 2.4f;
         private const float BrakeDecelerationMps2 = 9f;
+        private const float BloomGrowTimeS = 0.05f;
+        private const float AimSettledRatio = 6f;
 
         public static void Step(TankState tank, TankInput input, IHeightField heightField, float dt)
         {
@@ -15,6 +17,8 @@ namespace ClaudeOfTanks.Simulation
                 return;
             }
 
+            float previousYaw = tank.Yaw;
+            float previousTurretYaw = tank.TurretYaw;
             float throttle = MathUtil.Clamp(input.Throttle, -1f, 1f);
             float steer = MathUtil.Clamp(input.Steer, -1f, 1f);
             float forwardLimit = tank.Spec.TopSpeedKmh / 3.6f;
@@ -68,6 +72,56 @@ namespace ClaudeOfTanks.Simulation
                     tank.TurretMultiplier * MathUtil.Deg2Rad * dt;
                 tank.TurretYaw += MathUtil.Clamp(delta, -maxStep, maxStep);
             }
+
+            tank.HullYawRateRadS =
+                MathUtil.DeltaAngle(previousYaw, tank.Yaw) / dt;
+            tank.TurretYawRateRadS =
+                MathUtil.DeltaAngle(previousTurretYaw, tank.TurretYaw) / dt;
+            UpdateAimBloom(tank, dt);
+        }
+
+        public static float DispersionSigmaRad(TankState tank)
+        {
+            if (tank == null) throw new ArgumentNullException(nameof(tank));
+            return MathF.Max(0f, tank.Spec.BaseAccuracyMAt100) *
+                MathF.Max(1f, tank.AimBloom) / 200f;
+        }
+
+        public static void ApplyPostShotBloom(TankState tank)
+        {
+            if (tank == null) throw new ArgumentNullException(nameof(tank));
+            tank.AimBloom = MathF.Max(
+                1f,
+                tank.AimBloom *
+                MathF.Max(1f, tank.Spec.AimBloomAfterShot));
+        }
+
+        private static void UpdateAimBloom(TankState tank, float dt)
+        {
+            TankSpec spec = tank.Spec;
+            float move = spec.AimBloomMove *
+                MathF.Abs(tank.SpeedMps) * 3.6f;
+            float hull = spec.AimBloomHullRotation *
+                MathF.Abs(tank.HullYawRateRadS) / MathUtil.Deg2Rad;
+            float turret = spec.AimBloomTurretRotation *
+                MathF.Abs(tank.TurretYawRateRadS) / MathUtil.Deg2Rad;
+            float target = MathF.Sqrt(
+                1f + move * move + hull * hull + turret * turret);
+            float bloomMultiplier = MathF.Max(
+                0f,
+                tank.Combat.Equipment.Bloom);
+            target = 1f + (target - 1f) * bloomMultiplier;
+
+            float aimTime = MathF.Max(
+                0.01f,
+                spec.AimTimeS *
+                MathF.Max(0.01f, tank.Combat.Equipment.AimTime));
+            float tau = target > tank.AimBloom
+                ? BloomGrowTimeS
+                : aimTime / MathF.Log(AimSettledRatio);
+            float blend = 1f - MathF.Exp(-dt / tau);
+            tank.AimBloom += (target - tank.AimBloom) * blend;
+            if (tank.AimBloom < 1f) tank.AimBloom = 1f;
         }
     }
 }

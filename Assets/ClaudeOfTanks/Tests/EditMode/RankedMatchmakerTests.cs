@@ -38,7 +38,7 @@ namespace ClaudeOfTanks.Tests
                         identities[i].Profile.PlayerId,
                         identities[i].BearerToken,
                         i % 2 == 0 ? "m1a2" : "t90m",
-                        new[] { "rammer", "optics", "rammer", "extra" },
+                        new[] { "rammer", "optics", "vents", "rammer", "extra" },
                         i % 2 == 0 ? "summer" : "winter",
                         2,
                         1000);
@@ -56,7 +56,9 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(view.Assignment.Plan.Seats, Has.Length.EqualTo(4));
                 Assert.That(CountTeam(view.Assignment.Plan.Seats, Team.Alpha), Is.EqualTo(2));
                 Assert.That(CountTeam(view.Assignment.Plan.Seats, Team.Bravo), Is.EqualTo(2));
-                Assert.That(view.Assignment.Plan.Seats[0].Equipment, Has.Length.EqualTo(3));
+                Assert.That(
+                    view.Assignment.Plan.Seats[0].Equipment,
+                    Is.EqualTo(new[] { "rammer", "optics", "vents" }));
                 Assert.That(
                     UniqueNameCount(view.Assignment.Plan.Seats),
                     Is.EqualTo(view.Assignment.Plan.Seats.Length));
@@ -93,6 +95,55 @@ namespace ClaudeOfTanks.Tests
             Assert.That(RankedMatchmaker.SearchBand(60000), Is.EqualTo(200));
             Assert.That(RankedMatchmaker.SearchBand(600000), Is.EqualTo(600));
             Assert.That(RankedMatchmaker.SearchBand(long.MaxValue), Is.EqualTo(600));
+        }
+
+        [Test]
+        public void QueueSanitizesUnknownAndVehicleIllegalEquipment()
+        {
+            int identity = 0;
+            int token = 0;
+            using (RankedRatingStore ratings = new RankedRatingStore(
+                identityFactory: () =>
+                    "r_equipment_player_" + (++identity).ToString("D3"),
+                tokenFactory: () =>
+                    "identity_token_value_" + (++token).ToString("D8")))
+            using (DedicatedMatchRegistry registry =
+                new DedicatedMatchRegistry())
+            using (RankedMatchmaker matchmaker = new RankedMatchmaker(
+                ratings,
+                registry,
+                Host,
+                new[] { "verdant" },
+                id => id == "m1a1",
+                equipmentAllowed: (vehicleId, equipmentId) =>
+                    equipmentId != "vstab"))
+            {
+                RatingIdentity alpha = ratings.CreateIdentity("Alpha");
+                RatingIdentity bravo = ratings.CreateIdentity("Bravo");
+                RankedQueueJoin alphaQueue = matchmaker.Join(
+                    alpha.Profile.PlayerId,
+                    alpha.BearerToken,
+                    "m1a1",
+                    new[] { "rammer", "vstab", "unknown", "toolbox" },
+                    "factory",
+                    1,
+                    1000);
+                matchmaker.Join(
+                    bravo.Profile.PlayerId,
+                    bravo.BearerToken,
+                    "m1a1",
+                    Array.Empty<string>(),
+                    "factory",
+                    1,
+                    1000);
+
+                RankedQueueView view = matchmaker.Poll(
+                    alphaQueue.QueueId,
+                    alphaQueue.QueueToken);
+                Assert.That(
+                    view.Assignment.Plan.Seats[0].Equipment,
+                    Is.EqualTo(new[] { "rammer", "toolbox" }));
+            }
         }
 
         [Test]

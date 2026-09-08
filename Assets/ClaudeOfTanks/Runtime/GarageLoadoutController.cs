@@ -102,12 +102,7 @@ namespace ClaudeOfTanks.Runtime
             {
                 return false;
             }
-            if (item.era == "modern" && !IsPostwar(_vehicle.era))
-                return false;
-            return item.id != "rammer" ||
-                _vehicle.gun == null ||
-                _vehicle.gun.autoloader == null ||
-                _vehicle.gun.autoloader.magazineSize <= 1;
+            return _vehicle.AllowsEquipment(item.id);
         }
 
         public void ApplyAuthoritative(
@@ -177,13 +172,6 @@ namespace ClaudeOfTanks.Runtime
             if (_vehicle == null)
                 throw new InvalidOperationException(
                     "Select a garage vehicle before editing its loadout.");
-        }
-
-        private static bool IsPostwar(string era)
-        {
-            return era == "cold-war" ||
-                era == "modern" ||
-                era == "next-generation";
         }
 
         private static bool Same(

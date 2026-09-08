@@ -7,10 +7,12 @@ namespace ClaudeOfTanks.Simulation
         public const float DefaultViewRangeM = 445f;
         public const float DefaultFieldOfViewDeg = 120f;
         public const float ProximitySpotRangeM = 50f;
+        public const float MovingSpeedMps = 0.4f;
 
         private const float EyeHeightM = 1.65f;
         private const float TargetHeightM = 1.25f;
-        private readonly float _viewRangeM;
+        private const float DamagedOpticsViewFactor = 0.5f;
+        private readonly float _maximumSpotRangeM;
         private readonly float _viewCosine;
 
         public SpottingSimulation(
@@ -31,13 +33,13 @@ namespace ClaudeOfTanks.Simulation
                     "Field of view must be in the range (0, 360].");
             }
 
-            _viewRangeM = viewRangeM;
+            _maximumSpotRangeM = viewRangeM;
             _viewCosine = fieldOfViewDeg >= 360f
                 ? -1f
                 : MathF.Cos(fieldOfViewDeg * 0.5f * MathUtil.Deg2Rad);
         }
 
-        public float ViewRangeM => _viewRangeM;
+        public float ViewRangeM => _maximumSpotRangeM;
 
         public bool CanSpot(TankState spotter, TankState target)
         {
@@ -72,7 +74,21 @@ namespace ClaudeOfTanks.Simulation
                 return true;
             }
 
-            if (distanceSquared > _viewRangeM * _viewRangeM)
+            if (distanceSquared >
+                _maximumSpotRangeM * _maximumSpotRangeM)
+            {
+                return false;
+            }
+
+            float viewRange = EffectiveViewRangeM(spotter);
+            float targetCamouflage = EffectiveCamouflage(target);
+            float spotRange = MathUtil.Clamp(
+                viewRange -
+                    (viewRange - ProximitySpotRangeM) *
+                    targetCamouflage,
+                ProximitySpotRangeM,
+                _maximumSpotRangeM);
+            if (distanceSquared > spotRange * spotRange)
             {
                 return false;
             }
@@ -97,6 +113,103 @@ namespace ClaudeOfTanks.Simulation
             Float3 origin = spotter.Position + new Float3(0f, EyeHeightM, 0f);
             Float3 destination = target.Position + new Float3(0f, TargetHeightM, 0f);
             return !isOccluded(origin, destination);
+        }
+
+        public static float EffectiveViewRangeM(TankState tank)
+        {
+            if (tank == null) throw new ArgumentNullException(nameof(tank));
+            bool moving = MathF.Abs(tank.SpeedMps) > MovingSpeedMps;
+            float multiplier = tank.Combat.Equipment.ViewRange;
+            if (!moving)
+            {
+                multiplier *=
+                    tank.Combat.Equipment.StationaryViewRange;
+            }
+
+            DamageModuleState optics;
+            if (tank.Combat.Modules.TryGetValue(
+                    "optics",
+                    out optics) &&
+                optics.Condition != DamageModuleCondition.Ok)
+            {
+                multiplier *= DamagedOpticsViewFactor;
+            }
+            return MathF.Max(
+                ProximitySpotRangeM,
+                tank.Spec.ViewRangeM * multiplier);
+        }
+
+        public static float EffectiveCamouflage(TankState tank)
+        {
+            if (tank == null) throw new ArgumentNullException(nameof(tank));
+            bool moving = MathF.Abs(tank.SpeedMps) > MovingSpeedMps;
+            float camouflage = moving
+                ? tank.Spec.CamouflageMoving
+                : tank.Spec.CamouflageStill;
+            camouflage += tank.Combat.Equipment.Camouflage;
+            if (!moving)
+            {
+                camouflage +=
+                    tank.Combat.Equipment.StationaryCamouflage;
+            }
+            return MathUtil.Clamp(camouflage, 0f, 0.95f);
+        }
+
+        public static float BaseViewRangeM(string id, string role)
+        {
+            switch (id)
+            {
+                case "m4a3e8": return 370f;
+                case "tiger1": return 370f;
+                case "t34_85": return 360f;
+                case "is2": return 350f;
+                case "panther_g": return 380f;
+                case "m1a2": return 445f;
+                case "t90m": return 430f;
+                case "leo2a7": return 445f;
+            }
+            switch (role)
+            {
+                case "light": return 390f;
+                case "heavy": return 360f;
+                case "mbt": return 440f;
+                case "td": return 370f;
+                case "spg": return 340f;
+                default: return 370f;
+            }
+        }
+
+        public static float BaseCamouflage(
+            string id,
+            string role,
+            bool moving)
+        {
+            float still;
+            float mobile;
+            switch (id)
+            {
+                case "m4a3e8": still = 0.24f; mobile = 0.18f; break;
+                case "tiger1": still = 0.11f; mobile = 0.07f; break;
+                case "t34_85": still = 0.26f; mobile = 0.20f; break;
+                case "is2": still = 0.12f; mobile = 0.08f; break;
+                case "panther_g": still = 0.20f; mobile = 0.15f; break;
+                case "m1a2": still = 0.17f; mobile = 0.12f; break;
+                case "t90m": still = 0.21f; mobile = 0.16f; break;
+                case "leo2a7": still = 0.18f; mobile = 0.13f; break;
+                case null:
+                default:
+                    switch (role)
+                    {
+                        case "light": still = 0.34f; mobile = 0.34f; break;
+                        case "heavy": still = 0.12f; mobile = 0.08f; break;
+                        case "mbt": still = 0.18f; mobile = 0.13f; break;
+                        case "td": still = 0.30f; mobile = 0.18f; break;
+                        case "spg": still = 0.08f; mobile = 0.05f; break;
+                        default: still = 0.23f; mobile = 0.17f; break;
+                    }
+                    break;
+            }
+            return moving ? mobile : still;
         }
     }
 }

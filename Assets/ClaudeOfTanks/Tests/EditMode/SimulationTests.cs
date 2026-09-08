@@ -270,6 +270,12 @@ namespace ClaudeOfTanks.Tests
             Assert.That(spec.Shell.Type, Is.EqualTo("APFSDS"));
             Assert.That(spec.Shell.Pen2000Mm, Is.EqualTo(750f));
             Assert.That(spec.TopSpeedKmh, Is.EqualTo(67f));
+            Assert.That(spec.IsModern, Is.True);
+            Assert.That(spec.Role, Is.EqualTo("mbt"));
+            Assert.That(spec.AimTimeS, Is.EqualTo(1.8f));
+            Assert.That(spec.BaseAccuracyMAt100, Is.EqualTo(0.3f));
+            Assert.That(spec.AimBloomAfterShot, Is.GreaterThan(1f));
+            Assert.That(spec.ViewRangeM, Is.EqualTo(445f));
             Assert.That(abrams.armor.hullPlates, Has.Length.GreaterThan(10));
             Assert.That(abrams.armor.turretPlates, Has.Length.GreaterThan(10));
             Assert.That(abrams.armor.hullPlates[0].verts, Has.Length.GreaterThanOrEqualTo(3));
@@ -289,6 +295,11 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(spec.WeightTons, Is.GreaterThan(0f), ids[i]);
                 Assert.That(spec.Shell.VelocityMps, Is.GreaterThan(0f), ids[i]);
                 Assert.That(spec.Shell.Damage, Is.GreaterThan(0f), ids[i]);
+                Assert.That(spec.AimTimeS, Is.GreaterThan(0f), ids[i]);
+                Assert.That(spec.BaseAccuracyMAt100, Is.GreaterThan(0f), ids[i]);
+                Assert.That(spec.ViewRangeM, Is.GreaterThanOrEqualTo(340f), ids[i]);
+                Assert.That(spec.CamouflageStill, Is.GreaterThan(0f), ids[i]);
+                Assert.That(spec.CamouflageMoving, Is.GreaterThan(0f), ids[i]);
             }
         }
 

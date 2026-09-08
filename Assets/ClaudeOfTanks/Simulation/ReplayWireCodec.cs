@@ -14,7 +14,9 @@ namespace ClaudeOfTanks.Simulation
         public const int MaximumStaticObstacles = BattleState.MaximumStaticObstacles;
         private const uint Magic = 0x52544f43u;
         private const uint LoadoutMetadataMagic = 0x4c544f43u;
-        private const ushort Version = 4;
+        private const uint SimulationMetadataMagic = 0x534d4f43u;
+        private const ushort Version = 5;
+        private const ushort LoadoutMetadataVersion = 4;
         private const ushort CrushableObstacleVersion = 3;
         private const ushort StaticObstacleVersion = 2;
         private const ushort PreviousVersion = 1;
@@ -76,6 +78,7 @@ namespace ClaudeOfTanks.Simulation
                     }
                 }
                 WriteLoadoutMetadata(writer, recording);
+                WriteSimulationMetadata(writer, recording);
                 writer.Flush();
                 if (stream.Length > MaximumEncodedBytes)
                     throw new InvalidDataException("Replay exceeds its encoded size limit.");
@@ -96,6 +99,7 @@ namespace ClaudeOfTanks.Simulation
                         throw new FormatException("Replay magic is invalid.");
                     ushort version = reader.ReadUInt16();
                     if (version != Version &&
+                        version != LoadoutMetadataVersion &&
                         version != CrushableObstacleVersion &&
                         version != StaticObstacleVersion &&
                         version != PreviousVersion)
@@ -124,7 +128,7 @@ namespace ClaudeOfTanks.Simulation
                         string id = ReadString(reader, 64);
                         if (!ids.Add(id)) throw new FormatException("Replay tank ids are duplicated.");
                         Team team = ReadEnum<Team>(reader.ReadByte(), "team");
-                        TankSpec spec = ReadTankSpec(reader);
+                        TankSpec spec = ReadTankSpec(reader, version);
                         Float3 position = ReadFloat3(reader);
                         float yaw = ReadFinite(reader, "tank yaw");
                         state.Tanks.Add(new TankState(id, team, spec, position, yaw));
@@ -153,8 +157,10 @@ namespace ClaudeOfTanks.Simulation
                         }
                         recording.Frames.Add(frame);
                     }
-                    if (version >= Version)
+                    if (version >= LoadoutMetadataVersion)
                         ReadLoadoutMetadata(reader, recording);
+                    if (version >= Version)
+                        ReadSimulationMetadata(reader, recording);
                     if (stream.Position != stream.Length)
                         throw new FormatException("Replay has trailing data.");
                     return recording;
@@ -381,6 +387,129 @@ namespace ClaudeOfTanks.Simulation
             }
         }
 
+        private static void WriteSimulationMetadata(
+            BinaryWriter writer,
+            ReplayRecording recording)
+        {
+            writer.Write(SimulationMetadataMagic);
+            writer.Write((byte)recording.Tanks.Count);
+            for (int i = 0; i < recording.Tanks.Count; i++)
+            {
+                TankSpec spec = recording.Tanks[i].Spec;
+                WriteString(
+                    writer,
+                    string.IsNullOrEmpty(spec.Role)
+                        ? "medium"
+                        : spec.Role,
+                    32);
+                writer.Write(spec.IsModern);
+                WriteFinite(writer, spec.AimTimeS, "aim time");
+                WriteFinite(
+                    writer,
+                    spec.BaseAccuracyMAt100,
+                    "base accuracy");
+                WriteFinite(writer, spec.AimBloomMove, "move bloom");
+                WriteFinite(
+                    writer,
+                    spec.AimBloomHullRotation,
+                    "hull bloom");
+                WriteFinite(
+                    writer,
+                    spec.AimBloomTurretRotation,
+                    "turret bloom");
+                WriteFinite(
+                    writer,
+                    spec.AimBloomAfterShot,
+                    "after-shot bloom");
+                WriteFinite(writer, spec.ViewRangeM, "view range");
+                WriteFinite(
+                    writer,
+                    spec.CamouflageStill,
+                    "stationary camouflage");
+                WriteFinite(
+                    writer,
+                    spec.CamouflageMoving,
+                    "moving camouflage");
+                writer.Write(spec.MagazineSize);
+                WriteFinite(
+                    writer,
+                    spec.MagazineReloadS,
+                    "magazine reload");
+                WriteFinite(writer, spec.IntraClipS, "intra-clip");
+            }
+        }
+
+        private static void ReadSimulationMetadata(
+            BinaryReader reader,
+            ReplayRecording recording)
+        {
+            if (reader.ReadUInt32() != SimulationMetadataMagic)
+                throw new FormatException(
+                    "Replay simulation metadata magic is invalid.");
+            int tankCount = reader.ReadByte();
+            if (tankCount != recording.Tanks.Count)
+                throw new FormatException(
+                    "Replay simulation metadata tank count is invalid.");
+            for (int i = 0; i < tankCount; i++)
+            {
+                TankSpec spec = recording.Tanks[i].Spec;
+                spec.Role = ReadString(reader, 32);
+                spec.IsModern = reader.ReadBoolean();
+                spec.AimTimeS = ReadFinite(reader, "aim time");
+                spec.BaseAccuracyMAt100 =
+                    ReadFinite(reader, "base accuracy");
+                spec.AimBloomMove =
+                    ReadFinite(reader, "move bloom");
+                spec.AimBloomHullRotation =
+                    ReadFinite(reader, "hull bloom");
+                spec.AimBloomTurretRotation =
+                    ReadFinite(reader, "turret bloom");
+                spec.AimBloomAfterShot =
+                    ReadFinite(reader, "after-shot bloom");
+                spec.ViewRangeM =
+                    ReadFinite(reader, "view range");
+                spec.CamouflageStill =
+                    ReadFinite(reader, "stationary camouflage");
+                spec.CamouflageMoving =
+                    ReadFinite(reader, "moving camouflage");
+                spec.MagazineSize = reader.ReadInt32();
+                spec.MagazineReloadS =
+                    ReadFinite(reader, "magazine reload");
+                spec.IntraClipS =
+                    ReadFinite(reader, "intra-clip");
+                if (spec.AimTimeS <= 0f ||
+                    spec.BaseAccuracyMAt100 <= 0f ||
+                    spec.AimBloomMove < 0f ||
+                    spec.AimBloomHullRotation < 0f ||
+                    spec.AimBloomTurretRotation < 0f ||
+                    spec.AimBloomAfterShot < 1f ||
+                    spec.ViewRangeM <
+                        SpottingSimulation.ProximitySpotRangeM ||
+                    spec.CamouflageStill < 0f ||
+                    spec.CamouflageStill > 1f ||
+                    spec.CamouflageMoving < 0f ||
+                    spec.CamouflageMoving > 1f ||
+                    spec.MagazineSize < 1 ||
+                    spec.MagazineSize > 64 ||
+                    spec.MagazineReloadS < 0f ||
+                    spec.IntraClipS < 0f)
+                {
+                    throw new FormatException(
+                        "Replay simulation metadata is invalid.");
+                }
+                string[] equipment = recording.Tanks[i].Equipment;
+                string[] legal = LoadoutSimulation.SanitizeEquipment(
+                    equipment,
+                    spec.IsModern,
+                    spec.MagazineSize > 1);
+                if (legal.Length != equipment.Length)
+                {
+                    throw new FormatException(
+                        "Replay equipment is illegal for its vehicle.");
+                }
+            }
+        }
+
         private static void WriteTankSpec(BinaryWriter writer, TankSpec spec)
         {
             if (spec == null || spec.Shell == null)
@@ -415,7 +544,9 @@ namespace ClaudeOfTanks.Simulation
             WriteFinite(writer, shell.GuidanceTurnRateRadS, "guidance rate");
         }
 
-        private static TankSpec ReadTankSpec(BinaryReader reader)
+        private static TankSpec ReadTankSpec(
+            BinaryReader reader,
+            ushort version)
         {
             TankSpec spec = new TankSpec
             {
@@ -453,6 +584,20 @@ namespace ClaudeOfTanks.Simulation
             if (spec.MaxHealth <= 0f || spec.WeightTons <= 0f ||
                 spec.CollisionRadiusM <= 0f || spec.Shell.ReloadS <= 0f)
                 throw new FormatException("Replay tank spec has invalid bounds.");
+            if (version < Version)
+            {
+                // v1-v4 predate era/autoloader metadata. Preserve their
+                // original permissive equipment behavior during playback.
+                spec.IsModern = true;
+                spec.AimBloomMove = 0f;
+                spec.AimBloomHullRotation = 0f;
+                spec.AimBloomTurretRotation = 0f;
+                spec.AimBloomAfterShot = 1f;
+                spec.ViewRangeM =
+                    SpottingSimulation.DefaultViewRangeM;
+                spec.CamouflageStill = 0f;
+                spec.CamouflageMoving = 0f;
+            }
             return spec;
         }
 

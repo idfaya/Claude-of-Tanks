@@ -29,6 +29,8 @@ namespace ClaudeOfTanks.Simulation
     {
         public string Id = "medium";
         public string DisplayName = "COT Medium";
+        public string Role = "medium";
+        public bool IsModern;
         public float MaxHealth = 1000f;
         public float EnginePowerHp = 720f;
         public float WeightTons = 42f;
@@ -42,6 +44,18 @@ namespace ClaudeOfTanks.Simulation
         public float ArmorSideMm = 80f;
         public float ArmorRearMm = 45f;
         public float CollisionRadiusM = 2.2f;
+        public float AimTimeS = 2f;
+        public float BaseAccuracyMAt100 = 0.36f;
+        public float AimBloomMove = 0.2f;
+        public float AimBloomHullRotation = 0.2f;
+        public float AimBloomTurretRotation = 0.12f;
+        public float AimBloomAfterShot = 2.8f;
+        public float ViewRangeM = 370f;
+        public float CamouflageStill = 0.23f;
+        public float CamouflageMoving = 0.17f;
+        public int MagazineSize = 1;
+        public float MagazineReloadS;
+        public float IntraClipS;
         public ShellSpec Shell = new ShellSpec();
 
         public static TankSpec Medium()
@@ -55,6 +69,7 @@ namespace ClaudeOfTanks.Simulation
             {
                 Id = "heavy",
                 DisplayName = "COT Heavy",
+                Role = "heavy",
                 MaxHealth = 1450f,
                 EnginePowerHp = 800f,
                 WeightTons = 62f,
@@ -66,6 +81,9 @@ namespace ClaudeOfTanks.Simulation
                 ArmorSideMm = 120f,
                 ArmorRearMm = 65f,
                 CollisionRadiusM = 2.5f,
+                ViewRangeM = 360f,
+                CamouflageStill = 0.12f,
+                CamouflageMoving = 0.08f,
                 Shell = new ShellSpec
                 {
                     Name = "AP Heavy",
@@ -100,6 +118,9 @@ namespace ClaudeOfTanks.Simulation
         public float Yaw;
         public float SpeedMps;
         public float TurretYaw;
+        public float HullYawRateRadS;
+        public float TurretYawRateRadS;
+        public float AimBloom = 1f;
         public float Health;
         public float ReloadRemainingS;
         public bool Destroyed;
@@ -119,9 +140,26 @@ namespace ClaudeOfTanks.Simulation
             Position = position;
             Yaw = yaw;
             Health = spec.MaxHealth;
-            DamageSpec = new DamageTankSpec { MaxHealth = spec.MaxHealth };
+            DamageSpec = new DamageTankSpec
+            {
+                MaxHealth = spec.MaxHealth,
+                IsPostwar = spec.IsModern
+            };
             DamageSpec.Gun.ReloadS = spec.Shell.ReloadS;
             DamageSpec.Gun.Shells.Add(new DamageShellSpec { Type = spec.Shell.Type });
+            if (spec.MagazineSize > 1)
+            {
+                DamageSpec.Gun.Autoloader = new DamageAutoloaderSpec
+                {
+                    MagazineSize = spec.MagazineSize,
+                    FullReloadS = spec.MagazineReloadS > 0f
+                        ? spec.MagazineReloadS
+                        : spec.Shell.ReloadS,
+                    IntraClipS = spec.IntraClipS > 0f
+                        ? spec.IntraClipS
+                        : spec.Shell.ReloadS
+                };
+            }
             Combat = DamageSimulation.CreateCombatState(DamageSpec);
         }
     }

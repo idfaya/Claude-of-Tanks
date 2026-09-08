@@ -17,7 +17,7 @@ namespace ClaudeOfTanks.Tests
                     "Guest",
                     RoomTeam.Bravo,
                     "t90m");
-                room.SelectEquipment("guest", "repair", "optics");
+                room.SelectEquipment("guest", "toolbox", "optics");
                 room.SelectCamo("guest", "winter");
                 room.SelectVehicle("host", "m1a2");
                 room.SetReady("host", true);
@@ -34,7 +34,7 @@ namespace ClaudeOfTanks.Tests
                     Is.EqualTo(guest.Player.EntityId));
                 Assert.That(
                     Player(state.State, "guest").Equipment,
-                    Is.EqualTo(new[] { "repair", "optics" }));
+                    Is.EqualTo(new[] { "toolbox", "optics" }));
 
                 RoomMatchPlan source = room.Start("host", 7701u);
                 LobbyWireMessage start = LobbyWireCodec.Decode(

@@ -58,6 +58,7 @@ namespace ClaudeOfTanks.Network
         private readonly DedicatedMatchRegistry _registry;
         private readonly Func<RoomMatchPlan, AuthoritativeMatchHost> _hostFactory;
         private readonly Func<string, bool> _vehicleAllowed;
+        private readonly Func<string, string, bool> _equipmentAllowed;
         private readonly string[] _mapRotation;
         private readonly RandomNumberGenerator _random = RandomNumberGenerator.Create();
         private readonly Func<string> _queueIdFactory;
@@ -72,12 +73,15 @@ namespace ClaudeOfTanks.Network
             string[] mapRotation,
             Func<string, bool> vehicleAllowed,
             Func<string> queueIdFactory = null,
-            Func<string> queueTokenFactory = null)
+            Func<string> queueTokenFactory = null,
+            Func<string, string, bool> equipmentAllowed = null)
         {
             _ratings = ratings ?? throw new ArgumentNullException(nameof(ratings));
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
             _hostFactory = hostFactory ?? throw new ArgumentNullException(nameof(hostFactory));
             _vehicleAllowed = vehicleAllowed ?? throw new ArgumentNullException(nameof(vehicleAllowed));
+            _equipmentAllowed =
+                equipmentAllowed ?? ((vehicleId, equipmentId) => true);
             if (mapRotation == null || mapRotation.Length == 0)
                 throw new ArgumentException("Map rotation is required.", nameof(mapRotation));
             _mapRotation = (string[])mapRotation.Clone();
@@ -132,7 +136,7 @@ namespace ClaudeOfTanks.Network
                 DisplayName = profile.DisplayName,
                 Rating = profile.Rating,
                 VehicleSpecId = vehicleId,
-                Equipment = SanitizeEquipment(equipment),
+                Equipment = SanitizeEquipment(vehicleId, equipment),
                 CamoId = CleanContentId(
                     string.IsNullOrEmpty(camoId) ? "factory" : camoId,
                     "camo id"),
@@ -473,16 +477,28 @@ namespace ClaudeOfTanks.Network
             return token;
         }
 
-        private static string[] SanitizeEquipment(string[] equipment)
+        private string[] SanitizeEquipment(
+            string vehicleSpecId,
+            string[] equipment)
         {
             if (equipment == null) return Array.Empty<string>();
-            List<string> clean = new List<string>(3);
-            for (int i = 0; i < equipment.Length && clean.Count < 3; i++)
+            List<string> clean =
+                new List<string>(LoadoutSimulation.EquipmentSlots);
+            for (int i = 0;
+                i < equipment.Length &&
+                clean.Count < LoadoutSimulation.EquipmentSlots;
+                i++)
             {
                 string id;
                 try { id = CleanContentId(equipment[i], "equipment id"); }
                 catch (ArgumentException) { continue; }
-                if (!clean.Contains(id)) clean.Add(id);
+                if (!LoadoutSimulation.IsEquipment(id) ||
+                    clean.Contains(id) ||
+                    !_equipmentAllowed(vehicleSpecId, id))
+                {
+                    continue;
+                }
+                clean.Add(id);
             }
             return clean.ToArray();
         }

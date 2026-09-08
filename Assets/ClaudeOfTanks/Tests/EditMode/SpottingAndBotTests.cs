@@ -82,6 +82,73 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void OpticsAndStationaryBinocularsExtendEffectiveViewRange()
+        {
+            SpottingSimulation spotting = new SpottingSimulation();
+            TankState target = Tank(
+                "target",
+                Team.Bravo,
+                new Float3(0f, 0f, 315f),
+                MathUtil.Pi);
+            TankState baseline = Tank(
+                "baseline",
+                Team.Alpha,
+                Float3.Zero,
+                0f);
+            TankState optics = Tank(
+                "optics",
+                Team.Alpha,
+                Float3.Zero,
+                0f);
+            TankState binoculars = Tank(
+                "binoculars",
+                Team.Alpha,
+                Float3.Zero,
+                0f);
+            LoadoutSimulation.ApplyEquipment(optics, new[] { "optics" });
+            LoadoutSimulation.ApplyEquipment(
+                binoculars,
+                new[] { "binoculars" });
+
+            Assert.That(spotting.CanSpot(baseline, target), Is.False);
+            Assert.That(spotting.CanSpot(optics, target), Is.True);
+            Assert.That(spotting.CanSpot(binoculars, target), Is.True);
+
+            binoculars.SpeedMps = 1f;
+            Assert.That(spotting.CanSpot(binoculars, target), Is.False);
+        }
+
+        [Test]
+        public void VentsAndStationaryCamouflageNetReduceDetectionRange()
+        {
+            SpottingSimulation spotting = new SpottingSimulation();
+            TankState spotter = Tank(
+                "spotter",
+                Team.Alpha,
+                Float3.Zero,
+                0f);
+            TankState baseline = Tank(
+                "baseline",
+                Team.Bravo,
+                new Float3(0f, 0f, 292f),
+                MathUtil.Pi);
+            TankState concealed = Tank(
+                "concealed",
+                Team.Bravo,
+                baseline.Position,
+                MathUtil.Pi);
+            LoadoutSimulation.ApplyEquipment(
+                concealed,
+                new[] { "vents", "camo_net" });
+
+            Assert.That(spotting.CanSpot(spotter, baseline), Is.True);
+            Assert.That(spotting.CanSpot(spotter, concealed), Is.False);
+
+            concealed.SpeedMps = 1f;
+            Assert.That(spotting.CanSpot(spotter, concealed), Is.True);
+        }
+
+        [Test]
         public void BotSelectsNearestVisibleEnemyWithStableTieBreak()
         {
             TankState bot = Tank("bot", Team.Alpha, Float3.Zero, 0f);
