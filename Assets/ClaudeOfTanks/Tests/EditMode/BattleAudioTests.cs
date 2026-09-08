@@ -115,6 +115,113 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void PlayerReloadCuesAreBoundedMixedAndReset()
+        {
+            GameSettings settings = Settings();
+            BattleAudio audio = BattleAudio.Create(settings);
+            TankState tank = new TankState(
+                "player",
+                Team.Alpha,
+                TankSpec.Heavy(),
+                Float3.Zero,
+                0f);
+            List<TankState> tanks = new List<TankState> { tank };
+
+            try
+            {
+                DamageSimulation.StartPostShotReload(
+                    tank.Combat,
+                    tank.DamageSpec);
+                tank.ReloadRemainingS = tank.Combat.Reload.RemainingS;
+                audio.SyncEngines(tanks, tank.Id, Vector3.zero, false);
+
+                tank.Combat.Reload.RemainingS =
+                    tank.Combat.Reload.TotalS * 0.5f;
+                tank.ReloadRemainingS = tank.Combat.Reload.RemainingS;
+                audio.SyncEngines(tanks, tank.Id, Vector3.zero, false);
+
+                Assert.That(audio.ReloadCueCount, Is.EqualTo(3));
+                Assert.That(
+                    audio.ActiveReloadVoiceCount,
+                    Is.LessThanOrEqualTo(BattleReloadAudio.VoiceLimit));
+                AudioSource cue = audio.transform
+                    .Find("ReloadAudio/Reload-0")
+                    .GetComponent<AudioSource>();
+                float volume = cue.volume;
+
+                audio.SetKillcamDucking(true);
+                Assert.That(
+                    cue.volume,
+                    Is.EqualTo(volume * 0.35f).Within(0.001f));
+                settings.SetCombatVolume(0.4f);
+
+                Assert.That(
+                    cue.volume,
+                    Is.EqualTo(volume * 0.35f * 0.4f).Within(0.001f));
+
+                tank.Combat.Reload.RemainingS = 0f;
+                tank.Combat.Reload.Kind = DamageReloadKind.Ready;
+                tank.ReloadRemainingS = 0f;
+                audio.SyncEngines(tanks, tank.Id, Vector3.zero, false);
+
+                Assert.That(audio.ReloadReadyCount, Is.EqualTo(1));
+
+                audio.ResetAll();
+
+                Assert.That(audio.ReloadCueCount, Is.Zero);
+                Assert.That(audio.ReloadReadyCount, Is.Zero);
+                Assert.That(audio.ActiveReloadVoiceCount, Is.Zero);
+            }
+            finally
+            {
+                Object.DestroyImmediate(audio.gameObject);
+            }
+        }
+
+        [Test]
+        public void NetworkReloadStateInfersMagazineWithoutCombatInternals()
+        {
+            BattleAudio audio = BattleAudio.Create(Settings());
+            TankSpec spec = TankSpec.Medium();
+            spec.MagazineSize = 4;
+            spec.MagazineReloadS = 18f;
+            spec.IntraClipS = 2.5f;
+            TankState tank = new TankState(
+                "player",
+                Team.Alpha,
+                spec,
+                Float3.Zero,
+                0f);
+            List<TankState> tanks = new List<TankState> { tank };
+
+            try
+            {
+                tank.ReloadRemainingS = 17.4f;
+                audio.SyncEngines(tanks, tank.Id, Vector3.zero, false);
+                Assert.That(audio.ReloadCueCount, Is.EqualTo(1));
+
+                tank.ReloadRemainingS = 8f;
+                audio.SyncEngines(tanks, tank.Id, Vector3.zero, false);
+                Assert.That(audio.ReloadCueCount, Is.EqualTo(3));
+
+                tank.ReloadRemainingS = 1f;
+                audio.SyncEngines(tanks, tank.Id, Vector3.zero, false);
+                Assert.That(
+                    audio.ReloadProfile,
+                    Is.EqualTo(BattleReloadProfile.Magazine));
+                Assert.That(audio.ReloadCueCount, Is.EqualTo(5));
+
+                tank.ReloadRemainingS = 0f;
+                audio.SyncEngines(tanks, tank.Id, Vector3.zero, false);
+                Assert.That(audio.ReloadReadyCount, Is.EqualTo(1));
+            }
+            finally
+            {
+                Object.DestroyImmediate(audio.gameObject);
+            }
+        }
+
         private static GameSettings Settings()
         {
             return new GameSettings(

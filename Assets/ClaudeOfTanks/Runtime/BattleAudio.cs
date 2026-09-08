@@ -12,16 +12,16 @@ namespace ClaudeOfTanks.Runtime
         public const float EngineHearInM = 900f;
         public const float EngineHearOutM = 1000f;
 
-        private readonly Queue<OneShotVoice> _availableOneShots =
-            new Queue<OneShotVoice>();
-        private readonly List<OneShotVoice> _activeOneShots =
-            new List<OneShotVoice>();
-        private readonly List<OneShotVoice> _oneShots =
-            new List<OneShotVoice>();
-        private readonly Queue<EngineVoice> _availableEngines =
-            new Queue<EngineVoice>();
-        private readonly Dictionary<string, EngineVoice> _activeEngines =
-            new Dictionary<string, EngineVoice>(StringComparer.Ordinal);
+        private readonly Queue<BattleOneShotVoice> _availableOneShots =
+            new Queue<BattleOneShotVoice>();
+        private readonly List<BattleOneShotVoice> _activeOneShots =
+            new List<BattleOneShotVoice>();
+        private readonly List<BattleOneShotVoice> _oneShots =
+            new List<BattleOneShotVoice>();
+        private readonly Queue<BattleEngineVoice> _availableEngines =
+            new Queue<BattleEngineVoice>();
+        private readonly Dictionary<string, BattleEngineVoice> _activeEngines =
+            new Dictionary<string, BattleEngineVoice>(StringComparer.Ordinal);
         private readonly List<string> _staleEngineIds =
             new List<string>(EngineVoiceLimit);
         private readonly TankState[] _engineCandidates =
@@ -37,6 +37,8 @@ namespace ClaudeOfTanks.Runtime
         private AudioClip _engineLoop;
         private AudioClip _ambienceLoop;
         private AudioSource _ambience;
+        private BattleReloadAudio _reload;
+        private TankState _occupiedTank;
         private int _engineCandidateCount;
         private float _battleDuck = 1f;
         private uint _noise = 0x91e10da5u;
@@ -50,6 +52,10 @@ namespace ClaudeOfTanks.Runtime
         public float AmbienceGain => _settings.AmbienceVolume;
         public float UiGain => _settings.UiVolume;
         public float VoiceGain => _settings.VoiceVolume;
+        public int ActiveReloadVoiceCount => _reload.ActiveVoiceCount;
+        public int ReloadCueCount => _reload.CueCount;
+        public int ReloadReadyCount => _reload.ReadyCount;
+        public BattleReloadProfile ReloadProfile => _reload.Profile;
 
         public static BattleAudio Create(GameSettings settings = null)
         {
@@ -77,7 +83,7 @@ namespace ClaudeOfTanks.Runtime
             if (!TryResolveOneShot(battleEvent, out clip, out volume))
                 return;
 
-            OneShotVoice voice = AcquireOneShot();
+            BattleOneShotVoice voice = AcquireOneShot();
             voice.Root.transform.position =
                 battleEvent.Position.ToUnity();
             voice.Source.clip = clip;
@@ -100,11 +106,12 @@ namespace ClaudeOfTanks.Runtime
                 tanks,
                 listenerOwnerId,
                 listenerPosition);
+            _reload.Sync(_occupiedTank);
             ReleaseStaleEngines();
             for (int i = 0; i < _engineCandidateCount; i++)
             {
                 TankState tank = _engineCandidates[i];
-                EngineVoice voice;
+                BattleEngineVoice voice;
                 if (!_activeEngines.TryGetValue(tank.Id, out voice))
                 {
                     voice = _availableEngines.Dequeue();
@@ -126,6 +133,7 @@ namespace ClaudeOfTanks.Runtime
             float next = active ? 0.35f : 1f;
             if (Mathf.Approximately(_battleDuck, next)) return;
             _battleDuck = next;
+            _reload.SetBattleDucking(next);
             ApplyMix();
         }
 
@@ -141,7 +149,7 @@ namespace ClaudeOfTanks.Runtime
             _availableOneShots.Clear();
             for (int i = 0; i < _oneShots.Count; i++)
             {
-                OneShotVoice voice = _oneShots[i];
+                BattleOneShotVoice voice = _oneShots[i];
                 voice.Source.Stop();
                 voice.Root.SetActive(false);
                 _availableOneShots.Enqueue(voice);
@@ -158,6 +166,7 @@ namespace ClaudeOfTanks.Runtime
                 _ambience.Stop();
                 _ambience.gameObject.SetActive(false);
             }
+            _reload.ResetAll();
             _battleDuck = 1f;
         }
 
@@ -166,7 +175,7 @@ namespace ClaudeOfTanks.Runtime
             float now = Time.unscaledTime;
             for (int i = _activeOneShots.Count - 1; i >= 0; i--)
             {
-                OneShotVoice voice = _activeOneShots[i];
+                BattleOneShotVoice voice = _activeOneShots[i];
                 if (voice.ExpiresAt > now) continue;
                 voice.Source.Stop();
                 voice.Root.SetActive(false);
@@ -212,12 +221,13 @@ namespace ClaudeOfTanks.Runtime
 
             for (int i = 0; i < OneShotVoiceLimit; i++)
             {
-                OneShotVoice voice = CreateOneShot(i);
+                BattleOneShotVoice voice = CreateOneShot(i);
                 _oneShots.Add(voice);
                 _availableOneShots.Enqueue(voice);
             }
             for (int i = 0; i < EngineVoiceLimit; i++)
                 _availableEngines.Enqueue(CreateEngine(i));
+            _reload = BattleReloadAudio.Create(transform, _settings);
 
             GameObject ambienceRoot = new GameObject("Ambience");
             ambienceRoot.transform.SetParent(transform, false);
@@ -230,7 +240,7 @@ namespace ClaudeOfTanks.Runtime
             ApplyMix();
         }
 
-        private OneShotVoice CreateOneShot(int index)
+        private BattleOneShotVoice CreateOneShot(int index)
         {
             GameObject root = new GameObject("OneShot-" + index);
             root.transform.SetParent(transform, false);
@@ -242,10 +252,10 @@ namespace ClaudeOfTanks.Runtime
             source.rolloffMode = AudioRolloffMode.Logarithmic;
             source.dopplerLevel = 0f;
             root.SetActive(false);
-            return new OneShotVoice { Root = root, Source = source };
+            return new BattleOneShotVoice { Root = root, Source = source };
         }
 
-        private EngineVoice CreateEngine(int index)
+        private BattleEngineVoice CreateEngine(int index)
         {
             GameObject root = new GameObject("Engine-" + index);
             root.transform.SetParent(transform, false);
@@ -261,7 +271,7 @@ namespace ClaudeOfTanks.Runtime
             AudioLowPassFilter lowPass =
                 root.AddComponent<AudioLowPassFilter>();
             root.SetActive(false);
-            return new EngineVoice
+            return new BattleEngineVoice
             {
                 Root = root,
                 Source = source,
@@ -269,11 +279,11 @@ namespace ClaudeOfTanks.Runtime
             };
         }
 
-        private OneShotVoice AcquireOneShot()
+        private BattleOneShotVoice AcquireOneShot()
         {
             if (_availableOneShots.Count == 0)
             {
-                OneShotVoice oldest = _activeOneShots[0];
+                BattleOneShotVoice oldest = _activeOneShots[0];
                 _activeOneShots.RemoveAt(0);
                 oldest.Source.Stop();
                 oldest.Root.SetActive(false);
@@ -325,6 +335,7 @@ namespace ClaudeOfTanks.Runtime
             string ownerId,
             Vector3 listenerPosition)
         {
+            _occupiedTank = null;
             for (int i = 0; i < _engineCandidateCount; i++)
                 _engineCandidates[i] = null;
             _engineCandidateCount = 0;
@@ -335,6 +346,7 @@ namespace ClaudeOfTanks.Runtime
                 TankState tank = tanks[i];
                 if (tank == null || tank.Destroyed) continue;
                 bool own = tank.Id == ownerId;
+                if (own) _occupiedTank = tank;
                 float distance = Vector3.Distance(
                     listenerPosition,
                     tank.Position.ToUnity());
@@ -391,7 +403,7 @@ namespace ClaudeOfTanks.Runtime
 
         private void ReleaseEngine(string id)
         {
-            EngineVoice voice;
+            BattleEngineVoice voice;
             if (!_activeEngines.TryGetValue(id, out voice)) return;
             _activeEngines.Remove(id);
             voice.Source.Stop();
@@ -400,7 +412,7 @@ namespace ClaudeOfTanks.Runtime
         }
 
         private void UpdateEngine(
-            EngineVoice voice,
+            BattleEngineVoice voice,
             TankState tank,
             bool own,
             Vector3 listenerPosition,
@@ -433,11 +445,11 @@ namespace ClaudeOfTanks.Runtime
         {
             for (int i = 0; i < _activeOneShots.Count; i++)
             {
-                OneShotVoice voice = _activeOneShots[i];
+                BattleOneShotVoice voice = _activeOneShots[i];
                 voice.Source.volume =
                     voice.BaseVolume * CombatGain * _battleDuck;
             }
-            foreach (EngineVoice voice in _activeEngines.Values)
+            foreach (BattleEngineVoice voice in _activeEngines.Values)
             {
                 voice.Source.volume =
                     voice.BaseVolume * EngineGain * _battleDuck;
@@ -472,20 +484,5 @@ namespace ClaudeOfTanks.Runtime
             else DestroyImmediate(value);
         }
 
-        private sealed class OneShotVoice
-        {
-            public GameObject Root;
-            public AudioSource Source;
-            public float BaseVolume;
-            public float ExpiresAt;
-        }
-
-        private sealed class EngineVoice
-        {
-            public GameObject Root;
-            public AudioSource Source;
-            public AudioLowPassFilter LowPass;
-            public float BaseVolume;
-        }
     }
 }
