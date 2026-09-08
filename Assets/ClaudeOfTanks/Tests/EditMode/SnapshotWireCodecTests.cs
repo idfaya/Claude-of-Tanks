@@ -19,6 +19,7 @@ namespace ClaudeOfTanks.Tests
                 AcknowledgedInputSequence = 19u,
                 GameMode = GameModeId.ZoneControl,
                 Winner = Team.Alpha,
+                ViewerSpotted = true,
                 MatchMode = new NetworkMatchModeSnapshot
                 {
                     AlphaScore = 64f,
@@ -60,6 +61,9 @@ namespace ClaudeOfTanks.Tests
                         MaxHealth = 2600f,
                         ReloadRemainingS = 2.4f,
                         Burning = true,
+                        ModuleYellowMask = 0x00000008u,
+                        ModuleRedMask = 0x00000101u,
+                        CrewAliveMask = 0x0b,
                         ShellSlot = 1,
                         Kills = 3
                     }
@@ -100,6 +104,7 @@ namespace ClaudeOfTanks.Tests
             Assert.That(decoded.ViewerEntityId, Is.EqualTo(source.ViewerEntityId));
             Assert.That(decoded.AcknowledgedInputSequence, Is.EqualTo(19u));
             Assert.That(decoded.GameMode, Is.EqualTo(GameModeId.ZoneControl));
+            Assert.That(decoded.ViewerSpotted, Is.True);
             Assert.That(decoded.MatchMode.AlphaScore, Is.EqualTo(64f));
             Assert.That(decoded.MatchMode.ZoneControl, Is.EqualTo(
                 new[] { -0.5f, 0.25f, 1f }));
@@ -111,6 +116,9 @@ namespace ClaudeOfTanks.Tests
             Assert.That(decoded.Entities[0].EntityId, Is.EqualTo("entity-a"));
             Assert.That(decoded.Entities[0].VehicleSpecId, Is.EqualTo("m1a2"));
             Assert.That(decoded.Entities[0].Position, Is.EqualTo(source.Entities[0].Position));
+            Assert.That(decoded.Entities[0].ModuleYellowMask, Is.EqualTo(0x00000008u));
+            Assert.That(decoded.Entities[0].ModuleRedMask, Is.EqualTo(0x00000101u));
+            Assert.That(decoded.Entities[0].CrewAliveMask, Is.EqualTo(0x0bu));
             Assert.That(decoded.Entities[0].Kills, Is.EqualTo(3));
             Assert.That(decoded.Shells[0].Velocity, Is.EqualTo(source.Shells[0].Velocity));
             Assert.That(decoded.Events[0].ShellType, Is.EqualTo("APFSDS"));
@@ -198,6 +206,57 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void CodecReadsVersionThreeEntityWithHealthyDamageDefaults()
+        {
+            byte[] packet;
+            using (MemoryStream stream = new MemoryStream())
+            using (BinaryWriter writer = new BinaryWriter(stream))
+            {
+                writer.Write(0x4e544f43u);
+                writer.Write((ushort)3);
+                writer.Write((long)12);
+                writer.Write(200.0);
+                WriteLegacyString(writer, "viewer");
+                writer.Write(false);
+                writer.Write((byte)GameModeId.Standard);
+                writer.Write((sbyte)-1);
+                writer.Write(false);
+                WriteLegacyMatchMode(writer);
+                writer.Write((uint)0);
+                writer.Write((ushort)0);
+                writer.Write((ushort)1);
+                WriteLegacyString(writer, "entity");
+                WriteLegacyString(writer, "medium");
+                writer.Write((byte)Team.Alpha);
+                for (int i = 0; i < 3; i++) writer.Write(0f);
+                writer.Write(0f);
+                writer.Write(0f);
+                writer.Write(0f);
+                writer.Write(1000f);
+                writer.Write(1000f);
+                writer.Write(0f);
+                writer.Write(false);
+                writer.Write(false);
+                writer.Write((byte)0);
+                writer.Write(2);
+                writer.Write((ushort)0);
+                writer.Write((ushort)0);
+                writer.Flush();
+                packet = stream.ToArray();
+            }
+
+            NetworkWorldSnapshot decoded =
+                SnapshotWireCodec.Decode(packet);
+
+            Assert.That(decoded.ViewerSpotted, Is.False);
+            Assert.That(decoded.Entities[0].ModuleYellowMask, Is.Zero);
+            Assert.That(decoded.Entities[0].ModuleRedMask, Is.Zero);
+            Assert.That(
+                decoded.Entities[0].CrewAliveMask,
+                Is.EqualTo(NetworkDamageState.AllCrewAliveMask));
+        }
+
+        [Test]
         public void CodecRejectsDuplicateDestroyedObstacleIndices()
         {
             NetworkWorldSnapshot source = EmptySnapshot();
@@ -218,6 +277,39 @@ namespace ClaudeOfTanks.Tests
                 Shells = Array.Empty<NetworkShellSnapshot>(),
                 Events = Array.Empty<BattleEvent>()
             };
+        }
+
+        private static void WriteLegacyMatchMode(BinaryWriter writer)
+        {
+            writer.Write(0f);
+            writer.Write(0f);
+            for (int i = 0; i < 3; i++)
+            {
+                for (int axis = 0; axis < 3; axis++) writer.Write(0f);
+                writer.Write(0f);
+                writer.Write((sbyte)-1);
+            }
+            for (int vector = 0; vector < 2; vector++)
+                for (int axis = 0; axis < 3; axis++) writer.Write(0f);
+            WriteLegacyString(writer, null);
+            WriteLegacyString(writer, null);
+            for (int vector = 0; vector < 2; vector++)
+                for (int axis = 0; axis < 3; axis++) writer.Write(0f);
+            writer.Write(1);
+        }
+
+        private static void WriteLegacyString(
+            BinaryWriter writer,
+            string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                writer.Write((byte)0);
+                return;
+            }
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(value);
+            writer.Write((byte)bytes.Length);
+            writer.Write(bytes);
         }
     }
 }

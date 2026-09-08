@@ -90,6 +90,31 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void DamageStateChangeIsCarriedByDelta()
+        {
+            NetworkWorldSnapshot baseline =
+                Snapshot(9, Entity("alpha", 0f, 1000f));
+            NetworkEntitySnapshot damaged =
+                Entity("alpha", 0f, 1000f);
+            damaged.ModuleRedMask = 1u << 6;
+            damaged.CrewAliveMask = 0x0d;
+            NetworkWorldSnapshot current = Snapshot(12, damaged);
+
+            NetworkSnapshotFrame frame =
+                SnapshotDelta.Create(current, baseline);
+            NetworkWorldSnapshot reconstructed =
+                SnapshotDelta.Apply(frame, baseline);
+
+            Assert.That(frame.Payload.Entities, Has.Length.EqualTo(1));
+            Assert.That(
+                Find(reconstructed, "alpha").ModuleRedMask,
+                Is.EqualTo(1u << 6));
+            Assert.That(
+                Find(reconstructed, "alpha").CrewAliveMask,
+                Is.EqualTo(0x0d));
+        }
+
+        [Test]
         public void DeltaRejectsUnknownRemoval()
         {
             NetworkWorldSnapshot baseline = Snapshot(9, Entity("alpha", 0f, 1000f));

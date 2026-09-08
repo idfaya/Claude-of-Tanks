@@ -215,6 +215,10 @@ namespace ClaudeOfTanks.Runtime
                 _player.Id,
                 _camera.transform.position,
                 _cameraRig.Mode == BattleCameraMode.Sniper);
+            _audio?.SyncAwareness(
+                _simulation.State.Tanks,
+                _player.Id,
+                _simulation.State.IsVisionOccluded);
             TankView playerView;
             if (_tankViews.TryGetValue(_player.Id, out playerView))
             {
@@ -334,7 +338,7 @@ namespace ClaudeOfTanks.Runtime
             _accumulator = 0f;
             _effects?.ResetAll();
             _audio?.ResetAll();
-            _audio?.BeginBattle();
+            _audio?.BeginBattle(false);
             ClearShellViews();
             SyncViews();
             _hud.SetReplayState(
@@ -361,7 +365,7 @@ namespace ClaudeOfTanks.Runtime
             _accumulator = 0f;
             _effects?.ResetAll();
             _audio?.ResetAll();
-            _audio?.BeginBattle();
+            _audio?.BeginBattle(false);
             ClearShellViews();
             SyncViews();
             _hud.SetReplayState(false, false, 0f, 0f, false);
@@ -377,7 +381,7 @@ namespace ClaudeOfTanks.Runtime
 
             _effects?.ResetAll();
             _audio?.ResetAll();
-            _audio?.BeginBattle();
+            _audio?.BeginBattle(false);
             foreach (TankView view in _tankViews.Values) view.Destroy();
             _tankViews.Clear();
             ClearShellViews();
@@ -670,7 +674,10 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 0; i < events.Count; i++)
             {
                 BattleEvent battleEvent = events[i];
-                _audio?.Play(battleEvent);
+                _audio?.Play(
+                    battleEvent,
+                    replay ? null : _player.Id,
+                    replay ? null : _player);
                 if (!replay &&
                     battleEvent.Type == BattleEventType.ShellFired &&
                     battleEvent.SourceId == _player.Id)
@@ -794,12 +801,16 @@ namespace ClaudeOfTanks.Runtime
             {
                 _status = winner.Value == Team.Alpha ? "VICTORY" : "DEFEAT";
                 _statusUntil = float.PositiveInfinity;
+                if (_replaySession == null)
+                    _audio?.PresentResult(_status);
                 ArchiveReplay();
             }
             else if (_simulation.MatchMode.Draw)
             {
                 _status = "DRAW";
                 _statusUntil = float.PositiveInfinity;
+                if (_replaySession == null)
+                    _audio?.PresentResult(_status);
                 ArchiveReplay();
             }
         }

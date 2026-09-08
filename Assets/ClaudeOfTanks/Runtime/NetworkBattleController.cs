@@ -315,6 +315,8 @@ namespace ClaudeOfTanks.Runtime
                 Time.unscaledTime < _presenter.StatusUntil
                     ? _presenter.Status
                     : string.Empty;
+            if (over && !IsSpectator)
+                _presenter.Audio.PresentResult(Verdict(snapshot));
             _hud.SetState(
                 _cameraTarget,
                 _presenter.MatchMode,

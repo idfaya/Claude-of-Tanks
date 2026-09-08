@@ -145,6 +145,7 @@ namespace ClaudeOfTanks.Network
             _state.Combat.Health = authority.Health;
             _state.Combat.Destroyed = authority.Destroyed;
             _state.Combat.Fire.Burning = authority.Burning;
+            NetworkDamageState.Apply(_state.Combat, authority);
             if (authority.ShellSlot >= 0 &&
                 authority.ShellSlot < _state.Combat.Ammo.Length)
             {

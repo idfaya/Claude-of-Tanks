@@ -69,8 +69,10 @@ namespace ClaudeOfTanks.Tests
             Assert.That(observer.Events, Has.Length.EqualTo(1));
 
             hidden.Position = new Float3(0f, 0f, 100f);
+            hidden.Yaw = MathUtil.Pi;
             filtered = host.CreateSnapshot("peer-viewer");
             Assert.That(ContainsEntity(filtered, hidden.Id), Is.True);
+            Assert.That(filtered.ViewerSpotted, Is.True);
         }
 
         [Test]
@@ -174,6 +176,39 @@ namespace ClaudeOfTanks.Tests
         {
             Assert.That(NetworkProtocol.IsSequenceNewer(0u, uint.MaxValue), Is.True);
             Assert.That(NetworkProtocol.IsSequenceNewer(uint.MaxValue, 0u), Is.False);
+        }
+
+        [Test]
+        public void SnapshotCarriesAuthoritativeModuleAndCrewState()
+        {
+            BattleState state = new BattleState(new FlatHeightField(), 97u);
+            TankState player = Tank(
+                "entity-alpha",
+                Team.Alpha,
+                Float3.Zero,
+                0f);
+            state.Tanks.Add(player);
+            DamageSimulation.DamageModule(
+                player.Combat,
+                "engine",
+                10000f,
+                () => 1f);
+            DamageSimulation.KnockOutCrew(player.Combat, "gunner");
+            AuthoritativeMatchHost host =
+                new AuthoritativeMatchHost(new BattleSimulation(state));
+            host.RegisterPlayer("peer-alpha", player.Id);
+
+            NetworkEntitySnapshot entity =
+                host.CreateSnapshot("peer-alpha").Entities[0];
+            DamageCombatState restored =
+                DamageSimulation.CreateCombatState(player.DamageSpec);
+            NetworkDamageState.Apply(restored, entity);
+
+            Assert.That(
+                restored.Modules["engine"].Condition,
+                Is.EqualTo(DamageModuleCondition.Red));
+            Assert.That(restored.Crew["commander"], Is.True);
+            Assert.That(restored.Crew["gunner"], Is.False);
         }
 
         private static NetworkInputCommand Command(

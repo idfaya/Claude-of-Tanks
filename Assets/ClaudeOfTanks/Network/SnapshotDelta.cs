@@ -173,6 +173,7 @@ namespace ClaudeOfTanks.Network
                 GameMode = source.GameMode,
                 Winner = source.Winner,
                 Draw = source.Draw,
+                ViewerSpotted = source.ViewerSpotted,
                 MatchMode = Copy(source.MatchMode),
                 StaticObstacleRevision = source.StaticObstacleRevision,
                 DestroyedStaticObstacleIndices =
@@ -307,6 +308,9 @@ namespace ClaudeOfTanks.Network
                 a.ReloadRemainingS == b.ReloadRemainingS &&
                 a.Destroyed == b.Destroyed &&
                 a.Burning == b.Burning &&
+                a.ModuleYellowMask == b.ModuleYellowMask &&
+                a.ModuleRedMask == b.ModuleRedMask &&
+                a.CrewAliveMask == b.CrewAliveMask &&
                 a.ShellSlot == b.ShellSlot &&
                 a.Kills == b.Kills;
         }
@@ -348,7 +352,14 @@ namespace ClaudeOfTanks.Network
                 NetworkEntitySnapshot entity = snapshot.Entities[i];
                 if (entity == null ||
                     string.IsNullOrEmpty(entity.EntityId) ||
-                    !ids.Add(entity.EntityId))
+                    !ids.Add(entity.EntityId) ||
+                    (entity.ModuleYellowMask &
+                     entity.ModuleRedMask) != 0u ||
+                    ((entity.ModuleYellowMask |
+                      entity.ModuleRedMask) &
+                     ~NetworkDamageState.AllModuleMask) != 0u ||
+                    (entity.CrewAliveMask &
+                     ~NetworkDamageState.AllCrewAliveMask) != 0)
                 {
                     throw new ArgumentException("Snapshot entity identities are invalid.", argument);
                 }

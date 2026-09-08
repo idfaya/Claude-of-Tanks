@@ -90,9 +90,11 @@ Returning from battle transfers the existing RTC channels back to
 `PrivateRoomCoordinator`, so a rematch creates a fresh authority without
 rejoining signaling.
 
-Unity snapshot codec v3 adds the complete mode state (scores, flags, zones,
-ball, and Horde wave) and authoritative kill counts. Its decoder retains v1
-and v2 compatibility; client presentation never derives those facts locally.
+Unity snapshot codec v4 adds viewer-spotted state plus compact module-condition
+and crew-alive masks for authoritative HUD/audio presentation. v3 added the
+complete mode state (scores, flags, zones, ball, and Horde wave) and kill
+counts. The decoder retains v1-v3 compatibility; client presentation never
+derives those facts locally.
 
 ## Protocol and authority
 

@@ -31,6 +31,7 @@ namespace ClaudeOfTanks.Runtime
             new HashSet<string>(StringComparer.Ordinal);
         private long _eventTick = -1;
         private uint _staticRevision;
+        private bool _viewerSpotted;
 
         public NetworkBattlePresenter(
             ContentCatalog catalog,
@@ -95,6 +96,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (snapshot == null || buffer == null) return null;
             _state.TimeS = (float)(snapshot.ServerTimeMs / 1000.0);
+            _viewerSpotted = snapshot.ViewerSpotted;
             ApplyMatchMode(snapshot);
             ApplyStaticState(snapshot);
             _visibleIds.Clear();
@@ -165,6 +167,11 @@ namespace ClaudeOfTanks.Runtime
                 listenerOwnerId,
                 listenerPosition,
                 scoped);
+            _audio.SyncAwareness(
+                _visibleTanks,
+                listenerOwnerId,
+                null,
+                _viewerSpotted);
         }
 
         public void SetTankVisible(string entityId, bool visible)
@@ -236,6 +243,11 @@ namespace ClaudeOfTanks.Runtime
             tank.Combat.Health = sample.Health;
             tank.Combat.Destroyed = sample.Destroyed;
             tank.Combat.Fire.Burning = sample.Burning;
+            NetworkDamageState.Apply(
+                tank.Combat,
+                sample.ModuleYellowMask,
+                sample.ModuleRedMask,
+                sample.CrewAliveMask);
             if (sample.ShellSlot >= 0 &&
                 sample.ShellSlot < tank.Combat.Ammo.Length)
             {
@@ -259,6 +271,7 @@ namespace ClaudeOfTanks.Runtime
             target.Combat.Health = source.Combat.Health;
             target.Combat.Destroyed = source.Combat.Destroyed;
             target.Combat.Fire.Burning = source.Combat.Fire.Burning;
+            NetworkDamageState.Copy(source.Combat, target.Combat);
             target.Combat.ShellSlot = source.Combat.ShellSlot;
         }
 
@@ -339,7 +352,9 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 0; i < events.Length; i++)
             {
                 BattleEvent battleEvent = events[i];
-                _audio.Play(battleEvent);
+                TankState local;
+                _tanks.TryGetValue(localEntityId ?? string.Empty, out local);
+                _audio.Play(battleEvent, localEntityId, local);
                 TankView target;
                 _views.TryGetValue(battleEvent.TargetId ?? string.Empty, out target);
                 _effects.Play(
@@ -391,6 +406,9 @@ namespace ClaudeOfTanks.Runtime
                 ReloadRemainingS = source.ReloadRemainingS,
                 Destroyed = source.Destroyed,
                 Burning = source.Burning,
+                ModuleYellowMask = source.ModuleYellowMask,
+                ModuleRedMask = source.ModuleRedMask,
+                CrewAliveMask = source.CrewAliveMask,
                 ShellSlot = source.ShellSlot,
                 Kills = source.Kills
             };

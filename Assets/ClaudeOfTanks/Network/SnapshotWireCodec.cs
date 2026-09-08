@@ -14,7 +14,7 @@ namespace ClaudeOfTanks.Network
         public const int MaximumDestroyedStaticObstacles =
             BattleState.MaximumStaticObstacles;
         private const uint Magic = 0x4e544f43u;
-        private const ushort Version = 3;
+        private const ushort Version = 4;
         private const ushort MinimumSupportedVersion = 1;
 
         public static byte[] Encode(NetworkWorldSnapshot snapshot)
@@ -34,6 +34,7 @@ namespace ClaudeOfTanks.Network
                 writer.Write((byte)snapshot.GameMode);
                 writer.Write(snapshot.Winner.HasValue ? (sbyte)snapshot.Winner.Value : (sbyte)-1);
                 writer.Write(snapshot.Draw);
+                writer.Write(snapshot.ViewerSpotted);
                 WriteMatchMode(writer, snapshot.MatchMode);
                 writer.Write(snapshot.StaticObstacleRevision);
                 writer.Write((ushort)snapshot.DestroyedStaticObstacleIndices.Length);
@@ -84,6 +85,8 @@ namespace ClaudeOfTanks.Network
                     sbyte winner = reader.ReadSByte();
                     snapshot.Winner = winner < 0 ? (Team?)null : (Team)winner;
                     snapshot.Draw = reader.ReadBoolean();
+                    snapshot.ViewerSpotted =
+                        version >= 4 && reader.ReadBoolean();
                     snapshot.MatchMode = version >= 3
                         ? ReadMatchMode(reader)
                         : new NetworkMatchModeSnapshot();
@@ -106,7 +109,7 @@ namespace ClaudeOfTanks.Network
                     int entityCount = ReadCount(reader, MaximumEntities, "entity");
                     snapshot.Entities = new NetworkEntitySnapshot[entityCount];
                     for (int i = 0; i < entityCount; i++)
-                        snapshot.Entities[i] = ReadEntity(reader, version >= 3);
+                        snapshot.Entities[i] = ReadEntity(reader, version);
                     int shellCount = ReadCount(reader, MaximumShells, "shell");
                     snapshot.Shells = new NetworkShellSnapshot[shellCount];
                     for (int i = 0; i < shellCount; i++) snapshot.Shells[i] = ReadShell(reader);
@@ -144,6 +147,9 @@ namespace ClaudeOfTanks.Network
             writer.Write(entity.ReloadRemainingS);
             writer.Write(entity.Destroyed);
             writer.Write(entity.Burning);
+            writer.Write(entity.ModuleYellowMask);
+            writer.Write(entity.ModuleRedMask);
+            writer.Write(entity.CrewAliveMask);
             writer.Write((byte)entity.ShellSlot);
             writer.Write(entity.Kills);
         }
@@ -198,9 +204,9 @@ namespace ClaudeOfTanks.Network
 
         private static NetworkEntitySnapshot ReadEntity(
             BinaryReader reader,
-            bool includesKills)
+            ushort version)
         {
-            return new NetworkEntitySnapshot
+            NetworkEntitySnapshot entity = new NetworkEntitySnapshot
             {
                 EntityId = ReadString(reader),
                 VehicleSpecId = ReadString(reader),
@@ -213,10 +219,17 @@ namespace ClaudeOfTanks.Network
                 MaxHealth = reader.ReadSingle(),
                 ReloadRemainingS = reader.ReadSingle(),
                 Destroyed = reader.ReadBoolean(),
-                Burning = reader.ReadBoolean(),
-                ShellSlot = reader.ReadByte(),
-                Kills = includesKills ? reader.ReadInt32() : 0
+                Burning = reader.ReadBoolean()
             };
+            if (version >= 4)
+            {
+                entity.ModuleYellowMask = reader.ReadUInt32();
+                entity.ModuleRedMask = reader.ReadUInt32();
+                entity.CrewAliveMask = reader.ReadByte();
+            }
+            entity.ShellSlot = reader.ReadByte();
+            entity.Kills = version >= 3 ? reader.ReadInt32() : 0;
+            return entity;
         }
 
         private static void WriteShell(BinaryWriter writer, NetworkShellSnapshot shell)
@@ -359,6 +372,13 @@ namespace ClaudeOfTanks.Network
                     !IsFinite(entity.Health) ||
                     !IsFinite(entity.MaxHealth) ||
                     !IsFinite(entity.ReloadRemainingS) ||
+                    (entity.ModuleYellowMask &
+                     entity.ModuleRedMask) != 0u ||
+                    ((entity.ModuleYellowMask |
+                      entity.ModuleRedMask) &
+                     ~NetworkDamageState.AllModuleMask) != 0u ||
+                    (entity.CrewAliveMask &
+                     ~NetworkDamageState.AllCrewAliveMask) != 0 ||
                     entity.ShellSlot < 0 ||
                     entity.ShellSlot > 15 ||
                     entity.Kills < 0)

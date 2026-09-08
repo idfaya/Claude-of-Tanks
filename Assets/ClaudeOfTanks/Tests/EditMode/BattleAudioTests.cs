@@ -227,6 +227,62 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void CrewVoiceUsesSharedOwnerAndStaysForegroundDuringPause()
+        {
+            GameSettings settings = Settings();
+            BattleAudio audio = BattleAudio.Create(settings);
+            TankState tank = new TankState(
+                "player",
+                Team.Alpha,
+                TankSpec.Heavy(),
+                Float3.Zero,
+                0f);
+            List<TankState> tanks = new List<TankState> { tank };
+            try
+            {
+                audio.CrewVoice.ResetAll();
+                audio.SyncEngines(tanks, tank.Id, Vector3.zero, false);
+                DamageSimulation.DamageModule(
+                    tank.Combat,
+                    "engine",
+                    10000f,
+                    () => 1f);
+                float now = Time.unscaledTime;
+                audio.Play(
+                    new BattleEvent
+                    {
+                        Type = BattleEventType.ShellHit,
+                        SourceId = "enemy",
+                        TargetId = tank.Id,
+                        Penetrated = true,
+                        Value = 200f
+                    },
+                    tank.Id,
+                    tank);
+                audio.CrewVoice.TickAt(now + 0.2f);
+
+                Assert.That(
+                    audio.CrewVoice.CurrentLine,
+                    Is.EqualTo(CrewVoiceId.EngineDamaged));
+                Assert.That(audio.CrewVoice.Source.clip, Is.Not.Null);
+                float voiceVolume = audio.CrewVoice.Source.volume;
+
+                audio.SetPauseDucking(true);
+                Assert.That(
+                    audio.CrewVoice.Source.volume,
+                    Is.EqualTo(voiceVolume).Within(0.001f));
+                settings.SetVoiceVolume(0.5f);
+                Assert.That(
+                    audio.CrewVoice.Source.volume,
+                    Is.EqualTo(voiceVolume * 0.5f).Within(0.001f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(audio.gameObject);
+            }
+        }
+
         private static GameSettings Settings()
         {
             return new GameSettings(

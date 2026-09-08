@@ -18,6 +18,9 @@ namespace ClaudeOfTanks.Network
         public float ReloadRemainingS;
         public bool Destroyed;
         public bool Burning;
+        public uint ModuleYellowMask;
+        public uint ModuleRedMask;
+        public byte CrewAliveMask;
         public int ShellSlot;
         public int Kills;
         public bool Extrapolated;
@@ -161,6 +164,9 @@ namespace ClaudeOfTanks.Network
                 ReloadRemainingS = source.ReloadRemainingS,
                 Destroyed = source.Destroyed,
                 Burning = source.Burning,
+                ModuleYellowMask = source.ModuleYellowMask,
+                ModuleRedMask = source.ModuleRedMask,
+                CrewAliveMask = source.CrewAliveMask,
                 ShellSlot = source.ShellSlot,
                 Kills = source.Kills
             };

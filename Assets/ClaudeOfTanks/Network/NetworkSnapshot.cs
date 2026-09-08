@@ -16,6 +16,9 @@ namespace ClaudeOfTanks.Network
         public float ReloadRemainingS;
         public bool Destroyed;
         public bool Burning;
+        public uint ModuleYellowMask;
+        public uint ModuleRedMask;
+        public byte CrewAliveMask = NetworkDamageState.AllCrewAliveMask;
         public int ShellSlot;
         public int Kills;
     }
@@ -53,6 +56,7 @@ namespace ClaudeOfTanks.Network
         public GameModeId GameMode;
         public Team? Winner;
         public bool Draw;
+        public bool ViewerSpotted;
         public NetworkMatchModeSnapshot MatchMode =
             new NetworkMatchModeSnapshot();
         public uint StaticObstacleRevision;

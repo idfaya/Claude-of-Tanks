@@ -171,6 +171,7 @@ namespace ClaudeOfTanks.Network
                 GameMode = _simulation.MatchMode.Id,
                 Winner = _simulation.MatchMode.Winner,
                 Draw = _simulation.MatchMode.Draw,
+                ViewerSpotted = IsViewerSpotted(viewer),
                 MatchMode = Capture(_simulation.MatchMode),
                 StaticObstacleRevision = _simulation.State.StaticObstacleRevision,
                 DestroyedStaticObstacleIndices = destroyedStaticObstacles.ToArray(),
@@ -224,6 +225,20 @@ namespace ClaudeOfTanks.Network
             return result;
         }
 
+        private bool IsViewerSpotted(TankState viewer)
+        {
+            if (viewer == null || viewer.Destroyed) return false;
+            List<TankState> tanks = _simulation.State.Tanks;
+            for (int i = 0; i < tanks.Count; i++)
+            {
+                TankState enemy = tanks[i];
+                if (enemy.Team == viewer.Team || enemy.Destroyed) continue;
+                if (_spotting.CanSpot(enemy, viewer, _isOccluded))
+                    return true;
+            }
+            return false;
+        }
+
         private static bool CanSeeShell(
             TankState viewer,
             HashSet<string> visibleEntities,
@@ -247,7 +262,7 @@ namespace ClaudeOfTanks.Network
 
         private static NetworkEntitySnapshot Capture(TankState tank)
         {
-            return new NetworkEntitySnapshot
+            NetworkEntitySnapshot snapshot = new NetworkEntitySnapshot
             {
                 EntityId = tank.Id,
                 VehicleSpecId = tank.Spec.Id,
@@ -264,6 +279,8 @@ namespace ClaudeOfTanks.Network
                 ShellSlot = tank.Combat.ShellSlot,
                 Kills = tank.Kills
             };
+            NetworkDamageState.CaptureInto(tank.Combat, snapshot);
+            return snapshot;
         }
 
         private static NetworkMatchModeSnapshot Capture(MatchModeState mode)
