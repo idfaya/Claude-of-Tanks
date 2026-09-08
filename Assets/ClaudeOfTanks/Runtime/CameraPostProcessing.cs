@@ -12,11 +12,8 @@ namespace ClaudeOfTanks.Runtime
         private GameSettings _settings;
         private AdaptiveQualityPolicy _policy;
         private Material _material;
-        private RenderTexture _bloomA;
-        private RenderTexture _bloomB;
-        private int _bloomWidth;
-        private int _bloomHeight;
-        private RenderTextureFormat _bloomFormat;
+        private readonly CameraPostBuffers _buffers =
+            new CameraPostBuffers();
         private float _frameEmaMs;
         private float _sampleElapsed;
         private int _sampleFrames;
@@ -33,7 +30,11 @@ namespace ClaudeOfTanks.Runtime
         public float RenderScale =>
             _policy != null ? _policy.RenderScale : 1f;
         public bool BloomEnabled =>
-            _material != null && ResolveProfile().BloomStrength > 0f;
+            _material != null && CurrentProfile().BloomStrength > 0f;
+        public bool AmbientOcclusionEnabled =>
+            _material != null && CurrentProfile().AoSamples > 0;
+        public bool AerialPerspectiveEnabled =>
+            _material != null && RenderSettings.fog;
         public bool ShaderAvailable => _material != null;
 
         public static CameraPostProcessing Ensure(
@@ -64,6 +65,7 @@ namespace ClaudeOfTanks.Runtime
             _camera = GetComponent<Camera>();
             _camera.allowHDR = true;
             _camera.allowDynamicResolution = true;
+            _camera.depthTextureMode |= DepthTextureMode.Depth;
             EnsureMaterial();
             SyncRequestedQuality();
         }
@@ -159,6 +161,17 @@ namespace ClaudeOfTanks.Runtime
             int effective = _policy.EffectiveQuality;
             if (QualitySettings.GetQualityLevel() != effective)
                 QualitySettings.SetQualityLevel(effective, false);
+            _camera.depthTextureMode |= DepthTextureMode.Depth;
+            if (CurrentProfile().AoSamples > 0)
+            {
+                _camera.depthTextureMode |=
+                    DepthTextureMode.DepthNormals;
+            }
+            else
+            {
+                _camera.depthTextureMode &=
+                    ~DepthTextureMode.DepthNormals;
+            }
             float scale = _policy.RenderScale;
             if (Mathf.Abs(scale - _appliedScale) > 0.001f)
             {
@@ -178,8 +191,9 @@ namespace ClaudeOfTanks.Runtime
                 return;
             }
 
-            Profile profile = ResolveProfile();
+            CameraPostProfile profile = CurrentProfile();
             ApplyMaterial(profile);
+            RenderAmbientOcclusion(source, profile);
             if (profile.BloomStrength <= 0f)
             {
                 _material.SetTexture("_BloomTex", Texture2D.blackTexture);
@@ -187,86 +201,90 @@ namespace ClaudeOfTanks.Runtime
                 return;
             }
 
-            EnsureBloomTargets(source, profile.Downsample);
-            Graphics.Blit(source, _bloomA, _material, 0);
+            _buffers.EnsureBloom(
+                source,
+                profile.BloomDownsample);
+            Graphics.Blit(
+                source,
+                _buffers.BloomA,
+                _material,
+                0);
             for (int i = 0; i < profile.BlurIterations; i++)
             {
                 _material.SetVector(
                     "_BlurDirection",
                     new Vector2(1f, 0f));
-                Graphics.Blit(_bloomA, _bloomB, _material, 1);
+                Graphics.Blit(
+                    _buffers.BloomA,
+                    _buffers.BloomB,
+                    _material,
+                    1);
                 _material.SetVector(
                     "_BlurDirection",
                     new Vector2(0f, 1f));
-                Graphics.Blit(_bloomB, _bloomA, _material, 1);
+                Graphics.Blit(
+                    _buffers.BloomB,
+                    _buffers.BloomA,
+                    _material,
+                    1);
             }
-            _material.SetTexture("_BloomTex", _bloomA);
+            _material.SetTexture(
+                "_BloomTex",
+                _buffers.BloomA);
             Graphics.Blit(source, destination, _material, 2);
         }
 
-        private Profile ResolveProfile()
+        private void RenderAmbientOcclusion(
+            RenderTexture source,
+            CameraPostProfile profile)
         {
-            int quality = EffectiveQuality;
-            int trim = PerformanceTrim;
-            float bloom;
-            int iterations;
-            int downsample;
-            if (quality >= 5)
+            if (profile.AoSamples <= 0)
             {
-                bloom = 0.24f;
-                iterations = 2;
-                downsample = 2;
+                _material.SetTexture(
+                    "_AoTex",
+                    Texture2D.whiteTexture);
+                return;
             }
-            else if (quality >= 4)
-            {
-                bloom = 0.2f;
-                iterations = 2;
-                downsample = 2;
-            }
-            else if (quality >= 3)
-            {
-                bloom = 0.16f;
-                iterations = 1;
-                downsample = 2;
-            }
-            else if (quality >= 2)
-            {
-                bloom = 0.1f;
-                iterations = 1;
-                downsample = 4;
-            }
-            else
-            {
-                bloom = 0f;
-                iterations = 0;
-                downsample = 4;
-            }
-            if (trim == 1)
-            {
-                bloom *= 0.55f;
-                iterations = Math.Min(iterations, 1);
-                downsample = Math.Max(downsample, 4);
-            }
-            else if (trim >= 2)
-            {
-                bloom = 0f;
-                iterations = 0;
-            }
-            return new Profile
-            {
-                BloomStrength = bloom,
-                BloomThreshold = quality >= 4 ? 0.92f : 1.02f,
-                BlurIterations = iterations,
-                Downsample = downsample,
-                Exposure = quality >= 3 ? -0.08f : -0.04f,
-                Contrast = (_settings != null &&
-                    _settings.HighContrast) ? 1.13f : 1.055f,
-                Saturation = quality >= 2 ? 1.035f : 1f,
-                Vignette = quality >= 2 ? 0.16f : 0.1f
-            };
+            _buffers.EnsureAmbientOcclusion(
+                source,
+                profile.AoDownsample);
+            Graphics.Blit(
+                source,
+                _buffers.AoA,
+                _material,
+                3);
+            _material.SetVector(
+                "_BlurDirection",
+                Vector2.right);
+            Graphics.Blit(
+                _buffers.AoA,
+                _buffers.AoB,
+                _material,
+                4);
+            _material.SetVector(
+                "_BlurDirection",
+                Vector2.up);
+            Graphics.Blit(
+                _buffers.AoB,
+                _buffers.AoA,
+                _material,
+                4);
+            _material.SetTexture(
+                "_AoTex",
+                _buffers.AoA);
         }
 
-        private void ApplyMaterial(Profile profile)
+        private CameraPostProfile CurrentProfile()
+        {
+            return CameraPostProfile.Resolve(
+                EffectiveQuality,
+                PerformanceTrim,
+                _settings != null &&
+                    _settings.HighContrast);
+        }
+
+        private void ApplyMaterial(
+            CameraPostProfile profile)
         {
             _material.SetFloat(
                 "_BloomThreshold",
@@ -278,44 +296,60 @@ namespace ClaudeOfTanks.Runtime
             _material.SetFloat("_Contrast", profile.Contrast);
             _material.SetFloat("_Saturation", profile.Saturation);
             _material.SetFloat("_Vignette", profile.Vignette);
-        }
+            _material.SetFloat(
+                "_AoSampleCount",
+                profile.AoSamples);
+            _material.SetFloat(
+                "_AoIntensity",
+                profile.AoIntensity);
+            _material.SetFloat(
+                "_AoRadiusM",
+                profile.AoRadiusM);
+            float halfFov = Mathf.Tan(
+                _camera.fieldOfView *
+                Mathf.Deg2Rad *
+                0.5f);
+            _material.SetFloat(
+                "_TanHalfFov",
+                Mathf.Max(0.01f, halfFov));
+            _material.SetFloat(
+                "_CameraAspect",
+                Mathf.Max(0.01f, _camera.aspect));
 
-        private void EnsureBloomTargets(
-            RenderTexture source,
-            int downsample)
-        {
-            int width = Mathf.Max(1, source.width / downsample);
-            int height = Mathf.Max(1, source.height / downsample);
-            if (_bloomA != null &&
-                width == _bloomWidth &&
-                height == _bloomHeight &&
-                source.format == _bloomFormat)
-            {
-                return;
-            }
-            ReleaseBloomTargets();
-            RenderTextureDescriptor descriptor = source.descriptor;
-            descriptor.width = width;
-            descriptor.height = height;
-            descriptor.depthBufferBits = 0;
-            descriptor.msaaSamples = 1;
-            descriptor.useMipMap = false;
-            descriptor.autoGenerateMips = false;
-            _bloomA = new RenderTexture(descriptor)
-            {
-                name = "PostBloomA",
-                hideFlags = HideFlags.HideAndDontSave
-            };
-            _bloomB = new RenderTexture(descriptor)
-            {
-                name = "PostBloomB",
-                hideFlags = HideFlags.HideAndDontSave
-            };
-            _bloomA.Create();
-            _bloomB.Create();
-            _bloomWidth = width;
-            _bloomHeight = height;
-            _bloomFormat = source.format;
+            float zoomScale = _camera.fieldOfView < 15f
+                ? Mathf.Max(
+                    0.26f,
+                    Mathf.Pow(
+                        _camera.fieldOfView / 15f,
+                        1.5f))
+                : 1f;
+            float sourceDensity = RenderSettings.fog
+                ? Mathf.Max(
+                    0.00035f,
+                    RenderSettings.fogDensity / 6f)
+                : 0f;
+            _material.SetFloat(
+                "_AerialDensity",
+                sourceDensity * 1.8f * zoomScale);
+            _material.SetFloat(
+                "_AerialHazeDensity",
+                sourceDensity * 1.15f * zoomScale);
+            _material.SetFloat(
+                "_AerialStrength",
+                RenderSettings.fog
+                    ? profile.AerialStrength
+                    : 0f);
+            _material.SetColor(
+                "_FogColor",
+                RenderSettings.fogColor);
+            Vector3 sunDirection =
+                RenderSettings.sun != null
+                    ? -RenderSettings.sun.transform.forward
+                    : Vector3.up;
+            _material.SetVector(
+                "_SunDirectionVS",
+                _camera.transform.InverseTransformDirection(
+                    sunDirection).normalized);
         }
 
         private static float FrameBudgetMs()
@@ -332,21 +366,11 @@ namespace ClaudeOfTanks.Runtime
             _missedFrames = 0;
         }
 
-        private void ReleaseBloomTargets()
-        {
-            Release(_bloomA);
-            Release(_bloomB);
-            _bloomA = null;
-            _bloomB = null;
-            _bloomWidth = 0;
-            _bloomHeight = 0;
-        }
-
         private void OnDestroy()
         {
             if (_settings != null)
                 _settings.PresentationChanged -= SyncRequestedQuality;
-            ReleaseBloomTargets();
+            _buffers.Dispose();
             Release(_material);
             if (_appliedScale != 1f)
                 ScalableBufferManager.ResizeBuffers(1f, 1f);
@@ -367,16 +391,5 @@ namespace ClaudeOfTanks.Runtime
             else DestroyImmediate(value);
         }
 
-        private struct Profile
-        {
-            public float BloomStrength;
-            public float BloomThreshold;
-            public int BlurIterations;
-            public int Downsample;
-            public float Exposure;
-            public float Contrast;
-            public float Saturation;
-            public float Vignette;
-        }
     }
 }

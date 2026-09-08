@@ -81,6 +81,7 @@ namespace ClaudeOfTanks.Tests
         public void SharedCameraEffectIsUniqueAndTracksUserQuality()
         {
             int originalQuality = QualitySettings.GetQualityLevel();
+            bool originalFog = RenderSettings.fog;
             GameObject root = new GameObject(
                 "PostProcessingTest",
                 typeof(Camera));
@@ -103,17 +104,65 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(first.ShaderAvailable, Is.True);
                 Assert.That(first.RequestedQuality, Is.EqualTo(5));
                 Assert.That(first.BloomEnabled, Is.True);
+                Assert.That(
+                    first.AmbientOcclusionEnabled,
+                    Is.True);
                 Assert.That(camera.allowHDR, Is.True);
                 Assert.That(camera.allowDynamicResolution, Is.True);
+                Assert.That(
+                    camera.depthTextureMode &
+                        DepthTextureMode.Depth,
+                    Is.EqualTo(DepthTextureMode.Depth));
+                Assert.That(
+                    camera.depthTextureMode &
+                        DepthTextureMode.DepthNormals,
+                    Is.EqualTo(DepthTextureMode.DepthNormals));
+
+                RenderSettings.fog = false;
+                Assert.That(
+                    first.AerialPerspectiveEnabled,
+                    Is.False);
+                RenderSettings.fog = true;
+                Assert.That(
+                    first.AerialPerspectiveEnabled,
+                    Is.True);
+
+                float clock = Time.unscaledTime + 7f;
+                first.EvaluateWindow(
+                    new AdaptiveQualityWindow(
+                        clock,
+                        30f,
+                        1000f / 60f,
+                        0.8f));
+                first.EvaluateWindow(
+                    new AdaptiveQualityWindow(
+                        clock + 1f,
+                        30f,
+                        1000f / 60f,
+                        0.8f));
+                Assert.That(first.PerformanceTrim, Is.EqualTo(1));
+                Assert.That(
+                    first.AmbientOcclusionEnabled,
+                    Is.False,
+                    "AO is the first adaptive quality relief.");
+                Assert.That(
+                    camera.depthTextureMode &
+                        DepthTextureMode.DepthNormals,
+                    Is.EqualTo(DepthTextureMode.None));
+                Assert.That(first.BloomEnabled, Is.True);
 
                 settings.SetQualityLevel(0);
                 Assert.That(first.RequestedQuality, Is.Zero);
                 Assert.That(first.EffectiveQuality, Is.Zero);
                 Assert.That(first.BloomEnabled, Is.False);
+                Assert.That(
+                    first.AmbientOcclusionEnabled,
+                    Is.False);
             }
             finally
             {
                 Object.DestroyImmediate(root);
+                RenderSettings.fog = originalFog;
                 QualitySettings.SetQualityLevel(
                     originalQuality,
                     false);

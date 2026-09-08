@@ -95,7 +95,17 @@ namespace ClaudeOfTanks.Tests
                 try
                 {
                     Assert.That(runtime.Root.name, Is.EqualTo("Map-" + definition.id));
-                    Assert.That(runtime.Root.Find("Sun"), Is.Not.Null, definition.id);
+                    Transform sun = runtime.Root.Find("Sun");
+                    Assert.That(sun, Is.Not.Null, definition.id);
+                    Assert.That(RenderSettings.fog, Is.True, definition.id);
+                    Assert.That(
+                        RenderSettings.fogMode,
+                        Is.EqualTo(FogMode.ExponentialSquared),
+                        definition.id);
+                    Assert.That(
+                        RenderSettings.sun,
+                        Is.SameAs(sun.GetComponent<Light>()),
+                        definition.id);
                     Transform battlefield = runtime.Root.Find("Battlefield");
                     Assert.That(battlefield, Is.Not.Null, definition.id);
                     MeshFilter[] terrainMeshes = battlefield.GetComponentsInChildren<MeshFilter>();

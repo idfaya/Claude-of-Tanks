@@ -98,6 +98,7 @@ namespace ClaudeOfTanks.Runtime
             _heightField = MapSimulationAdapter.BuildHeightField(map);
             Color fog = HexColor(map.sky != null ? map.sky.fogTintHex : 0x8799a0);
             RenderSettings.fog = true;
+            RenderSettings.fogMode = FogMode.ExponentialSquared;
             RenderSettings.fogColor = fog;
             RenderSettings.fogDensity = Mathf.Max(0.0004f, (map.sky?.fogDensity ?? 0.0007f) * 6f);
             RenderSettings.ambientMode = AmbientMode.Flat;
@@ -112,6 +113,7 @@ namespace ClaudeOfTanks.Runtime
             light.shadows = LightShadows.Soft;
             sun.transform.rotation = Quaternion.Euler(
                 map.sky?.sunElevationDeg ?? 48f, -(map.sky?.sunAzimuthDeg ?? 32f), 0f);
+            RenderSettings.sun = light;
 
             MapSurface surface = map.unitySurface;
             Color groundColor = surface != null

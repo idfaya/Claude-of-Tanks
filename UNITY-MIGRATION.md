@@ -138,9 +138,11 @@ The port preserves the source project's runtime units and conventions:
   smoke emitters, deterministic particle seeds, 96 fading paired-track prints,
   destruction scorches, reduced-motion budgets, and reset/rematch cleanup
 - Shared Garage/solo/network Built-in RP post-processing with bounded reusable
-  bloom targets, ACES output grading, saturation/contrast/vignette, crisp
-  overlay UI, shader-missing passthrough, and a reversible trim-resolution-tier
-  quality governor that preserves the user's persisted quality choice
+  bloom and half-resolution depth-normal AO targets, depth-aware AO blur,
+  map-fog-driven directional aerial perspective with scope de-hazing, ACES
+  output grading, saturation/contrast/vignette, crisp overlay UI, shader-
+  missing passthrough, and a reversible AO-trim-resolution-tier quality
+  governor that preserves the user's persisted quality choice
 - Dedicated solo/network battle audio presentation with 24 bounded spatial
   combat voices, ten distance-ranked engine loops that always retain the
   occupied vehicle, a battlefield ambience loop, Killcam ducking, and live
@@ -259,7 +261,6 @@ These systems still use the TypeScript implementation as their specification:
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;
-- remaining AO/aerial perspective parity;
 - installable build-target release artifacts, WebRTC signaling/private-room
   session composition, and signaling deployment;
 - per-family procedural vehicle geometry parity and generated technical assets.
