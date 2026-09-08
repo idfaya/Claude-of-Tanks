@@ -267,6 +267,14 @@ The port preserves the source project's runtime units and conventions:
   Starship tower, 152 mm launcher, surface-grid applique, hunter RWS and deep
   lattice bustle. All six use only catalog-authored hit surfaces, including
   M60A3's 66 ERA plates, and add no colliders or generic side armor
+- Both production Sheridan variants share catalog-seated engine grilles,
+  hatches, eight smoke launchers, two antennas, loader MAG, and a gun-owned
+  M81 152 mm launcher package across Garage, solo, replay, and network.
+  The base M551 retains its commander M2, rear stowage, two fuel drums, and
+  three support rails; M551A1 TTS replaces those field fittings with its rear
+  deck extension, skirt cage, protected searchlight, open bustle, electronics,
+  and 30 mm remote autocannon. Both variants use only their 38/118
+  catalog-authored ERA surfaces and add no colliders or generic side armor
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
