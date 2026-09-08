@@ -14,7 +14,8 @@ namespace ClaudeOfTanks.Runtime
             float length)
         {
             if (definition == null) return;
-            if (definition.role == "ifv")
+            if (definition.role == "ifv" &&
+                definition.id != "bmpt_t90")
             {
                 Part(
                     "MissilePod",
@@ -51,12 +52,14 @@ namespace ClaudeOfTanks.Runtime
                         color * 0.82f);
                 }
             }
-            if (IsSovietReactiveFamily(definition.id))
-                AddSovietReactiveArmor(
-                    turret,
-                    color,
-                    width,
-                    height);
+            TankSovietFamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
             if (IsAbrams(definition.id))
                 AddAbrams(
                     root,
@@ -82,38 +85,6 @@ namespace ClaudeOfTanks.Runtime
                         height * 0.24f,
                         width * 0.42f),
                     color * 1.05f);
-            }
-        }
-
-        private static bool IsSovietReactiveFamily(
-            string id)
-        {
-            return id.Contains("t90") ||
-                id.Contains("t72") ||
-                id.Contains("t80");
-        }
-
-        private static void AddSovietReactiveArmor(
-            Transform turret,
-            Color color,
-            float width,
-            float height)
-        {
-            for (int i = -2; i <= 2; i++)
-            {
-                Part(
-                    "ERA",
-                    PrimitiveType.Cube,
-                    turret,
-                    new Vector3(
-                        i * width * 0.12f,
-                        0f,
-                        width * 0.43f),
-                    new Vector3(
-                        width * 0.1f,
-                        height * 0.09f,
-                        0.16f),
-                    color * 1.12f);
             }
         }
 

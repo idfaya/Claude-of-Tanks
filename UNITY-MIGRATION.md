@@ -181,6 +181,10 @@ The port preserves the source project's runtime units and conventions:
   network presentation. The eight-vehicle Abrams production family adds its
   bustle/rack, smoke banks, roof hatches, turbine deck grilles, antennas, and
   generation-specific commander stations with camouflage-aware surfaces
+- Soviet T-72/T-80/T-90 production-family identity fittings, including
+  authored-armor-safe smoke banks, rear drums/logs, T-80 turbine decks,
+  searchlight and Shtora distinctions, modern panoramic sights and stowage,
+  Ukrainian service kit, and the BMPT T-90 twin-cannon/missile station
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
@@ -263,8 +267,9 @@ The port preserves the source project's runtime units and conventions:
 The original release is substantially larger than this first playable port.
 These systems still use the TypeScript implementation as their specification:
 
-- complete non-Abrams family exterior fitting parity across the 126-vehicle
-  production fleet;
+- complete remaining per-variant exterior fitting parity across the
+  126-vehicle production fleet beyond the landed Abrams and Soviet identity
+  suites;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;
