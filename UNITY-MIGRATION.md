@@ -357,6 +357,13 @@ The port preserves the source project's runtime units and conventions:
   clusters, taller BMP-3 turret, and 4+4 smoke fit. Each variant preserves
   its 17 catalog hit surfaces across Garage, solo, replay, and network with
   no added collider or generic side armor/pod
+- BWP-1 now retains the BMP-2 donor boat hull, firing ports, rear troop doors,
+  and exact six-wheel front-drive running gear while adding its own
+  16-panel side course, ten glacis panels, supported bow lights, low Polish
+  fighting station, twin crew hatches, raised sensor head, rear rack,
+  4+4 smoke banks, roof machine gun, twin antennas, and gun-owned MK30.
+  Its 17 catalog hit surfaces remain authoritative across Garage, solo,
+  replay, and network with no added collider or generic side armor/pod
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

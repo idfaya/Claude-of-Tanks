@@ -72,6 +72,8 @@ namespace ClaudeOfTanks.Runtime
             if (UsesBradleyDonor(definition))
                 return 6;
             if (TankBmp2FamilyDetails.Supports(
+                    definition?.id) ||
+                TankBwp1FamilyDetails.Supports(
                     definition?.id))
                 return 6;
             if (TankBmp3FamilyDetails.Supports(
@@ -95,6 +97,8 @@ namespace ClaudeOfTanks.Runtime
             if (UsesBradleyDonor(definition))
                 return 1.1475f;
             if (TankBmp2FamilyDetails.Supports(
+                    definition?.id) ||
+                TankBwp1FamilyDetails.Supports(
                     definition?.id))
                 return 1.205f;
             if (TankBmp3FamilyDetails.IsRok(
@@ -113,6 +117,8 @@ namespace ClaudeOfTanks.Runtime
             if (UsesBradleyDonor(definition))
                 return 0.335f;
             if (TankBmp2FamilyDetails.Supports(
+                    definition?.id) ||
+                TankBwp1FamilyDetails.Supports(
                     definition?.id))
                 return 0.3f;
             if (TankBmp3FamilyDetails.IsRok(
@@ -135,6 +141,8 @@ namespace ClaudeOfTanks.Runtime
             if (UsesBradleyDonor(definition))
                 return 0.4f;
             if (TankBmp2FamilyDetails.Supports(
+                    definition?.id) ||
+                TankBwp1FamilyDetails.Supports(
                     definition?.id))
                 return 0.3f;
             if (TankBmp3FamilyDetails.IsRok(
@@ -157,6 +165,8 @@ namespace ClaudeOfTanks.Runtime
             if (UsesBradleyDonor(definition))
                 return 0.3f;
             if (TankBmp2FamilyDetails.Supports(
+                    definition?.id) ||
+                TankBwp1FamilyDetails.Supports(
                     definition?.id))
                 return 0.3f;
             if (TankBmp3FamilyDetails.Supports(
@@ -179,6 +189,8 @@ namespace ClaudeOfTanks.Runtime
             if (UsesBradleyDonor(definition))
                 return BradleyWheelStations[index];
             if (TankBmp2FamilyDetails.Supports(
+                    definition?.id) ||
+                TankBwp1FamilyDetails.Supports(
                     definition?.id))
                 return Bmp2WheelStations[index];
             if (TankBmp3FamilyDetails.IsRok(
@@ -206,6 +218,8 @@ namespace ClaudeOfTanks.Runtime
             if (UsesBradleyDonor(definition))
                 return new Vector2(2.53f, 0.63f);
             if (TankBmp2FamilyDetails.Supports(
+                    definition?.id) ||
+                TankBwp1FamilyDetails.Supports(
                     definition?.id))
                 return new Vector2(2.256f, 0.8f);
             if (TankBmp3FamilyDetails.IsRok(
@@ -232,6 +246,8 @@ namespace ClaudeOfTanks.Runtime
             if (UsesBradleyDonor(definition))
                 return new Vector2(-2.68f, 0.81f);
             if (TankBmp2FamilyDetails.Supports(
+                    definition?.id) ||
+                TankBwp1FamilyDetails.Supports(
                     definition?.id))
                 return new Vector2(-2.44f, 0.6f);
             if (TankBmp3FamilyDetails.IsRok(
@@ -252,6 +268,8 @@ namespace ClaudeOfTanks.Runtime
             if (UsesBradleyDonor(definition))
                 return 0.24f;
             if (TankBmp2FamilyDetails.Supports(
+                    definition?.id) ||
+                TankBwp1FamilyDetails.Supports(
                     definition?.id))
                 return 0.26f;
             if (TankBmp3FamilyDetails.IsRok(
@@ -270,6 +288,8 @@ namespace ClaudeOfTanks.Runtime
             if (UsesBradleyDonor(definition))
                 return 0.28f;
             if (TankBmp2FamilyDetails.Supports(
+                    definition?.id) ||
+                TankBwp1FamilyDetails.Supports(
                     definition?.id))
                 return 0.24f;
             if (TankBmp3FamilyDetails.IsRok(
