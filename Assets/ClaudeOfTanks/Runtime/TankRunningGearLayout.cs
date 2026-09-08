@@ -37,6 +37,17 @@ namespace ClaudeOfTanks.Runtime
                 -1.87f
             };
 
+        private static readonly float[]
+            Bmp2WheelStations =
+            {
+                1.506f,
+                0.786f,
+                0.066f,
+                -0.654f,
+                -1.374f,
+                -2.094f
+            };
+
         public static int RoadWheelCount(
             VehicleDefinition definition,
             float hullLength)
@@ -48,6 +59,9 @@ namespace ClaudeOfTanks.Runtime
                     definition?.id))
                 return 6;
             if (UsesBradleyDonor(definition))
+                return 6;
+            if (TankBmp2FamilyDetails.Supports(
+                    definition?.id))
                 return 6;
 
             return Mathf.Clamp(
@@ -66,6 +80,9 @@ namespace ClaudeOfTanks.Runtime
                 return 1.323f;
             if (UsesBradleyDonor(definition))
                 return 1.1475f;
+            if (TankBmp2FamilyDetails.Supports(
+                    definition?.id))
+                return 1.205f;
 
             return width * 0.47f;
         }
@@ -76,6 +93,9 @@ namespace ClaudeOfTanks.Runtime
         {
             if (UsesBradleyDonor(definition))
                 return 0.335f;
+            if (TankBmp2FamilyDetails.Supports(
+                    definition?.id))
+                return 0.3f;
 
             return fallback;
         }
@@ -90,6 +110,9 @@ namespace ClaudeOfTanks.Runtime
                 return 0.378f;
             if (UsesBradleyDonor(definition))
                 return 0.4f;
+            if (TankBmp2FamilyDetails.Supports(
+                    definition?.id))
+                return 0.3f;
 
             return Mathf.Max(0.4f, height * 0.21f);
         }
@@ -103,6 +126,9 @@ namespace ClaudeOfTanks.Runtime
             if (definition?.id == "spz_puma_s1")
                 return 0.3105f;
             if (UsesBradleyDonor(definition))
+                return 0.3f;
+            if (TankBmp2FamilyDetails.Supports(
+                    definition?.id))
                 return 0.3f;
 
             return wheelY * 0.72f;
@@ -120,6 +146,9 @@ namespace ClaudeOfTanks.Runtime
                 return PumaS1WheelStations[index];
             if (UsesBradleyDonor(definition))
                 return BradleyWheelStations[index];
+            if (TankBmp2FamilyDetails.Supports(
+                    definition?.id))
+                return Bmp2WheelStations[index];
 
             return Mathf.Lerp(
                 -length * 0.38f,
@@ -139,6 +168,9 @@ namespace ClaudeOfTanks.Runtime
                 return new Vector2(2.853f, 0.8685f);
             if (UsesBradleyDonor(definition))
                 return new Vector2(2.53f, 0.63f);
+            if (TankBmp2FamilyDetails.Supports(
+                    definition?.id))
+                return new Vector2(2.256f, 0.8f);
 
             return new Vector2(
                 -length * 0.45f,
@@ -157,6 +189,9 @@ namespace ClaudeOfTanks.Runtime
                 return new Vector2(-2.835f, 0.756f);
             if (UsesBradleyDonor(definition))
                 return new Vector2(-2.68f, 0.81f);
+            if (TankBmp2FamilyDetails.Supports(
+                    definition?.id))
+                return new Vector2(-2.44f, 0.6f);
 
             return new Vector2(
                 length * 0.45f,
@@ -169,6 +204,9 @@ namespace ClaudeOfTanks.Runtime
         {
             if (UsesBradleyDonor(definition))
                 return 0.24f;
+            if (TankBmp2FamilyDetails.Supports(
+                    definition?.id))
+                return 0.26f;
 
             return roadWheelRadius * 0.82f;
         }
@@ -179,6 +217,9 @@ namespace ClaudeOfTanks.Runtime
         {
             if (UsesBradleyDonor(definition))
                 return 0.28f;
+            if (TankBmp2FamilyDetails.Supports(
+                    definition?.id))
+                return 0.24f;
 
             return roadWheelRadius * 0.82f * 0.94f;
         }

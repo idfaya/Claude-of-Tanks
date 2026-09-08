@@ -339,6 +339,15 @@ The port preserves the source project's runtime units and conventions:
   three-round smoke banks remain visible in Garage and battle. All 19 catalog
   hit surfaces remain authoritative, with no added collider or generic side
   armor/pod
+- BMP-2 now retains its low closed boat hull, two-plane prow, segmented
+  fenders, folded trim vane, seven firing ports with vision blocks, twin
+  bulged troop doors, and exact six-wheel front-drive running gear. Its
+  centered conical two-man turret carries a roof-owned Konkurs launcher,
+  TKN-3 and BPK stations, 3+3 smoke banks, modernization cassettes and warning
+  heads, while the 2A42 and coaxial PKT remain gun-owned. The 17 catalog hit
+  surfaces stay authoritative across Garage, solo, replay, and network; track
+  surfaces remain mapped but hidden over the wheels, with no added collider
+  or generic side armor/pod
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
