@@ -228,33 +228,27 @@ namespace ClaudeOfTanks.Runtime
             if (settings.IsPressed(GameInputAction.Reverse)) throttle--;
             if (settings.IsPressed(GameInputAction.Right)) steer++;
             if (settings.IsPressed(GameInputAction.Left)) steer--;
-            bool gamepadFire = false;
-            bool gamepadBrake = false;
-#if ENABLE_INPUT_SYSTEM
-            if (Gamepad.current != null)
-            {
-                Vector2 stick = Gamepad.current.leftStick.ReadValue();
-                steer += stick.x;
-                throttle += stick.y;
-                gamepadFire = Gamepad.current.rightTrigger.isPressed;
-                gamepadBrake = Gamepad.current.buttonSouth.isPressed;
-            }
-#endif
+            BattleGamepadFrame gamepad = BattleGamepadInput.Read();
+            steer += gamepad.Steer;
+            throttle += gamepad.Throttle;
             steer += _hud.TouchDrive.x;
             throttle += _hud.TouchDrive.y;
             NetworkActionBits actions = NetworkActionBits.None;
-            if (gamepadFire || _hud.FireHeld || IsPrimaryPressed() ||
+            if (gamepad.Fire || _hud.FireHeld || IsPrimaryPressed() ||
                 settings.IsPressed(GameInputAction.Fire))
             {
                 actions |= NetworkActionBits.Fire;
             }
-            if (settings.WasPressedThisFrame(GameInputAction.Repair) ||
+            if (gamepad.RepairPressed ||
+                settings.WasPressedThisFrame(GameInputAction.Repair) ||
                 _hud.ConsumeConsumable(0))
                 actions |= NetworkActionBits.RepairKit;
-            if (settings.WasPressedThisFrame(GameInputAction.FirstAid) ||
+            if (gamepad.FirstAidPressed ||
+                settings.WasPressedThisFrame(GameInputAction.FirstAid) ||
                 _hud.ConsumeConsumable(1))
                 actions |= NetworkActionBits.FirstAidKit;
-            if (settings.WasPressedThisFrame(GameInputAction.Extinguisher) ||
+            if (gamepad.ExtinguisherPressed ||
+                settings.WasPressedThisFrame(GameInputAction.Extinguisher) ||
                 _hud.ConsumeConsumable(2))
                 actions |= NetworkActionBits.FireExtinguisher;
 
@@ -272,7 +266,7 @@ namespace ClaudeOfTanks.Runtime
                 SnapshotAckTick = -1,
                 Throttle = Mathf.Clamp(throttle, -1f, 1f),
                 Steer = Mathf.Clamp(steer, -1f, 1f),
-                Brake = gamepadBrake || _hud.BrakeHeld ||
+                Brake = gamepad.Brake || _hud.BrakeHeld ||
                     settings.IsPressed(GameInputAction.Brake),
                 AimYawRad = MathF.Atan2(direction.X, direction.Z),
                 AimPitchRad = MathF.Asin(
@@ -375,7 +369,8 @@ namespace ClaudeOfTanks.Runtime
 
         private void UpdateCameraControls()
         {
-            if (GameSettings.Current.WasPressedThisFrame(
+            if (BattleGamepadInput.Read().SniperPressed ||
+                GameSettings.Current.WasPressedThisFrame(
                     GameInputAction.Sniper) ||
                 _hud.ConsumeSniperToggle())
             {

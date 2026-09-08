@@ -499,18 +499,9 @@ namespace ClaudeOfTanks.Runtime
             if (settings.IsPressed(GameInputAction.Reverse)) throttle -= 1f;
             if (settings.IsPressed(GameInputAction.Right)) steer += 1f;
             if (settings.IsPressed(GameInputAction.Left)) steer -= 1f;
-            bool gamepadFire = false;
-            bool gamepadBrake = false;
-#if ENABLE_INPUT_SYSTEM
-            if (Gamepad.current != null)
-            {
-                Vector2 stick = Gamepad.current.leftStick.ReadValue();
-                steer += stick.x;
-                throttle += stick.y;
-                gamepadFire = Gamepad.current.rightTrigger.isPressed;
-                gamepadBrake = Gamepad.current.buttonSouth.isPressed;
-            }
-#endif
+            BattleGamepadFrame gamepad = BattleGamepadInput.Read();
+            steer += gamepad.Steer;
+            throttle += gamepad.Throttle;
             if (_hud != null)
             {
                 steer += _hud.TouchDrive.x;
@@ -534,15 +525,18 @@ namespace ClaudeOfTanks.Runtime
             {
                 Throttle = Mathf.Clamp(throttle, -1f, 1f),
                 Steer = Mathf.Clamp(steer, -1f, 1f),
-                Brake = gamepadBrake || (_hud != null && _hud.BrakeHeld) ||
+                Brake = gamepad.Brake || (_hud != null && _hud.BrakeHeld) ||
                     settings.IsPressed(GameInputAction.Brake),
-                Fire = gamepadFire || (_hud != null && _hud.FireHeld) ||
+                Fire = gamepad.Fire || (_hud != null && _hud.FireHeld) ||
                     IsPrimaryButtonPressed() || settings.IsPressed(GameInputAction.Fire),
-                UseRepairKit = settings.WasPressedThisFrame(GameInputAction.Repair) ||
+                UseRepairKit = gamepad.RepairPressed ||
+                    settings.WasPressedThisFrame(GameInputAction.Repair) ||
                     (_hud != null && _hud.ConsumeConsumable(0)),
-                UseFirstAidKit = settings.WasPressedThisFrame(GameInputAction.FirstAid) ||
+                UseFirstAidKit = gamepad.FirstAidPressed ||
+                    settings.WasPressedThisFrame(GameInputAction.FirstAid) ||
                     (_hud != null && _hud.ConsumeConsumable(1)),
-                UseFireExtinguisher = settings.WasPressedThisFrame(GameInputAction.Extinguisher) ||
+                UseFireExtinguisher = gamepad.ExtinguisherPressed ||
+                    settings.WasPressedThisFrame(GameInputAction.Extinguisher) ||
                     (_hud != null && _hud.ConsumeConsumable(2)),
                 AimPoint = aimPoint
             };
@@ -559,7 +553,8 @@ namespace ClaudeOfTanks.Runtime
 
         private void UpdateCameraControls()
         {
-            if (GameSettings.Current.WasPressedThisFrame(GameInputAction.Sniper) ||
+            if (BattleGamepadInput.Read().SniperPressed ||
+                GameSettings.Current.WasPressedThisFrame(GameInputAction.Sniper) ||
                 (_hud != null && _hud.ConsumeSniperToggle()))
             {
                 _cameraRig.ToggleSniper();

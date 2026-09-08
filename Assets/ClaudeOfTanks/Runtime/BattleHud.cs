@@ -25,6 +25,8 @@ namespace ClaudeOfTanks.Runtime
         private Text _objective;
         private Text _status;
         private Image _healthFill;
+        private Image _vehiclePanel;
+        private Image _damagePanel;
         private GameObject _touchRoot;
         private GameObject _scopeRoot;
         private Text _scopeZoom;
@@ -32,6 +34,9 @@ namespace ClaudeOfTanks.Runtime
         private BattleMinimap _minimap;
         private GameSettingsPanel _settingsPanel;
         private readonly RectTransform[] _consumableButtons = new RectTransform[3];
+        private readonly Text[] _consumableLabels = new Text[3];
+        private GameSettings _settings;
+        private BattleHudAccessibilityPresentation _accessibility;
         private GameObject _resultRoot;
         private GameObject _replayRoot;
         private Text _resultTitle;
@@ -71,14 +76,23 @@ namespace ClaudeOfTanks.Runtime
         public int MinimapObjectiveMarkers =>
             _minimap != null ? _minimap.VisibleObjectiveMarkerCount : 0;
 
-        public static BattleHud Create(Action restart, Action garage = null)
+        public static BattleHud Create(
+            Action restart,
+            Action garage = null,
+            GameSettings settings = null)
         {
             GameObject root = new GameObject("BattleHUD");
             BattleHud hud = root.AddComponent<BattleHud>();
             hud._restart = restart;
             hud._garage = garage;
+            hud._settings = settings ?? GameSettings.Current;
             hud.Build();
             return hud;
+        }
+
+        public void SetInputDevice(BattleInputDevice device)
+        {
+            _accessibility.SetInputDevice(device);
         }
 
         public bool ConsumeConsumable(int slot)
@@ -112,8 +126,8 @@ namespace ClaudeOfTanks.Runtime
                 player.Health, player.Spec.MaxHealth, player.Spec.Shell.Type,
                 player.ReloadRemainingS);
             _healthFill.fillAmount = Mathf.Clamp01(player.Health / player.Spec.MaxHealth);
-            _healthFill.color = _healthFill.fillAmount > 0.35f
-                ? new Color(0.28f, 0.76f, 0.3f) : new Color(0.9f, 0.18f, 0.1f);
+            _healthFill.color =
+                _accessibility.HealthColor(_healthFill.fillAmount);
             _objective.text = mode.Id == GameModeId.Standard ? "STANDARD"
                 : mode.Id == GameModeId.EndlessHorde ? "WAVE " + mode.HordeWave
                 : string.Format("{0:0}  {1}  {2:0}", mode.AlphaScore, ModeLabel(mode.Id), mode.BravoScore);
@@ -237,11 +251,15 @@ namespace ClaudeOfTanks.Runtime
 
             Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             Image panel = Image("VehiclePanel", transform, new Color(0.035f, 0.045f, 0.04f, 0.88f));
+            _vehiclePanel = panel;
             Rect(panel.rectTransform, new Vector2(20f, 20f), new Vector2(390f, 92f), new Vector2(0f, 0f));
             _vehicle = Label("Vehicle", panel.transform, font, 18, TextAnchor.UpperLeft);
             Rect(_vehicle.rectTransform, new Vector2(16f, -36f), new Vector2(-16f, -8f),
                 new Vector2(0f, 1f), new Vector2(1f, 1f));
             _stats = Label("Stats", panel.transform, font, 14, TextAnchor.MiddleLeft);
+            _stats.resizeTextForBestFit = true;
+            _stats.resizeTextMinSize = 11;
+            _stats.resizeTextMaxSize = 18;
             Rect(_stats.rectTransform, new Vector2(16f, 24f), new Vector2(-16f, 48f),
                 Vector2.zero, new Vector2(1f, 0f));
             Image healthBack = Image("Health", panel.transform, new Color(0.08f, 0.09f, 0.08f, 1f));
@@ -261,15 +279,23 @@ namespace ClaudeOfTanks.Runtime
             Rect(reticle.rectTransform, new Vector2(-20f, -20f), new Vector2(20f, 20f), new Vector2(0.5f, 0.5f));
             BuildScopeOverlay(font);
 
-            _consumableButtons[0] = CreateButton(
-                "Repair", "4", new Vector2(430f, 20f), () => _consumables[0] = true)
-                .GetComponent<RectTransform>();
-            _consumableButtons[1] = CreateButton(
-                "FirstAid", "5", new Vector2(486f, 20f), () => _consumables[1] = true)
-                .GetComponent<RectTransform>();
-            _consumableButtons[2] = CreateButton(
-                "Extinguish", "6", new Vector2(542f, 20f), () => _consumables[2] = true)
-                .GetComponent<RectTransform>();
+            Button repair = CreateButton(
+                "Repair", "4", new Vector2(430f, 20f),
+                () => _consumables[0] = true);
+            Button firstAid = CreateButton(
+                "FirstAid", "5", new Vector2(486f, 20f),
+                () => _consumables[1] = true);
+            Button extinguisher = CreateButton(
+                "Extinguish", "6", new Vector2(542f, 20f),
+                () => _consumables[2] = true);
+            Button[] consumables = { repair, firstAid, extinguisher };
+            for (int i = 0; i < consumables.Length; i++)
+            {
+                _consumableButtons[i] =
+                    consumables[i].GetComponent<RectTransform>();
+                _consumableLabels[i] =
+                    consumables[i].GetComponentInChildren<Text>();
+            }
             CreateButton("Garage", "GARAGE", new Vector2(20f, -48f), _garage,
                 new Vector2(90f, 34f), new Vector2(0f, 1f));
             CreateButton("Settings", "SETTINGS", new Vector2(120f, -48f),
@@ -280,16 +306,24 @@ namespace ClaudeOfTanks.Runtime
             BuildTouchControls(font);
             BuildResultScreen(font);
             BuildReplayOverlay(font);
-            _settingsPanel = GameSettingsPanel.Create(transform, GameSettings.Current);
+            _settingsPanel = GameSettingsPanel.Create(transform, _settings);
+            _accessibility = new BattleHudAccessibilityPresentation(
+                transform,
+                font,
+                new[] { _vehiclePanel, _damagePanel },
+                _consumableLabels,
+                _settings);
         }
 
         private void OnDestroy()
         {
+            _accessibility?.Dispose();
             _minimap?.Dispose();
         }
 
         private void Update()
         {
+            _accessibility?.DetectActiveDevice();
             if (_touchRoot != null &&
                 _touchRoot.activeSelf &&
                 (_touchLayoutWidth != Screen.width || _touchLayoutHeight != Screen.height))
@@ -301,6 +335,7 @@ namespace ClaudeOfTanks.Runtime
         private void BuildDamagePanel(Font font)
         {
             Image panel = Image("DamagePanel", transform, new Color(0.035f, 0.045f, 0.04f, 0.88f));
+            _damagePanel = panel;
             Rect(panel.rectTransform, new Vector2(-248f, -146f), new Vector2(-20f, -20f),
                 Vector2.one);
             Text title = Label("Title", panel.transform, font, 13, TextAnchor.UpperLeft);

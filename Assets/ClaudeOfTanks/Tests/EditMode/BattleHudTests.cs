@@ -247,5 +247,92 @@ namespace ClaudeOfTanks.Tests
                 Object.DestroyImmediate(hud.gameObject);
             }
         }
+
+        [Test]
+        public void AccessibilityAndInputPromptsFollowSettingsAndActiveDevice()
+        {
+            MemorySettingsStore store = new MemorySettingsStore();
+            GameSettings settings = new GameSettings(
+                store,
+                new SettingsTarget());
+            BattleHud hud = BattleHud.Create(
+                () => { },
+                () => { },
+                settings);
+            try
+            {
+                Transform prompts = hud.transform.Find("InputPrompts");
+                Assert.That(prompts, Is.Not.Null);
+                Assert.That(
+                    prompts.Find("Fire").GetComponent<Text>().text,
+                    Does.Contain("SPACE"));
+                settings.SetBinding(GameInputAction.Fire, KeyCode.F);
+                Assert.That(
+                    prompts.Find("Fire").GetComponent<Text>().text,
+                    Is.EqualTo("FIRE  F"));
+
+                hud.SetInputDevice(BattleInputDevice.Gamepad);
+                Assert.That(
+                    prompts.Find("Fire").GetComponent<Text>().text,
+                    Is.EqualTo("FIRE  RT"));
+                Assert.That(
+                    hud.transform.Find("Repair/Label")
+                        .GetComponent<Text>().text,
+                    Is.EqualTo("X"));
+                Assert.That(
+                    hud.transform.Find("FirstAid/Label")
+                        .GetComponent<Text>().text,
+                    Is.EqualTo("Y"));
+                Assert.That(
+                    hud.transform.Find("Extinguish/Label")
+                        .GetComponent<Text>().text,
+                    Is.EqualTo("B"));
+
+                settings.SetHudScale(1.25f);
+                settings.SetHighContrast(true);
+                Image panel = hud.transform.Find("VehiclePanel")
+                    .GetComponent<Image>();
+                Assert.That(
+                    prompts.Find("Fire").GetComponent<Text>().fontSize,
+                    Is.EqualTo(15));
+                Assert.That(panel.color.a, Is.GreaterThanOrEqualTo(0.98f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(hud.gameObject);
+            }
+        }
+
+        private sealed class MemorySettingsStore : ISettingsStore
+        {
+            private readonly Dictionary<string, int> _ints =
+                new Dictionary<string, int>();
+            private readonly Dictionary<string, float> _floats =
+                new Dictionary<string, float>();
+
+            public int GetInt(string key, int fallback)
+            {
+                int value;
+                return _ints.TryGetValue(key, out value) ? value : fallback;
+            }
+
+            public float GetFloat(string key, float fallback)
+            {
+                float value;
+                return _floats.TryGetValue(key, out value) ? value : fallback;
+            }
+
+            public void SetInt(string key, int value) { _ints[key] = value; }
+            public void SetFloat(string key, float value) { _floats[key] = value; }
+            public void Save() { }
+        }
+
+        private sealed class SettingsTarget : ISettingsTarget
+        {
+            public int QualityLevelCount => 3;
+            public void ApplyVolume(float value) { }
+            public void ApplyQuality(int value) { }
+            public void ApplyFullscreen(bool value) { }
+        }
     }
 }

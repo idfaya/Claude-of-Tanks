@@ -18,22 +18,34 @@ namespace ClaudeOfTanks.Tests
             Assert.That(settings.MasterVolume, Is.EqualTo(0.85f).Within(0.001f));
             Assert.That(settings.QualityLevel, Is.EqualTo(3));
             Assert.That(settings.Fullscreen, Is.True);
+            Assert.That(settings.ReducedMotion, Is.False);
+            Assert.That(settings.HighContrast, Is.False);
+            Assert.That(settings.HudScale, Is.EqualTo(1f).Within(0.001f));
 
             settings.SetMasterVolume(2f);
             settings.SetQualityLevel(99);
             settings.SetFullscreen(false);
+            settings.SetReducedMotion(true);
+            settings.SetHighContrast(true);
+            settings.SetHudScale(3f);
             Assert.That(settings.MasterVolume, Is.EqualTo(1f));
             Assert.That(settings.QualityLevel, Is.EqualTo(3));
             Assert.That(settings.Fullscreen, Is.False);
+            Assert.That(settings.ReducedMotion, Is.True);
+            Assert.That(settings.HighContrast, Is.True);
+            Assert.That(settings.HudScale, Is.EqualTo(1.25f).Within(0.001f));
             Assert.That(target.Volume, Is.EqualTo(1f));
             Assert.That(target.Quality, Is.EqualTo(3));
             Assert.That(target.Fullscreen, Is.False);
-            Assert.That(store.SaveCount, Is.GreaterThanOrEqualTo(3));
+            Assert.That(store.SaveCount, Is.GreaterThanOrEqualTo(6));
 
             GameSettings restored = new GameSettings(store, target);
             Assert.That(restored.MasterVolume, Is.EqualTo(1f));
             Assert.That(restored.QualityLevel, Is.EqualTo(3));
             Assert.That(restored.Fullscreen, Is.False);
+            Assert.That(restored.ReducedMotion, Is.True);
+            Assert.That(restored.HighContrast, Is.True);
+            Assert.That(restored.HudScale, Is.EqualTo(1.25f).Within(0.001f));
         }
 
         [Test]
@@ -76,6 +88,21 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(panel.transform.Find("Shade/Surface/Volume"), Is.Not.Null);
                 Assert.That(panel.transform.Find("Shade/Surface/Quality"), Is.Not.Null);
                 Assert.That(panel.transform.Find("Shade/Surface/Fullscreen"), Is.Not.Null);
+                Toggle reducedMotion = panel.transform
+                    .Find("Shade/Surface/ReducedMotion")
+                    .GetComponent<Toggle>();
+                Toggle highContrast = panel.transform
+                    .Find("Shade/Surface/HighContrast")
+                    .GetComponent<Toggle>();
+                Slider hudScale = panel.transform
+                    .Find("Shade/Surface/HudScale")
+                    .GetComponent<Slider>();
+                reducedMotion.isOn = true;
+                highContrast.isOn = true;
+                hudScale.value = 1.2f;
+                Assert.That(settings.ReducedMotion, Is.True);
+                Assert.That(settings.HighContrast, Is.True);
+                Assert.That(settings.HudScale, Is.EqualTo(1.2f).Within(0.001f));
 
                 panel.BeginRebind(GameInputAction.Forward);
                 Assert.That(panel.WaitingForBinding, Is.EqualTo(GameInputAction.Forward));

@@ -27,6 +27,7 @@ namespace ClaudeOfTanks.Runtime
         private Material _decalMaterial;
         private Texture2D _decalTexture;
         private MaterialPropertyBlock _decalProperties;
+        private GameSettings _settings;
         private int _lightCursor;
         private uint _noise = 0x91e10da5u;
 
@@ -46,10 +47,11 @@ namespace ClaudeOfTanks.Runtime
             }
         }
 
-        public static BattleEffects Create()
+        public static BattleEffects Create(GameSettings settings = null)
         {
             GameObject root = new GameObject("BattleEffects");
             BattleEffects effects = root.AddComponent<BattleEffects>();
+            effects._settings = settings ?? GameSettings.Current;
             effects.Initialize();
             return effects;
         }
@@ -253,6 +255,13 @@ namespace ClaudeOfTanks.Runtime
                     ? new Color(1f, 0.32f, 0.06f, 1f)
                     : new Color(0.86f, 0.8f, 0.62f, 1f);
             int count = destroyed ? 34 : fired ? 16 : battleEvent.Penetrated ? 20 : 12;
+            if (_settings.ReducedMotion)
+            {
+                count = Mathf.Max(6, Mathf.CeilToInt(count * 0.45f));
+                main.startLifetime = Mathf.Min(
+                    main.startLifetime.constant,
+                    0.45f);
+            }
             Vector3 baseDirection = battleEvent.Direction.ToUnity();
             if (baseDirection.sqrMagnitude < 0.1f) baseDirection = Vector3.up;
             baseDirection.Normalize();
@@ -272,7 +281,11 @@ namespace ClaudeOfTanks.Runtime
                     velocity = Vector3.Lerp(baseDirection, spread, destroyed ? 0.8f : 0.45f).normalized * speed,
                     startColor = color,
                     startSize = (destroyed ? 0.45f : 0.12f) * Mathf.Lerp(0.65f, 1.35f, Next01()),
-                    startLifetime = destroyed ? Mathf.Lerp(0.8f, 1.5f, Next01()) : Mathf.Lerp(0.2f, 0.65f, Next01())
+                    startLifetime = _settings.ReducedMotion
+                        ? Mathf.Lerp(0.16f, 0.38f, Next01())
+                        : destroyed
+                            ? Mathf.Lerp(0.8f, 1.5f, Next01())
+                            : Mathf.Lerp(0.2f, 0.65f, Next01())
                 };
                 particles.Emit(emit, 1);
             }
@@ -303,6 +316,10 @@ namespace ClaudeOfTanks.Runtime
 
         private void TriggerLight(BattleEvent battleEvent, Vector3 position)
         {
+            if (_settings.ReducedMotion)
+            {
+                return;
+            }
             LightNode node = _lights[_lightCursor];
             _lightCursor = (_lightCursor + 1) % _lights.Length;
             node.Root.transform.position = position;

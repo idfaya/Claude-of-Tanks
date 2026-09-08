@@ -11,10 +11,15 @@ namespace ClaudeOfTanks.Runtime
             new Dictionary<GameInputAction, Button>();
         private GameSettings _settings;
         private GameObject _panel;
+        private Image _shade;
+        private Image _surfaceImage;
         private RectTransform _surface;
         private Slider _volume;
         private Dropdown _quality;
         private Toggle _fullscreen;
+        private Toggle _reducedMotion;
+        private Toggle _highContrast;
+        private Slider _hudScale;
         private GameInputAction? _waitingForBinding;
         private int _layoutWidth;
         private int _layoutHeight;
@@ -84,15 +89,17 @@ namespace ClaudeOfTanks.Runtime
         {
             Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
             Image shade = Image("Shade", transform, new Color(0.01f, 0.015f, 0.018f, 0.84f));
+            _shade = shade;
             Stretch(shade.rectTransform);
             _panel = shade.gameObject;
 
             Image surface = Image("Surface", shade.transform, new Color(0.055f, 0.065f, 0.062f, 0.98f));
+            _surfaceImage = surface;
             RectTransform surfaceRect = surface.rectTransform;
             _surface = surfaceRect;
             surfaceRect.anchorMin = new Vector2(0.5f, 0.5f);
             surfaceRect.anchorMax = new Vector2(0.5f, 0.5f);
-            surfaceRect.sizeDelta = new Vector2(700f, 620f);
+            surfaceRect.sizeDelta = new Vector2(700f, 700f);
             surfaceRect.anchoredPosition = Vector2.zero;
 
             Text title = Label("Title", surface.transform, font, 26, TextAnchor.MiddleLeft);
@@ -149,6 +156,68 @@ namespace ClaudeOfTanks.Runtime
                 _bindingButtons.Add(action, button);
             }
 
+            Text accessibilityTitle = Label(
+                "AccessibilityTitle",
+                surface.transform,
+                font,
+                13,
+                TextAnchor.MiddleLeft);
+            accessibilityTitle.text = "ACCESSIBILITY";
+            accessibilityTitle.color = new Color(0.68f, 0.75f, 0.72f);
+            PlaceHorizontal(
+                accessibilityTitle.rectTransform,
+                28f,
+                -28f,
+                -520f,
+                -492f);
+
+            _reducedMotion = Toggle(
+                "ReducedMotion",
+                surface.transform,
+                font,
+                "REDUCED MOTION");
+            Place(
+                _reducedMotion.GetComponent<RectTransform>(),
+                new Vector2(28f, -566f),
+                new Vector2(224f, -532f));
+            _reducedMotion.onValueChanged.AddListener(
+                _settings.SetReducedMotion);
+
+            _highContrast = Toggle(
+                "HighContrast",
+                surface.transform,
+                font,
+                "HIGH CONTRAST");
+            Place(
+                _highContrast.GetComponent<RectTransform>(),
+                new Vector2(238f, -566f),
+                new Vector2(430f, -532f));
+            _highContrast.onValueChanged.AddListener(value =>
+            {
+                _settings.SetHighContrast(value);
+                ApplyAccessibilityStyle();
+            });
+
+            Text hudScaleTitle = Label(
+                "HudScaleTitle",
+                surface.transform,
+                font,
+                13,
+                TextAnchor.MiddleLeft);
+            hudScaleTitle.text = "HUD SCALE";
+            Place(
+                hudScaleTitle.rectTransform,
+                new Vector2(450f, -566f),
+                new Vector2(530f, -532f));
+            _hudScale = Slider("HudScale", surface.transform);
+            Place(
+                _hudScale.GetComponent<RectTransform>(),
+                new Vector2(536f, -562f),
+                new Vector2(672f, -536f));
+            _hudScale.minValue = GameSettings.MinimumHudScale;
+            _hudScale.maxValue = GameSettings.MaximumHudScale;
+            _hudScale.onValueChanged.AddListener(_settings.SetHudScale);
+
             Button reset = Button("Reset", surface.transform, font, "RESET");
             Place(reset.GetComponent<RectTransform>(), new Vector2(28f, 22f), new Vector2(178f, 66f),
                 Vector2.zero);
@@ -168,7 +237,24 @@ namespace ClaudeOfTanks.Runtime
             _volume.SetValueWithoutNotify(_settings.MasterVolume);
             _quality.SetValueWithoutNotify(_settings.QualityLevel);
             _fullscreen.SetIsOnWithoutNotify(_settings.Fullscreen);
+            _reducedMotion.SetIsOnWithoutNotify(
+                _settings.ReducedMotion);
+            _highContrast.SetIsOnWithoutNotify(
+                _settings.HighContrast);
+            _hudScale.SetValueWithoutNotify(_settings.HudScale);
+            ApplyAccessibilityStyle();
             RefreshBindings();
+        }
+
+        private void ApplyAccessibilityStyle()
+        {
+            bool highContrast = _settings.HighContrast;
+            _shade.color = highContrast
+                ? new Color(0f, 0f, 0f, 0.94f)
+                : new Color(0.01f, 0.015f, 0.018f, 0.84f);
+            _surfaceImage.color = highContrast
+                ? new Color(0.015f, 0.018f, 0.016f, 1f)
+                : new Color(0.055f, 0.065f, 0.062f, 0.98f);
         }
 
         private void RefreshBindings()
@@ -187,7 +273,7 @@ namespace ClaudeOfTanks.Runtime
             Canvas canvas = GetComponentInParent<Canvas>();
             float canvasScale = canvas != null ? Mathf.Max(0.01f, canvas.scaleFactor) : 1f;
             float widthScale = Mathf.Min(700f, Screen.width - 32f) / (700f * canvasScale);
-            float heightScale = Mathf.Min(620f, Screen.height - 32f) / (620f * canvasScale);
+            float heightScale = Mathf.Min(700f, Screen.height - 32f) / (700f * canvasScale);
             float scale = Mathf.Min(widthScale, heightScale);
             _surface.localScale = Vector3.one * Mathf.Clamp(scale, 0.65f, 1.8f);
             _layoutWidth = Screen.width;
@@ -233,11 +319,27 @@ namespace ClaudeOfTanks.Runtime
             root.name = name;
             root.transform.SetParent(parent, false);
             root.GetComponent<Image>().color = new Color(0.12f, 0.15f, 0.14f);
+            Transform arrow = root.transform.Find("Arrow");
+            if (arrow != null)
+            {
+                arrow.gameObject.SetActive(false);
+            }
             foreach (Text text in root.GetComponentsInChildren<Text>(true))
             {
                 text.font = font;
                 text.color = Color.white;
             }
+            Text chevron = Label(
+                "Chevron",
+                root.transform,
+                font,
+                10,
+                TextAnchor.MiddleCenter);
+            chevron.text = "V";
+            chevron.rectTransform.anchorMin = new Vector2(1f, 0f);
+            chevron.rectTransform.anchorMax = Vector2.one;
+            chevron.rectTransform.offsetMin = new Vector2(-28f, 0f);
+            chevron.rectTransform.offsetMax = Vector2.zero;
             return root.GetComponent<Dropdown>();
         }
 
@@ -246,6 +348,19 @@ namespace ClaudeOfTanks.Runtime
             GameObject root = DefaultControls.CreateToggle(new DefaultControls.Resources());
             root.name = name;
             root.transform.SetParent(parent, false);
+            Transform background = root.transform.Find("Background");
+            if (background != null)
+            {
+                background.GetComponent<Image>().color =
+                    new Color(0.12f, 0.15f, 0.14f);
+            }
+            Transform checkmark = root.transform.Find(
+                "Background/Checkmark");
+            if (checkmark != null)
+            {
+                checkmark.GetComponent<Image>().color =
+                    new Color(0.3f, 0.82f, 0.38f);
+            }
             Text text = root.GetComponentInChildren<Text>();
             text.font = font;
             text.fontSize = 13;

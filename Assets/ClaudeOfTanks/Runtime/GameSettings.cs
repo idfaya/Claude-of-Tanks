@@ -42,6 +42,8 @@ namespace ClaudeOfTanks.Runtime
     public sealed class GameSettings
     {
         private const string Prefix = "cot.settings.";
+        public const float MinimumHudScale = 0.8f;
+        public const float MaximumHudScale = 1.25f;
         private static GameSettings _current;
         private readonly ISettingsStore _store;
         private readonly ISettingsTarget _target;
@@ -73,6 +75,10 @@ namespace ClaudeOfTanks.Runtime
         public float MasterVolume { get; private set; }
         public int QualityLevel { get; private set; }
         public bool Fullscreen { get; private set; }
+        public bool ReducedMotion { get; private set; }
+        public bool HighContrast { get; private set; }
+        public float HudScale { get; private set; }
+        public event Action PresentationChanged;
 
         public KeyCode GetBinding(GameInputAction action)
         {
@@ -107,6 +113,33 @@ namespace ClaudeOfTanks.Runtime
             _target.ApplyFullscreen(value);
         }
 
+        public void SetReducedMotion(bool value)
+        {
+            ReducedMotion = value;
+            _store.SetInt(Prefix + "reducedMotion", value ? 1 : 0);
+            _store.Save();
+            PresentationChanged?.Invoke();
+        }
+
+        public void SetHighContrast(bool value)
+        {
+            HighContrast = value;
+            _store.SetInt(Prefix + "highContrast", value ? 1 : 0);
+            _store.Save();
+            PresentationChanged?.Invoke();
+        }
+
+        public void SetHudScale(float value)
+        {
+            HudScale = Mathf.Clamp(
+                value,
+                MinimumHudScale,
+                MaximumHudScale);
+            _store.SetFloat(Prefix + "hudScale", HudScale);
+            _store.Save();
+            PresentationChanged?.Invoke();
+        }
+
         public void SetBinding(GameInputAction action, KeyCode key)
         {
             if (!Enum.IsDefined(typeof(GameInputAction), action))
@@ -120,6 +153,7 @@ namespace ClaudeOfTanks.Runtime
             _bindings[action] = key;
             if (collision.HasValue) _bindings[collision.Value] = previous;
             SaveBindings();
+            PresentationChanged?.Invoke();
         }
 
         public void ResetDefaults()
@@ -128,6 +162,9 @@ namespace ClaudeOfTanks.Runtime
             SetMasterVolume(0.85f);
             SetQualityLevel(Math.Max(0, _target.QualityLevelCount - 1));
             SetFullscreen(true);
+            SetReducedMotion(false);
+            SetHighContrast(false);
+            SetHudScale(1f);
             SaveBindings();
         }
 
@@ -163,6 +200,14 @@ namespace ClaudeOfTanks.Runtime
                 0,
                 maximum);
             Fullscreen = _store.GetInt(Prefix + "fullscreen", 1) != 0;
+            ReducedMotion =
+                _store.GetInt(Prefix + "reducedMotion", 0) != 0;
+            HighContrast =
+                _store.GetInt(Prefix + "highContrast", 0) != 0;
+            HudScale = Mathf.Clamp(
+                _store.GetFloat(Prefix + "hudScale", 1f),
+                MinimumHudScale,
+                MaximumHudScale);
             Array actions = Enum.GetValues(typeof(GameInputAction));
             Dictionary<GameInputAction, KeyCode> loaded =
                 new Dictionary<GameInputAction, KeyCode>();

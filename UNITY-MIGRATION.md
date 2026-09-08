@@ -158,6 +158,10 @@ The port preserves the source project's runtime units and conventions:
 - Shared Garage/battle settings with persistent master volume, quality and
   fullscreen controls plus conflict-safe keyboard rebinding for movement,
   brake, fire, sniper mode, and all three consumables
+- Persistent accessibility controls for reduced motion, high contrast, and
+  0.8x-1.25x HUD text scaling; live keyboard/gamepad action prompts; standard
+  controller LT scope, RT fire, A brake, and X/Y/B consumable mappings; and
+  reduced-motion combat particles with dynamic flash suppression
 - Authoritative post-battle replay playback with seekable deterministic
   simulation, last-eight-second Killcam, full-current-battle replay, timeline
   status, and restoration of the final live battle state
@@ -226,7 +230,7 @@ These systems still use the TypeScript implementation as their specification:
 - complete 126-vehicle production fleet and authored armor/module geometry;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
-- controller glyph polish, accessibility options, and production UI polish;
+- remaining production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
 - installable build-target release artifacts, WebRTC signaling/private-room
   session composition, and signaling deployment;
