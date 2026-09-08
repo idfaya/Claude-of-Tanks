@@ -257,6 +257,16 @@ The port preserves the source project's runtime units and conventions:
   export roof, warning heads, remote weapon station and deep bustle fittings.
   The modern trio use only their 64/30/41 catalog-authored ERA surfaces and
   never receive generic side armor
+- The six production Patton vehicles retain four distinct presentation
+  generations across Garage, solo, replay, and network. M46 keeps its low T26
+  casting, fender mufflers, M2 and single-baffle M3A1; M47 keeps its long T42
+  bustle, paired rangefinders and broad M36 blast deflector; M48A5 keeps its
+  asymmetric fender service package, dual M2 stations, diagonal searchlight
+  and busy rear rack; M60A1/A3 keep their M19/M85 stations, modernization
+  cassettes and distinct searchlight/TTS packages. M60A2 retains its tall
+  Starship tower, 152 mm launcher, surface-grid applique, hunter RWS and deep
+  lattice bustle. All six use only catalog-authored hit surfaces, including
+  M60A3's 66 ERA plates, and add no colliders or generic side armor
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
