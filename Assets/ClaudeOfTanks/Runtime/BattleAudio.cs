@@ -41,12 +41,13 @@ namespace ClaudeOfTanks.Runtime
         private TankState _occupiedTank;
         private int _engineCandidateCount;
         private float _battleDuck = 1f;
+        private bool _killcamDucked, _pauseDucked;
         private uint _noise = 0x91e10da5u;
 
         public int ActiveOneShotCount => _activeOneShots.Count;
         public int ActiveEngineCount => _activeEngines.Count;
-        public bool AmbienceActive =>
-            _ambience != null && _ambience.gameObject.activeSelf;
+        public bool AmbienceActive => _ambience != null &&
+            _ambience.gameObject.activeSelf;
         public float EngineGain => _settings.EngineVolume;
         public float CombatGain => _settings.CombatVolume;
         public float AmbienceGain => _settings.AmbienceVolume;
@@ -56,7 +57,6 @@ namespace ClaudeOfTanks.Runtime
         public int ReloadCueCount => _reload.CueCount;
         public int ReloadReadyCount => _reload.ReadyCount;
         public BattleReloadProfile ReloadProfile => _reload.Profile;
-
         public static BattleAudio Create(GameSettings settings = null)
         {
             GameObject root = new GameObject("BattleAudio");
@@ -66,7 +66,6 @@ namespace ClaudeOfTanks.Runtime
             audio.BeginBattle();
             return audio;
         }
-
         public void BeginBattle()
         {
             if (_ambience == null) return;
@@ -130,18 +129,20 @@ namespace ClaudeOfTanks.Runtime
 
         public void SetKillcamDucking(bool active)
         {
-            float next = active ? 0.35f : 1f;
-            if (Mathf.Approximately(_battleDuck, next)) return;
-            _battleDuck = next;
-            _reload.SetBattleDucking(next);
-            ApplyMix();
+            if (_killcamDucked == active) return;
+            _killcamDucked = active;
+            RefreshDucking();
         }
 
-        public bool HasEngineVoice(string entityId)
+        public void SetPauseDucking(bool active)
         {
-            return entityId != null &&
-                _activeEngines.ContainsKey(entityId);
+            if (_pauseDucked == active) return;
+            _pauseDucked = active;
+            RefreshDucking();
         }
+
+        public bool HasEngineVoice(string entityId) =>
+            entityId != null && _activeEngines.ContainsKey(entityId);
 
         public void ResetAll()
         {
@@ -168,6 +169,8 @@ namespace ClaudeOfTanks.Runtime
             }
             _reload.ResetAll();
             _battleDuck = 1f;
+            _killcamDucked = false;
+            _pauseDucked = false;
         }
 
         private void Update()
@@ -456,6 +459,14 @@ namespace ClaudeOfTanks.Runtime
             }
             if (_ambience != null)
                 _ambience.volume = 0.16f * AmbienceGain;
+        }
+
+        private void RefreshDucking()
+        {
+            _battleDuck = (_killcamDucked ? 0.35f : 1f) *
+                (_pauseDucked ? 0.04f : 1f);
+            _reload.SetBattleDucking(_battleDuck);
+            ApplyMix();
         }
 
         private float Next01()

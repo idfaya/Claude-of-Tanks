@@ -163,8 +163,7 @@ namespace ClaudeOfTanks.Runtime
                 _plan,
                 transform);
             BuildCamera();
-            _hud = BattleHud.Create(ReturnToRoom, ReturnToRoom);
-            _hud.transform.SetParent(transform, false);
+            _hud = BattleHud.Create(ReturnToRoom, ReturnToRoom, parent: transform);
             _hud.SetMap(_catalog.GetMap(_plan.MapId));
             _hud.SetReplayActionsAvailable(false);
             _cameraRig.Reset();
@@ -225,6 +224,7 @@ namespace ClaudeOfTanks.Runtime
 
         private NetworkInputCommand ReadInput()
         {
+            if (_hud.IsPaused) return ReadPausedInput();
             float throttle = 0f;
             float steer = 0f;
             GameSettings settings = GameSettings.Current;
@@ -373,6 +373,7 @@ namespace ClaudeOfTanks.Runtime
 
         private void UpdateCameraControls()
         {
+            if (_hud.IsPaused) return;
             if (BattleGamepadInput.Read().SniperPressed ||
                 GameSettings.Current.WasPressedThisFrame(
                     GameInputAction.Sniper) ||

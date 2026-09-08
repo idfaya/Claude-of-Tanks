@@ -14,6 +14,7 @@ namespace ClaudeOfTanks.Runtime
         private Image _shade;
         private Image _surfaceImage;
         private RectTransform _surface;
+        private Text _pauseStatus;
         private Slider _volume;
         private GameSettingsAudioSection _audioMix;
         private Dropdown _quality;
@@ -27,6 +28,7 @@ namespace ClaudeOfTanks.Runtime
 
         public bool IsVisible => _panel != null && _panel.activeSelf;
         public GameInputAction? WaitingForBinding => _waitingForBinding;
+        public event Action<bool> VisibilityChanged;
 
         public static GameSettingsPanel Create(Transform parent, GameSettings settings)
         {
@@ -43,17 +45,27 @@ namespace ClaudeOfTanks.Runtime
 
         public void Open()
         {
+            bool changed = !IsVisible;
             _waitingForBinding = null;
             Refresh();
             _panel.SetActive(true);
             transform.SetAsLastSibling();
             ApplyViewportLayout();
+            if (changed) VisibilityChanged?.Invoke(true);
         }
 
         public void Close()
         {
+            bool changed = IsVisible;
             _waitingForBinding = null;
             if (_panel != null) _panel.SetActive(false);
+            if (changed) VisibilityChanged?.Invoke(false);
+        }
+
+        public void SetPauseContext(bool active)
+        {
+            if (_pauseStatus != null)
+                _pauseStatus.gameObject.SetActive(active);
         }
 
         public void BeginRebind(GameInputAction action)
@@ -106,6 +118,21 @@ namespace ClaudeOfTanks.Runtime
             Text title = Label("Title", surface.transform, font, 26, TextAnchor.MiddleLeft);
             title.text = "SETTINGS";
             PlaceHorizontal(title.rectTransform, 28f, -28f, -58f, -16f);
+
+            _pauseStatus = Label(
+                "PauseStatus",
+                surface.transform,
+                font,
+                12,
+                TextAnchor.MiddleRight);
+            _pauseStatus.text = "BATTLE PAUSED";
+            _pauseStatus.color = new Color(0.95f, 0.64f, 0.2f);
+            Place(
+                _pauseStatus.rectTransform,
+                new Vector2(-220f, -54f),
+                new Vector2(-28f, -20f),
+                new Vector2(1f, 1f));
+            _pauseStatus.gameObject.SetActive(false);
 
             Text audioTitle = Label("AudioTitle", surface.transform, font, 13, TextAnchor.MiddleLeft);
             audioTitle.text = "MASTER";

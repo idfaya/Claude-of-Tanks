@@ -159,6 +159,11 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     cue.volume,
                     Is.EqualTo(volume * 0.35f * 0.4f).Within(0.001f));
+                audio.SetKillcamDucking(false);
+                audio.SetPauseDucking(true);
+                Assert.That(
+                    cue.volume,
+                    Is.EqualTo(volume * 0.04f * 0.4f).Within(0.001f));
 
                 tank.Combat.Reload.RemainingS = 0f;
                 tank.Combat.Reload.Kind = DamageReloadKind.Ready;

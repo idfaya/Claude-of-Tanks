@@ -70,6 +70,7 @@ namespace ClaudeOfTanks.Runtime
             _ranked = gameObject.AddComponent<RankedCoordinator>();
             _ranked.MatchHandoffReady += StartRankedBattle;
             EnsureEventSystem();
+            UiAudioFeedback.BindTree(transform, GameSettings.Current);
             ShowGarage();
         }
 
@@ -300,6 +301,9 @@ namespace ClaudeOfTanks.Runtime
                 PlayReplay);
             BuildGarageModeActions(
                 _garagePresentation.ModalRoot);
+            UiAudioFeedback.BindTree(
+                _garagePresentation.transform,
+                GameSettings.Current);
         }
 
         private void RefreshPreview(int index)

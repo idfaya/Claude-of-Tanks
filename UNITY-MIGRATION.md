@@ -135,6 +135,10 @@ The port preserves the source project's runtime units and conventions:
 - Canonical reload mechanical sequences for rapid, shell, intra-clip, and
   magazine cycles, with four bounded local voices, ready cues, live combat
   mix/Killcam ducking, authoritative solo state, and network snapshot fallback
+- Shared Garage/Battle button feedback on the persistent UI channel plus a
+  settings-backed battle pause overlay: solo simulation/input freezes without
+  clock debt, network play continues with neutral braking commands, combat and
+  engine beds duck to four percent, and UI audio remains foreground
 - Garage-first lifecycle with all 126 production vehicles, 20 maps, and five
   modes selectable before deployment, plus complete return-to-garage cleanup
 - Production Garage presentation with an enclosed steel workshop, hazard-rim
@@ -238,8 +242,8 @@ These systems still use the TypeScript implementation as their specification:
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;
-- remaining crew/UI audio, pause mixing, particle and decal parity,
-  postprocessing, and adaptive quality;
+- remaining crew voice audio, particle and decal parity, postprocessing, and
+  adaptive quality;
 - installable build-target release artifacts, WebRTC signaling/private-room
   session composition, and signaling deployment;
 - per-family procedural vehicle geometry parity and generated technical assets.

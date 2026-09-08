@@ -303,6 +303,48 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void SettingsOverlayOwnsBattlePauseAndUiFeedback()
+        {
+            GameSettings settings = new GameSettings(
+                new MemorySettingsStore(),
+                new SettingsTarget());
+            BattleHud hud = BattleHud.Create(
+                () => { },
+                () => { },
+                settings);
+            try
+            {
+                Button[] buttons =
+                    hud.GetComponentsInChildren<Button>(true);
+                Assert.That(buttons.Length, Is.GreaterThan(6));
+                for (int i = 0; i < buttons.Length; i++)
+                {
+                    Assert.That(
+                        buttons[i].GetComponent<UiAudioButtonFeedback>(),
+                        Is.Not.Null,
+                        buttons[i].name);
+                }
+
+                hud.SetPaused(true);
+
+                Assert.That(hud.IsPaused, Is.True);
+                Assert.That(
+                    hud.transform.Find(
+                        "Settings/Shade/Surface/PauseStatus")
+                        .gameObject.activeSelf,
+                    Is.True);
+
+                hud.SetPaused(false);
+
+                Assert.That(hud.IsPaused, Is.False);
+            }
+            finally
+            {
+                Object.DestroyImmediate(hud.gameObject);
+            }
+        }
+
         private sealed class MemorySettingsStore : ISettingsStore
         {
             private readonly Dictionary<string, int> _ints =

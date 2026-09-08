@@ -126,8 +126,10 @@ namespace ClaudeOfTanks.Runtime
             _catalog = ContentCatalog.Load();
             BuildEnvironment();
             StartBattle();
-            _hud = BattleHud.Create(StartBattle, _returnToGarage);
-            _hud.transform.SetParent(transform, false);
+            _hud = BattleHud.Create(
+                StartBattle,
+                _returnToGarage,
+                parent: transform);
             _hud.SetMap(_catalog.GetMap(mapId));
             _hud.ConfigureReplayActions(
                 () => StartReplay(true),

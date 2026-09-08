@@ -134,6 +134,23 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     deployColor.r,
                     Is.GreaterThan(deployColor.b + 0.35f));
+                Button[] buttons =
+                    ui.GetComponentsInChildren<Button>(true);
+                Assert.That(buttons.Length, Is.GreaterThan(12));
+                for (int i = 0; i < buttons.Length; i++)
+                {
+                    if (buttons[i].name == "Rail" &&
+                        buttons[i].transition ==
+                            Selectable.Transition.None)
+                    {
+                        continue;
+                    }
+                    Assert.That(
+                        buttons[i]
+                            .GetComponent<UiAudioButtonFeedback>(),
+                        Is.Not.Null,
+                        buttons[i].name);
+                }
 
                 flow.Select(
                     2,
