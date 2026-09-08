@@ -199,6 +199,13 @@ The port preserves the source project's runtime units and conventions:
   their distinct manual weapons, segmented skirts, fuel drums, cages,
   Trophy sensors, twin autocannons, radar mast, searchlight, bustle cage,
   and field stowage without duplicating catalog-authored ERA or side armor
+- All six production Merkava variants share catalog-seated rear clamshell
+  service fields, open bustle baskets, ball-and-chain curtains, smoke banks,
+  crew hatches, roof weapons, optics, stowage, and radio whips across Garage,
+  solo, replay, and network presentation. Mk 1B/2B/2D, Mk 3C/3D, and Mk 4B
+  retain distinct mortar, gun-cradle weapon, panoramic sight, roof-load, and
+  rear-lattice arrangements without duplicating catalog-authored ERA,
+  arrowhead armor, or side armor
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
@@ -283,7 +290,7 @@ These systems still use the TypeScript implementation as their specification:
 
 - complete remaining per-variant exterior fitting parity across the
   126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
-  and Challenger 2/3 identity suites;
+  Challenger 2/3, and Merkava identity suites;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;

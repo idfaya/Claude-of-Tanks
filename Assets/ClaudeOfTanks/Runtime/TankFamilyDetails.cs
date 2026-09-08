@@ -20,6 +20,9 @@ namespace ClaudeOfTanks.Runtime
             bool challenger =
                 TankChallengerFamilyDetails.Supports(
                     definition.id);
+            bool merkava =
+                TankMerkavaFamilyDetails.Supports(
+                    definition.id);
             if (definition.role == "ifv" &&
                 definition.id != "bmpt_t90")
             {
@@ -39,7 +42,8 @@ namespace ClaudeOfTanks.Runtime
             }
             if (definition.era == "modern" &&
                 !leopard &&
-                !challenger)
+                !challenger &&
+                !merkava)
             {
                 for (int side = -1;
                     side <= 1;
@@ -77,6 +81,14 @@ namespace ClaudeOfTanks.Runtime
                 height,
                 length);
             TankChallengerFamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
+            TankMerkavaFamilyDetails.Build(
                 root,
                 turret,
                 definition,
