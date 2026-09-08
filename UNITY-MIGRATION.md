@@ -130,6 +130,10 @@ The port preserves the source project's runtime units and conventions:
   dynamic lights, and 48 target-attached penetration/ricochet decals
 - Garage-first lifecycle with all 126 production vehicles, 20 maps, and five
   modes selectable before deployment, plus complete return-to-garage cleanup
+- Production Garage presentation with an enclosed steel workshop, hazard-rim
+  turntable, roof trusses, three warm high-bay fixtures, canonical hero
+  staging, restrained tactical selection/command rails, and a live
+  vehicle/map/loadout inspector
 - Data-driven Garage loadout editor generated from the canonical TypeScript
   catalog, with 14 era/vehicle-gated equipment choices, three slots, all 112
   match-safe camouflage choices, per-vehicle persistence, live preview paint,
@@ -222,7 +226,6 @@ These systems still use the TypeScript implementation as their specification:
 - complete 126-vehicle production fleet and authored armor/module geometry;
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
-- production garage presentation;
 - controller glyph polish, accessibility options, and production UI polish;
 - audio, particles, decals, postprocessing, and adaptive quality;
 - installable build-target release artifacts, WebRTC signaling/private-room

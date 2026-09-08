@@ -27,14 +27,10 @@ namespace ClaudeOfTanks.Runtime
 
         private void BuildLoadoutUi(Transform parent)
         {
-            Font font = Resources.GetBuiltinResource<Font>(
-                "LegacyRuntime.ttf");
-            Button loadout = Button(
+            Button loadout =
+                _garagePresentation.CreateActionButton(
                 "Loadout",
-                parent,
-                font,
-                "LOADOUT",
-                new Vector2(412f, -394f));
+                "LOADOUT");
             _loadoutPanel = GarageLoadoutPanel.Create(
                 parent,
                 _catalog,
@@ -43,15 +39,12 @@ namespace ClaudeOfTanks.Runtime
         }
 
         private void BuildGarageModeActions(
-            Transform parent,
-            Font font)
+            Transform parent)
         {
-            Button privateRoom = Button(
-                "PrivateRoom",
-                parent,
-                font,
-                "PRIVATE ROOM",
-                new Vector2(28f, -394f));
+            Button privateRoom =
+                _garagePresentation.CreateActionButton(
+                    "PrivateRoom",
+                    "PRIVATE ROOM");
             _privateRoomPanel = PrivateRoomPanel.Create(
                 parent,
                 _privateRoom,
@@ -63,12 +56,10 @@ namespace ClaudeOfTanks.Runtime
             privateRoom.onClick.AddListener(
                 _privateRoomPanel.Open);
 
-            Button ranked = Button(
-                "Ranked",
-                parent,
-                font,
-                "RANKED",
-                new Vector2(220f, -394f));
+            Button ranked =
+                _garagePresentation.CreateActionButton(
+                    "Ranked",
+                    "RANKED");
             _rankedPanel = RankedPanel.Create(
                 parent,
                 _ranked,
@@ -91,6 +82,12 @@ namespace ClaudeOfTanks.Runtime
         {
             RefreshPreview(_vehicle.value);
             _privateRoom.SelectMap(SelectedMapId);
+        }
+
+        private void OnGarageModeChanged()
+        {
+            RefreshGarageStatus();
+            _privateRoom.SelectMode(SelectedMode);
         }
 
         private void OnLoadoutChanged()

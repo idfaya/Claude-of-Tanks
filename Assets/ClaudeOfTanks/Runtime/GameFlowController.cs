@@ -26,7 +26,8 @@ namespace ClaudeOfTanks.Runtime
         private RankedCoordinator _ranked;
         private RankedPanel _rankedPanel;
         private ReplayArchive _replayArchive;
-        private Material _garageFloorMaterial;
+        private GarageStagePresentation _garageStage;
+        private GaragePresentationUi _garagePresentation;
 
         public bool IsGarageVisible => _garage != null;
         public BattleController ActiveBattle => _battle;
@@ -252,44 +253,21 @@ namespace ClaudeOfTanks.Runtime
                 _camera = cameraObject.AddComponent<Camera>();
                 cameraObject.AddComponent<AudioListener>();
             }
-            _camera.transform.position = new Vector3(9f, 5.5f, -10f);
-            _camera.transform.rotation = Quaternion.LookRotation(new Vector3(-9f, -3.4f, 10f));
-            _camera.fieldOfView = 48f;
-            _camera.backgroundColor = new Color(0.1f, 0.12f, 0.13f);
-            GameObject floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            floor.name = "GarageFloor";
-            floor.transform.SetParent(_garage.transform, false);
-            floor.transform.localScale = new Vector3(4f, 1f, 4f);
-            _garageFloorMaterial = new Material(Shader.Find("Standard"))
-            {
-                color = new Color(0.18f, 0.2f, 0.19f)
-            };
-            floor.GetComponent<Renderer>().sharedMaterial = _garageFloorMaterial;
-            GameObject lightObject = new GameObject("GarageKey");
-            lightObject.transform.SetParent(_garage.transform, false);
-            Light light = lightObject.AddComponent<Light>();
-            light.type = LightType.Directional;
-            light.intensity = 1.4f;
-            light.transform.rotation = Quaternion.Euler(42f, -35f, 0f);
+            _garageStage = GarageStagePresentation.Create(
+                _garage.transform,
+                _camera);
         }
 
         private void BuildGarageUi()
         {
-            GameObject ui = new GameObject("GarageUI");
-            ui.transform.SetParent(_garage.transform, false);
-            Canvas canvas = ui.AddComponent<Canvas>();
-            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
-            CanvasScaler scaler = ui.AddComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1280f, 720f);
-            ui.AddComponent<GraphicRaycaster>();
-            Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            Text title = Text("Title", ui.transform, font, 30);
-            title.text = "CLAUDE OF TANKS";
-            Place(title.rectTransform, new Vector2(28f, -62f), new Vector2(420f, -18f), new Vector2(0f, 1f));
-            _vehicle = Dropdown("Vehicle", ui.transform, font, new Vector2(28f, -132f));
-            _map = Dropdown("Map", ui.transform, font, new Vector2(28f, -194f));
-            _mode = Dropdown("Mode", ui.transform, font, new Vector2(28f, -256f));
+            Font font = Resources.GetBuiltinResource<Font>(
+                "LegacyRuntime.ttf");
+            _garagePresentation = GaragePresentationUi.Create(
+                _garage.transform,
+                font);
+            _vehicle = _garagePresentation.Vehicle;
+            _map = _garagePresentation.Map;
+            _mode = _garagePresentation.Mode;
             Fill(_vehicle, VehicleNames());
             Fill(_map, MapNames());
             Fill(_mode, new[] { "Standard", "Capture the Flag", "Zone Control", "Turbo Ball", "Endless Horde" });
@@ -298,30 +276,84 @@ namespace ClaudeOfTanks.Runtime
             _map.onValueChanged.AddListener(
                 _ => OnGarageMapChanged());
             _mode.onValueChanged.AddListener(
-                _ => _privateRoom.SelectMode(SelectedMode));
-            Button deploy = Button("Deploy", ui.transform, font, "DEPLOY", new Vector2(28f, -328f));
+                _ => OnGarageModeChanged());
+            Button deploy = _garagePresentation.CreateActionButton(
+                "Deploy",
+                "DEPLOY");
             deploy.onClick.AddListener(StartBattle);
-            Button settings = Button("Settings", ui.transform, font, "SETTINGS", new Vector2(220f, -328f));
+            Button settings =
+                _garagePresentation.CreateActionButton(
+                    "Settings",
+                    "SETTINGS");
             settings.onClick.AddListener(() => _settingsPanel.Open());
-            Button replays = Button("Replays", ui.transform, font, "REPLAYS", new Vector2(412f, -328f));
+            Button replays =
+                _garagePresentation.CreateActionButton(
+                    "Replays",
+                    "REPLAYS");
             replays.onClick.AddListener(() => _replayBrowser.Open());
-            _settingsPanel = GameSettingsPanel.Create(ui.transform, GameSettings.Current);
-            _replayBrowser = ReplayBrowserPanel.Create(ui.transform, _replayArchive, PlayReplay);
-            BuildGarageModeActions(ui.transform, font);
+            _settingsPanel = GameSettingsPanel.Create(
+                _garagePresentation.ModalRoot,
+                GameSettings.Current);
+            _replayBrowser = ReplayBrowserPanel.Create(
+                _garagePresentation.ModalRoot,
+                _replayArchive,
+                PlayReplay);
+            BuildGarageModeActions(
+                _garagePresentation.ModalRoot);
         }
 
         private void RefreshPreview(int index)
         {
             if (_preview != null) _preview.Destroy();
             VehicleDefinition definition = _catalog.GetVehicle(_catalog.ProductionVehicleIds[index]);
-            TankState tank = new TankState("GarageVehicle", Team.Alpha, definition.ToTankSpec(), Vector3.zero.ToSimulation(), 0.55f);
+            TankState tank = new TankState(
+                "GarageVehicle",
+                Team.Alpha,
+                definition.ToTankSpec(),
+                Vector3.zero.ToSimulation(),
+                0f);
             _preview = TankView.Create(
                 tank,
                 definition,
                 _loadout.CamouflageId,
                 SelectedMapId,
                 _catalog);
-            _preview.Root.SetParent(_garage.transform, true);
+            _preview.Root.SetParent(_garage.transform, false);
+            _preview.Root.localPosition =
+                new Vector3(
+                    0f,
+                    GarageStagePresentation.PlatformTopY,
+                    0f);
+            RefreshGarageStatus();
+        }
+
+        private void RefreshGarageStatus()
+        {
+            if (_garagePresentation == null ||
+                _vehicle == null ||
+                _map == null ||
+                _mode == null)
+            {
+                return;
+            }
+            VehicleDefinition vehicle =
+                _catalog.GetVehicle(SelectedVehicleId);
+            MapDefinition map =
+                _catalog.Maps[_map.value];
+            string camouflageId = TankCamouflage.ResolveId(
+                vehicle,
+                _loadout.CamouflageId,
+                map.id);
+            string camouflage =
+                _catalog.GetCamouflage(camouflageId)
+                    .name.ToUpperInvariant();
+            _garagePresentation.UpdateVehicle(
+                vehicle,
+                map,
+                _mode.options[_mode.value]
+                    .text.ToUpperInvariant(),
+                camouflage,
+                _loadout.Equipment.Length);
         }
 
         private List<string> VehicleNames()
@@ -377,49 +409,6 @@ namespace ClaudeOfTanks.Runtime
             dropdown.AddOptions(new List<string>(values));
         }
 
-        private static Dropdown Dropdown(string name, Transform parent, Font font, Vector2 position)
-        {
-            GameObject root = DefaultControls.CreateDropdown(new DefaultControls.Resources());
-            root.name = name;
-            root.transform.SetParent(parent, false);
-            Place(root.GetComponent<RectTransform>(), position, position + new Vector2(330f, 46f), new Vector2(0f, 1f));
-            foreach (Text text in root.GetComponentsInChildren<Text>(true)) text.font = font;
-            return root.GetComponent<Dropdown>();
-        }
-
-        private static Button Button(
-            string name, Transform parent, Font font, string label, Vector2 position)
-        {
-            GameObject root = DefaultControls.CreateButton(new DefaultControls.Resources());
-            root.name = name;
-            root.transform.SetParent(parent, false);
-            Place(root.GetComponent<RectTransform>(), position, position + new Vector2(180f, 50f), new Vector2(0f, 1f));
-            Text text = root.GetComponentInChildren<Text>();
-            text.font = font;
-            text.text = label;
-            return root.GetComponent<Button>();
-        }
-
-        private static Text Text(string name, Transform parent, Font font, int size)
-        {
-            GameObject root = new GameObject(name, typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
-            root.transform.SetParent(parent, false);
-            Text text = root.GetComponent<Text>();
-            text.font = font;
-            text.fontSize = size;
-            text.fontStyle = FontStyle.Bold;
-            text.color = Color.white;
-            return text;
-        }
-
-        private static void Place(RectTransform rect, Vector2 min, Vector2 max, Vector2 anchor)
-        {
-            rect.anchorMin = anchor;
-            rect.anchorMax = anchor;
-            rect.offsetMin = min;
-            rect.offsetMax = max;
-        }
-
         private void EnsureEventSystem()
         {
             if (FindObjectOfType<EventSystem>() != null)
@@ -440,10 +429,10 @@ namespace ClaudeOfTanks.Runtime
                 _preview.Destroy();
                 _preview = null;
             }
-            if (_garageFloorMaterial != null)
+            if (_garageStage != null)
             {
-                ReleaseObject(_garageFloorMaterial);
-                _garageFloorMaterial = null;
+                _garageStage.Dispose();
+                _garageStage = null;
             }
             if (_garage != null)
             {
@@ -454,6 +443,7 @@ namespace ClaudeOfTanks.Runtime
                 _privateRoomPanel = null;
                 _rankedPanel = null;
                 _loadoutPanel = null;
+                _garagePresentation = null;
             }
         }
 
@@ -472,10 +462,10 @@ namespace ClaudeOfTanks.Runtime
                 _preview.Destroy();
                 _preview = null;
             }
-            if (_garageFloorMaterial != null)
+            if (_garageStage != null)
             {
-                ReleaseObject(_garageFloorMaterial);
-                _garageFloorMaterial = null;
+                _garageStage.Dispose();
+                _garageStage = null;
             }
         }
 
