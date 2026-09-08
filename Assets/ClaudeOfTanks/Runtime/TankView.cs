@@ -310,7 +310,7 @@ namespace ClaudeOfTanks.Runtime
                     wheelColor * 0.9f);
                 roller.localRotation = Quaternion.Euler(0f, 0f, 90f);
             }
-            CreateTrackLinks(gear.transform, side, x, y, length, width, roadRadius, trackColor);
+            CreateTrackLinks(gear.transform, side, x, y, length, width, roadRadius, trackColor, definition);
         }
 
         private static void CreateEndWheel(
@@ -340,12 +340,13 @@ namespace ClaudeOfTanks.Runtime
             float length,
             float width,
             float radius,
-            Color color)
+            Color color,
+            VehicleDefinition definition)
         {
-            float frontZ = length * 0.45f;
-            float rearZ = -frontZ;
-            float bottomY = Mathf.Max(0.06f, y - radius * 0.94f);
-            float topY = y + radius * 0.98f;
+            float frontZ = TankRunningGearLayout.TrackFrontZ(definition, length);
+            float rearZ = TankRunningGearLayout.TrackRearZ(definition, length);
+            float bottomY = TankRunningGearLayout.TrackBottomY(definition, y, radius);
+            float topY = TankRunningGearLayout.TrackTopY(definition, y, radius);
             float pitch = Mathf.Clamp(width * 0.34f, 0.11f, 0.24f);
             int straightCount = Mathf.Clamp(Mathf.CeilToInt((frontZ - rearZ) / pitch), 18, 54);
             int arcCount = 7;
@@ -359,7 +360,8 @@ namespace ClaudeOfTanks.Runtime
                 float z = Mathf.Lerp(rearZ, frontZ, t);
                 AppendLink(vertices, triangles, link++, new Vector3(x, bottomY, z),
                     width, 0.09f, pitch * 0.78f, 0f);
-                AppendLink(vertices, triangles, link++, new Vector3(x, topY, -z),
+                AppendLink(vertices, triangles, link++, new Vector3(x, topY,
+                    Mathf.Lerp(frontZ, rearZ, t)),
                     width, 0.09f, pitch * 0.78f, 0f);
             }
             float centerY = (bottomY + topY) * 0.5f;

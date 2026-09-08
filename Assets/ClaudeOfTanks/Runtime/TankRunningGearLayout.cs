@@ -48,6 +48,17 @@ namespace ClaudeOfTanks.Runtime
                 -2.094f
             };
 
+        private static readonly float[]
+            Bmp3WheelStations =
+            {
+                1.79f,
+                1.04f,
+                0.055f,
+                -0.62f,
+                -1.315f,
+                -2.15f
+            };
+
         public static int RoadWheelCount(
             VehicleDefinition definition,
             float hullLength)
@@ -61,6 +72,9 @@ namespace ClaudeOfTanks.Runtime
             if (UsesBradleyDonor(definition))
                 return 6;
             if (TankBmp2FamilyDetails.Supports(
+                    definition?.id))
+                return 6;
+            if (TankBmp3FamilyDetails.Supports(
                     definition?.id))
                 return 6;
 
@@ -83,6 +97,11 @@ namespace ClaudeOfTanks.Runtime
             if (TankBmp2FamilyDetails.Supports(
                     definition?.id))
                 return 1.205f;
+            if (TankBmp3FamilyDetails.IsRok(
+                    definition?.id))
+                return 1.205f;
+            if (definition?.id == "bmp3")
+                return 1.32f;
 
             return width * 0.47f;
         }
@@ -96,6 +115,11 @@ namespace ClaudeOfTanks.Runtime
             if (TankBmp2FamilyDetails.Supports(
                     definition?.id))
                 return 0.3f;
+            if (TankBmp3FamilyDetails.IsRok(
+                    definition?.id))
+                return 0.3f;
+            if (definition?.id == "bmp3")
+                return 0.38f;
 
             return fallback;
         }
@@ -113,6 +137,11 @@ namespace ClaudeOfTanks.Runtime
             if (TankBmp2FamilyDetails.Supports(
                     definition?.id))
                 return 0.3f;
+            if (TankBmp3FamilyDetails.IsRok(
+                    definition?.id))
+                return 0.3f;
+            if (definition?.id == "bmp3")
+                return 0.37f;
 
             return Mathf.Max(0.4f, height * 0.21f);
         }
@@ -128,6 +157,9 @@ namespace ClaudeOfTanks.Runtime
             if (UsesBradleyDonor(definition))
                 return 0.3f;
             if (TankBmp2FamilyDetails.Supports(
+                    definition?.id))
+                return 0.3f;
+            if (TankBmp3FamilyDetails.Supports(
                     definition?.id))
                 return 0.3f;
 
@@ -149,6 +181,11 @@ namespace ClaudeOfTanks.Runtime
             if (TankBmp2FamilyDetails.Supports(
                     definition?.id))
                 return Bmp2WheelStations[index];
+            if (TankBmp3FamilyDetails.IsRok(
+                    definition?.id))
+                return Bmp2WheelStations[index];
+            if (definition?.id == "bmp3")
+                return Bmp3WheelStations[index];
 
             return Mathf.Lerp(
                 -length * 0.38f,
@@ -171,6 +208,11 @@ namespace ClaudeOfTanks.Runtime
             if (TankBmp2FamilyDetails.Supports(
                     definition?.id))
                 return new Vector2(2.256f, 0.8f);
+            if (TankBmp3FamilyDetails.IsRok(
+                    definition?.id))
+                return new Vector2(2.256f, 0.8f);
+            if (definition?.id == "bmp3")
+                return new Vector2(-2.98f, 0.72f);
 
             return new Vector2(
                 -length * 0.45f,
@@ -192,6 +234,11 @@ namespace ClaudeOfTanks.Runtime
             if (TankBmp2FamilyDetails.Supports(
                     definition?.id))
                 return new Vector2(-2.44f, 0.6f);
+            if (TankBmp3FamilyDetails.IsRok(
+                    definition?.id))
+                return new Vector2(-2.44f, 0.6f);
+            if (definition?.id == "bmp3")
+                return new Vector2(2.73f, 0.88f);
 
             return new Vector2(
                 length * 0.45f,
@@ -207,6 +254,11 @@ namespace ClaudeOfTanks.Runtime
             if (TankBmp2FamilyDetails.Supports(
                     definition?.id))
                 return 0.26f;
+            if (TankBmp3FamilyDetails.IsRok(
+                    definition?.id))
+                return 0.26f;
+            if (definition?.id == "bmp3")
+                return 0.35f;
 
             return roadWheelRadius * 0.82f;
         }
@@ -220,8 +272,53 @@ namespace ClaudeOfTanks.Runtime
             if (TankBmp2FamilyDetails.Supports(
                     definition?.id))
                 return 0.24f;
+            if (TankBmp3FamilyDetails.IsRok(
+                    definition?.id))
+                return 0.24f;
+            if (definition?.id == "bmp3")
+                return 0.29f;
 
             return roadWheelRadius * 0.82f * 0.94f;
+        }
+
+        public static float TrackFrontZ(
+            VehicleDefinition definition,
+            float length)
+        {
+            return definition?.id == "bmp3"
+                ? 2.4785f
+                : length * 0.45f;
+        }
+
+        public static float TrackRearZ(
+            VehicleDefinition definition,
+            float length)
+        {
+            return definition?.id == "bmp3"
+                ? -2.7875f
+                : -length * 0.45f;
+        }
+
+        public static float TrackBottomY(
+            VehicleDefinition definition,
+            float wheelY,
+            float roadWheelRadius)
+        {
+            return definition?.id == "bmp3"
+                ? 0.01f
+                : Mathf.Max(
+                    0.06f,
+                    wheelY - roadWheelRadius * 0.94f);
+        }
+
+        public static float TrackTopY(
+            VehicleDefinition definition,
+            float wheelY,
+            float roadWheelRadius)
+        {
+            return definition?.id == "bmp3"
+                ? 1.18f
+                : wheelY + roadWheelRadius * 0.98f;
         }
 
         private static bool UsesBradleyDonor(

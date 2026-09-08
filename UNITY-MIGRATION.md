@@ -348,6 +348,15 @@ The port preserves the source project's runtime units and conventions:
   surfaces stay authoritative across Garage, solo, replay, and network; track
   surfaces remain mapped but hidden over the wheels, with no added collider
   or generic side armor/pod
+- BMP-3 and BMP-3 ROK now use a dedicated family owner. The Russian vehicle
+  keeps its independent rear-engine boat hull, raked two-plane bow, twin bow
+  PKTs, open six-wheel bays, front idler/rear sprocket course, rear troop
+  hatches, waterjets, low two-man turret, 3+3 smoke, and gun-owned 2A70,
+  2A72, and PKT plant. The ROK vehicle retains the BMP-2 hull lineage while
+  adding its 16-panel side course, six glacis panels, supported light
+  clusters, taller BMP-3 turret, and 4+4 smoke fit. Each variant preserves
+  its 17 catalog hit surfaces across Garage, solo, replay, and network with
+  no added collider or generic side armor/pod
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
