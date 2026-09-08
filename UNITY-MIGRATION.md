@@ -320,6 +320,16 @@ The port preserves the source project's runtime units and conventions:
   open slash-port gun cradle. Their 19/24 catalog hit surfaces remain
   authoritative; catalog track surfaces stay mapped but no longer render over
   the wheels, and neither vehicle adds a collider or generic side armor/pod
+- Production M2A2 Bradley, Ukrainian M2A3, and M3A3 CFV now share the exact
+  six-wheel donor suspension, narrow continuous tub, closed two-slope bow,
+  rear troop ramp, and attached eight-panel skirt/hanger course while keeping
+  separate combat identities. M2A2 retains its stepped A2 turret and pitching
+  twin TOW pod; the Ukrainian vehicle adds its heavy side/glacis/turret
+  package, seated ISU, roof gun, and expanded bustle; M3A3 carries the lower
+  welded CFV turret, backed reactive carriers, CIV, paired roof weapons,
+  service bins, and deep bustle rack. Their 19/24/117 catalog hit surfaces
+  remain authoritative, including all 88 M3A3 ERA surfaces, and none adds a
+  collider or generic side armor/pod
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

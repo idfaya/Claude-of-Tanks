@@ -94,6 +94,7 @@ namespace ClaudeOfTanks.Runtime
                 ? definition.dims.heightM : 2.8f;
             float trackWidth = definition?.visual != null && definition.visual.trackWidthM > 0f
                 ? definition.visual.trackWidthM : width * 0.16f;
+            trackWidth = TankRunningGearLayout.TrackWidth(definition, trackWidth);
             GameObject root = new GameObject(tank.Id);
 
             float trackY = TankRunningGearLayout.RoadWheelY(definition, height);
@@ -280,15 +281,22 @@ namespace ClaudeOfTanks.Runtime
                 hub.localRotation = Quaternion.Euler(0f, 0f, 90f);
             }
 
-            float endRadius = roadRadius * 0.82f;
+            float sprocketRadius =
+                TankRunningGearLayout.SprocketRadius(
+                    definition,
+                    roadRadius);
+            float idlerRadius =
+                TankRunningGearLayout.IdlerRadius(
+                    definition,
+                    roadRadius);
             Vector2 sprocket = TankRunningGearLayout.SprocketPosition(
                 definition, length, y, roadRadius);
             Vector2 idler = TankRunningGearLayout.IdlerPosition(
                 definition, length, y, roadRadius);
             CreateEndWheel("Sprocket-" + side, gear.transform, x, sprocket.y,
-                sprocket.x, endRadius, wheelThickness, hubColor);
+                sprocket.x, sprocketRadius, wheelThickness, hubColor);
             CreateEndWheel("Idler-" + side, gear.transform, x, idler.y,
-                idler.x, endRadius * 0.94f, wheelThickness, wheelColor);
+                idler.x, idlerRadius, wheelThickness, wheelColor);
 
             int returnCount = Mathf.Clamp(wheelCount / 2, 2, 4);
             float topY = y + roadRadius * 0.92f;

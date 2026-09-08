@@ -23,7 +23,8 @@ namespace ClaudeOfTanks.Runtime
                 TankLeopard1A5FamilyDetails.Supports(id) ||
                 TankMbt70FamilyDetails.Supports(id) ||
                 TankT14FamilyDetails.Supports(id) ||
-                TankPumaFamilyDetails.Supports(id);
+                TankPumaFamilyDetails.Supports(id) ||
+                TankBradleyFamilyDetails.Supports(id);
         }
 
         public static bool OwnsIfvWeaponPackage(
@@ -32,7 +33,8 @@ namespace ClaudeOfTanks.Runtime
             return
                 TankSwedishFamilyDetails
                     .OwnsIfvWeaponPackage(id) ||
-                TankPumaFamilyDetails.Supports(id);
+                TankPumaFamilyDetails.Supports(id) ||
+                TankBradleyFamilyDetails.Supports(id);
         }
 
         public static void Build(
@@ -173,6 +175,14 @@ namespace ClaudeOfTanks.Runtime
                 height,
                 length);
             TankPumaFamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
+            TankBradleyFamilyDetails.Build(
                 root,
                 turret,
                 definition,

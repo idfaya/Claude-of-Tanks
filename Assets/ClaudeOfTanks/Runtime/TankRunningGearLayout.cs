@@ -26,6 +26,17 @@ namespace ClaudeOfTanks.Runtime
                 -1.98f
             };
 
+        private static readonly float[]
+            BradleyWheelStations =
+            {
+                1.88f,
+                1.13f,
+                0.38f,
+                -0.37f,
+                -1.12f,
+                -1.87f
+            };
+
         public static int RoadWheelCount(
             VehicleDefinition definition,
             float hullLength)
@@ -34,6 +45,9 @@ namespace ClaudeOfTanks.Runtime
                 definition?.id == "t14")
                 return 7;
             if (TankPumaFamilyDetails.Supports(
+                    definition?.id))
+                return 6;
+            if (TankBradleyFamilyDetails.Supports(
                     definition?.id))
                 return 6;
 
@@ -51,8 +65,22 @@ namespace ClaudeOfTanks.Runtime
                 return 1.25f;
             if (definition?.id == "spz_puma_s1")
                 return 1.323f;
+            if (TankBradleyFamilyDetails.Supports(
+                    definition?.id))
+                return 1.1475f;
 
             return width * 0.47f;
+        }
+
+        public static float TrackWidth(
+            VehicleDefinition definition,
+            float fallback)
+        {
+            if (TankBradleyFamilyDetails.Supports(
+                    definition?.id))
+                return 0.335f;
+
+            return fallback;
         }
 
         public static float RoadWheelY(
@@ -63,6 +91,9 @@ namespace ClaudeOfTanks.Runtime
                 return 0.43f;
             if (definition?.id == "spz_puma_s1")
                 return 0.378f;
+            if (TankBradleyFamilyDetails.Supports(
+                    definition?.id))
+                return 0.4f;
 
             return Mathf.Max(0.4f, height * 0.21f);
         }
@@ -75,6 +106,9 @@ namespace ClaudeOfTanks.Runtime
                 return 0.36f;
             if (definition?.id == "spz_puma_s1")
                 return 0.3105f;
+            if (TankBradleyFamilyDetails.Supports(
+                    definition?.id))
+                return 0.3f;
 
             return wheelY * 0.72f;
         }
@@ -89,6 +123,9 @@ namespace ClaudeOfTanks.Runtime
                 return PumaWheelStations[index];
             if (definition?.id == "spz_puma_s1")
                 return PumaS1WheelStations[index];
+            if (TankBradleyFamilyDetails.Supports(
+                    definition?.id))
+                return BradleyWheelStations[index];
 
             return Mathf.Lerp(
                 -length * 0.38f,
@@ -106,6 +143,9 @@ namespace ClaudeOfTanks.Runtime
                 return new Vector2(2.658f, 0.965f);
             if (definition?.id == "spz_puma_s1")
                 return new Vector2(2.853f, 0.8685f);
+            if (TankBradleyFamilyDetails.Supports(
+                    definition?.id))
+                return new Vector2(2.53f, 0.63f);
 
             return new Vector2(
                 -length * 0.45f,
@@ -122,10 +162,35 @@ namespace ClaudeOfTanks.Runtime
                 return new Vector2(-2.814f, 0.84f);
             if (definition?.id == "spz_puma_s1")
                 return new Vector2(-2.835f, 0.756f);
+            if (TankBradleyFamilyDetails.Supports(
+                    definition?.id))
+                return new Vector2(-2.68f, 0.81f);
 
             return new Vector2(
                 length * 0.45f,
                 wheelY + wheelRadius * 0.04f);
+        }
+
+        public static float SprocketRadius(
+            VehicleDefinition definition,
+            float roadWheelRadius)
+        {
+            if (TankBradleyFamilyDetails.Supports(
+                    definition?.id))
+                return 0.24f;
+
+            return roadWheelRadius * 0.82f;
+        }
+
+        public static float IdlerRadius(
+            VehicleDefinition definition,
+            float roadWheelRadius)
+        {
+            if (TankBradleyFamilyDetails.Supports(
+                    definition?.id))
+                return 0.28f;
+
+            return roadWheelRadius * 0.82f * 0.94f;
         }
     }
 }
