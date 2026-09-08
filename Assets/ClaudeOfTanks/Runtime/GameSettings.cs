@@ -140,6 +140,7 @@ namespace ClaudeOfTanks.Runtime
             _store.SetInt(Prefix + "quality", QualityLevel);
             _store.Save();
             _target.ApplyQuality(QualityLevel);
+            PresentationChanged?.Invoke();
         }
 
         public void SetFullscreen(bool value)

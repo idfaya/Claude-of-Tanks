@@ -97,12 +97,23 @@ namespace ClaudeOfTanks.Tests
 
                 yield return ReadyAndStart(host, client);
                 yield return WaitForBattle(host, client, 1);
+                Camera sharedCamera = Camera.main;
+                CameraPostProcessing post =
+                    sharedCamera.GetComponent<CameraPostProcessing>();
+                Assert.That(post, Is.Not.Null);
+                Assert.That(
+                    sharedCamera.GetComponents<CameraPostProcessing>(),
+                    Has.Length.EqualTo(1));
+                Assert.That(post.ShaderAvailable, Is.True);
                 long firstTick =
                     client.ActiveNetworkBattle.LatestSnapshot.Tick;
                 Assert.That(firstTick, Is.GreaterThanOrEqualTo(3));
                 Assert.That(
                     client.ActiveNetworkBattle.VisibleTankCount,
                     Is.GreaterThanOrEqualTo(1));
+                Assert.That(
+                    Camera.main.GetComponent<CameraPostProcessing>(),
+                    Is.SameAs(post));
                 Assert.That(
                     HasActiveCamouflageTexture("winter"),
                     Is.True);
@@ -141,6 +152,9 @@ namespace ClaudeOfTanks.Tests
 
                 yield return ReadyAndStart(host, client);
                 yield return WaitForBattle(host, client, 2);
+                Assert.That(
+                    Camera.main.GetComponent<CameraPostProcessing>(),
+                    Is.SameAs(post));
                 Assert.That(
                     client.ActiveNetworkBattle.LatestSnapshot.Tick,
                     Is.GreaterThanOrEqualTo(3));

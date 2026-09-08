@@ -254,6 +254,9 @@ namespace ClaudeOfTanks.Runtime
                 _camera = cameraObject.AddComponent<Camera>();
                 cameraObject.AddComponent<AudioListener>();
             }
+            CameraPostProcessing.Ensure(
+                _camera,
+                GameSettings.Current);
             _garageStage = GarageStagePresentation.Create(
                 _garage.transform,
                 _camera);

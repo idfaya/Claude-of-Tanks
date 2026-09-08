@@ -25,6 +25,10 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(flow.PrivateRoom, Is.Not.Null);
                 Assert.That(flow.PrivateRoomPanel, Is.Not.Null);
                 Assert.That(flow.LoadoutPanel, Is.Not.Null);
+                Camera sharedCamera = Camera.main;
+                CameraPostProcessing post =
+                    sharedCamera.GetComponent<CameraPostProcessing>();
+                Assert.That(post, Is.Not.Null);
                 Assert.That(
                     flow.LoadoutPanel.EquipmentToggleCount,
                     Is.EqualTo(14));
@@ -54,6 +58,9 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(flow.ActiveBattle.GameMode, Is.EqualTo(GameModeId.EndlessHorde));
                 Assert.That(flow.ActiveBattle.Player.Spec.Id, Is.EqualTo(vehicleId));
                 Assert.That(
+                    Camera.main.GetComponent<CameraPostProcessing>(),
+                    Is.SameAs(post));
+                Assert.That(
                     flow.ActiveBattle.Player.Combat.Equipment.RepairRate,
                     Is.EqualTo(1.25f));
                 Assert.That(Object.FindObjectsOfType<EventSystem>(), Has.Length.EqualTo(1));
@@ -62,6 +69,9 @@ namespace ClaudeOfTanks.Tests
 
                 Assert.That(flow.IsGarageVisible, Is.True);
                 Assert.That(flow.ActiveBattle, Is.Null);
+                Assert.That(
+                    Camera.main.GetComponent<CameraPostProcessing>(),
+                    Is.SameAs(post));
                 Assert.That(Object.FindObjectsOfType<EventSystem>(), Has.Length.EqualTo(1));
             }
             finally
