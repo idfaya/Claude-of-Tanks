@@ -396,6 +396,13 @@ The port preserves the source project's runtime units and conventions:
   35 mm KDE with flared vented hider preserve the production identity without
   the previously incorrect roof M2. All 19 catalog hit surfaces remain
   authoritative with no added collider or generic side armor/pod
+- Type 89 Light Tiger remains an independent 0.90-scale next-generation
+  build rather than a Type 89 skin: its compact planar hull, rear ramp,
+  six-wheel front-drive course and eighteen layered side cassettes surround
+  a deep-bustle unmanned turret with four Jyu-MAT Kai channels, paired roof
+  optics, panoramic station, compact 12.7 mm RWS, 6+6 smoke and gun-owned
+  KDE/coax plant. All 24 catalog hit surfaces remain authoritative with no
+  added collider or generic side armor/pod
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

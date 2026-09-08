@@ -9,6 +9,12 @@ namespace ClaudeOfTanks.Runtime
             return id == "type89";
         }
 
+        public static bool SupportsRunningGear(string id)
+        {
+            return Supports(id) ||
+                TankType89LightTigerDetails.Supports(id);
+        }
+
         public static void Build(
             Transform root,
             Transform turret,

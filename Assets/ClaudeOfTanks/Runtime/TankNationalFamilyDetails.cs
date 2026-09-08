@@ -32,7 +32,8 @@ namespace ClaudeOfTanks.Runtime
                 TankUpiorFamilyDetails.Supports(id) ||
                 TankBmpt2FamilyDetails.Supports(id) ||
                 TankWarriorFamilyDetails.Supports(id) ||
-                TankType89FamilyDetails.Supports(id);
+                TankType89FamilyDetails.Supports(id) ||
+                TankType89LightTigerDetails.Supports(id);
         }
 
         public static bool OwnsIfvWeaponPackage(
@@ -50,7 +51,8 @@ namespace ClaudeOfTanks.Runtime
                 TankUpiorFamilyDetails.Supports(id) ||
                 TankBmpt2FamilyDetails.Supports(id) ||
                 TankWarriorFamilyDetails.Supports(id) ||
-                TankType89FamilyDetails.Supports(id);
+                TankType89FamilyDetails.Supports(id) ||
+                TankType89LightTigerDetails.Supports(id);
         }
 
         public static void Build(
@@ -263,6 +265,14 @@ namespace ClaudeOfTanks.Runtime
                 height,
                 length);
             TankType89FamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
+            TankType89LightTigerDetails.Build(
                 root,
                 turret,
                 definition,
