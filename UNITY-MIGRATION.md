@@ -389,6 +389,13 @@ The port preserves the source project's runtime units and conventions:
   shallow side modules, one live launcher and two bustle tubes without
   replacing the base Warrior. Both retain 19 catalog hit surfaces with no
   added collider or generic side armor/pod
+- Mitsubishi Type 89 now uses its dedicated long one-plane glacis, thin open
+  skirts over a six-wheel Bradley-shaped course, right-side driver, left
+  powerpack and exhaust, six flank firing ports, rear troop door and offset
+  welded turret. Twin Type 79 Jyu-MAT boxes, 3+3 smoke and a gun-owned thick
+  35 mm KDE with flared vented hider preserve the production identity without
+  the previously incorrect roof M2. All 19 catalog hit surfaces remain
+  authoritative with no added collider or generic side armor/pod
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
