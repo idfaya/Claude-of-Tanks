@@ -373,6 +373,15 @@ The port preserves the source project's runtime units and conventions:
   gun-owned 30 mm/coax plant. All 19 catalog hit surfaces remain
   authoritative across Garage, solo, replay, and network with no added
   collider or generic side armor/pod
+- BMPT Terminator 2 now retains the asymmetric T-72B3M hull, rear fuel drums,
+  unditching log, six-wheel running gear, and exact offset track course while
+  replacing the inherited tank turret with its dedicated aft-shifted
+  unmanned turntable. The station carries twin gun-owned 2A42 barrels and
+  bores, four separated Ataka tubes, panoramic sight, feed humps, roof
+  machine gun, 4+4 smoke, and twin antennas; 14 side and 14 staggered glacis
+  protection pieces complete the donor hull. All 153 catalog hit surfaces
+  remain authoritative with no added collider or generic side armor/pod,
+  while the separate BMPT T-90 Soviet owner remains unchanged
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
