@@ -19,7 +19,8 @@ namespace ClaudeOfTanks.Runtime
                 TankChineseFamilyDetails.Supports(id) ||
                 TankPattonFamilyDetails.Supports(id) ||
                 TankSheridanFamilyDetails.Supports(id) ||
-                TankKf51FamilyDetails.Supports(id);
+                TankKf51FamilyDetails.Supports(id) ||
+                TankLeopard1A5FamilyDetails.Supports(id);
         }
 
         public static bool OwnsIfvWeaponPackage(
@@ -135,6 +136,14 @@ namespace ClaudeOfTanks.Runtime
                 height,
                 length);
             TankKf51FamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
+            TankLeopard1A5FamilyDetails.Build(
                 root,
                 turret,
                 definition,

@@ -285,6 +285,13 @@ The port preserves the source project's runtime units and conventions:
   two-course thermal shroud and three gun cinches. Both use exactly their 60
   catalog hit surfaces, including 44 catalog-authored ERA surfaces, and add no
   colliders, duplicate armor, or generic side armor
+- Production Leopard 1A5 now retains its continuous fender shelves, fourteen
+  shallow rubber aprons, eight fender lockers, twin rear fuel cans, engine
+  intake/fan/louvre deck, B&V cheek package, EMES-18, sixteen Wegmann smoke
+  launchers, shielded loader MG3, twin side racks, loaded compact bustle
+  basket, and gun-owned butterfly mantlet/L7A3 package across Garage, solo,
+  replay, and network. Its 39 catalog-authored hit surfaces remain the only
+  armor and it adds no collider or generic side armor
 - Arcade chase and sniper camera modes with the source zoom ladder, scoped FOV,
   near-aim protection, vehicle hiding, and HUD scope treatment
 - Authoritative module/crew/fire damage status and battle result summary with
