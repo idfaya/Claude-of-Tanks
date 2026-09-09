@@ -486,6 +486,15 @@ The port preserves the source project's runtime units and conventions:
   the 160 ERA renderers stay visible, and the structural diagnostic surfaces
   are hidden behind dedicated geometry without adding generic side armor or
   presentation colliders
+- `t90` now has a dedicated T-90 obr. 1992 Unity presentation owner. The
+  port keeps the source six-wheel T-90 running gear, Kontakt-5 glacis/skirt
+  and cast-dome cheek identity, paired Shtora emitters, 1G46 sight, NSVT,
+  smoke banks, bustle rack, rear transom bins, split unditching log, rear
+  quarter slat cage, and 2A46M fittings under the authoritative `Gun`
+  transform. All 166 catalog hit surfaces stay present, the 141 ERA
+  renderers stay visible, and structural diagnostic surfaces are hidden
+  behind dedicated geometry without adding generic side armor or presentation
+  colliders
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

@@ -44,6 +44,11 @@ namespace ClaudeOfTanks.Runtime
             2.07f, 1.262f, 0.454f,
             -0.354f, -1.162f, -1.97f
         };
+        private static readonly float[] T90 =
+        {
+            -1.9f, -1.12f, -0.34f,
+            0.44f, 1.22f, 2.0f
+        };
 
         public static float PumaAt(int index) => Puma[index];
         public static float PumaS1At(int index) => PumaS1[index];
@@ -63,5 +68,7 @@ namespace ClaudeOfTanks.Runtime
             T72B3M[index];
         public static float T72BUAt(int index) =>
             T72BU[index];
+        public static float T90At(int index) =>
+            T90[index];
     }
 }

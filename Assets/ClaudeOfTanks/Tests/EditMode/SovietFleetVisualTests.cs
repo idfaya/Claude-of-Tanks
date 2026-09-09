@@ -14,7 +14,6 @@ namespace ClaudeOfTanks.Tests
             "t80b",
             "t80bv",
             "t80u",
-            "t90",
             "t90a",
             "t90a_vladimir",
             "t90a_burlak",
