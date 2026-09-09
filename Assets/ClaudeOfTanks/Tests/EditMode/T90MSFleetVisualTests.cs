@@ -149,6 +149,81 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void BuildsFrontGuardsDeckReliktAndStowage()
+        {
+            TankView view = Create();
+            try
+            {
+                Assert.That(
+                    Count(view, "Painted-T90MS-FenderLip"),
+                    Is.EqualTo(22));
+                Assert.That(
+                    Count(view, "Painted-T90MS-FrontGuardShoulder"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90MS-FrontGuardShell"),
+                    Is.EqualTo(2));
+                Mesh shoulder = Find(
+                        view,
+                        "Painted-T90MS-FrontGuardShoulder")
+                    .GetComponent<MeshFilter>()
+                    .sharedMesh;
+                AssertBounds(
+                    shoulder.bounds,
+                    new Vector3(-1.64f, 1.115f, 2.62f),
+                    new Vector3(-0.92f, 1.445f, 3.28f));
+
+                Assert.That(
+                    Count(view, "Painted-T90MS-DriverHatch"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90MS-DriverPeriscope"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90MS-EngineGrille"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "T90MS-TowEye"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90MS-Headlight"),
+                    Is.EqualTo(2));
+
+                Assert.That(
+                    Count(view, "Painted-T90MS-GlacisRelikt"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90MS-GlacisReliktFace"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90MS-GlacisReliktSeam"),
+                    Is.EqualTo(8));
+
+                Assert.That(
+                    Count(view, "T90MS-BowTowCable"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Find(view, "T90MS-BowTowCable")
+                        .GetComponent<MeshFilter>()
+                        .sharedMesh.vertexCount,
+                    Is.EqualTo(126));
+                Assert.That(
+                    Count(view, "T90MS-UnditchingLog"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90MS-LogStrap"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90MS-SpareTrackLink"),
+                    Is.EqualTo(4));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create()
         {
             ContentCatalog catalog = ContentCatalog.Load();

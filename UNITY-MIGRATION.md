@@ -720,7 +720,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   hull loft and full closed center glacis now replace the generic hull. Its
   six `0.788 m` cadence road-wheel stations, `dishR=0.72` wheel faces,
   idler/sprocket/roller stations and `0.61 m` linked track course replace all
-  generic gear. The complete armor and rotating package remain follow-ups.
+  generic gear. Its first hull-armor owner adds the 22-piece fender line,
+  closed sloped front shoulders/shells, driver deck, five engine grilles,
+  glacis fittings, 12 two-course Relikt cassettes with faceplates and flush
+  seams, bow cable, log and spare links. Skirts, stern cage and the complete
+  rotating package remain follow-ups.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived
