@@ -336,6 +336,24 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90-TrackCleat"),
                     Is.EqualTo(28));
                 Assert.That(
+                    Count(view, "T90-K5SkirtVerticalSeam"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "T90-K5SkirtLowerSeam"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "Painted-T90-FrontSkirtPlane"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-WidthAnchor"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-FrontMudguard"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-RearMudguard"),
+                    Is.EqualTo(2));
+                Assert.That(
                     Find(view, "T90-Sprocket")
                         .localPosition,
                     Is.EqualTo(new Vector3(

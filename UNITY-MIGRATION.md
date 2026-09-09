@@ -519,7 +519,10 @@ The port preserves the source project's runtime units and conventions:
 	  batches against the TS-prefixed baked reference. The first follow-up batch
 	  ports the TS `t90Gear` envelope values into C# fallback output: rear
 	  sprocket, front idler, upper/lower track bands, rising track spans and
-	  bottom cleats are now present when the bake is disabled.
+	  bottom cleats are now present when the bake is disabled. The second batch
+	  mirrors the TS `t90SkirtCourse` and mudguard anchors: K-5 side-skirt
+	  seams, width anchors, forward skirt planes, and front/rear rubber
+	  mudguards are now represented in the C# fallback path.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

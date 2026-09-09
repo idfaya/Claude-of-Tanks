@@ -105,17 +105,49 @@ namespace ClaudeOfTanks.Runtime
                     V(0.08f, 0.02f, 0.08f), V(90f, 0f, 0f),
                     TankPresentationColor.Dark);
                 for (int panel = 0; panel < 3; panel++)
+                {
                     Add(parts, "Painted-T90-K5SkirtPanel",
                         PrimitiveType.Cube, TankPresentationTarget.Root,
                         V(side * 1.83f, 1.06f, 2.55f - panel * 1.02f),
                         V(0.105f, 0.7f, 0.94f), V(),
                         TankPresentationColor.Base, 0.55f);
+                    Add(parts, "T90-K5SkirtVerticalSeam",
+                        PrimitiveType.Cube, TankPresentationTarget.Root,
+                        V(side * 1.858f, 1.04f, 3.02f - panel * 1.02f),
+                        V(0.045f, 0.58f, 0.03f), V(),
+                        TankPresentationColor.Dark);
+                    Add(parts, "T90-K5SkirtLowerSeam",
+                        PrimitiveType.Cube, TankPresentationTarget.Root,
+                        V(side * 1.858f, 0.73f, 2.55f - panel * 1.02f),
+                        V(0.045f, 0.04f, 0.86f), V(),
+                        TankPresentationColor.Dark);
+                }
                 for (int panel = 0; panel < 5; panel++)
                     Add(parts, "Painted-T90-RubberSkirt",
                         PrimitiveType.Cube, TankPresentationTarget.Root,
                         V(side * 1.77f, 0.98f, -1.18f + panel * 0.74f),
                         V(0.04f, 0.72f, 0.58f), V(),
                         TankPresentationColor.Base, 0.38f);
+                Add(parts, "T90-WidthAnchor", PrimitiveType.Cube,
+                    TankPresentationTarget.Root, V(side * 1.89f, 0.95f, 0.46f),
+                    V(0.06f, 0.5f, 0.26f), V(),
+                    TankPresentationColor.Dark);
+                Add(parts, "Painted-T90-FrontSkirtPlane", PrimitiveType.Cube,
+                    TankPresentationTarget.Root, V(side * 1.79f, 0.98f, 2.89f),
+                    V(0.1f, 0.62f, 1.08f), V(-16f, 0f, 0f),
+                    TankPresentationColor.Base, 0.5f);
+                Add(parts, "T90-FrontSkirtRidge", PrimitiveType.Cube,
+                    TankPresentationTarget.Root, V(side * 1.86f, 1.24f, 2.89f),
+                    V(0.035f, 0.035f, 1f), V(-16f, 0f, 0f),
+                    TankPresentationColor.Dark);
+                Add(parts, "T90-RearMudguard", PrimitiveType.Cube,
+                    TankPresentationTarget.Root, V(side * 1.52f, 1.065f, -3.06f),
+                    V(0.05f, 0.83f, 0.36f), V(),
+                    TankPresentationColor.Dark);
+                Add(parts, "T90-FrontMudguard", PrimitiveType.Cube,
+                    TankPresentationTarget.Root, V(side * 1.48f, 0.825f, 3.345f),
+                    V(0.05f, 0.55f, 0.44f), V(),
+                    TankPresentationColor.Dark);
                 for (int rail = 0; rail < 6; rail++)
                     Add(parts, "T90-RearQuarterSlat",
                         PrimitiveType.Cube, TankPresentationTarget.Root,
