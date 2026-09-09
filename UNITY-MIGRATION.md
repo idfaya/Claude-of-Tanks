@@ -454,6 +454,18 @@ The port preserves the source project's runtime units and conventions:
   hidden behind the dedicated presentation geometry in Garage, solo, replay,
   and network. The vehicle adds no ERA, generic Soviet fittings, side armor,
   return rollers, or presentation colliders
+- `t64bv1` now renders its dedicated T-64BV obr. 1985 identity instead of
+  the generic Unity shell. The compact hull uses the exact six-small-wheel
+  course, four return rollers, raised front idler and rear sprocket, exposed
+  upper track, thin segmented skirts, left exhaust, engine louvres, rear log
+  and recovery fittings. Its low cast turret carries the raised commander
+  gallery, 1G42 and Luna sights, shielded forward NSVT, 902A bank, rear rack,
+  short fuel drum and paired OPVT tubes; the segmented 2A46-2 remains owned
+  by the authoritative gun articulation. All 117 catalog hit surfaces remain
+  authoritative, with all 98 Kontakt-1 surfaces visible and the 19 structural
+  diagnostic renderers hidden behind dedicated geometry. Garage, solo,
+  replay, and network share this owner and add no generic side armor or
+  presentation colliders
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
