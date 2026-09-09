@@ -66,7 +66,9 @@ namespace ClaudeOfTanks.Runtime
                 width,
                 height,
                 length);
-            if (IsAbrams(definition.id))
+            if (IsAbrams(definition.id) &&
+                !TankM1A3FamilyDetails.Supports(
+                    definition.id))
                 AddAbrams(
                     root,
                     turret,

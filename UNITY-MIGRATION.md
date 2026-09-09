@@ -412,6 +412,15 @@ The port preserves the source project's runtime units and conventions:
   right-side tow cable, three spare track links and a mantlet searchlight.
   Both retain exactly 32 catalog-authored hit surfaces with no added collider
   or generic side armor
+- M1A3 Abrams remains a separate first-party next-generation build rather
+  than an M1A1/M1A2 skin: its faceted hybrid hull, exact seven-wheel
+  rear-drive course, 22 modular skirt cassettes, three-seat forward crew
+  capsule, hybrid cooling deck and rear cage support a low unmanned turret
+  with isolated six-panel autoloader bustle, modular side protection,
+  four-corner APS/radar, distributed sensor towers, four network masts and an
+  open-yoke remote weapon station. Its gun-owned segmented 130 mm plant and
+  all 69 catalog-authored hit surfaces now render consistently in Garage,
+  solo, replay, and network with no added collider or generic Abrams fittings
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

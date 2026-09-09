@@ -8,6 +8,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float hullLength)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id)) return 7;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 7;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return 6;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 6;
@@ -44,6 +45,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float width)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id)) return 1.46f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 1.425f;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return definition.id == "type89" ? 1.25f : 1.278f;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 1.276f;
@@ -77,6 +79,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float fallback)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id)) return 0.64f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 0.58f;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return definition.id == "type89" ? 0.44f : 0.414f;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.506f;
@@ -106,6 +109,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float height)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id)) return 0.43f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 0.42f;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return definition.id == "type89" ? 0.4f : 0.3645f;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.44f;
@@ -139,6 +143,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float wheelY)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id)) return 0.32f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 0.31f;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return definition.id == "type89" ? 0.32f : 0.2925f;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.42f;
@@ -172,6 +177,8 @@ namespace ClaudeOfTanks.Runtime
             int count,
             float length)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id))
+                return TankRunningGearStations.M1A3At(index);
             if (TankAbramsM1FamilyDetails.Supports(definition?.id))
                 return TankRunningGearStations.AbramsM1At(index);
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id))
@@ -213,6 +220,8 @@ namespace ClaudeOfTanks.Runtime
             float wheelY,
             float wheelRadius)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id))
+                return new Vector2(-3.42f, 0.96f);
             if (TankAbramsM1FamilyDetails.Supports(definition?.id))
                 return new Vector2(-3.28f, 1.1f);
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id))
@@ -253,6 +262,8 @@ namespace ClaudeOfTanks.Runtime
             float wheelY,
             float wheelRadius)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id))
+                return new Vector2(3.27f, 0.88f);
             if (TankAbramsM1FamilyDetails.Supports(definition?.id))
                 return new Vector2(3.02f, 0.85f);
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id))
@@ -291,6 +302,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float roadWheelRadius)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id)) return 0.35f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 0.32f;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return definition.id == "type89" ? 0.26f : 0.288f;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.394f;
@@ -320,6 +332,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float roadWheelRadius)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id)) return 0.35f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 0.34f;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return definition.id == "type89" ? 0.27f : 0.261f;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.373f;
@@ -349,6 +362,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float length)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id)) return 2.9996f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 2.6839f;
             if (definition?.id == "type89") return 2.3847f;
             if (definition?.id == "type89_light_tiger") return 2.5317f;
@@ -368,6 +382,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition,
             float length)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id)) return -3.1496f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return -2.9224f;
             if (definition?.id == "type89") return -2.4906f;
             if (definition?.id == "type89_light_tiger") return -2.4722f;
@@ -388,6 +403,7 @@ namespace ClaudeOfTanks.Runtime
             float wheelY,
             float roadWheelRadius)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id)) return 0.063f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 0.059f;
             if (definition?.id == "type89") return 0.0568f;
             if (definition?.id == "type89_light_tiger") return 0.0733f;
@@ -410,6 +426,7 @@ namespace ClaudeOfTanks.Runtime
             float wheelY,
             float roadWheelRadius)
         {
+            if (TankM1A3FamilyDetails.Supports(definition?.id)) return 1.3319f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 1.448f;
             if (definition?.id == "type89") return 1.3478f;
             if (definition?.id == "type89_light_tiger") return 1.0558f;

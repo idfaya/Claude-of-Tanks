@@ -18,6 +18,8 @@ namespace ClaudeOfTanks.Runtime
             { 0.883f, 0.107f, -0.669f, -1.445f, -2.221f, -2.997f };
         private static readonly float[] AbramsM1 =
             { 2.19f, 1.46f, 0.73f, 0f, -0.73f, -1.46f, -2.19f };
+        private static readonly float[] M1A3 =
+            { 2.25f, 1.5f, 0.75f, 0f, -0.75f, -1.5f, -2.25f };
 
         public static float PumaAt(int index) => Puma[index];
         public static float PumaS1At(int index) => PumaS1[index];
@@ -27,5 +29,6 @@ namespace ClaudeOfTanks.Runtime
         public static float UpiorAt(int index) => Upior[index];
         public static float Bmpt2At(int index) => Bmpt2[index];
         public static float AbramsM1At(int index) => AbramsM1[index];
+        public static float M1A3At(int index) => M1A3[index];
     }
 }

@@ -157,9 +157,13 @@ namespace ClaudeOfTanks.Tests
                 {
                     Transform[] parts =
                         view.Root.GetComponentsInChildren<Transform>();
+                    string familyToken =
+                        ids[i] == "m1a3"
+                            ? "M1A3-"
+                            : "Abrams-";
                     Assert.That(
                         parts.Count(item =>
-                            item.name.Contains("Abrams-")),
+                            item.name.Contains(familyToken)),
                         Is.GreaterThanOrEqualTo(20),
                         ids[i]);
                     Assert.That(
@@ -201,7 +205,10 @@ namespace ClaudeOfTanks.Tests
                     }
                     Assert.That(
                         parts.Any(item =>
-                            item.name == "Abrams-EngineGrille"),
+                            item.name ==
+                                (ids[i] == "m1a3"
+                                    ? "M1A3-HybridLouvre"
+                                    : "Abrams-EngineGrille")),
                         Is.True,
                         ids[i]);
                 }
