@@ -734,8 +734,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   Its turret-armor owner adds the two-row/four-carrier frontal chevron,
   48 individually extruded nose tile layers, paired optic heads and all 54
   outer-skin-projected flank/lower/shoulder/roof Relikt parts from the same
-  station interpolation and surface-normal equations. Bustle, equipment and
-  gun remain follow-ups.
+  station interpolation and surface-normal equations. Its joined bustle
+  continues the crown through a seven-station shoulder into the six-station
+  removable magazine, then adds asymmetric service hardware and the complete
+  open rear/flank cage. Roof equipment and gun remain follow-ups.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived
