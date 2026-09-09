@@ -8,7 +8,7 @@ namespace ClaudeOfTanks.Editor
 {
     public static class TankPresentationPrefabBaker
     {
-        private const int SupportedSchemaVersion = 2;
+        private const int SupportedSchemaVersion = 3;
         private const string SourcePath =
             "Assets/ClaudeOfTanks/Generated/PresentationSource/tank-presentation-schemas.json";
         private const string OutputRoot =
@@ -186,12 +186,15 @@ namespace ClaudeOfTanks.Editor
                   $"{color.r:0.####}_{color.g:0.####}_{color.b:0.####}_" +
                   $"{emissive?.r:0.####}_{emissive?.g:0.####}_{emissive?.b:0.####}_" +
                   $"{sourceMaterial?.roughness:0.####}_{sourceMaterial?.metalness:0.####}_" +
-                  $"{sourceMaterial?.opacity:0.####}_{sourceMaterial?.transparent}_{sourceMaterial?.side}";
+                  $"{sourceMaterial?.opacity:0.####}_{sourceMaterial?.transparent}_{sourceMaterial?.side}_" +
+                  $"{sourceMaterial?.mapPath}_{sourceMaterial?.normalMapPath}_{sourceMaterial?.roughnessMapPath}";
             if (materials.TryGetValue(key, out Material existing))
                 return existing;
 
             Shader shader =
-                Shader.Find("ClaudeOfTanks/TankBakedPresentation");
+                sourceMaterial?.transparent == true
+                    ? Shader.Find("Standard")
+                    : Shader.Find("ClaudeOfTanks/TankBakedPresentation");
             if (shader == null)
                 shader = Shader.Find("Standard");
             Material material =
@@ -249,6 +252,31 @@ namespace ClaudeOfTanks.Editor
                 material.SetFloat(
                     "_EmissionBoost",
                     EmissionBoost(sourceMaterial));
+            Texture2D mainTexture =
+                LoadTexture(sourceMaterial?.mapPath, true, false);
+            Texture2D normalTexture =
+                LoadTexture(sourceMaterial?.normalMapPath, false, true);
+            Texture2D roughnessTexture =
+                LoadTexture(sourceMaterial?.roughnessMapPath, false, false);
+            if (mainTexture != null && material.HasProperty("_MainTex"))
+            {
+                material.SetTexture("_MainTex", mainTexture);
+                if (material.HasProperty("_HasMainTex"))
+                    material.SetFloat("_HasMainTex", 1f);
+            }
+            if (normalTexture != null && material.HasProperty("_NormalMap"))
+            {
+                material.SetTexture("_NormalMap", normalTexture);
+                if (material.HasProperty("_HasNormalMap"))
+                    material.SetFloat("_HasNormalMap", 1f);
+                material.EnableKeyword("_NORMALMAP");
+            }
+            if (roughnessTexture != null && material.HasProperty("_RoughnessMap"))
+            {
+                material.SetTexture("_RoughnessMap", roughnessTexture);
+                if (material.HasProperty("_HasRoughnessMap"))
+                    material.SetFloat("_HasRoughnessMap", 1f);
+            }
             float opacity = sourceMaterial?.opacity ?? 1f;
             if (sourceMaterial?.transparent == true ||
                 opacity < 0.999f)
@@ -267,6 +295,51 @@ namespace ClaudeOfTanks.Editor
             }
             materials.Add(key, material);
             return material;
+        }
+
+        private static Texture2D LoadTexture(
+            string path,
+            bool srgb,
+            bool normalMap)
+        {
+            if (string.IsNullOrEmpty(path) ||
+                !File.Exists(path))
+                return null;
+
+            TextureImporter importer =
+                AssetImporter.GetAtPath(path) as TextureImporter;
+            if (importer != null)
+            {
+                bool changed = false;
+                TextureImporterType type = normalMap
+                    ? TextureImporterType.NormalMap
+                    : TextureImporterType.Default;
+                if (importer.textureType != type)
+                {
+                    importer.textureType = type;
+                    changed = true;
+                }
+                if (importer.sRGBTexture != srgb)
+                {
+                    importer.sRGBTexture = srgb;
+                    changed = true;
+                }
+                if (importer.wrapMode != TextureWrapMode.Repeat)
+                {
+                    importer.wrapMode = TextureWrapMode.Repeat;
+                    changed = true;
+                }
+                if (changed)
+                    importer.SaveAndReimport();
+            }
+            else
+            {
+                AssetDatabase.ImportAsset(
+                    path,
+                    ImportAssetOptions.ForceSynchronousImport);
+            }
+
+            return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
         }
 
         private static float EmissionBoost(
@@ -360,6 +433,11 @@ namespace ClaudeOfTanks.Editor
         public int side;
         public bool vertexColors;
         public bool hasMap;
+        public string mapPath;
+        public string normalMapPath;
+        public string roughnessMapPath;
+        public string bumpMapPath;
+        public string emissiveMapPath;
     }
 
     [Serializable]

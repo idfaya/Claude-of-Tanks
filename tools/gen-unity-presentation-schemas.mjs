@@ -1,4 +1,7 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { Buffer } from 'node:buffer';
+import { createServer } from 'vite';
+import puppeteer from 'puppeteer';
 import * as THREE from 'three';
 import '../src/vehicles/tankFactory.ts';
 import { createTank } from '../src/vehicles/tankFactory.ts';
@@ -7,7 +10,12 @@ const outputUrl = new URL(
   '../Assets/ClaudeOfTanks/Generated/PresentationSource/tank-presentation-schemas.json',
   import.meta.url,
 );
+const textureDirUrl = new URL(
+  '../Assets/ClaudeOfTanks/Generated/PresentationSource/Textures/',
+  import.meta.url,
+);
 const check = process.argv.includes('--check');
+const geometryOnly = process.argv.includes('--geometry-only');
 const idsArg = process.argv.find((arg) => arg.startsWith('--ids='));
 const ids = idsArg ? idsArg.slice('--ids='.length).split(',').filter(Boolean) : ['t90'];
 
@@ -250,10 +258,86 @@ function canonical(value) {
   return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonical(value[key])]));
 }
 
-const payload = canonical({
-  schemaVersion: 2,
-  vehicles: ids.map(vehicleRecord),
-});
+async function renderedPayload() {
+  const server = await createServer({
+    root: process.cwd(),
+    logLevel: 'error',
+    server: {
+      host: '127.0.0.1',
+      port: 7920 + (process.pid % 80),
+      strictPort: true,
+      hmr: false,
+      watch: null,
+    },
+  });
+  await server.listen();
+  const address = server.httpServer.address();
+  const port = typeof address === 'object' && address
+    ? address.port
+    : server.config.server.port;
+  const browser = await puppeteer.launch({
+    headless: 'new',
+    args: [
+      '--no-sandbox',
+      '--disable-dev-shm-usage',
+      '--use-gl=angle',
+      '--enable-webgl',
+    ],
+  });
+  try {
+    const page = await browser.newPage();
+    const errors = [];
+    page.on('pageerror', (error) => errors.push(String(error)));
+    page.on('console', (message) => {
+      if (
+        message.type() === 'error' &&
+        !message.text().includes('favicon') &&
+        !message.text().includes('Failed to load resource')
+      ) {
+        errors.push(message.text());
+      }
+    });
+    await page.goto(`http://127.0.0.1:${port}/tools/bake-page.html`, {
+      waitUntil: 'domcontentloaded',
+      timeout: 120000,
+    });
+    const result = await page.evaluate(async (vehicleIds) => {
+      const module = await import('/tools/unity-presentation-browser-entry.ts');
+      return module.exportTankPresentation(vehicleIds);
+    }, ids);
+    if (errors.length) {
+      throw new Error(`browser presentation export errors: ${errors.join(' | ')}`);
+    }
+    return result;
+  } finally {
+    await browser.close();
+    await server.close();
+  }
+}
+
+async function writeTextures(textures) {
+  await rm(textureDirUrl, { recursive: true, force: true });
+  await mkdir(textureDirUrl, { recursive: true });
+  for (const texture of textures) {
+    const [, encoded] = texture.dataUrl.split(',', 2);
+    if (!encoded) throw new Error(`Invalid texture data URL for ${texture.path}`);
+    await writeFile(
+      new URL(texture.path.replace('Assets/ClaudeOfTanks/Generated/PresentationSource/Textures/', ''), textureDirUrl),
+      Buffer.from(encoded, 'base64'),
+    );
+  }
+}
+
+const generated = geometryOnly
+  ? {
+      payload: {
+        schemaVersion: 2,
+        vehicles: ids.map(vehicleRecord),
+      },
+      textures: [],
+    }
+  : await renderedPayload();
+const payload = canonical(generated.payload);
 const text = `${JSON.stringify(payload)}\n`;
 
 if (check) {
@@ -266,5 +350,9 @@ if (check) {
 } else {
   await mkdir(new URL('.', outputUrl), { recursive: true });
   await writeFile(outputUrl, text);
+  await writeTextures(generated.textures ?? []);
   console.log(`[unity-presentation] wrote source ${ids.join(',')} -> ${outputUrl.pathname}`);
+  if (!geometryOnly) {
+    console.log(`[unity-presentation] wrote ${generated.textures?.length ?? 0} rendered textures -> ${textureDirUrl.pathname}`);
+  }
 }

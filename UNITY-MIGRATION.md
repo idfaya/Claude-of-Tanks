@@ -494,22 +494,22 @@ The port preserves the source project's runtime units and conventions:
   transform. All 166 catalog hit surfaces stay present, the 141 ERA
   renderers stay visible, and structural diagnostic surfaces are hidden
   behind dedicated geometry without adding generic side armor or presentation
-  colliders. T-90 is now the first TS-baked Unity presentation pilot: the
-  `unity:presentation:update` pipeline runs the TypeScript `createTank`
-  geometry-only builder, exports the resulting T-90 Three.js mesh hierarchy
-  as bake source data, and the Unity editor `TankPresentationPrefabBaker`
-  converts it into `Resources/Generated/TankPresentation/t90.prefab` plus
-  mesh sub-assets. Runtime now instantiates the baked prefab and only keeps
-  the hand-authored schema as a fallback path. The baked source now carries
-  463 mesh records, 236,680 vertices and 79,772 triangles from the TS source
-  builder, including TS normals, UVs, vertex colors, opacity/emissive/
-  roughness/metalness/side material fields, appearance roles, camouflage
-  projection metadata, and the two source vehicle marking meshes. Unity
-  renders those through the dedicated `ClaudeOfTanks/TankBakedPresentation`
-  shader with the opaque depth path preserved after screenshot review. The
-  remaining known gap for a bit-perfect match is true TS CanvasTexture/normal/
-  roughness map baking, which requires a browser/Canvas-backed extractor rather
-  than the current Node geometry-only source
+	  colliders. T-90 is now the first TS-baked Unity presentation pilot: the
+	  `unity:presentation:update` pipeline runs the TypeScript `createTank`
+	  rendered-material builder in a Vite/Puppeteer browser so the real Canvas
+	  textures can be exported with the Three.js mesh hierarchy. The Unity editor
+	  `TankPresentationPrefabBaker` converts that source into
+	  `Resources/Generated/TankPresentation/t90.prefab` plus mesh sub-assets and
+	  imported albedo, normal and roughness textures. Runtime now instantiates the
+	  baked prefab and only keeps the hand-authored schema as a fallback path. The
+	  baked source carries 463 mesh records, 236,680 vertices and 79,772 triangles
+	  from the TS source builder, including TS normals, UVs, vertex colors,
+	  opacity/emissive/roughness/metalness/side material fields, appearance roles,
+	  camouflage projection metadata, the two source vehicle marking meshes, and
+	  seven browser-exported texture assets. Unity renders those through the
+	  dedicated `ClaudeOfTanks/TankBakedPresentation` shader with the opaque depth
+	  path preserved after screenshot review, sampling the baked albedo, normal and
+	  roughness maps where the TS source material provides them
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

@@ -132,6 +132,24 @@ namespace ClaudeOfTanks.Tests
                     renderer.sharedMaterial.GetFloat("_UseCamo"),
                     Is.EqualTo(1f));
                 Assert.That(
+                    renderer.sharedMaterial.GetFloat("_HasMainTex"),
+                    Is.EqualTo(1f));
+                Assert.That(
+                    renderer.sharedMaterial.GetTexture("_MainTex"),
+                    Is.Not.Null);
+                Assert.That(
+                    renderer.sharedMaterial.GetFloat("_HasNormalMap"),
+                    Is.EqualTo(1f));
+                Assert.That(
+                    renderer.sharedMaterial.GetTexture("_NormalMap"),
+                    Is.Not.Null);
+                Assert.That(
+                    renderer.sharedMaterial.GetFloat("_HasRoughnessMap"),
+                    Is.EqualTo(1f));
+                Assert.That(
+                    renderer.sharedMaterial.GetTexture("_RoughnessMap"),
+                    Is.Not.Null);
+                Assert.That(
                     renderer.sharedMaterial.GetFloat("_ZWrite"),
                     Is.EqualTo(1f));
                 Assert.That(
@@ -140,7 +158,7 @@ namespace ClaudeOfTanks.Tests
                         .sharedMaterial
                         .color
                         .a,
-                    Is.LessThan(0.8f));
+                    Is.EqualTo(1f));
             }
             finally
             {
