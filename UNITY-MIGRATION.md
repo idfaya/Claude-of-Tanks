@@ -623,6 +623,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   housing, boot folds, 0.108/0.102 m thermal-jacket courses, fume extractor,
   muzzle collar, and recessed bore. The visible muzzle now follows the source
   `4.92 m` datum independently of the catalog's 6 m combat barrel.
+  The fifth batch extends the post-camouflage PBR role pass to `t90a`.
+  Hull and barrel retain camouflage, while wheels, tracks, optics, Shtora,
+  rubber, wood, and detail fittings recover their TS roughness, metalness,
+  dark-olive color floors, and emissive treatment without baked textures.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

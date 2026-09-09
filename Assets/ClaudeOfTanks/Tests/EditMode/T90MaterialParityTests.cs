@@ -87,6 +87,87 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void AppliesT90ARolesAfterCamouflage()
+        {
+            TankView view = Create("t90a");
+            try
+            {
+                AssertRole(
+                    view,
+                    "Painted-T90A-UpperHull",
+                    0.05f,
+                    0.12f,
+                    true);
+                AssertRole(
+                    view,
+                    "Painted-T90A-2A46M2ForwardTube",
+                    0.08f,
+                    0.2f,
+                    true);
+                AssertRole(
+                    view,
+                    "T90A-RoadWheelDish",
+                    0.08f,
+                    0.08f);
+                AssertRole(
+                    view,
+                    "Painted-T90A-RubberSkirtBand",
+                    0f,
+                    0.04f);
+                AssertRole(
+                    view,
+                    "TrackLinks-L",
+                    0.08f,
+                    0.05f);
+                AssertRole(
+                    view,
+                    "T90A-ESSALens",
+                    0.85f,
+                    0.88f);
+                AssertRole(
+                    view,
+                    "T90A-SplitUnditchingLog",
+                    0f,
+                    0.12f);
+                Material detail = Material(
+                    view,
+                    "Painted-T90A-ShtoraTop");
+                Assert.That(detail.mainTexture, Is.Null);
+                Assert.That(
+                    detail.color.maxColorComponent,
+                    Is.LessThan(0.6f));
+
+                Material dark = Material(
+                    view,
+                    "Painted-T90A-ShtoraHousing");
+                Assert.That(dark.mainTexture, Is.Null);
+                AssertColor(
+                    dark.color,
+                    new Color(
+                        0x32 / 255f,
+                        0x36 / 255f,
+                        0x29 / 255f));
+                Material shtora = Material(
+                    view,
+                    "T90A-ShtoraLens");
+                Assert.That(shtora.mainTexture, Is.Null);
+                Assert.That(
+                    shtora.IsKeywordEnabled("_EMISSION"),
+                    Is.True);
+                AssertColor(
+                    shtora.GetColor("_EmissionColor"),
+                    new Color(
+                        0x7c / 255f,
+                        0x24 / 255f,
+                        0x10 / 255f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static void AssertRole(
             TankView view,
             string name,
@@ -133,14 +214,14 @@ namespace ClaudeOfTanks.Tests
             return null;
         }
 
-        private static TankView Create()
+        private static TankView Create(string id = "t90")
         {
             ContentCatalog catalog = ContentCatalog.Load();
             VehicleDefinition definition =
-                catalog.GetVehicle("t90");
+                catalog.GetVehicle(id);
             return TankView.Create(
                 new TankState(
-                    "t90-material-parity-test",
+                    id + "-material-parity-test",
                     Team.Alpha,
                     definition.ToTankSpec(),
                     Float3.Zero,

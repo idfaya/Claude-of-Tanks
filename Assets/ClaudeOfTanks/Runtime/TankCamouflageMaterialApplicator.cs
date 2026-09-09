@@ -37,8 +37,14 @@ namespace ClaudeOfTanks.Runtime
                     vehicle,
                     camouflage),
                 baseColor);
-            if (vehicle.id == "t90")
-                TankT90MaterialApplicator.Apply(renderers);
+            if (vehicle.id == "t90" ||
+                vehicle.id == "t90a")
+            {
+                TankT90MaterialApplicator.Apply(
+                    renderers,
+                    vehicle.id,
+                    baseColor);
+            }
             return texture;
         }
 

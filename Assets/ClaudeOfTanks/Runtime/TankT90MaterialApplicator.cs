@@ -19,27 +19,67 @@ namespace ClaudeOfTanks.Runtime
             Shtora
         }
 
-        public static void Apply(Renderer[] renderers)
+        public static void Apply(
+            Renderer[] renderers,
+            string vehicleId,
+            Color baseColor)
         {
             if (renderers == null) return;
+            bool isT90A = string.Equals(
+                vehicleId,
+                "t90a",
+                StringComparison.Ordinal);
             for (int index = 0; index < renderers.Length; index++)
             {
                 Renderer renderer = renderers[index];
                 Material material = renderer?.sharedMaterial;
                 if (material == null) continue;
-                Role role = ResolveRole(renderer.gameObject.name);
-                ApplyRole(material, role);
+                Role role = ResolveRole(
+                    renderer.gameObject.name,
+                    isT90A);
+                ApplyRole(
+                    material,
+                    role,
+                    isT90A,
+                    baseColor);
             }
         }
 
-        private static Role ResolveRole(string name)
+        private static Role ResolveRole(
+            string name,
+            bool isT90A)
         {
             if (string.Equals(
                     name,
                     "T90-ShtoraLens",
+                    StringComparison.Ordinal) ||
+                string.Equals(
+                    name,
+                    "T90A-ShtoraLens",
                     StringComparison.Ordinal))
             {
                 return Role.Shtora;
+            }
+            if (isT90A &&
+                string.Equals(
+                    name,
+                    "Painted-T90A-ShtoraHousing",
+                    StringComparison.Ordinal))
+            {
+                return Role.Dark;
+            }
+            if (isT90A &&
+                (name.IndexOf(
+                        "ShtoraTop",
+                        StringComparison.Ordinal) >= 0 ||
+                 name.IndexOf(
+                        "ShtoraRim",
+                        StringComparison.Ordinal) >= 0 ||
+                 name.IndexOf(
+                        "ShtoraSidePlate",
+                        StringComparison.Ordinal) >= 0))
+            {
+                return Role.Detail;
             }
             if (name.IndexOf(
                     "Lens",
@@ -50,6 +90,10 @@ namespace ClaudeOfTanks.Runtime
             if (string.Equals(
                     name,
                     "T90-SplitUnditchingLog",
+                    StringComparison.Ordinal) ||
+                string.Equals(
+                    name,
+                    "T90A-SplitUnditchingLog",
                     StringComparison.Ordinal))
             {
                 return Role.Wood;
@@ -73,10 +117,22 @@ namespace ClaudeOfTanks.Runtime
                     "RoadWheelDisc",
                     StringComparison.Ordinal) >= 0 ||
                 name.IndexOf(
+                    "RoadWheelDish",
+                    StringComparison.Ordinal) >= 0 ||
+                name.IndexOf(
+                    "RoadWheelSpoke",
+                    StringComparison.Ordinal) >= 0 ||
+                name.StartsWith(
+                    "RoadWheel-",
+                    StringComparison.Ordinal) ||
+                name.IndexOf(
                     "RoadWheelHub",
                     StringComparison.Ordinal) >= 0 ||
                 name.IndexOf(
                     "ReturnRollerDisc",
+                    StringComparison.Ordinal) >= 0 ||
+                name.IndexOf(
+                    "ReturnRoller",
                     StringComparison.Ordinal) >= 0 ||
                 name.IndexOf(
                     "Sprocket",
@@ -90,6 +146,9 @@ namespace ClaudeOfTanks.Runtime
             if (name.IndexOf(
                     "TrackPad",
                     StringComparison.Ordinal) >= 0 ||
+                name.StartsWith(
+                    "TrackLinks-",
+                    StringComparison.Ordinal) ||
                 name.IndexOf(
                     "TrackCleat",
                     StringComparison.Ordinal) >= 0 ||
@@ -116,6 +175,9 @@ namespace ClaudeOfTanks.Runtime
                     StringComparison.Ordinal) >= 0 ||
                 name.IndexOf(
                     "CannonBaseBoot",
+                    StringComparison.Ordinal) >= 0 ||
+                name.IndexOf(
+                    "MuzzleCollar",
                     StringComparison.Ordinal) >= 0)
             {
                 return Role.Barrel;
@@ -143,7 +205,9 @@ namespace ClaudeOfTanks.Runtime
 
         private static void ApplyRole(
             Material material,
-            Role role)
+            Role role,
+            bool isT90A,
+            Color baseColor)
         {
             float roughness;
             float metallic;
@@ -197,10 +261,65 @@ namespace ClaudeOfTanks.Runtime
             }
             SetFloat(material, "_Metallic", metallic);
             SetFloat(material, "_Glossiness", 1f - roughness);
+            if (isT90A)
+                ApplyT90AColor(
+                    material,
+                    role,
+                    baseColor);
             if (emission.maxColorComponent <= 0f) return;
             material.EnableKeyword("_EMISSION");
             if (material.HasProperty("_EmissionColor"))
                 material.SetColor("_EmissionColor", emission);
+        }
+
+        private static void ApplyT90AColor(
+            Material material,
+            Role role,
+            Color baseColor)
+        {
+            switch (role)
+            {
+                case Role.Dark:
+                    material.color = Rgb(0x32, 0x36, 0x29);
+                    material.mainTexture = null;
+                    break;
+                case Role.Rubber:
+                    material.color = Rgb(0x3b, 0x3a, 0x33);
+                    material.mainTexture = null;
+                    break;
+                case Role.Track:
+                    material.color = Rgb(0x35, 0x36, 0x34);
+                    material.mainTexture = null;
+                    break;
+                case Role.Glass:
+                    material.color = Rgb(0x2a, 0x35, 0x40);
+                    material.mainTexture = null;
+                    break;
+                case Role.Wood:
+                    material.color = Rgb(0x47, 0x3e, 0x32);
+                    material.mainTexture = null;
+                    break;
+                case Role.Shtora:
+                    material.color = Rgb(0x54, 0x18, 0x0e);
+                    material.mainTexture = null;
+                    break;
+                case Role.Wheel:
+                    material.color = baseColor * 0.48f;
+                    material.color = WithOpaqueAlpha(material.color);
+                    material.mainTexture = null;
+                    break;
+                case Role.Detail:
+                    material.color = baseColor * 0.45f;
+                    material.color = WithOpaqueAlpha(material.color);
+                    material.mainTexture = null;
+                    break;
+            }
+        }
+
+        private static Color WithOpaqueAlpha(Color color)
+        {
+            color.a = 1f;
+            return color;
         }
 
         private static void SetFloat(
