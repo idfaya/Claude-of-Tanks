@@ -173,6 +173,14 @@ namespace ClaudeOfTanks.Runtime
                     color * 0.58f);
                 frontReturn.localRotation =
                     Quaternion.Euler(0f, 0f, -side * 5.72958f);
+                Transform returnFace = Box(
+                    "T90ABurlak-ShoulderReturnFace",
+                    root,
+                    V(side * 1.72f, 0.27f, -0.50f),
+                    V(0.018f, 0.24f, 0.30f),
+                    Dark());
+                returnFace.localRotation =
+                    frontReturn.localRotation;
                 Transform rear = Box(
                     "Painted-T90ABurlak-RearShoulder",
                     root,

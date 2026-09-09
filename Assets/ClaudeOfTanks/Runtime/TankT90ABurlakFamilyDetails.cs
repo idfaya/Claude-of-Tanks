@@ -27,6 +27,7 @@ namespace ClaudeOfTanks.Runtime
                 new Vector3(0f, 0.12f, 0f),
                 new Vector3(0.94f, 0.92f, 1.02f));
             TankT90AHullDetails.BuildBody(body, color);
+            ReseatOutboardPlates(root, body);
 
             ScaleGenericGearGauge(root);
             Transform gear = Root(
@@ -36,6 +37,36 @@ namespace ClaudeOfTanks.Runtime
                 new Vector3(GearGauge, 1f, 1f));
             TankT90AHullDetails.BuildRunningGear(gear, color);
             AddFenderClosures(root, color);
+        }
+
+        private static void ReseatOutboardPlates(
+            Transform root,
+            Transform body)
+        {
+            for (int index = 0; index < body.childCount; index++)
+            {
+                Transform part = body.GetChild(index);
+                MeshFilter filter = part.GetComponent<MeshFilter>();
+                if (filter?.sharedMesh == null) continue;
+                Vector3[] vertices = filter.sharedMesh.vertices;
+                float minimum = float.PositiveInfinity;
+                float maximum = float.NegativeInfinity;
+                for (int vertex = 0; vertex < vertices.Length; vertex++)
+                {
+                    float x = root.InverseTransformPoint(
+                        part.TransformPoint(vertices[vertex])).x;
+                    minimum = Mathf.Min(minimum, x);
+                    maximum = Mathf.Max(maximum, x);
+                }
+                float delta = 0f;
+                if (minimum > 1.50f)
+                    delta = 1.68f - minimum;
+                else if (maximum < -1.50f)
+                    delta = -1.68f - maximum;
+                if (Mathf.Abs(delta) <= 0.000001f) continue;
+                part.position +=
+                    root.TransformVector(new Vector3(delta, 0f, 0f));
+            }
         }
 
         private static void AddFenderClosures(

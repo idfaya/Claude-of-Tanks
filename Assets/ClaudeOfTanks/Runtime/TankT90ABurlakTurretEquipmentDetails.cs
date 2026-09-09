@@ -170,6 +170,25 @@ namespace ClaudeOfTanks.Runtime
                 V(x, headCenter + 0.19f * scale * heightScale, z + 0.04f * scale),
                 V(0.44f * scale, 0.045f * scale * heightScale, 0.40f * scale),
                 Dark());
+            for (int side = -1; side <= 1; side += 2)
+            {
+                Transform plate = Box(
+                    "Painted-T90ABurlak-NsvtHeadSide",
+                    root,
+                    V(
+                        x + side * 0.23f * scale,
+                        headCenter + 0.06f * scale * heightScale,
+                        z + 0.10f * scale),
+                    V(
+                        0.07f * scale,
+                        0.27f * scale * heightScale,
+                        0.28f * scale),
+                    color * 0.50f);
+                plate.localRotation = Quaternion.Euler(
+                    0f,
+                    0f,
+                    side * 0.08f * scale * Mathf.Rad2Deg);
+            }
             Box("Painted-T90ABurlak-NsvtOptic", root,
                 V(x + 0.27f * scale, headCenter, z + 0.21f * scale),
                 V(0.19f * scale, 0.21f * scale * heightScale, 0.22f * scale),
@@ -177,6 +196,32 @@ namespace ClaudeOfTanks.Runtime
             Box("T90ABurlak-NsvtOpticLens", root,
                 V(x + 0.27f * scale, headCenter, z + 0.328f * scale),
                 V(0.13f * scale, 0.13f * scale * heightScale, 0.014f * scale),
+                Glass());
+            Box("Painted-T90ABurlak-NsvtServiceBox", root,
+                V(x - 0.27f * scale,
+                    headCenter - 0.04f * scale * heightScale,
+                    z - 0.01f * scale),
+                V(0.22f * scale, 0.18f * scale * heightScale, 0.28f * scale),
+                color * 0.50f);
+            Cylinder("T90ABurlak-NsvtWorkLight", root,
+                V(x - 0.25f * scale,
+                    headCenter + 0.08f * scale * heightScale,
+                    z + 0.25f * scale),
+                0.07f * scale,
+                0.07f * scale,
+                0.075f * scale,
+                14,
+                TankShapeAxis.Z,
+                Dark());
+            Cylinder("T90ABurlak-NsvtWorkLightLens", root,
+                V(x - 0.25f * scale,
+                    headCenter + 0.08f * scale * heightScale,
+                    z + 0.294f * scale),
+                0.054f * scale,
+                0.054f * scale,
+                0.012f * scale,
+                14,
+                TankShapeAxis.Z,
                 Glass());
 
             Transform weapon = TankPintleMachineGunFactory.Build(

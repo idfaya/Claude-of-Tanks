@@ -38,6 +38,9 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90ABurlak-ShoulderK5Seam"),
                     Is.EqualTo(8));
                 Assert.That(
+                    Count(view, "T90ABurlak-ShoulderReturnFace"),
+                    Is.EqualTo(2));
+                Assert.That(
                     VertexCount(view, "Painted-T90ABurlak-BustleLoft"),
                     Is.EqualTo(168));
             }
@@ -158,6 +161,18 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90ABurlak-Nsvt-ShieldFastener"),
                     Is.EqualTo(4));
                 Assert.That(
+                    Count(view, "Painted-T90ABurlak-NsvtHeadSide"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90ABurlak-NsvtServiceBox"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90ABurlak-NsvtWorkLight"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90ABurlak-NsvtWorkLightLens"),
+                    Is.EqualTo(1));
+                Assert.That(
                     Count(view, "T90ABurlak-Detail-SmokeLauncher"),
                     Is.EqualTo(11));
                 Assert.That(
@@ -181,6 +196,44 @@ namespace ClaudeOfTanks.Tests
                     whip.GetComponent<MeshFilter>()
                         .sharedMesh.bounds.size.y,
                     Is.EqualTo(2.67f).Within(0.0001f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
+        [Test]
+        public void ReseatsOutboardArmorAtSourceClearance()
+        {
+            TankView view = Create();
+            try
+            {
+                Renderer[] plates = view.Root
+                    .GetComponentsInChildren<Renderer>(true)
+                    .Where(item =>
+                        item.name ==
+                            "Painted-T90A-RubberSkirtBand" ||
+                        item.name ==
+                            "Painted-T90A-K5SkirtCassette")
+                    .ToArray();
+                Assert.That(plates.Length, Is.EqualTo(22));
+                for (int index = 0; index < plates.Length; index++)
+                {
+                    Bounds bounds = plates[index].bounds;
+                    if (bounds.center.x > 0f)
+                    {
+                        Assert.That(
+                            bounds.min.x,
+                            Is.EqualTo(1.68f).Within(0.0001f));
+                    }
+                    else
+                    {
+                        Assert.That(
+                            bounds.max.x,
+                            Is.EqualTo(-1.68f).Within(0.0001f));
+                    }
+                }
             }
             finally
             {

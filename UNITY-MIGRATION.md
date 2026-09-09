@@ -677,6 +677,9 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   and complete bearing/spindle/cradle/receiver/feed/barrel/shield load path.
   Burlak's NSVT now uses this shared builder with its source `0.58` scale,
   `-0.075 rad` elevation, connected ammunition feed and standard shield.
+  Its final receipt audit also restores both shoulder return faces, station
+  head side plates, service box and work light, and reseats all 22 outboard
+  skirt/K-5 pieces to the source `x=+/-1.68 m` inner clearance.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
