@@ -639,6 +639,9 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   batch replaces the Soviet turret fallback with Vladimir's two-course cast
   shell, crown, frontal/flank K-5, Shtora, ESSA, paired six-tube smoke banks,
   remote Kord, bustle, and source-local 5.32 m 2A46M assembly.
+  A dedicated post-camouflage role pass now keeps paint on the hull and gun
+  while restoring TS wheel, track, rubber, detail, optic, dark-olive, and
+  emissive Shtora materials without generated texture assets.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

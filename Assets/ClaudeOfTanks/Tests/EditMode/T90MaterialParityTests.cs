@@ -168,6 +168,80 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void AppliesVladimirRolesWithoutBakedTextures()
+        {
+            TankView view = Create("t90a_vladimir");
+            try
+            {
+                AssertRole(
+                    view,
+                    "Painted-T90AVladimir-HullLoft",
+                    0.05f,
+                    0.12f,
+                    true);
+                AssertRole(
+                    view,
+                    "Painted-T90AVladimir-Tube",
+                    0.08f,
+                    0.2f,
+                    true);
+                AssertRole(
+                    view,
+                    "T90AVladimir-RoadWheelDish",
+                    0.08f,
+                    0.08f);
+                AssertRole(
+                    view,
+                    "Painted-T90AVladimir-FrontFlap",
+                    0f,
+                    0.04f);
+                AssertRole(
+                    view,
+                    "T90AVladimir-TrackPad",
+                    0.08f,
+                    0.05f);
+                AssertRole(
+                    view,
+                    "T90AVladimir-ESSALens",
+                    0.85f,
+                    0.88f);
+                AssertRole(
+                    view,
+                    "T90AVladimir-BustleRail",
+                    0.04f,
+                    0f);
+
+                Material dark = Material(
+                    view,
+                    "T90AVladimir-ShtoraHousing");
+                Assert.That(dark.mainTexture, Is.Null);
+                AssertColor(
+                    dark.color,
+                    new Color(
+                        0x32 / 255f,
+                        0x36 / 255f,
+                        0x29 / 255f));
+                Material shtora = Material(
+                    view,
+                    "T90AVladimir-ShtoraLens");
+                Assert.That(shtora.mainTexture, Is.Null);
+                Assert.That(
+                    shtora.IsKeywordEnabled("_EMISSION"),
+                    Is.True);
+                AssertColor(
+                    shtora.GetColor("_EmissionColor"),
+                    new Color(
+                        0x7c / 255f,
+                        0x24 / 255f,
+                        0x10 / 255f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static void AssertRole(
             TankView view,
             string name,

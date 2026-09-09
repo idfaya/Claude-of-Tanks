@@ -25,10 +25,15 @@ namespace ClaudeOfTanks.Runtime
             Color baseColor)
         {
             if (renderers == null) return;
-            bool isT90A = string.Equals(
-                vehicleId,
-                "t90a",
-                StringComparison.Ordinal);
+            bool usesT90AColors =
+                string.Equals(
+                    vehicleId,
+                    "t90a",
+                    StringComparison.Ordinal) ||
+                string.Equals(
+                    vehicleId,
+                    "t90a_vladimir",
+                    StringComparison.Ordinal);
             for (int index = 0; index < renderers.Length; index++)
             {
                 Renderer renderer = renderers[index];
@@ -36,11 +41,11 @@ namespace ClaudeOfTanks.Runtime
                 if (material == null) continue;
                 Role role = ResolveRole(
                     renderer.gameObject.name,
-                    isT90A);
+                    usesT90AColors);
                 ApplyRole(
                     material,
                     role,
-                    isT90A,
+                    usesT90AColors,
                     baseColor);
             }
         }
@@ -56,6 +61,10 @@ namespace ClaudeOfTanks.Runtime
                 string.Equals(
                     name,
                     "T90A-ShtoraLens",
+                    StringComparison.Ordinal) ||
+                string.Equals(
+                    name,
+                    "T90AVladimir-ShtoraLens",
                     StringComparison.Ordinal))
             {
                 return Role.Shtora;
@@ -109,6 +118,9 @@ namespace ClaudeOfTanks.Runtime
                     StringComparison.Ordinal) >= 0 ||
                 name.IndexOf(
                     "Mudguard",
+                    StringComparison.Ordinal) >= 0 ||
+                name.IndexOf(
+                    "FrontFlap",
                     StringComparison.Ordinal) >= 0)
             {
                 return Role.Rubber;
@@ -178,6 +190,21 @@ namespace ClaudeOfTanks.Runtime
                     StringComparison.Ordinal) >= 0 ||
                 name.IndexOf(
                     "MuzzleCollar",
+                    StringComparison.Ordinal) >= 0 ||
+                name.IndexOf(
+                    "T90AVladimir-Tube",
+                    StringComparison.Ordinal) >= 0 ||
+                name.IndexOf(
+                    "T90AVladimir-RootSleeve",
+                    StringComparison.Ordinal) >= 0 ||
+                name.IndexOf(
+                    "T90AVladimir-Saddle",
+                    StringComparison.Ordinal) >= 0 ||
+                name.IndexOf(
+                    "T90AVladimir-CastGunRoot",
+                    StringComparison.Ordinal) >= 0 ||
+                name.IndexOf(
+                    "T90AVladimir-FumeExtractor",
                     StringComparison.Ordinal) >= 0)
             {
                 return Role.Barrel;
@@ -196,6 +223,9 @@ namespace ClaudeOfTanks.Runtime
                     StringComparison.Ordinal) >= 0 ||
                 name.IndexOf(
                     "End",
+                    StringComparison.Ordinal) >= 0 ||
+                name.IndexOf(
+                    "BustleRail",
                     StringComparison.Ordinal) >= 0)
             {
                 return Role.Detail;
