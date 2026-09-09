@@ -147,7 +147,9 @@ namespace ClaudeOfTanks.Runtime
             float[] heights,
             int segments,
             float zScale,
-            Color color)
+            Color color,
+            float capRadius = 0f,
+            float roofTiltScale = 1f)
         {
             if (radii == null ||
                 heights == null ||
@@ -156,8 +158,16 @@ namespace ClaudeOfTanks.Runtime
                 throw new ArgumentException(
                     "Lathe profile requires matching radius/height arrays.");
 
-            int rings = radii.Length;
+            BuildLatheProfile(
+                radii,
+                heights,
+                out float[] profileRadii,
+                out float[] profileHeights,
+                out float[] profileAngles);
+            int rings = profileRadii.Length;
             Vector3[] vertices =
+                new Vector3[segments * rings];
+            Vector3[] normals =
                 new Vector3[segments * rings];
             for (int segment = 0; segment < segments; segment++)
             {
@@ -167,11 +177,29 @@ namespace ClaudeOfTanks.Runtime
                 float sine = Mathf.Sin(angle);
                 for (int ring = 0; ring < rings; ring++)
                 {
+                    float radius = profileRadii[ring];
                     vertices[segment * rings + ring] =
                         new Vector3(
-                            cosine * radii[ring],
-                            heights[ring],
-                            sine * radii[ring] * zScale);
+                            cosine * radius,
+                            profileHeights[ring],
+                            sine * radius * zScale);
+                    float normalAngle = profileAngles[ring];
+                    if (capRadius > 0f && normalAngle < 0.8f)
+                    {
+                        float capAngle = Mathf.Min(
+                            0.8f,
+                            Mathf.Asin(Mathf.Min(1f, radius / capRadius)));
+                        if (capAngle > normalAngle)
+                            normalAngle = capAngle;
+                    }
+                    if (roofTiltScale != 1f && normalAngle < 0.8f)
+                        normalAngle *= roofTiltScale;
+                    Vector3 normal = new Vector3(
+                        cosine * Mathf.Sin(normalAngle),
+                        Mathf.Cos(normalAngle),
+                        sine * Mathf.Sin(normalAngle) / zScale);
+                    normals[segment * rings + ring] =
+                        normal.normalized;
                 }
             }
 
@@ -197,12 +225,77 @@ namespace ClaudeOfTanks.Runtime
                 }
             }
 
-            return MeshPart(
+            Transform result = MeshPart(
                 name,
                 parent,
                 vertices,
                 triangles,
                 color);
+            MeshFilter filter = result.GetComponent<MeshFilter>();
+            if (filter != null && filter.sharedMesh != null)
+                filter.sharedMesh.normals = normals;
+            return result;
+        }
+
+        private static void BuildLatheProfile(
+            float[] radii,
+            float[] heights,
+            out float[] profileRadii,
+            out float[] profileHeights,
+            out float[] profileAngles)
+        {
+            int sourceRings = radii.Length;
+            float[] segmentAngles =
+                new float[sourceRings - 1];
+            int profileCount = 1;
+            for (int index = 0; index < sourceRings - 1; index++)
+            {
+                float dr = radii[index + 1] - radii[index];
+                float dy = heights[index + 1] - heights[index];
+                segmentAngles[index] = Mathf.Atan2(dy, -dr);
+                profileCount += Mathf.Max(
+                    1,
+                    Mathf.CeilToInt(
+                        Mathf.Sqrt(dr * dr + dy * dy) / 0.055f));
+            }
+
+            float[] vertexAngles =
+                new float[sourceRings];
+            vertexAngles[0] = segmentAngles[0];
+            for (int index = 1; index < sourceRings - 1; index++)
+                vertexAngles[index] =
+                    (segmentAngles[index - 1] + segmentAngles[index]) * 0.5f;
+            vertexAngles[sourceRings - 1] =
+                segmentAngles[sourceRings - 2];
+
+            profileRadii = new float[profileCount];
+            profileHeights = new float[profileCount];
+            profileAngles = new float[profileCount];
+            int cursor = 0;
+            for (int index = 0; index < sourceRings - 1; index++)
+            {
+                float dr = radii[index + 1] - radii[index];
+                float dy = heights[index + 1] - heights[index];
+                int cuts = Mathf.Max(
+                    1,
+                    Mathf.CeilToInt(
+                        Mathf.Sqrt(dr * dr + dy * dy) / 0.055f));
+                for (int cut = 0; cut < cuts; cut++)
+                {
+                    float t = cut / (float)cuts;
+                    profileRadii[cursor] = radii[index] + dr * t;
+                    profileHeights[cursor] = heights[index] + dy * t;
+                    profileAngles[cursor] =
+                        Mathf.Lerp(
+                            vertexAngles[index],
+                            vertexAngles[index + 1],
+                            t);
+                    cursor++;
+                }
+            }
+            profileRadii[cursor] = radii[sourceRings - 1];
+            profileHeights[cursor] = heights[sourceRings - 1];
+            profileAngles[cursor] = vertexAngles[sourceRings - 1];
         }
 
         public static Transform GunFittingsRoot(

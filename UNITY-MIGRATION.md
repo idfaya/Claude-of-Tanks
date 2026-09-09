@@ -535,7 +535,10 @@ The port preserves the source project's runtime units and conventions:
 	  Kontakt-5 panels and inner/outer cheek leaf banks. The seventh batch ports
 	  the geometric part of TS `meshDomeCurved`: C# now has a reusable lathe
 	  mesh helper and the fallback T-90 turret dome uses the same ring profile
-	  and 30-segment silhouette instead of a Unity sphere primitive.
+	  and 30-segment silhouette instead of a Unity sphere primitive. The eighth
+	  batch adds the TS-style profile subdivision and cap-normal floor so the
+	  C# lathe carries the curved dome normal field instead of faceted default
+	  mesh normals.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

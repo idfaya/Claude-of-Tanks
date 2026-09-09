@@ -74,10 +74,10 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(view, "T90-K5LeafTopSeam"),
                     Is.EqualTo(4));
-                AssertMeshVertexCount(
+                AssertMeshVertexCountAtLeast(
                     view,
                     "Painted-T90-CSharpCastDomeMesh",
-                    240);
+                    1000);
                 AssertMeshVertexCount(
                     view,
                     "Painted-T90-CSharpUpperHullWedge",
@@ -142,6 +142,24 @@ namespace ClaudeOfTanks.Tests
                 transform.GetComponent<MeshFilter>();
             Assert.That(filter, Is.Not.Null, name);
             Assert.That(filter.sharedMesh.vertexCount, Is.EqualTo(expected));
+        }
+
+        private static void AssertMeshVertexCountAtLeast(
+            TankView view,
+            string name,
+            int expected)
+        {
+            Transform transform = Find(view, name);
+            Assert.That(transform, Is.Not.Null, name);
+            MeshFilter filter =
+                transform.GetComponent<MeshFilter>();
+            Assert.That(filter, Is.Not.Null, name);
+            Assert.That(
+                filter.sharedMesh.vertexCount,
+                Is.GreaterThanOrEqualTo(expected));
+            Assert.That(
+                filter.sharedMesh.normals.Length,
+                Is.EqualTo(filter.sharedMesh.vertexCount));
         }
 
         private static Transform Find(

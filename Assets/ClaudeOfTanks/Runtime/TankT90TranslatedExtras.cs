@@ -89,7 +89,8 @@ namespace ClaudeOfTanks.Runtime
                 },
                 30,
                 0.72f,
-                color * 0.64f);
+                color * 0.64f,
+                2.7f);
             TankDetailGeometry.MeshPart(
                 "Painted-T90-CSharpTurretCheekWedge-L",
                 turret,
