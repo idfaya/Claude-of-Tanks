@@ -102,6 +102,10 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Find(view, "Turret")
                         .GetComponent<Renderer>().enabled,
+                    Is.False);
+                Assert.That(
+                    Find(view, "Gun")
+                        .GetComponent<Renderer>().enabled,
                     Is.True);
             }
             finally
@@ -238,6 +242,70 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     toe.bounds.min.z,
                     Is.EqualTo(-3.435f).Within(0.0001f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
+        [Test]
+        public void BuildsSourceWeldedTurretFoundationRingAndCupolas()
+        {
+            TankView view = Create();
+            try
+            {
+                Transform root =
+                    Find(view, "T90SM-PresentationRoot");
+                Assert.That(
+                    root.localPosition.x,
+                    Is.EqualTo(0f).Within(0.000001f));
+                Assert.That(
+                    root.localPosition.y,
+                    Is.EqualTo(0.09372385f).Within(0.000001f));
+                Assert.That(
+                    root.localPosition.z,
+                    Is.EqualTo(-0.06f).Within(0.000001f));
+
+                Mesh foundation = Find(
+                        view,
+                        "Painted-T90SM-WeldedFoundation")
+                    .GetComponent<MeshFilter>()
+                    .sharedMesh;
+                AssertBounds(
+                    foundation.bounds,
+                    new Vector3(
+                        -1.581f,
+                        0f,
+                        -0.8317378f),
+                    new Vector3(
+                        1.581f,
+                        0.515f,
+                        1.4530622f));
+                Assert.That(
+                    foundation.vertexCount,
+                    Is.EqualTo(198));
+                Assert.That(
+                    Count(view, "Painted-T90SM-RearCastingShelf"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90SM-CrownPlate"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90SM-TurretRing"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90SM-CommanderCupolaDrum"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90SM-GunnerCupolaDrum"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90SM-CommanderCupolaLid"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90SM-GunnerCupolaLid"),
+                    Is.EqualTo(1));
             }
             finally
             {
