@@ -11,9 +11,77 @@ namespace ClaudeOfTanks.Runtime
             Color color)
         {
             if (root == null || turret == null) return;
+            AddHullMeshSurfaces(root, color);
+            AddTurretMeshSurfaces(turret, color);
             AddTurretRoofDetails(turret, color);
             AddBustleRackDetails(turret);
             AddHullSkirtFasteners(root);
+        }
+
+        private static void AddHullMeshSurfaces(
+            Transform root,
+            Color color)
+        {
+            TankDetailGeometry.MeshPart(
+                "Painted-T90-CSharpUpperHullWedge",
+                root,
+                BoxVertices(
+                    -1.55f, 1.55f,
+                    0.96f, 1.36f,
+                    -2.68f, 2.18f,
+                    0.22f),
+                BoxTriangles(),
+                color * 0.58f);
+            TankDetailGeometry.MeshPart(
+                "Painted-T90-CSharpSweptGlacisMesh",
+                root,
+                QuadPrism(
+                    V(-1.22f, 1.18f, 2.1f),
+                    V(1.22f, 1.18f, 2.1f),
+                    V(1.42f, 1.0f, 2.95f),
+                    V(-1.42f, 1.0f, 2.95f),
+                    0.08f),
+                BoxTriangles(),
+                color * 0.64f);
+            TankDetailGeometry.MeshPart(
+                "T90-CSharpRearDeckStep",
+                root,
+                QuadPrism(
+                    V(-1.28f, 1.42f, -2.72f),
+                    V(1.28f, 1.42f, -2.72f),
+                    V(1.45f, 1.32f, -1.4f),
+                    V(-1.45f, 1.32f, -1.4f),
+                    0.06f),
+                BoxTriangles(),
+                color * 0.45f);
+        }
+
+        private static void AddTurretMeshSurfaces(
+            Transform turret,
+            Color color)
+        {
+            TankDetailGeometry.MeshPart(
+                "Painted-T90-CSharpTurretCheekWedge-L",
+                turret,
+                QuadPrism(
+                    V(-0.22f, 0.36f, 1.33f),
+                    V(-1.26f, 0.34f, 0.86f),
+                    V(-1.36f, 0.62f, 0.44f),
+                    V(-0.34f, 0.7f, 0.66f),
+                    0.09f),
+                BoxTriangles(),
+                color * 0.56f);
+            TankDetailGeometry.MeshPart(
+                "Painted-T90-CSharpTurretCheekWedge-R",
+                turret,
+                QuadPrism(
+                    V(0.22f, 0.36f, 1.33f),
+                    V(1.26f, 0.34f, 0.86f),
+                    V(1.36f, 0.62f, 0.44f),
+                    V(0.34f, 0.7f, 0.66f),
+                    0.09f),
+                BoxTriangles(),
+                color * 0.56f);
         }
 
         private static void AddTurretRoofDetails(
@@ -89,6 +157,62 @@ namespace ClaudeOfTanks.Runtime
                 color);
             part.localRotation = Quaternion.Euler(rotation);
             return part;
+        }
+
+        private static Vector3[] BoxVertices(
+            float xMin,
+            float xMax,
+            float yMin,
+            float yMax,
+            float zMin,
+            float zMax,
+            float topInset)
+        {
+            return new[]
+            {
+                V(xMin, yMin, zMin),
+                V(xMax, yMin, zMin),
+                V(xMax, yMin, zMax),
+                V(xMin, yMin, zMax),
+                V(xMin + topInset, yMax, zMin),
+                V(xMax - topInset, yMax, zMin),
+                V(xMax - topInset, yMax, zMax),
+                V(xMin + topInset, yMax, zMax)
+            };
+        }
+
+        private static Vector3[] QuadPrism(
+            Vector3 a,
+            Vector3 b,
+            Vector3 c,
+            Vector3 d,
+            float thickness)
+        {
+            Vector3 lift = Vector3.up * thickness;
+            return new[]
+            {
+                a,
+                b,
+                c,
+                d,
+                a + lift,
+                b + lift,
+                c + lift,
+                d + lift
+            };
+        }
+
+        private static int[] BoxTriangles()
+        {
+            return new[]
+            {
+                0, 2, 1, 0, 3, 2,
+                4, 5, 6, 4, 6, 7,
+                0, 1, 5, 0, 5, 4,
+                1, 2, 6, 1, 6, 5,
+                2, 3, 7, 2, 7, 6,
+                3, 0, 4, 3, 4, 7
+            };
         }
 
         private static Vector3 V(

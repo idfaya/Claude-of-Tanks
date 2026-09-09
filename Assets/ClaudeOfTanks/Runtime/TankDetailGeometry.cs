@@ -117,6 +117,29 @@ namespace ClaudeOfTanks.Runtime
             return part.transform;
         }
 
+        public static Transform MeshPart(
+            string name,
+            Transform parent,
+            Vector3[] vertices,
+            int[] triangles,
+            Color color)
+        {
+            GameObject part = new GameObject(name);
+            part.transform.SetParent(parent, false);
+            Mesh mesh = new Mesh { name = name + "Mesh" };
+            mesh.vertices = vertices;
+            mesh.triangles = triangles;
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+            part.AddComponent<MeshFilter>().sharedMesh = mesh;
+            part.AddComponent<MeshRenderer>().sharedMaterial =
+                new Material(Shader.Find("Standard"))
+                {
+                    color = color
+                };
+            return part.transform;
+        }
+
         public static Transform GunFittingsRoot(
             Transform gun,
             string name)
