@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
-using System.Diagnostics;
 using ClaudeOfTanks.Network;
 using ClaudeOfTanks.Runtime;
+using ClaudeOfTanks.Server;
 using ClaudeOfTanks.Simulation;
 using NUnit.Framework;
 using UnityEngine;
@@ -17,7 +17,7 @@ namespace ClaudeOfTanks.Tests
         {
             int port = SignalingServerTestHarness.ReservePort();
             string origin = "http://127.0.0.1:" + port;
-            Process server =
+            RoomSignalingWebSocketService server =
                 SignalingServerTestHarness.StartServer(port, origin);
             GameObject hostRoot = null;
             GameObject clientRoot = null;

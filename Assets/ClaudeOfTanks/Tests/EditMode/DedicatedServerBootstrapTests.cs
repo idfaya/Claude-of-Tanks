@@ -16,6 +16,9 @@ namespace ClaudeOfTanks.Tests
                 Array.Empty<string>(),
                 name => null);
             Assert.That(defaults.ListenPrefix, Is.EqualTo("http://127.0.0.1:18791/"));
+            Assert.That(
+                defaults.SignalingListenPrefix,
+                Is.EqualTo("http://127.0.0.1:18792/"));
             Assert.That(defaults.AllowedOrigins, Is.Empty);
 
             DedicatedServerOptions configured = DedicatedServerOptions.Parse(
@@ -25,11 +28,15 @@ namespace ClaudeOfTanks.Tests
                     "--cot-bind=0.0.0.0",
                     "--cot-port",
                     "19001",
+                    "--cot-signal-port=19002",
                     "--cot-origins=https://game.example,http://127.0.0.1:5173",
                     "--cot-rating-file=Temp/test-ratings.bin"
                 },
                 name => null);
             Assert.That(configured.ListenPrefix, Is.EqualTo("http://0.0.0.0:19001/"));
+            Assert.That(
+                configured.SignalingListenPrefix,
+                Is.EqualTo("http://0.0.0.0:19002/"));
             Assert.That(
                 configured.AllowedOrigins,
                 Is.EqualTo(new[]
@@ -91,6 +98,18 @@ namespace ClaudeOfTanks.Tests
             Assert.Throws<ArgumentException>(() =>
                 DedicatedServerOptions.Parse(
                     new[] { "--cot-port=0" },
+                    name => null));
+            Assert.Throws<ArgumentException>(() =>
+                DedicatedServerOptions.Parse(
+                    new[] { "--cot-signal-port=0" },
+                    name => null));
+            Assert.Throws<ArgumentException>(() =>
+                DedicatedServerOptions.Parse(
+                    new[]
+                    {
+                        "--cot-port=19001",
+                        "--cot-signal-port=19001"
+                    },
                     name => null));
             Assert.Throws<ArgumentException>(() =>
                 DedicatedServerOptions.Parse(

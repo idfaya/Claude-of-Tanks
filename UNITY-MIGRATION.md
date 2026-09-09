@@ -32,6 +32,7 @@ npm run unity:server:build -- linux
 ./Build/Server/Linux/ClaudeOfTanksServer \
   -batchmode -nographics --cot-server \
   --cot-bind=0.0.0.0 --cot-port=18791 \
+  --cot-signal-port=18792 \
   --cot-origins=https://game.example \
   --cot-rating-file=/var/lib/claude-of-tanks/ratings.bin
 ```
@@ -40,7 +41,9 @@ The same listener serves `/match` WebSocket upgrades and the browser-compatible
 `/healthz`, `/ranked/identity`, `/ranked/profile/:id`,
 `/ranked/leaderboard`, and `/ranked/queue/:id` HTTP API. Environment
 equivalents are `COT_SERVER_BIND`, `COT_SERVER_PORT`,
-`COT_ALLOWED_ORIGINS`, and `COT_RATING_FILE`.
+`COT_SIGNAL_PORT`, `COT_ALLOWED_ORIGINS`, and `COT_RATING_FILE`. The same
+headless process also starts the native C# private-room signaling service on
+`COT_SIGNAL_PORT`; its WebSocket endpoint is `/signal`.
 
 Install the matching Unity Linux Dedicated Server Build Support module before
 running the build command. `tools/build-unity-server.sh macos <output> player`
@@ -77,9 +80,28 @@ The port preserves the source project's runtime units and conventions:
 - authoritative randomness is seeded and does not use `UnityEngine.Random`;
 - simulation code does not depend on `UnityEngine`, GameObjects, PhysX, or wall-clock time.
 
+## C# ownership boundary
+
+Unity runtime, dedicated server, private-room signaling, EditMode tests, and
+PlayMode tests are C#-native and do not launch Node or execute TypeScript.
+`CSharpRuntimeBoundaryTests` enforces that boundary. TypeScript remains allowed
+only as an offline authoring source for vehicle presentation geometry and its
+Unity bake artifacts.
+
+The remaining non-vehicle migration item is authoring ownership for the
+generated content catalog. Unity already consumes the checked-in catalog
+without Node, but map, equipment, and camouflage records still originate in
+the TypeScript catalog generator. Those records must move to C#-owned Unity
+content before the non-vehicle conversion can be declared complete.
+
 ## Implemented
 
 - Unity 2022.3 project/package metadata
+- Native C# private-room signaling server with origin validation, room
+  create/join/leave, session rotation, signal relay, and durable mailbox
+  polling. Unity PlayMode coverage no longer launches Node or
+  `server/signalingServer.ts`; an EditMode boundary test prevents that runtime
+  dependency from returning.
 - Pure C# deterministic simulation assembly
 - Acceleration, braking, reverse, pivot steering, terrain traction and turret traverse
 - Swept projectiles, gravity, deterministic dispersion, guidance and 2 km penetration
@@ -655,8 +677,8 @@ These systems still use the TypeScript implementation as their specification:
 - per-family structure geometry/material parity, complete vegetation recipes,
   and broader world streaming for all 20 maps;
 - remaining production UI polish;
-- installable build-target release artifacts, WebRTC signaling/private-room
-  session composition, and signaling deployment;
+- installable build-target release artifacts and platform packaging;
+- C# authoring ownership for map, equipment, and camouflage catalog records;
 - per-family procedural vehicle geometry parity and generated technical assets.
 
 Migrate these by extending the simulation contracts rather than moving

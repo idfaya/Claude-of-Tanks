@@ -1,9 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 using ClaudeOfTanks.Network;
+using ClaudeOfTanks.Server;
 using ClaudeOfTanks.Simulation;
 using ClaudeOfTanks.WebRTC;
 using NUnit.Framework;
@@ -22,7 +22,8 @@ namespace ClaudeOfTanks.Tests
         public IEnumerator RealSignalingComposesAndRotatesRtcPeer()
         {
             int port = SignalingServerTestHarness.ReservePort();
-            Process server = SignalingServerTestHarness.StartServer(port);
+            RoomSignalingWebSocketService server =
+                SignalingServerTestHarness.StartServer(port);
             GameObject ownerObject = new GameObject("PrivateRoomRtcTest");
             RtcTestCoroutineOwner owner =
                 ownerObject.AddComponent<RtcTestCoroutineOwner>();

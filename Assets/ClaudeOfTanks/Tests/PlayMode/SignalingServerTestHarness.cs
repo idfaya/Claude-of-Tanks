@@ -1,13 +1,11 @@
 using System;
 using System.Collections;
-using System.Diagnostics;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using ClaudeOfTanks.Server;
 using ClaudeOfTanks.WebRTC;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace ClaudeOfTanks.Tests
 {
@@ -46,17 +44,17 @@ namespace ClaudeOfTanks.Tests
         }
 
         public static IEnumerator WaitForServer(
-            Process server,
+            RoomSignalingWebSocketService server,
             int port,
             TimeSpan timeout)
         {
             DateTime deadline = DateTime.UtcNow + timeout;
             while (DateTime.UtcNow < deadline)
             {
-                if (server.HasExited)
+                if (!server.IsRunning)
                     Assert.Fail(
-                        "Signaling server exited: " +
-                        server.StandardError.ReadToEnd());
+                        "Signaling server stopped: " +
+                        server.LastError);
                 using (TcpClient probe = new TcpClient())
                 {
                     Task connect = probe.ConnectAsync(
@@ -77,30 +75,16 @@ namespace ClaudeOfTanks.Tests
             Assert.Fail("Signaling server did not become ready.");
         }
 
-        public static Process StartServer(
+        public static RoomSignalingWebSocketService StartServer(
             int port,
             string allowedOrigin = Origin)
         {
-            string root = Directory.GetParent(Application.dataPath).FullName;
-            Process process = new Process
-            {
-                StartInfo = new ProcessStartInfo
-                {
-                    FileName = ResolveNodeExecutable(),
-                    Arguments = "\"" +
-                        Path.Combine(root, "server/signalingServer.ts") +
-                        "\" --host 127.0.0.1 --port " + port,
-                    WorkingDirectory = root,
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                    CreateNoWindow = true
-                }
-            };
-            process.StartInfo.EnvironmentVariables["COT_ALLOWED_ORIGINS"] =
-                allowedOrigin;
-            Assert.That(process.Start(), Is.True);
-            return process;
+            RoomSignalingWebSocketService server =
+                new RoomSignalingWebSocketService(
+                    "http://127.0.0.1:" + port + "/",
+                    new[] { allowedOrigin });
+            server.Start();
+            return server;
         }
 
         public static int ReservePort()
@@ -113,50 +97,10 @@ namespace ClaudeOfTanks.Tests
             return port;
         }
 
-        public static void StopServer(Process server)
+        public static void StopServer(
+            RoomSignalingWebSocketService server)
         {
-            if (server == null) return;
-            try
-            {
-                if (!server.HasExited) server.Kill();
-                server.WaitForExit(2000);
-            }
-            catch
-            {
-            }
-            server.Dispose();
-        }
-
-        private static string ResolveNodeExecutable()
-        {
-            string[] pathEntries = (
-                Environment.GetEnvironmentVariable("PATH") ??
-                string.Empty).Split(Path.PathSeparator);
-            for (int i = 0; i < pathEntries.Length; i++)
-            {
-                string candidate = Path.Combine(pathEntries[i], "node");
-                if (File.Exists(candidate)) return candidate;
-            }
-            string localBin = Path.Combine(
-                Environment.GetFolderPath(
-                    Environment.SpecialFolder.UserProfile),
-                ".local/bin");
-            if (Directory.Exists(localBin))
-            {
-                string[] installs = Directory.GetDirectories(
-                    localBin,
-                    ".node-*",
-                    SearchOption.TopDirectoryOnly);
-                Array.Sort(installs, StringComparer.Ordinal);
-                for (int i = installs.Length - 1; i >= 0; i--)
-                {
-                    string candidate =
-                        Path.Combine(installs[i], "bin/node");
-                    if (File.Exists(candidate)) return candidate;
-                }
-            }
-            Assert.Fail("Node executable was not found for signaling test.");
-            return string.Empty;
+            server?.Dispose();
         }
     }
 }

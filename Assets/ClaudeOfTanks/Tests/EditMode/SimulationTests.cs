@@ -247,7 +247,7 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
-        public void GeneratedContentCatalogMatchesTypeScriptRegistries()
+        public void GeneratedContentCatalogHasCanonicalFleetAndMaps()
         {
             ContentCatalog catalog = ContentCatalog.Load();
             Assert.That(catalog.SavedVehicleCount, Is.EqualTo(165));

@@ -14,11 +14,14 @@ namespace ClaudeOfTanks.Server
     {
         public string BindAddress { get; private set; } = "127.0.0.1";
         public int Port { get; private set; } = 18791;
+        public int SignalingPort { get; private set; } = 18792;
         public string[] AllowedOrigins { get; private set; } = Array.Empty<string>();
         public string RatingFile { get; private set; }
 
         public string ListenPrefix =>
             "http://" + BindAddress + ":" + Port + "/";
+        public string SignalingListenPrefix =>
+            "http://" + BindAddress + ":" + SignalingPort + "/";
 
         public static DedicatedServerOptions Parse(
             string[] arguments,
@@ -29,6 +32,8 @@ namespace ClaudeOfTanks.Server
             DedicatedServerOptions result = new DedicatedServerOptions();
             string bind = Value(args, "--cot-bind") ?? env("COT_SERVER_BIND");
             string port = Value(args, "--cot-port") ?? env("COT_SERVER_PORT");
+            string signalingPort =
+                Value(args, "--cot-signal-port") ?? env("COT_SIGNAL_PORT");
             string origins = Value(args, "--cot-origins") ?? env("COT_ALLOWED_ORIGINS");
             string ratingFile =
                 Value(args, "--cot-rating-file") ?? env("COT_RATING_FILE");
@@ -47,6 +52,21 @@ namespace ClaudeOfTanks.Server
                     throw new ArgumentException("Dedicated server port is invalid.");
                 result.Port = parsed;
             }
+            if (!string.IsNullOrEmpty(signalingPort))
+            {
+                int parsed;
+                if (!int.TryParse(signalingPort, out parsed) ||
+                    parsed < 1 ||
+                    parsed > 65535)
+                {
+                    throw new ArgumentException(
+                        "Signaling server port is invalid.");
+                }
+                result.SignalingPort = parsed;
+            }
+            if (result.SignalingPort == result.Port)
+                throw new ArgumentException(
+                    "Match and signaling ports must be different.");
             if (!string.IsNullOrEmpty(origins))
             {
                 string[] parts = origins.Split(',');
@@ -117,6 +137,7 @@ namespace ClaudeOfTanks.Server
         private DedicatedServerOptions _options;
         private DedicatedMatchRegistry _registry;
         private DedicatedMatchWebSocketService _service;
+        private RoomSignalingWebSocketService _signalingService;
         private RankedHttpApi _httpApi;
         private readonly DedicatedServerTickScheduler _scheduler =
             new DedicatedServerTickScheduler();
@@ -166,8 +187,16 @@ namespace ClaudeOfTanks.Server
                 _options.AllowedOrigins,
                 _httpApi);
             _service.Start();
+            _signalingService =
+                new RoomSignalingWebSocketService(
+                    _options.SignalingListenPrefix,
+                    _options.AllowedOrigins);
+            _signalingService.Start();
             _lastTimeS = Time.realtimeSinceStartupAsDouble;
             Debug.Log("Dedicated server listening at " + _options.ListenPrefix);
+            Debug.Log(
+                "Signaling server listening at " +
+                _options.SignalingListenPrefix);
         }
 
         private void Update()
@@ -181,10 +210,12 @@ namespace ClaudeOfTanks.Server
 
         private void OnDestroy()
         {
+            _signalingService?.Dispose();
             _service?.Dispose();
             _httpApi?.Dispose();
             _registry?.Dispose();
             _service = null;
+            _signalingService = null;
             _httpApi = null;
             _registry = null;
         }

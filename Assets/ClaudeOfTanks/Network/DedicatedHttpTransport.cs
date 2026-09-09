@@ -32,7 +32,7 @@ namespace ClaudeOfTanks.Network
         void Pump(long nowMs);
     }
 
-    internal sealed class DedicatedTransportRequest
+    public sealed class DedicatedTransportRequest
     {
         public string Method;
         public string Target;
@@ -57,7 +57,7 @@ namespace ClaudeOfTanks.Network
         }
     }
 
-    internal static class DedicatedHttpTransport
+    public static class DedicatedHttpTransport
     {
         public const int MaximumHeaderBytes = 8192;
         public const int MaximumBodyBytes = 16 * 1024;

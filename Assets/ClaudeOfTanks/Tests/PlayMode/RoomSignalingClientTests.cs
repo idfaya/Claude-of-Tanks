@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
+using ClaudeOfTanks.Server;
 using ClaudeOfTanks.WebRTC;
 using NUnit.Framework;
 using UnityEngine;
@@ -47,7 +47,8 @@ namespace ClaudeOfTanks.Tests
         public IEnumerator RealServerCreatesRelaysAndRotatesSession()
         {
             int port = SignalingServerTestHarness.ReservePort();
-            Process server = SignalingServerTestHarness.StartServer(port);
+            RoomSignalingWebSocketService server =
+                SignalingServerTestHarness.StartServer(port);
             RoomSignalingClient host = null;
             RoomSignalingClient guest = null;
             try
