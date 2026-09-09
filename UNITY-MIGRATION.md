@@ -532,7 +532,10 @@ The port preserves the source project's runtime units and conventions:
 	  batch extends the translated extras with TS-aligned bustle cargo panels,
 	  OPVT base/stay pieces, and cannon-base/gun-mount plates. The sixth batch
 	  mirrors the TS `t90-k5-turret-era` seam/cap grammar for the turret roof
-	  Kontakt-5 panels and inner/outer cheek leaf banks.
+	  Kontakt-5 panels and inner/outer cheek leaf banks. The seventh batch ports
+	  the geometric part of TS `meshDomeCurved`: C# now has a reusable lathe
+	  mesh helper and the fallback T-90 turret dome uses the same ring profile
+	  and 30-segment silhouette instead of a Unity sphere primitive.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

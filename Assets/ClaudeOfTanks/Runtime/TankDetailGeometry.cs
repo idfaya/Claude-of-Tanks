@@ -140,6 +140,71 @@ namespace ClaudeOfTanks.Runtime
             return part.transform;
         }
 
+        public static Transform LathePart(
+            string name,
+            Transform parent,
+            float[] radii,
+            float[] heights,
+            int segments,
+            float zScale,
+            Color color)
+        {
+            if (radii == null ||
+                heights == null ||
+                radii.Length != heights.Length ||
+                radii.Length < 2)
+                throw new ArgumentException(
+                    "Lathe profile requires matching radius/height arrays.");
+
+            int rings = radii.Length;
+            Vector3[] vertices =
+                new Vector3[segments * rings];
+            for (int segment = 0; segment < segments; segment++)
+            {
+                float angle =
+                    segment * Mathf.PI * 2f / segments;
+                float cosine = Mathf.Cos(angle);
+                float sine = Mathf.Sin(angle);
+                for (int ring = 0; ring < rings; ring++)
+                {
+                    vertices[segment * rings + ring] =
+                        new Vector3(
+                            cosine * radii[ring],
+                            heights[ring],
+                            sine * radii[ring] * zScale);
+                }
+            }
+
+            int[] triangles =
+                new int[segments * (rings - 1) * 6];
+            int cursor = 0;
+            for (int segment = 0; segment < segments; segment++)
+            {
+                int nextSegment =
+                    (segment + 1) % segments;
+                for (int ring = 0; ring < rings - 1; ring++)
+                {
+                    int a = segment * rings + ring;
+                    int b = nextSegment * rings + ring;
+                    int c = nextSegment * rings + ring + 1;
+                    int d = segment * rings + ring + 1;
+                    triangles[cursor++] = a;
+                    triangles[cursor++] = c;
+                    triangles[cursor++] = b;
+                    triangles[cursor++] = a;
+                    triangles[cursor++] = d;
+                    triangles[cursor++] = c;
+                }
+            }
+
+            return MeshPart(
+                name,
+                parent,
+                vertices,
+                triangles,
+                color);
+        }
+
         public static Transform GunFittingsRoot(
             Transform gun,
             string name)
