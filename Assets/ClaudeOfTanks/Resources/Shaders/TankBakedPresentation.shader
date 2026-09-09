@@ -21,7 +21,7 @@ Shader "ClaudeOfTanks/TankBakedPresentation"
         ZWrite [_ZWrite]
 
         CGPROGRAM
-        #pragma surface surf Standard fullforwardshadows alpha:fade
+        #pragma surface surf Standard fullforwardshadows
         #pragma target 3.0
 
         fixed4 _Color;
@@ -39,7 +39,7 @@ Shader "ClaudeOfTanks/TankBakedPresentation"
         {
             fixed4 tint = _Color * input.color;
             output.Albedo = tint.rgb;
-            output.Alpha = tint.a;
+            output.Alpha = 1;
             output.Emission = _EmissionColor.rgb;
             output.Metallic = _Metallic;
             output.Smoothness = _Glossiness;
