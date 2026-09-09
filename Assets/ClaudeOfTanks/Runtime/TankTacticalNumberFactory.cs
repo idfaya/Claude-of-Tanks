@@ -8,6 +8,52 @@ namespace ClaudeOfTanks.Runtime
         private const int TextureWidth = 128;
         private const int TextureHeight = 64;
 
+        public static Transform BuildRussianSet(
+            string prefix,
+            Transform parent,
+            string text,
+            float insigniaSize,
+            Vector3 insigniaPosition,
+            Quaternion insigniaRotation,
+            float numberSize,
+            Vector3 numberPosition,
+            Quaternion numberRotation)
+        {
+            Validate(
+                prefix,
+                parent,
+                text,
+                insigniaSize,
+                numberSize);
+            GameObject rootObject =
+                new GameObject(prefix + "-TacticalMarkings");
+            Transform root = rootObject.transform;
+            root.SetParent(parent, false);
+            Texture2D insignia =
+                BuildRussianStarTexture(prefix);
+            Texture2D designation =
+                BuildNumberTexture(prefix, text, true);
+            rootObject.AddComponent<TankGeneratedTextureOwner>()
+                .Initialize(insignia);
+            rootObject.AddComponent<TankGeneratedTextureOwner>()
+                .Initialize(designation);
+            BuildSide(
+                prefix + "-Insignia",
+                root,
+                insignia,
+                insigniaSize,
+                insigniaPosition,
+                insigniaRotation);
+            BuildSide(
+                prefix + "-Designation",
+                root,
+                designation,
+                numberSize,
+                numberPosition,
+                numberRotation);
+            return root;
+        }
+
         public static Transform BuildPair(
             string prefix,
             Transform parent,
@@ -18,24 +64,14 @@ namespace ClaudeOfTanks.Runtime
             Vector3 leftPosition,
             Quaternion leftRotation)
         {
-            if (string.IsNullOrEmpty(prefix))
-                throw new ArgumentException(
-                    "Tactical-number prefix is required.",
-                    nameof(prefix));
-            if (parent == null)
-                throw new ArgumentNullException(nameof(parent));
-            if (string.IsNullOrEmpty(text))
-                throw new ArgumentException(
-                    "Tactical-number text is required.",
-                    nameof(text));
-            if (size <= 0f)
-                throw new ArgumentOutOfRangeException(nameof(size));
+            Validate(prefix, parent, text, size, size);
 
             GameObject rootObject =
                 new GameObject(prefix + "-TacticalNumbers");
             Transform root = rootObject.transform;
             root.SetParent(parent, false);
-            Texture2D texture = BuildTexture(prefix, text);
+            Texture2D texture =
+                BuildNumberTexture(prefix, text, false);
             rootObject.AddComponent<TankGeneratedTextureOwner>()
                 .Initialize(texture);
             BuildSide(
@@ -90,10 +126,10 @@ namespace ClaudeOfTanks.Runtime
                 },
                 uv = new[]
                 {
-                    new Vector2(0f, 0f),
                     new Vector2(1f, 0f),
-                    new Vector2(1f, 1f),
-                    new Vector2(0f, 1f)
+                    new Vector2(0f, 0f),
+                    new Vector2(0f, 1f),
+                    new Vector2(1f, 1f)
                 },
                 triangles = new[] { 0, 1, 2, 0, 2, 3 }
             };
@@ -104,11 +140,17 @@ namespace ClaudeOfTanks.Runtime
             return transform;
         }
 
-        private static Texture2D BuildTexture(
+        private static Texture2D BuildNumberTexture(
             string prefix,
-            string text)
+            string text,
+            bool surfaceStyle)
         {
-            bool[] mask = new bool[TextureWidth * TextureHeight];
+            int textureHeight =
+                surfaceStyle ? TextureWidth : TextureHeight;
+            int drawingHeight =
+                surfaceStyle ? 94 : TextureHeight;
+            bool[] mask =
+                new bool[TextureWidth * textureHeight];
             int columns = text.Length * 5 +
                 Mathf.Max(0, text.Length - 1);
             int unit = Mathf.Max(
@@ -116,11 +158,11 @@ namespace ClaudeOfTanks.Runtime
                 Mathf.FloorToInt(
                     Mathf.Min(
                         (TextureWidth - 12f) / columns,
-                        (TextureHeight - 12f) / 7f)));
+                        (drawingHeight - 12f) / 7f)));
             int width = columns * unit;
             int height = 7 * unit;
             int originX = (TextureWidth - width) / 2;
-            int originY = (TextureHeight - height) / 2;
+            int originY = (textureHeight - height) / 2;
             for (int glyph = 0; glyph < text.Length; glyph++)
             {
                 for (int row = 0; row < 7; row++)
@@ -140,12 +182,16 @@ namespace ClaudeOfTanks.Runtime
             }
 
             Color32[] pixels =
-                new Color32[TextureWidth * TextureHeight];
+                new Color32[TextureWidth * textureHeight];
             Color32 outline =
-                new Color32(20, 20, 20, 140);
+                surfaceStyle
+                    ? new Color32(23, 24, 21, 255)
+                    : new Color32(20, 20, 20, 140);
             Color32 pigment =
-                new Color32(174, 172, 162, 235);
-            for (int y = 0; y < TextureHeight; y++)
+                surfaceStyle
+                    ? new Color32(216, 213, 201, 255)
+                    : new Color32(174, 172, 162, 235);
+            for (int y = 0; y < textureHeight; y++)
             for (int x = 0; x < TextureWidth; x++)
             {
                 int index = y * TextureWidth + x;
@@ -154,13 +200,19 @@ namespace ClaudeOfTanks.Runtime
                     pixels[index] = pigment;
                     continue;
                 }
-                if (TouchesMask(mask, x, y, 2))
+                if (TouchesMask(
+                    mask,
+                    x,
+                    y,
+                    2,
+                    TextureWidth,
+                    textureHeight))
                     pixels[index] = outline;
             }
 
             Texture2D texture = new Texture2D(
                 TextureWidth,
-                TextureHeight,
+                textureHeight,
                 TextureFormat.RGBA32,
                 true)
             {
@@ -175,6 +227,92 @@ namespace ClaudeOfTanks.Runtime
             texture.SetPixels32(pixels);
             texture.Apply(true, false);
             return texture;
+        }
+
+        private static Texture2D BuildRussianStarTexture(
+            string prefix)
+        {
+            const int size = 128;
+            const float center = size * 0.5f;
+            const float outerRadius = 45f;
+            const float innerRadius = 18.5f;
+            Vector2[] star = new Vector2[10];
+            for (int index = 0; index < star.Length; index++)
+            {
+                float angle =
+                    -Mathf.PI * 0.5f + index * Mathf.PI / 5f;
+                float radius =
+                    index % 2 == 0
+                        ? outerRadius
+                        : innerRadius;
+                star[index] = new Vector2(
+                    center + Mathf.Cos(angle) * radius,
+                    center + Mathf.Sin(angle) * radius);
+            }
+            bool[] mask = new bool[size * size];
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+                mask[y * size + x] =
+                    Contains(star, x + 0.5f, y + 0.5f);
+
+            Color32[] pixels = new Color32[size * size];
+            Color32 outline =
+                new Color32(238, 233, 219, 255);
+            Color32 pigment =
+                new Color32(182, 50, 46, 255);
+            for (int y = 0; y < size; y++)
+            for (int x = 0; x < size; x++)
+            {
+                int index = y * size + x;
+                if (mask[index])
+                {
+                    pixels[index] = pigment;
+                    continue;
+                }
+                if (TouchesMask(mask, x, y, 4, size, size))
+                    pixels[index] = outline;
+            }
+            Texture2D texture = new Texture2D(
+                size,
+                size,
+                TextureFormat.RGBA32,
+                true)
+            {
+                name =
+                    "TankTacticalInsigniaTexture-" +
+                    prefix +
+                    "-RU",
+                wrapMode = TextureWrapMode.Clamp,
+                filterMode = FilterMode.Bilinear
+            };
+            texture.SetPixels32(pixels);
+            texture.Apply(true, false);
+            return texture;
+        }
+
+        private static void Validate(
+            string prefix,
+            Transform parent,
+            string text,
+            float firstSize,
+            float secondSize)
+        {
+            if (string.IsNullOrEmpty(prefix))
+                throw new ArgumentException(
+                    "Tactical-marking prefix is required.",
+                    nameof(prefix));
+            if (parent == null)
+                throw new ArgumentNullException(nameof(parent));
+            if (string.IsNullOrEmpty(text))
+                throw new ArgumentException(
+                    "Tactical-marking text is required.",
+                    nameof(text));
+            if (firstSize <= 0f)
+                throw new ArgumentOutOfRangeException(
+                    nameof(firstSize));
+            if (secondSize <= 0f)
+                throw new ArgumentOutOfRangeException(
+                    nameof(secondSize));
         }
 
         private static void FillMask(
@@ -193,17 +331,40 @@ namespace ClaudeOfTanks.Runtime
             bool[] mask,
             int x,
             int y,
-            int radius)
+            int radius,
+            int width,
+            int height)
         {
             int minY = Mathf.Max(0, y - radius);
-            int maxY = Mathf.Min(TextureHeight - 1, y + radius);
+            int maxY = Mathf.Min(height - 1, y + radius);
             int minX = Mathf.Max(0, x - radius);
-            int maxX = Mathf.Min(TextureWidth - 1, x + radius);
+            int maxX = Mathf.Min(width - 1, x + radius);
             for (int sampleY = minY; sampleY <= maxY; sampleY++)
             for (int sampleX = minX; sampleX <= maxX; sampleX++)
-                if (mask[sampleY * TextureWidth + sampleX])
+                if (mask[sampleY * width + sampleX])
                     return true;
             return false;
+        }
+
+        private static bool Contains(
+            Vector2[] polygon,
+            float x,
+            float y)
+        {
+            bool inside = false;
+            for (int current = 0, previous = polygon.Length - 1;
+                current < polygon.Length;
+                previous = current++)
+            {
+                Vector2 a = polygon[current];
+                Vector2 b = polygon[previous];
+                bool crosses =
+                    (a.y > y) != (b.y > y) &&
+                    x < (b.x - a.x) * (y - a.y) /
+                    (b.y - a.y) + a.x;
+                if (crosses) inside = !inside;
+            }
+            return inside;
         }
 
         private static int RowBits(char character, int row)

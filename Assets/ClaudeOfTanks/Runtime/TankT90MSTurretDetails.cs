@@ -56,15 +56,24 @@ namespace ClaudeOfTanks.Runtime
             TankT90MSTurretEquipmentDetails.Build(root, color);
             if (!string.IsNullOrEmpty(tacticalNumber))
             {
-                TankTacticalNumberFactory.BuildPair(
+                TankTacticalNumberFactory.BuildRussianSet(
                     "T90MS",
                     root,
                     tacticalNumber,
-                    0.25f,
-                    V(1.67f, 0.30f, -0.38f),
-                    Quaternion.Euler(0f, 90f, 0f),
-                    V(-1.67f, 0.30f, -0.38f),
-                    Quaternion.Euler(0f, -90f, 0f));
+                    0.24f,
+                    V(0.9610577f, 0.6983223f, -0.8166105f),
+                    new Quaternion(
+                        -0.3780458f,
+                        0.6207669f,
+                        0.3572425f,
+                        0.586607f),
+                    0.24f,
+                    V(1.0750685f, 0.5469447f, -1.2616064f),
+                    new Quaternion(
+                        -0.1696276f,
+                        0.7701519f,
+                        0.1322612f,
+                        0.6004993f));
             }
         }
 
