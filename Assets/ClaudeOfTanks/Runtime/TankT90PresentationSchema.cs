@@ -129,6 +129,42 @@ namespace ClaudeOfTanks.Runtime
                 { -1.38f, 0.14f, 1.65f };
             for (int side = -1; side <= 1; side += 2)
             {
+                Add(parts, "T90-TrackUpperBand", PrimitiveType.Cube,
+                    TankPresentationTarget.Root,
+                    V(side * 1.62f, 0.84f, 0.04f),
+                    V(0.58f, 0.12f, 4.6f), V(),
+                    TankPresentationColor.Dark);
+                Add(parts, "T90-TrackLowerBand", PrimitiveType.Cube,
+                    TankPresentationTarget.Root,
+                    V(side * 1.62f, 0.18f, 0.05f),
+                    V(0.6f, 0.16f, 4.42f), V(),
+                    TankPresentationColor.Dark);
+                Add(parts, "T90-TrackFrontRise", PrimitiveType.Cube,
+                    TankPresentationTarget.Root,
+                    V(side * 1.62f, 0.44f, 2.5f),
+                    V(0.58f, 0.16f, 0.72f), V(-26f, 0f, 0f),
+                    TankPresentationColor.Dark);
+                Add(parts, "T90-TrackRearRise", PrimitiveType.Cube,
+                    TankPresentationTarget.Root,
+                    V(side * 1.62f, 0.55f, -2.34f),
+                    V(0.58f, 0.16f, 0.58f), V(22f, 0f, 0f),
+                    TankPresentationColor.Dark);
+                Add(parts, "T90-Sprocket", PrimitiveType.Cylinder,
+                    TankPresentationTarget.Root,
+                    V(side * 1.62f, 0.9f, -2.52f),
+                    V(0.299f, 0.09f, 0.299f), V(0f, 0f, 90f),
+                    TankPresentationColor.Dark);
+                Add(parts, "T90-Idler", PrimitiveType.Cylinder,
+                    TankPresentationTarget.Root,
+                    V(side * 1.62f, 0.71f, 2.7f),
+                    V(0.27f, 0.08f, 0.27f), V(0f, 0f, 90f),
+                    TankPresentationColor.Dark);
+                for (int cleat = 0; cleat < 14; cleat++)
+                    Add(parts, "T90-TrackCleat",
+                        PrimitiveType.Cube, TankPresentationTarget.Root,
+                        V(side * 1.62f, 0.29f, -2.0f + cleat * 0.31f),
+                        V(0.63f, 0.05f, 0.04f), V(),
+                        TankPresentationColor.Base, 0.38f);
                 for (int index = 0; index < wheelStations.Length; index++)
                 {
                     Vector3 center =

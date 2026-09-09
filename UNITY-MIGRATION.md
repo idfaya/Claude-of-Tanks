@@ -516,7 +516,10 @@ The port preserves the source project's runtime units and conventions:
 	  the baked prefab, runs the C# T-90 schema, hides the generic fallback gear,
 	  and serves as the iterative porting baseline. It is not yet visually
 	  equivalent to the TS bake and should be advanced in focused geometry
-	  batches against the TS-prefixed baked reference.
+	  batches against the TS-prefixed baked reference. The first follow-up batch
+	  ports the TS `t90Gear` envelope values into C# fallback output: rear
+	  sprocket, front idler, upper/lower track bands, rising track spans and
+	  bottom cleats are now present when the bake is disabled.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

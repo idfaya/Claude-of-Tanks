@@ -320,6 +320,35 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(view, "T90-ReturnRoller"),
                     Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "T90-Sprocket"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-Idler"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-TrackUpperBand"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-TrackLowerBand"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-TrackCleat"),
+                    Is.EqualTo(28));
+                Assert.That(
+                    Find(view, "T90-Sprocket")
+                        .localPosition,
+                    Is.EqualTo(new Vector3(
+                        -1.62f,
+                        0.9f,
+                        -2.52f)));
+                Assert.That(
+                    Find(view, "T90-Idler")
+                        .localPosition,
+                    Is.EqualTo(new Vector3(
+                        -1.62f,
+                        0.71f,
+                        2.7f)));
                 AssertHidden(view, "RoadWheel-L");
                 AssertHidden(view, "RoadWheel-R");
                 AssertHidden(view, "Sprocket-L");
