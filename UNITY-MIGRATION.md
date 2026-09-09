@@ -494,10 +494,13 @@ The port preserves the source project's runtime units and conventions:
   transform. All 166 catalog hit surfaces stay present, the 141 ERA
   renderers stay visible, and structural diagnostic surfaces are hidden
   behind dedicated geometry without adding generic side armor or presentation
-  colliders. T-90 is now the first data-driven Unity presentation-schema
-  pilot: its owner routes through the shared `TankPresentationGenerator`,
-  proving that validated hand-authored details can be represented as reusable
-  part schema before moving the backend toward baked mesh/prefab generation
+  colliders. T-90 is now the first TS-generated Unity presentation pilot: the
+  `unity:presentation:update` pipeline runs the TypeScript `createTank`
+  geometry-only builder, exports the resulting T-90 Three.js mesh hierarchy
+  into `tank-presentation-schemas.json`, and lets the Unity owner load those
+  generated meshes before falling back to the hand-authored schema path. The
+  generated payload currently carries 461 mesh records, 236,672 vertices and
+  79,768 triangles from the TS source builder
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

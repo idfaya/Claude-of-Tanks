@@ -23,7 +23,7 @@ namespace ClaudeOfTanks.Tests
                     CountPrefix(view, "Armor-"),
                     Is.EqualTo(166));
                 Assert.That(
-                    Count(view, "T90-PresentationSchema"),
+                    Count(view, "T90-TsGeneratedPresentationSchema"),
                     Is.EqualTo(1));
                 Assert.That(
                     definition.armor.hullPlates
@@ -37,8 +37,8 @@ namespace ClaudeOfTanks.Tests
                     FindAll(view, "RoadWheel-R").Length,
                     Is.EqualTo(6));
                 Assert.That(
-                    Count(view, "T90-ReturnRoller"),
-                    Is.EqualTo(6));
+                    CountPrefix(view, "TS-T90-gearReturnRoller"),
+                    Is.GreaterThanOrEqualTo(2));
                 Assert.That(
                     Find(view, "Sprocket-L")
                         .localPosition,
@@ -84,6 +84,9 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "Soviet-ShtoraLens"),
                     Is.EqualTo(0));
                 Assert.That(
+                    CountPrefix(view, "TS-T90-"),
+                    Is.GreaterThanOrEqualTo(70));
+                Assert.That(
                     view.Root.GetComponentsInChildren<Collider>(true)
                         .Length,
                     Is.EqualTo(0));
@@ -102,26 +105,26 @@ namespace ClaudeOfTanks.Tests
             try
             {
                 Assert.That(
-                    Count(view, "Painted-T90-UpperHull"),
+                    Count(view, "TS-T90-hull"),
                     Is.EqualTo(1));
                 Assert.That(
-                    Count(view, "Painted-T90-K5GlacisBrick"),
-                    Is.EqualTo(20));
+                    Count(view, "TS-T90-hullExternalArmor"),
+                    Is.EqualTo(1));
                 Assert.That(
-                    Count(view, "Painted-T90-K5SkirtPanel"),
-                    Is.EqualTo(6));
+                    Count(view, "TS-T90-hullRubber"),
+                    Is.EqualTo(1));
                 Assert.That(
-                    Count(view, "T90-RearQuarterSlat"),
-                    Is.EqualTo(12));
+                    Count(view, "TS-T90-gearTrackBandL"),
+                    Is.EqualTo(1));
                 Assert.That(
-                    Count(view, "T90-EngineLouvre"),
-                    Is.EqualTo(5));
+                    Count(view, "TS-T90-gearTrackBandR"),
+                    Is.EqualTo(1));
                 Assert.That(
-                    Count(view, "Painted-T90-RearStowageBin"),
-                    Is.EqualTo(2));
+                    Count(view, "TS-T90-hullWood"),
+                    Is.EqualTo(1));
                 Assert.That(
-                    Count(view, "T90-SplitUnditchingLog"),
-                    Is.EqualTo(2));
+                    Count(view, "TS-T90-hullEquipment"),
+                    Is.EqualTo(1));
             }
             finally
             {
@@ -137,32 +140,32 @@ namespace ClaudeOfTanks.Tests
             try
             {
                 Assert.That(
-                    Count(view, "Painted-T90-CastDome"),
+                    Count(view, "TS-T90-turret"),
                     Is.EqualTo(1));
                 Assert.That(
-                    Count(view, "Painted-T90-K5RoofPanel"),
-                    Is.EqualTo(3));
-                Assert.That(
-                    Count(view, "Painted-T90-K5CheekLeaf"),
-                    Is.EqualTo(4));
-                Assert.That(
-                    Count(view, "Painted-T90-ShtoraHousing"),
-                    Is.EqualTo(2));
-                Assert.That(
-                    Count(view, "T90-ShtoraLens"),
-                    Is.EqualTo(2));
-                Assert.That(
-                    Count(view, "Painted-T90-SmokeLauncher"),
-                    Is.EqualTo(8));
-                Assert.That(
-                    Count(view, "T90-NsvtReceiver"),
+                    Count(view, "TS-T90-turretExternalArmor"),
                     Is.EqualTo(1));
                 Assert.That(
-                    Count(view, "T90-BustleRail"),
-                    Is.EqualTo(5));
+                    Count(view, "TS-T90-turretDetail"),
+                    Is.EqualTo(1));
                 Assert.That(
-                    Count(view, "T90-RadioWhip"),
-                    Is.EqualTo(2));
+                    Count(view, "TS-T90-turretEquipment"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "TS-T90-turretGlass"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    CountPrefix(view, "TS-T90-fitting_smokeBank"),
+                    Is.GreaterThanOrEqualTo(4));
+                Assert.That(
+                    Count(view, "TS-T90-browningDerivedMachineGunBody"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    CountPrefix(view, "TS-T90-fitting_antennaWhip"),
+                    Is.GreaterThanOrEqualTo(4));
+                Assert.That(
+                    Count(view, "TS-T90-turretDark"),
+                    Is.EqualTo(1));
             }
             finally
             {
@@ -179,18 +182,18 @@ namespace ClaudeOfTanks.Tests
             {
                 foreach (string name in new[]
                     {
-                        "Painted-T90-2A46MSaddle",
-                        "Painted-T90-2A46MRoot",
-                        "Painted-T90-2A46MEvacuator",
-                        "Painted-T90-2A46MForwardTube",
-                        "T90-MuzzleBore"
+                        "TS-T90-gun",
+                        "TS-T90-gunDark",
+                        "TS-T90-gunMount",
+                        "TS-T90-muzzleBoreShadowRim",
+                        "TS-T90-muzzleBoreShadowDisc"
                     })
                 {
                     AssertGunOwned(view, name);
                 }
                 Assert.That(
-                    Count(view, "T90-2A46MSleeveRing"),
-                    Is.EqualTo(4));
+                    Count(view, "T90-TsGunFittings"),
+                    Is.EqualTo(1));
             }
             finally
             {

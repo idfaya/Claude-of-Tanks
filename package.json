@@ -7,6 +7,8 @@
     "agent-docs": "node scripts/run-agent-docs.ts",
     "unity:content:update": "node tools/gen-unity-content.mjs",
     "unity:content:check": "node tools/gen-unity-content.mjs --check",
+    "unity:presentation:update": "node tools/gen-unity-presentation-schemas.mjs",
+    "unity:presentation:check": "node tools/gen-unity-presentation-schemas.mjs --check",
     "unity:server:build": "tools/build-unity-server.sh",
     "fx:textures:bake": "node tools/bake-fx-textures.mjs",
     "minimap:assets": "node tools/bake-minimap-assets.mjs",

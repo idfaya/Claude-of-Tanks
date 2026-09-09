@@ -20,6 +20,15 @@ namespace ClaudeOfTanks.Runtime
         {
             if (!Supports(definition?.id)) return;
 
+            if (TankGeneratedPresentationCatalog.TryBuild(
+                    definition.id,
+                    root,
+                    turret,
+                    definition))
+            {
+                return;
+            }
+
             TankPresentationGenerator.Build(
                 TankT90PresentationSchema.Create(),
                 root,
