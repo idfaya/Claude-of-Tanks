@@ -12,19 +12,10 @@ namespace ClaudeOfTanks.Runtime
             string prefix,
             Transform parent,
             string text,
-            float insigniaSize,
-            Vector3 insigniaPosition,
-            Quaternion insigniaRotation,
-            float numberSize,
-            Vector3 numberPosition,
-            Quaternion numberRotation)
+            params TankTacticalMarkingSeat[] seats)
         {
-            Validate(
-                prefix,
-                parent,
-                text,
-                insigniaSize,
-                numberSize);
+            Validate(prefix, parent, text);
+            ValidateSeats(seats);
             GameObject rootObject =
                 new GameObject(prefix + "-TacticalMarkings");
             Transform root = rootObject.transform;
@@ -37,20 +28,22 @@ namespace ClaudeOfTanks.Runtime
                 .Initialize(insignia);
             rootObject.AddComponent<TankGeneratedTextureOwner>()
                 .Initialize(designation);
-            BuildSide(
-                prefix + "-Insignia",
-                root,
-                insignia,
-                insigniaSize,
-                insigniaPosition,
-                insigniaRotation);
-            BuildSide(
-                prefix + "-Designation",
-                root,
-                designation,
-                numberSize,
-                numberPosition,
-                numberRotation);
+            for (int index = 0; index < seats.Length; index++)
+            {
+                TankTacticalMarkingSeat seat = seats[index];
+                Texture2D texture =
+                    seat.Kind ==
+                    TankTacticalMarkingKind.Insignia
+                        ? insignia
+                        : designation;
+                BuildSide(
+                    prefix + "-" + seat.Name,
+                    root,
+                    texture,
+                    seat.Size,
+                    seat.Position,
+                    seat.Rotation);
+            }
             return root;
         }
 
@@ -64,7 +57,9 @@ namespace ClaudeOfTanks.Runtime
             Vector3 leftPosition,
             Quaternion leftRotation)
         {
-            Validate(prefix, parent, text, size, size);
+            Validate(prefix, parent, text);
+            if (size <= 0f)
+                throw new ArgumentOutOfRangeException(nameof(size));
 
             GameObject rootObject =
                 new GameObject(prefix + "-TacticalNumbers");
@@ -293,9 +288,7 @@ namespace ClaudeOfTanks.Runtime
         private static void Validate(
             string prefix,
             Transform parent,
-            string text,
-            float firstSize,
-            float secondSize)
+            string text)
         {
             if (string.IsNullOrEmpty(prefix))
                 throw new ArgumentException(
@@ -307,12 +300,34 @@ namespace ClaudeOfTanks.Runtime
                 throw new ArgumentException(
                     "Tactical-marking text is required.",
                     nameof(text));
-            if (firstSize <= 0f)
-                throw new ArgumentOutOfRangeException(
-                    nameof(firstSize));
-            if (secondSize <= 0f)
-                throw new ArgumentOutOfRangeException(
-                    nameof(secondSize));
+        }
+
+        private static void ValidateSeats(
+            TankTacticalMarkingSeat[] seats)
+        {
+            if (seats == null || seats.Length == 0)
+                throw new ArgumentException(
+                    "At least one tactical-marking seat is required.",
+                    nameof(seats));
+            for (int index = 0; index < seats.Length; index++)
+            {
+                TankTacticalMarkingSeat seat = seats[index];
+                if (string.IsNullOrEmpty(seat.Name))
+                    throw new ArgumentException(
+                        "Tactical-marking seat names are required.",
+                        nameof(seats));
+                if (seat.Size <= 0f)
+                    throw new ArgumentOutOfRangeException(
+                        nameof(seats));
+                if (!Enum.IsDefined(
+                    typeof(TankTacticalMarkingKind),
+                    seat.Kind))
+                {
+                    throw new ArgumentException(
+                        "Unsupported tactical-marking seat kind.",
+                        nameof(seats));
+                }
+            }
         }
 
         private static void FillMask(

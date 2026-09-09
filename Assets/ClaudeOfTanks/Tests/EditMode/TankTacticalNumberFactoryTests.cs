@@ -8,10 +8,158 @@ namespace ClaudeOfTanks.Tests
 {
     public sealed class TankTacticalNumberFactoryTests
     {
+        [TestCase(
+            "t90", "T90", "TurretRoot",
+            -1.0333622f, 0.3992434f, -1.3922033f,
+            -0.0676667f, -0.7611755f, -0.0571143f, 0.6424726f,
+            -1.4004122f, 0.3985853f, 0.3175893f,
+            -0.0211688f, -0.6511015f, -0.0246539f, 0.7582947f)]
+        [TestCase(
+            "t90a", "T90A", "T90A-PresentationRoot",
+            1.6185539f, 0.10675f, -1.5836288f,
+            0f, 0.7176335f, 0f, 0.6964209f,
+            1.2155189f, 0.4222885f, 0.0083077f,
+            -0.2304606f, 0.7025491f, 0.2098583f, 0.6397438f)]
+        [TestCase(
+            "t90a_vladimir", "T90AVladimir",
+            "T90AVladimir-PresentationRoot",
+            -1.3826577f, 0.2355f, -0.691368f,
+            0f, -0.6782645f, 0f, 0.7348178f,
+            -1.1937633f, 0.4791295f, -0.8909543f,
+            -0.1116375f, -0.714071f, -0.1067518f, 0.6828204f)]
+        [TestCase(
+            "t90a_burlak", "T90ABurlak",
+            "T90ABurlak-PresentationRoot",
+            0.9859912f, 0.4226153f, -1.5825224f,
+            -0.0709102f, 0.7976612f, 0.0530336f, 0.59657f,
+            1.0533363f, 0.252985f, -1.2382426f,
+            0.1494883f, 0.7627854f, -0.1209944f, 0.6173913f)]
+        public void CompletedT90FamilyBuildsGeneratedPair(
+            string id,
+            string prefix,
+            string parentName,
+            float insigniaX,
+            float insigniaY,
+            float insigniaZ,
+            float insigniaQx,
+            float insigniaQy,
+            float insigniaQz,
+            float insigniaQw,
+            float designationX,
+            float designationY,
+            float designationZ,
+            float designationQx,
+            float designationQy,
+            float designationQz,
+            float designationQw)
+        {
+            TankView view = Create(id);
+            try
+            {
+                Transform root = Find(
+                    view,
+                    prefix + "-TacticalMarkings");
+                Assert.That(root.parent.name, Is.EqualTo(parentName));
+                Assert.That(root.childCount, Is.EqualTo(2));
+                AssertSeat(
+                    Find(view,
+                        "VehicleMarking-" +
+                        prefix +
+                        "-Insignia"),
+                    0.23f,
+                    new Vector3(
+                        insigniaX,
+                        insigniaY,
+                        insigniaZ),
+                    new Quaternion(
+                        insigniaQx,
+                        insigniaQy,
+                        insigniaQz,
+                        insigniaQw));
+                AssertSeat(
+                    Find(view,
+                        "VehicleMarking-" +
+                        prefix +
+                        "-Designation"),
+                    0.23f,
+                    new Vector3(
+                        designationX,
+                        designationY,
+                        designationZ),
+                    new Quaternion(
+                        designationQx,
+                        designationQy,
+                        designationQz,
+                        designationQw));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
+        [Test]
+        public void T90SMBuildsGeneratedThreeSeatSet()
+        {
+            TankView view = Create("t90sm");
+            try
+            {
+                Transform root =
+                    Find(view, "T90SM-TacticalMarkings");
+                Assert.That(
+                    root.parent.name,
+                    Is.EqualTo("T90SM-PresentationRoot"));
+                Assert.That(root.childCount, Is.EqualTo(3));
+                AssertSeat(
+                    Find(view,
+                        "VehicleMarking-T90SM-Designation-Right"),
+                    0.26f,
+                    new Vector3(
+                        1.4863963f,
+                        0.3038142f,
+                        -0.05f),
+                    new Quaternion(
+                        -0.2387832f,
+                        0.6655694f,
+                        0.2387832f,
+                        0.6655694f));
+                AssertSeat(
+                    Find(view,
+                        "VehicleMarking-T90SM-Designation-Left"),
+                    0.26f,
+                    new Vector3(
+                        -1.4863963f,
+                        0.3038142f,
+                        -0.05f),
+                    new Quaternion(
+                        -0.2387832f,
+                        -0.6655694f,
+                        -0.2387832f,
+                        0.6655694f));
+                AssertSeat(
+                    Find(view,
+                        "VehicleMarking-T90SM-Insignia"),
+                    0.24f,
+                    new Vector3(
+                        -1.141f,
+                        0.3824f,
+                        -1.33472f),
+                    new Quaternion(
+                        0f,
+                        -0.7071068f,
+                        0f,
+                        0.7071068f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         [Test]
         public void T90MSBuildsSolvedRussianMarkingsAndReleasesTextures()
         {
-            TankView view = Create();
+            TankView view = Create("t90ms");
             Texture2D designationTexture = null;
             Texture2D insigniaTexture = null;
             try
@@ -136,14 +284,14 @@ namespace ClaudeOfTanks.Tests
             Assert.That(insigniaTexture == null, Is.True);
         }
 
-        private static TankView Create()
+        private static TankView Create(string id)
         {
             ContentCatalog catalog = ContentCatalog.Load();
             VehicleDefinition definition =
-                catalog.GetVehicle("t90ms");
+                catalog.GetVehicle(id);
             return TankView.Create(
                 new TankState(
-                    "t90ms-marking-test",
+                    id + "-marking-test",
                     Team.Alpha,
                     definition.ToTankSpec(),
                     Float3.Zero,
@@ -152,6 +300,17 @@ namespace ClaudeOfTanks.Tests
                 "factory",
                 "forest",
                 catalog);
+        }
+
+        private static void AssertSeat(
+            Transform seat,
+            float size,
+            Vector3 position,
+            Quaternion rotation)
+        {
+            AssertVector(seat.localPosition, position);
+            AssertVector(seat.localScale, Vector3.one * size);
+            AssertQuaternion(seat.localRotation, rotation);
         }
 
         private static Transform Find(

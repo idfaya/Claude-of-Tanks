@@ -26,6 +26,10 @@ namespace ClaudeOfTanks.Runtime
                 turret,
                 definition,
                 color);
+            TankT90MarkingSeats.Build(
+                definition.id,
+                turret,
+                definition.visual?.number);
         }
 
         internal static Color Dark()

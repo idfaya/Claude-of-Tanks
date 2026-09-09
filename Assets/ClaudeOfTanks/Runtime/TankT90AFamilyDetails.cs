@@ -88,6 +88,10 @@ namespace ClaudeOfTanks.Runtime
                 new Vector3(0f, -0.065f, -0.21f);
             TankT90ATurretDetails.Build(presentation, color);
             TankT90AGunDetails.Build(turret, definition, color);
+            TankT90MarkingSeats.Build(
+                definition.id,
+                presentation,
+                definition.visual?.number);
         }
 
         private static void HideByPrefix(

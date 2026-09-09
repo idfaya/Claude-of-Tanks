@@ -753,6 +753,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   reverse the decal U axis for Three-to-Unity camera-handedness parity, and
   release both generated textures with the vehicle.
   The final whole-vehicle receipt audit remains a follow-up.
+- The same generated-seat marking path now covers every completed T-90
+  family vehicle: T-90, T-90A, Vladimir, Burlak, T-90SM and T-90MS. Each
+  runtime seat uses the exact per-vehicle position, quaternion and size from
+  `vehicleMarkingSeatGroups/t90.generated.ts`; T-90SM preserves both
+  surface-solved designation planes plus its separate Russian insignia.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

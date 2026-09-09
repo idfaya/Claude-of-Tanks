@@ -32,6 +32,11 @@ namespace ClaudeOfTanks.Runtime
                 TankT90AVladimirGunDetails.Build(
                     turret,
                     color);
+                TankT90MarkingSeats.Build(
+                    id,
+                    turret.Find(
+                        "T90AVladimir-PresentationRoot"),
+                    definition?.visual?.number);
                 return;
             }
             if (TankT90ABurlakFamilyDetails.Supports(id))
@@ -48,6 +53,11 @@ namespace ClaudeOfTanks.Runtime
                 TankT90ABurlakGunDetails.Build(
                     turret,
                     color);
+                TankT90MarkingSeats.Build(
+                    id,
+                    turret.Find(
+                        "T90ABurlak-PresentationRoot"),
+                    definition?.visual?.number);
                 return;
             }
             if (TankT90SMFamilyDetails.Supports(id))
@@ -61,6 +71,10 @@ namespace ClaudeOfTanks.Runtime
                 TankT90SMGunDetails.Build(
                     turret,
                     color);
+                TankT90MarkingSeats.Build(
+                    id,
+                    turret.Find("T90SM-PresentationRoot"),
+                    definition?.visual?.number);
                 return;
             }
             if (TankT90MSFamilyDetails.Supports(id))
