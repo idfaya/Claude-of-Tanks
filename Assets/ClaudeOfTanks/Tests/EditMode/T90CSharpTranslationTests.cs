@@ -97,6 +97,13 @@ namespace ClaudeOfTanks.Tests
                     view,
                     "Painted-T90-CSharpTurretCheekWedge-L",
                     36);
+                AssertMeshVertexCount(
+                    view,
+                    "Painted-T90-LowerTub",
+                    900);
+                Assert.That(
+                    Find(view, "Painted-T90-LowerTub").localScale,
+                    Is.EqualTo(Vector3.one));
             }
             finally
             {

@@ -7,6 +7,56 @@ namespace ClaudeOfTanks.Tests
     public sealed class TankShapeFactoryTests
     {
         [Test]
+        public void BoxUsesThreeRoundedSegmentPolicy()
+        {
+            GameObject root = new GameObject("ShapeFactoryTestRoot");
+            try
+            {
+                Transform part = TankShapeFactory.BoxPart(
+                    "RoundedBox",
+                    root.transform,
+                    V(1f, 1f, 1f),
+                    Color.white);
+                Mesh mesh = Mesh(part);
+
+                Assert.That(mesh.vertexCount, Is.EqualTo(900));
+                Assert.That(mesh.normals.Length, Is.EqualTo(900));
+                Assert.That(mesh.uv.Length, Is.EqualTo(900));
+                AssertVector(mesh.bounds.size, Vector3.one);
+                Assert.That(HasRoundedCornerNormal(mesh.normals), Is.True);
+            }
+            finally
+            {
+                DestroyGenerated(root);
+            }
+        }
+
+        [Test]
+        public void BoxKeepsThinPartsHardEdged()
+        {
+            GameObject root = new GameObject("ShapeFactoryTestRoot");
+            try
+            {
+                Transform part = TankShapeFactory.BoxPart(
+                    "ThinBox",
+                    root.transform,
+                    V(1f, 0.05f, 2f),
+                    Color.white);
+                Mesh mesh = Mesh(part);
+
+                Assert.That(mesh.vertexCount, Is.EqualTo(24));
+                Assert.That(mesh.triangles.Length, Is.EqualTo(36));
+                Assert.That(mesh.normals.Length, Is.EqualTo(24));
+                Assert.That(mesh.uv.Length, Is.EqualTo(24));
+                AssertVector(mesh.bounds.size, V(1f, 0.05f, 2f));
+            }
+            finally
+            {
+                DestroyGenerated(root);
+            }
+        }
+
+        [Test]
         public void OrientedSlabRepairsMirroredWindingAndKeepsFlatFaces()
         {
             GameObject root = new GameObject("ShapeFactoryTestRoot");
@@ -244,6 +294,21 @@ namespace ClaudeOfTanks.Tests
             {
                 if (Vector3.Dot(normals[index], expected) > 0.9999f)
                     return true;
+            }
+            return false;
+        }
+
+        private static bool HasRoundedCornerNormal(Vector3[] normals)
+        {
+            for (int index = 0; index < normals.Length; index++)
+            {
+                Vector3 normal = normals[index];
+                if (Mathf.Abs(normal.x) > 0.5f &&
+                    Mathf.Abs(normal.y) > 0.5f &&
+                    Mathf.Abs(normal.z) > 0.5f)
+                {
+                    return true;
+                }
             }
             return false;
         }

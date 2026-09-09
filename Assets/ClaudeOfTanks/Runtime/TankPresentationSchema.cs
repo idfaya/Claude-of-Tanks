@@ -161,13 +161,27 @@ namespace ClaudeOfTanks.Runtime
                     gunLength,
                     part.ScaleYMinimum);
 
-                Transform transform = TankDetailGeometry.Part(
-                    part.Name,
-                    part.Type,
-                    parent,
-                    position,
-                    scale,
-                    ResolveColor(part, color));
+                Color resolvedColor = ResolveColor(part, color);
+                Transform transform;
+                if (part.Type == PrimitiveType.Cube)
+                {
+                    transform = TankShapeFactory.BoxPart(
+                        part.Name,
+                        parent,
+                        scale,
+                        resolvedColor);
+                    transform.localPosition = position;
+                }
+                else
+                {
+                    transform = TankDetailGeometry.Part(
+                        part.Name,
+                        part.Type,
+                        parent,
+                        position,
+                        scale,
+                        resolvedColor);
+                }
                 transform.localRotation =
                     Quaternion.Euler(part.Rotation);
             }

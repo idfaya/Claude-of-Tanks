@@ -19,7 +19,8 @@ namespace ClaudeOfTanks.Runtime
             Vector3[] vertices,
             int[] triangles,
             Color color,
-            Vector3[] normals = null)
+            Vector3[] normals = null,
+            Vector2[] uvs = null)
         {
             if (vertices == null || vertices.Length < 3)
                 throw new ArgumentException(
@@ -37,6 +38,10 @@ namespace ClaudeOfTanks.Runtime
                 throw new ArgumentException(
                     "Mesh normals must match the vertex count.",
                     nameof(normals));
+            if (uvs != null && uvs.Length != vertices.Length)
+                throw new ArgumentException(
+                    "Mesh UVs must match the vertex count.",
+                    nameof(uvs));
             for (int index = 0; index < triangles.Length; index++)
             {
                 if (triangles[index] < 0 ||
@@ -61,11 +66,25 @@ namespace ClaudeOfTanks.Runtime
             {
                 mesh.RecalculateNormals();
             }
+            if (uvs != null) mesh.uv = uvs;
             mesh.RecalculateBounds();
             part.AddComponent<MeshFilter>().sharedMesh = mesh;
             part.AddComponent<MeshRenderer>().sharedMaterial =
                 CreateMaterial(color);
             return part.transform;
+        }
+
+        public static Transform BoxPart(
+            string name,
+            Transform parent,
+            Vector3 size,
+            Color color)
+        {
+            return TankRoundedBoxShapeFactory.Build(
+                name,
+                parent,
+                size,
+                color);
         }
 
         public static Transform OrientedSlabPart(

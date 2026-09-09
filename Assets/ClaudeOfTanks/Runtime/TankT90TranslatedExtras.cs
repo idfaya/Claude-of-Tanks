@@ -267,13 +267,26 @@ namespace ClaudeOfTanks.Runtime
             Vector3 rotation,
             Color color)
         {
-            Transform part = TankDetailGeometry.Part(
-                name,
-                type,
-                parent,
-                position,
-                scale,
-                color);
+            Transform part;
+            if (type == PrimitiveType.Cube)
+            {
+                part = TankShapeFactory.BoxPart(
+                    name,
+                    parent,
+                    scale,
+                    color);
+                part.localPosition = position;
+            }
+            else
+            {
+                part = TankDetailGeometry.Part(
+                    name,
+                    type,
+                    parent,
+                    position,
+                    scale,
+                    color);
+            }
             part.localRotation = Quaternion.Euler(rotation);
             return part;
         }

@@ -548,6 +548,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 	  shared C# shape factories. T-90 now consumes those factories directly;
 	  its former local eight-vertex prism helpers and the duplicate mesh/lathe
 	  implementation in `TankDetailGeometry` have been removed.
+	  The twelfth batch ports the exact TS `box()` size policy onto a shared C#
+	  rounded-box builder: dimensions below 0.06 m remain hard-edged, larger
+	  parts use one or two bevel segments with a 0.024 m radius cap and the
+	  Three.js rounded-face UV projection. The T-90 schema and translated
+	  extras now use this path without storing generated mesh assets.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side
