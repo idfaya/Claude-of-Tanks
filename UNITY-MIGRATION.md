@@ -758,6 +758,13 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   runtime seat uses the exact per-vehicle position, quaternion and size from
   `vehicleMarkingSeatGroups/t90.generated.ts`; T-90SM preserves both
   surface-solved designation planes plus its separate Russian insignia.
+- T-90M and T-90M Proryv now enter their shared native C# owner through the
+  final `buildT90MProryvNative2026` pressure-hull path. The extracted
+  `TankT90FamilyHullShapeFactory` owns the common T-90 section data, while
+  the Proryv hull applies the final installed `-0.04 m` visible offset,
+  `1.35 m` flat sponson clearance, central glacis and paired shoulder
+  bridges. Running gear, skirts, stern, turret and gun remain follow-up
+  stages.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

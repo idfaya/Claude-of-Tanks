@@ -17,52 +17,9 @@ namespace ClaudeOfTanks.Runtime
             HideRenderer(root.Find("Hull"));
             HideRenderer(root.Find("UpperHull"));
             HideByPrefix(root, "Armor-");
-            TankHullLoftShapeFactory.Build(
+            TankT90FamilyHullShapeFactory.Build(
                 "Painted-T90MS-HullLoft",
                 root,
-                Curve(
-                    -3.43f, 1.35f,
-                    -3.20f, 1.47f,
-                    -3.00f, 1.52f,
-                    -2.55f, 1.545f,
-                    0.95f, 1.545f,
-                    1.40f, 1.50f,
-                    1.75f, 1.46f,
-                    2.30f, 1.40f,
-                    2.90f, 1.26f,
-                    3.43f, 1.04f),
-                Curve(
-                    -3.43f, 1.05f,
-                    -3.36f, 0.86f,
-                    -3.10f, 0.72f,
-                    -2.62f, 0.48f,
-                    -2.40f, 0.44f,
-                    2.45f, 0.44f,
-                    2.80f, 0.56f,
-                    3.10f, 0.71f,
-                    3.43f, 0.82f),
-                Curve(
-                    -3.43f, 1.02f,
-                    -3.09f, 1.30f,
-                    -2.96f, 1.60f,
-                    2.95f, 1.60f,
-                    3.16f, 1.32f,
-                    3.43f, 0.60f),
-                Curve(
-                    -3.43f, 0.64f,
-                    -2.95f, 0.88f,
-                    -2.30f, 0.94f,
-                    2.35f, 0.94f,
-                    2.85f, 0.88f,
-                    3.43f, 0.64f),
-                Curve(
-                    -3.43f, 1.22f,
-                    -2.90f, 1.22f,
-                    -2.82f, 1.40f,
-                    -2.05f, 1.40f,
-                    -1.80f, 1.22f,
-                    2.42f, 1.22f,
-                    3.43f, 1.22f),
                 color);
             TankT90MSRunningGearDetails.Build(root, color);
             TankShapeFactory.OrientedSlabPart(
@@ -79,20 +36,6 @@ namespace ClaudeOfTanks.Runtime
                 color * 0.58f);
             TankT90MSHullArmorDetails.Build(root, color);
             TankT90MSSternDetails.Build(root, color);
-        }
-
-        private static TankHullProfilePoint[] Curve(
-            params float[] values)
-        {
-            TankHullProfilePoint[] result =
-                new TankHullProfilePoint[values.Length / 2];
-            for (int index = 0; index < result.Length; index++)
-            {
-                result[index] = new TankHullProfilePoint(
-                    values[index * 2],
-                    values[index * 2 + 1]);
-            }
-            return result;
         }
 
         private static void HideByPrefix(
