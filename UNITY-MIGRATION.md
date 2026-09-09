@@ -715,6 +715,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   `TankFittingShapeFactory` now also owns the shared centripetal Catmull-Rom
   tube primitive used by its bow and rear-deck tow cables. Whole-vehicle
   receipt and visual audit remains.
+- T-90MS translation has started from its distinct final `buildT90MS` owner,
+  not the completed T-90SM shell. Its source 10/9/6/6/7-point longitudinal
+  hull loft and full closed center glacis now replace the generic hull while
+  running gear and the complete rotating package remain staged follow-ups.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
