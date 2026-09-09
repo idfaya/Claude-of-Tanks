@@ -179,83 +179,20 @@ namespace ClaudeOfTanks.Runtime
                 V(0.13f * scale, 0.13f * scale * heightScale, 0.014f * scale),
                 Glass());
 
-            Transform weapon = Root(
-                "T90ABurlak-CommanderNsvt",
+            Transform weapon = TankPintleMachineGunFactory.Build(
+                "T90ABurlak-Nsvt",
                 root,
-                V(x, weaponFoot, z + 0.10f * scale));
-            const float classScale = scale * 0.98f;
-            float receiverWidth = 0.095f * classScale;
-            float receiverHeight = 0.10f * classScale;
-            float receiverDepth = 0.42f * classScale;
-            float columnHeight = 0.16f * classScale;
-            float columnTop = 0.014f + columnHeight;
-            float receiverY =
-                columnTop + 0.08f * classScale + receiverHeight * 0.5f;
-            float receiverZ = 0.06f * classScale;
-            Cylinder("T90ABurlak-NsvtBearing", weapon,
-                V(0f, 0.007f, 0f),
-                0.03f * classScale, 0.038f * classScale,
-                0.014f, 14, TankShapeAxis.Y, Dark());
-            Cylinder("T90ABurlak-NsvtSpindle", weapon,
-                V(0f, 0.014f + columnHeight * 0.5f, 0f),
-                0.018f * classScale, 0.023f * classScale,
-                columnHeight, 12, TankShapeAxis.Y, Dark());
-            Box("T90ABurlak-NsvtReceiver", weapon,
-                V(0f, receiverY, receiverZ),
-                V(receiverWidth, receiverHeight, receiverDepth), Dark());
-            Box("T90ABurlak-NsvtAmmoCan", weapon,
-                V(-(receiverWidth * 0.5f + 0.055f * classScale),
-                    receiverY - 0.005f,
-                    receiverZ - 0.02f),
-                V(0.085f * classScale, 0.11f * classScale, 0.17f * classScale),
+                V(x, weaponFoot, z + 0.10f * scale),
+                Quaternion.identity,
+                TankMachineGunClass.Nsvt,
+                0.58f,
+                -0.075f,
+                true,
+                TankMachineGunShield.Standard,
+                true,
+                Dark(),
                 Detail());
-            float trunnionY = receiverY + 0.004f;
-            float trunnionZ = receiverZ + receiverDepth * 0.5f;
-            const float elevation = -0.075f;
-            Quaternion aim =
-                Quaternion.Euler(-elevation * Mathf.Rad2Deg, 0f, 0f);
-            Transform bridge = Cylinder(
-                "T90ABurlak-NsvtBarrelBridge", weapon,
-                V(0f, trunnionY, trunnionZ + 0.0525f * classScale),
-                0.024f * classScale * 1.12f,
-                0.024f * classScale * 1.12f,
-                0.105f * classScale,
-                10, TankShapeAxis.Z, Dark());
-            bridge.localRotation = aim;
-            float barrelLength = 0.55f * classScale;
-            Transform barrel = Cylinder(
-                "T90ABurlak-NsvtBarrel", weapon,
-                V(0f, trunnionY,
-                    trunnionZ + 0.10f * classScale + barrelLength * 0.5f),
-                0.024f * classScale,
-                0.024f * classScale,
-                barrelLength,
-                10, TankShapeAxis.Z, Dark());
-            barrel.localRotation = aim;
-            Transform flash = Cylinder(
-                "T90ABurlak-NsvtFlashHider", weapon,
-                V(0f, trunnionY,
-                    trunnionZ + 0.10f * classScale + barrelLength +
-                    0.05f * classScale),
-                0.035f * classScale,
-                0.035f * classScale,
-                0.10f * classScale,
-                12, TankShapeAxis.Z, Dark());
-            flash.localRotation = aim;
-            for (int side = -1; side <= 1; side += 2)
-            {
-                Transform shield = Box(
-                    "T90ABurlak-NsvtShield",
-                    weapon,
-                    V(side * (0.075f + 0.145f * 0.5f) * classScale,
-                        receiverY + 0.018f * classScale,
-                        trunnionZ + 0.035f * classScale),
-                    V(0.145f * classScale, 0.22f * classScale,
-                        0.022f * classScale),
-                    Dark());
-                shield.localRotation =
-                    Quaternion.Euler(0f, -side * 3.15127f, side * 2.00535f);
-            }
+            weapon.name = "T90ABurlak-CommanderNsvt";
         }
 
         private static void AddSmokeBanks(
@@ -304,17 +241,6 @@ namespace ClaudeOfTanks.Runtime
                 V(0f, 0.63f, -1.02f),
                 0.045f, 0.06f, 0.12f, 8,
                 TankShapeAxis.Y, Dark());
-        }
-
-        private static Transform Root(
-            string name,
-            Transform parent,
-            Vector3 position)
-        {
-            Transform root = new GameObject(name).transform;
-            root.SetParent(parent, false);
-            root.localPosition = position;
-            return root;
         }
 
         private static Transform Box(

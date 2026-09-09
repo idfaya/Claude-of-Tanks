@@ -137,14 +137,26 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90ABurlak-AutoloaderRubRail"),
                     Is.EqualTo(2));
                 Assert.That(
-                    Count(view, "T90ABurlak-NsvtReceiver"),
+                    Count(view, "T90ABurlak-Nsvt-Receiver"),
                     Is.EqualTo(1));
                 Assert.That(
-                    Count(view, "T90ABurlak-NsvtAmmoCan"),
+                    Count(view, "T90ABurlak-Nsvt-AmmoCan"),
                     Is.EqualTo(1));
                 Assert.That(
-                    Count(view, "T90ABurlak-NsvtShield"),
+                    Count(view, "T90ABurlak-Nsvt-Shield"),
                     Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90ABurlak-Nsvt-CradleFork"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90ABurlak-Nsvt-FeedLink"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "T90ABurlak-Nsvt-ShieldFoldedEdge"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90ABurlak-Nsvt-ShieldFastener"),
+                    Is.EqualTo(4));
                 Assert.That(
                     Count(view, "T90ABurlak-Detail-SmokeLauncher"),
                     Is.EqualTo(11));

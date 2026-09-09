@@ -673,6 +673,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   in `TankFittingShapeFactory`. Burlak uses those common builders, including
   all eleven launcher caps, both bank bases, and the antenna base
   pot/collar; existing vehicle-specific fitting callers remain unchanged.
+- `TankPintleMachineGunFactory` ports the shared Browning-derived class table
+  and complete bearing/spindle/cradle/receiver/feed/barrel/shield load path.
+  Burlak's NSVT now uses this shared builder with its source `0.58` scale,
+  `-0.075 rad` elevation, connected ammunition feed and standard shield.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
