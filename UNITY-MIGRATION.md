@@ -585,6 +585,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 	  boundary test now requires every active base-T-90 file to avoid
 	  `TankDetailGeometry.Part` and Unity cylinder primitives; TypeScript
 	  remains reference-only during translation rather than a bake source.
+	  The twentieth batch adds a T-90-only material-role pass after camouflage
+	  application. Unity Standard metallic/smoothness and low emission floors
+	  now mirror the TS hull, barrel, wheel, rubber, track, detail, dark,
+	  glass, wood, and Shtora roles without adding baked texture resources or
+	  changing any other vehicle's material path.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side
