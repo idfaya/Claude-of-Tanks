@@ -80,7 +80,13 @@ namespace ClaudeOfTanks.Runtime
             }
 
             TankT90AHullDetails.Build(root, color);
-            TankT90ATurretDetails.Build(turret, color);
+            GameObject presentationObject =
+                new GameObject("T90A-PresentationRoot");
+            Transform presentation = presentationObject.transform;
+            presentation.SetParent(turret, false);
+            presentation.localPosition =
+                new Vector3(0f, -0.065f, -0.21f);
+            TankT90ATurretDetails.Build(presentation, color);
             TankT90AGunDetails.Build(turret, definition, color);
         }
 

@@ -609,6 +609,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   restores the source `1.395 m` wheel lane, `0.3234 m` painted dish, `0.46 m`
   rear fuel drums with three strap courses, and split 0.85 m unditching logs
   without changing catalog armor or generic suspension ownership.
+  The second batch ports the shared T-90SM variable-base turret foundation
+  used by the current T-90A source. Its 18-point outline, z=0.50/0.55 lower
+  breakpoints, 1.02 flare, 0.78 crown inset, rear shelf, and crown replace the
+  former 3.1 m rectangular placeholder at the source seat `(0,1.335,-0.06)`.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

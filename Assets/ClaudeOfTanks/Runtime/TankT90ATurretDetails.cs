@@ -19,34 +19,55 @@ namespace ClaudeOfTanks.Runtime
             Transform turret,
             Color color)
         {
-            Part(
+            float width = 1.55f;
+            TankVariableBaseTurretShapeFactory.Build(
                 "Painted-T90A-WeldedCheekFoundation",
-                PrimitiveType.Cube,
                 turret,
-                new Vector3(0f, 0.27f, 0.18f),
-                new Vector3(3.1f, 0.68f, 2.12f),
+                new[]
+                {
+                    new Vector2(-width * 0.15f, 1.26f),
+                    new Vector2(width * 0.15f, 1.26f),
+                    new Vector2(0.98f, 1.26f),
+                    new Vector2(1.19f, 1.44f),
+                    new Vector2(1.2985f, 1.377f),
+                    new Vector2(1.4054f, 1.27f),
+                    new Vector2(width * 0.97f, 1.12f),
+                    new Vector2(width, 0.55f),
+                    new Vector2(1.44f, -0.395f),
+                    new Vector2(1.09f, -0.8f),
+                    new Vector2(-1.09f, -0.8f),
+                    new Vector2(-1.44f, -0.395f),
+                    new Vector2(-width, 0.55f),
+                    new Vector2(-width * 0.97f, 1.12f),
+                    new Vector2(-1.4054f, 1.27f),
+                    new Vector2(-1.2985f, 1.377f),
+                    new Vector2(-1.19f, 1.44f),
+                    new Vector2(-0.98f, 1.26f)
+                },
+                0.515f,
+                1.02f,
+                0.78f,
+                z => z <= 0.5f
+                    ? 0f
+                    : z >= 0.55f
+                        ? 0.08f
+                        : (z - 0.5f) * 1.6f,
+                new[] { 0.5f, 0.55f },
                 color * 0.63f);
             Part(
-                "Painted-T90A-FacetedNose",
+                "Painted-T90A-FoundationShelf",
                 PrimitiveType.Cube,
                 turret,
-                new Vector3(0f, 0.25f, 1.05f),
-                new Vector3(1.18f, 0.38f, 0.68f),
-                color * 0.5f);
+                new Vector3(0f, 0.3125f, -0.95f),
+                new Vector3(1.9f, 0.425f, 0.7f),
+                color * 0.63f);
             Part(
-                "Painted-T90A-RingCollar",
-                PrimitiveType.Cylinder,
+                "Painted-T90A-FoundationCrown",
+                PrimitiveType.Cube,
                 turret,
-                new Vector3(0f, -0.03f, -0.06f),
-                new Vector3(1.56f, 0.055f, 1.56f),
-                color * 0.44f);
-            Part(
-                "Painted-T90A-MantletCollar",
-                PrimitiveType.Sphere,
-                turret,
-                new Vector3(0f, 0.22f, 1.34f),
-                new Vector3(0.76f, 0.38f, 0.36f),
-                color * 0.45f);
+                new Vector3(0f, 0.55f, -0.025f),
+                new Vector3(1.24f, 0.07f, 1.05f),
+                color * 0.63f);
         }
 
         private static void AddKontakt5Chevron(
@@ -265,6 +286,16 @@ namespace ClaudeOfTanks.Runtime
             Vector3 scale,
             Color color)
         {
+            if (type == PrimitiveType.Cube)
+            {
+                Transform box = TankShapeFactory.BoxPart(
+                    name,
+                    parent,
+                    scale,
+                    color);
+                box.localPosition = position;
+                return box;
+            }
             return TankDetailGeometry.Part(
                 name,
                 type,

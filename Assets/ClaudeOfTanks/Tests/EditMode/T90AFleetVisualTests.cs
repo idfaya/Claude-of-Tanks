@@ -162,6 +162,32 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "Painted-T90A-WeldedCheekFoundation"),
                     Is.EqualTo(1));
                 Assert.That(
+                    Find(view, "Painted-T90A-WeldedCheekFoundation")
+                        .GetComponent<MeshFilter>()
+                        .sharedMesh.vertexCount,
+                    Is.EqualTo(198));
+                Assert.That(
+                    Count(view, "Painted-T90A-FacetedNose"),
+                    Is.EqualTo(0));
+                Assert.That(
+                    Count(view, "Painted-T90A-RingCollar"),
+                    Is.EqualTo(0));
+                Assert.That(
+                    Count(view, "Painted-T90A-MantletCollar"),
+                    Is.EqualTo(0));
+                Assert.That(
+                    Count(view, "Painted-T90A-FoundationShelf"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90A-FoundationCrown"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    view.Root.Find("TurretRoot").localPosition,
+                    Is.EqualTo(new Vector3(0f, 1.4f, 0.15f)));
+                Assert.That(
+                    Find(view, "T90A-PresentationRoot").localPosition,
+                    Is.EqualTo(new Vector3(0f, -0.065f, -0.21f)));
+                Assert.That(
                     Count(view, "Painted-T90A-K5ChevronUpper"),
                     Is.EqualTo(2));
                 Assert.That(
