@@ -269,61 +269,41 @@ namespace ClaudeOfTanks.Runtime
                     V(0.20f, 0.16f, 0.36f), color * 0.52f)
                     .localRotation =
                         Quaternion.Euler(0f, 0f, -side * 8.59437f);
-                Transform bank = Root(
-                    side < 0
-                        ? "T90ABurlak-SmokeBankL"
-                        : "T90ABurlak-SmokeBankR",
+                TankFittingShapeFactory.BuildSmokeBank(
+                    "T90ABurlak",
                     root,
-                    V(side * 1.34f, 0.45f, 0.13f));
-                bank.localRotation =
-                    Quaternion.Euler(0f, side * 1.02f * Mathf.Rad2Deg, 0f);
-                int count = side < 0 ? 6 : 5;
-                const float spacing = 0.098f;
-                const float splay = 0.30f;
-                const float arc = 0.56f;
-                Quaternion pitch =
-                    Quaternion.Euler(-0.41f * Mathf.Rad2Deg, 0f, 0f);
-                for (int index = 0; index < count; index++)
-                {
-                    float offset = index - (count - 1) * 0.5f;
-                    float yaw = splay + offset * (arc / count);
-                    Vector3 position = V(
-                        Mathf.Cos(splay) * offset * spacing,
+                    V(side * 1.34f, 0.45f, 0.13f),
+                    Quaternion.Euler(
                         0f,
-                        -Mathf.Sin(splay) * offset * spacing);
-                    Transform tube = Cylinder(
-                        "Painted-T90ABurlak-SmokeLauncher",
-                        bank,
-                        position,
-                        0.04f, 0.04f, 0.27f, 10,
-                        TankShapeAxis.Z,
-                        color * 0.48f);
-                    tube.localRotation =
-                        pitch *
-                        Quaternion.Euler(0f, yaw * Mathf.Rad2Deg, 0f);
-                }
+                        side * 1.02f * Mathf.Rad2Deg,
+                        0f),
+                    side < 0 ? 6 : 5,
+                    0.04f,
+                    0.27f,
+                    -0.41f,
+                    0.30f,
+                    0.56f,
+                    0.098f,
+                    Detail(),
+                    Dark());
             }
         }
 
         private static void AddAntenna(Transform root)
         {
+            TankFittingShapeFactory.BuildAntennaWhip(
+                "T90ABurlak",
+                root,
+                V(0f, 0.63f, -1.02f),
+                2.67f,
+                0.014f,
+                0.018f,
+                Detail(),
+                Dark());
             Cylinder("T90ABurlak-AntennaBase", root,
                 V(0f, 0.63f, -1.02f),
                 0.045f, 0.06f, 0.12f, 8,
                 TankShapeAxis.Y, Dark());
-            const float height = 2.67f;
-            const float rake = 0.018f;
-            Transform whip = Box(
-                "T90ABurlak-RadioWhip",
-                root,
-                V(
-                    -Mathf.Sin(rake) * height * 0.5f,
-                    0.75f + Mathf.Cos(rake) * height * 0.5f,
-                    -1.02f),
-                V(0.028f, height, 0.028f),
-                Detail());
-            whip.localRotation =
-                Quaternion.Euler(0f, 0f, rake * Mathf.Rad2Deg);
         }
 
         private static Transform Root(

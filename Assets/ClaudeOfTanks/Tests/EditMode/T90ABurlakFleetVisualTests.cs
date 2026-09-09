@@ -146,13 +146,25 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90ABurlak-NsvtShield"),
                     Is.EqualTo(2));
                 Assert.That(
-                    Count(view, "Painted-T90ABurlak-SmokeLauncher"),
+                    Count(view, "T90ABurlak-Detail-SmokeLauncher"),
                     Is.EqualTo(11));
                 Assert.That(
-                    Count(view, "T90ABurlak-RadioWhip"),
+                    Count(view, "T90ABurlak-SmokeLauncherCap"),
+                    Is.EqualTo(11));
+                Assert.That(
+                    Count(view, "T90ABurlak-SmokeBankBase"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90ABurlak-AntennaBasePot"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90ABurlak-AntennaCollar"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90ABurlak-Detail-RadioWhip"),
                     Is.EqualTo(1));
                 Transform whip =
-                    Find(view, "T90ABurlak-RadioWhip");
+                    Find(view, "T90ABurlak-Detail-RadioWhip");
                 Assert.That(
                     whip.GetComponent<MeshFilter>()
                         .sharedMesh.bounds.size.y,

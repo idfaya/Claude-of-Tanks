@@ -669,6 +669,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   supplemental barrel courses and five dark sleeve rings. Burlak also uses
   the T-90A hull/barrel/wheel/rubber/track/detail/dark/glass material-role
   pass instead of generic camouflage-only materials.
+- Shared TS fitting translation now includes `smokeBank` and `antennaWhip`
+  in `TankFittingShapeFactory`. Burlak uses those common builders, including
+  all eleven launcher caps, both bank bases, and the antenna base
+  pot/collar; existing vehicle-specific fitting callers remain unchanged.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
