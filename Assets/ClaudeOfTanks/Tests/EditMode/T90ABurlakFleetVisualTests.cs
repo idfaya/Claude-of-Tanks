@@ -164,6 +164,73 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void BuildsScaledTwoA46AssemblyOnSourcePivot()
+        {
+            TankView view = Create();
+            try
+            {
+                Renderer generic = view.Root
+                    .Find("TurretRoot/Gun")
+                    .GetComponent<Renderer>();
+                Assert.That(generic.enabled, Is.False);
+                Transform assembly =
+                    Find(view, "T90ABurlak-GunAssembly");
+                AssertVector(
+                    assembly.localPosition,
+                    new Vector3(0f, 0.225f, 0.615f));
+                AssertVector(
+                    assembly.localScale,
+                    new Vector3(1f, 1.318f, 0.955f));
+                Assert.That(
+                    Count(view, "Painted-T90ABurlak-BarrelCourse"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90ABurlak-BarrelRing"),
+                    Is.EqualTo(5));
+                Transform turret = view.Root.Find("TurretRoot");
+                Transform muzzle = Find(view, "T90A-MuzzleBore");
+                AssertVector(
+                    turret.InverseTransformPoint(muzzle.position),
+                    new Vector3(0f, 0.3068515f, 5.32888f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
+        [Test]
+        public void AppliesT90AMaterialRolesToBurlak()
+        {
+            TankView view = Create();
+            try
+            {
+                Renderer hull =
+                    FindRenderer(view, "Painted-T90A-UpperHull");
+                Renderer barrel =
+                    FindRenderer(view, "Painted-T90ABurlak-BarrelCourse");
+                Renderer track =
+                    FindRenderer(view, "TrackLinks-L");
+                Renderer glass =
+                    FindRenderer(view, "T90ABurlak-PanoramaLens");
+                Assert.That(hull.sharedMaterial.mainTexture, Is.Not.Null);
+                Assert.That(barrel.sharedMaterial.mainTexture, Is.Not.Null);
+                Assert.That(track.sharedMaterial.mainTexture, Is.Null);
+                Assert.That(glass.sharedMaterial.mainTexture, Is.Null);
+                Assert.That(
+                    track.sharedMaterial.color.r,
+                    Is.EqualTo(0x35 / 255f).Within(0.002f));
+                Assert.That(
+                    glass.sharedMaterial.color.b,
+                    Is.EqualTo(0x40 / 255f).Within(0.002f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create()
         {
             ContentCatalog catalog = ContentCatalog.Load();
@@ -207,6 +274,13 @@ namespace ClaudeOfTanks.Tests
             return Find(view, name)
                 .GetComponent<MeshFilter>()
                 .sharedMesh.vertexCount;
+        }
+
+        private static Renderer FindRenderer(
+            TankView view,
+            string name)
+        {
+            return Find(view, name).GetComponent<Renderer>();
         }
 
         private static void AssertVector(

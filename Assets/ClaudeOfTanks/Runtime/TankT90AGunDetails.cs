@@ -26,6 +26,25 @@ namespace ClaudeOfTanks.Runtime
             AddMuzzle(fittings, color);
         }
 
+        public static Transform BuildAssembly(
+            string name,
+            Transform parent,
+            Vector3 position,
+            Vector3 scale,
+            Color color)
+        {
+            Transform fittings =
+                new GameObject(name).transform;
+            fittings.SetParent(parent, false);
+            fittings.localPosition = position;
+            fittings.localScale = scale;
+            AddSaddle(fittings, color);
+            AddCollarAndRecoilHousing(fittings, color);
+            AddTube(fittings, color);
+            AddMuzzle(fittings, color);
+            return fittings;
+        }
+
         private static void SeatOnSourcePivot(
             Transform fittings,
             Transform gun)

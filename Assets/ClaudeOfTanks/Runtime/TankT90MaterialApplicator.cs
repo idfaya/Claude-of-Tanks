@@ -33,6 +33,10 @@ namespace ClaudeOfTanks.Runtime
                 string.Equals(
                     vehicleId,
                     "t90a_vladimir",
+                    StringComparison.Ordinal) ||
+                string.Equals(
+                    vehicleId,
+                    "t90a_burlak",
                     StringComparison.Ordinal);
             for (int index = 0; index < renderers.Length; index++)
             {
@@ -205,6 +209,9 @@ namespace ClaudeOfTanks.Runtime
                     StringComparison.Ordinal) >= 0 ||
                 name.IndexOf(
                     "T90AVladimir-FumeExtractor",
+                    StringComparison.Ordinal) >= 0 ||
+                name.IndexOf(
+                    "T90ABurlak-BarrelCourse",
                     StringComparison.Ordinal) >= 0)
             {
                 return Role.Barrel;

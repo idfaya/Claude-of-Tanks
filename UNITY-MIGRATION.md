@@ -664,8 +664,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   pods, rear rails and service grid. Its roof package now includes the
   panoramic head, two hatches, five periscopes, forward sight, autoloader
   feed deck, integrated NSVT station, asymmetric 6/5 smoke banks and the
-  2.67 m radio whip. Gun and material-role parity remain the next migration
-  batch.
+  2.67 m radio whip. The inherited detailed 2A46M2 assembly now uses the
+  Burlak source pivot and `1.318 x 0.955` section/run scaling, with the two
+  supplemental barrel courses and five dark sleeve rings. Burlak also uses
+  the T-90A hull/barrel/wheel/rubber/track/detail/dark/glass material-role
+  pass instead of generic camouflage-only materials.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

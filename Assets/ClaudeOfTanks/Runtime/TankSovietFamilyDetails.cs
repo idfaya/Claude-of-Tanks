@@ -45,6 +45,9 @@ namespace ClaudeOfTanks.Runtime
                 TankT90ABurlakTurretEquipmentDetails.Build(
                     turret.Find("T90ABurlak-PresentationRoot"),
                     color);
+                TankT90ABurlakGunDetails.Build(
+                    turret,
+                    color);
                 return;
             }
             else

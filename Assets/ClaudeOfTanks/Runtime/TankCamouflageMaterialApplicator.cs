@@ -39,7 +39,8 @@ namespace ClaudeOfTanks.Runtime
                 baseColor);
             if (vehicle.id == "t90" ||
                 vehicle.id == "t90a" ||
-                vehicle.id == "t90a_vladimir")
+                vehicle.id == "t90a_vladimir" ||
+                vehicle.id == "t90a_burlak")
             {
                 TankT90MaterialApplicator.Apply(
                     renderers,
