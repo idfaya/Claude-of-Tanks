@@ -683,9 +683,13 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 - T-90SM translation has started from the final `buildT90SM` owner rather
   than the superseded modern-family proxy. Its source 8/4/4/5-point hull and
   variable track-bay roof now build through `TankHullLoftShapeFactory`, with
-  the final belly channels, center keel and rear-deck module attached. The
-  source running gear, skirts/ERA, stern equipment and rotating package
-  remain separate follow-up stages.
+  the final belly channels, center keel and rear-deck module attached.
+  `TankLinkedTrackShapeFactory` now provides the shared TS half-arc/support
+  tangent/equal-pitch track course. T-90SM uses it with its six exact wheel
+  stations, `x=+/-1.405 m` lanes, idler/sprocket/return-roller positions,
+  contact knees and `0.165 m` pitch; all generic gear renderers are disabled.
+  Skirts/ERA, stern equipment and the rotating package remain separate
+  follow-up stages.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

@@ -49,7 +49,7 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
-        public void RemovesSharedSovietFallbackButKeepsGearForNextStage()
+        public void ReplacesGenericGearAndSharedSovietFallback()
         {
             TankView view = Create();
             try
@@ -69,8 +69,36 @@ namespace ClaudeOfTanks.Tests
                         .GetComponent<Renderer>().enabled,
                     Is.False);
                 Assert.That(
-                    Count(view, "RoadWheel-L"),
+                    Count(view, "Painted-T90SM-RoadWheel"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90SM-RoadWheelTire"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "Painted-T90SM-Sprocket"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-Idler"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-ReturnRoller"),
                     Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "T90SM-TrackPad"),
+                    Is.GreaterThan(100));
+                Renderer[] genericGear = view.Root
+                    .GetComponentsInChildren<Renderer>(true)
+                    .Where(item =>
+                        item.name.StartsWith("RoadWheel-") ||
+                        item.name.StartsWith("Sprocket-") ||
+                        item.name.StartsWith("Idler-") ||
+                        item.name.StartsWith("ReturnRoller-") ||
+                        item.name.StartsWith("TrackLinks-"))
+                    .ToArray();
+                Assert.That(genericGear.Length, Is.GreaterThan(0));
+                Assert.That(
+                    genericGear.All(item => !item.enabled),
+                    Is.True);
                 Assert.That(
                     Find(view, "Turret")
                         .GetComponent<Renderer>().enabled,
