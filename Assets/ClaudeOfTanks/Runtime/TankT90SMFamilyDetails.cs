@@ -76,6 +76,13 @@ namespace ClaudeOfTanks.Runtime
             Box("Painted-T90SM-WidthSliver", root,
                 V(-1.88f, 1.365f, -1.60f),
                 V(0.02f, 0.05f, 0.18f), color * 0.52f);
+            foreach (float x in new[] { -1.884f, 1.884f })
+            {
+                Box("Painted-T90SM-WidthAnchor", root,
+                    V(x, 0.90f, -1.60f),
+                    V(0.012f, 0.02f, 0.02f),
+                    color * 0.52f);
+            }
             Box("Painted-T90SM-RearDeckModule", root,
                 V(0.20f, 1.465f, -2.81f),
                 V(1.38f, 0.15f, 0.04f), color * 0.58f);
@@ -105,7 +112,44 @@ namespace ClaudeOfTanks.Runtime
                     V(x, 1.18f, 2.92f),
                     V(0.18f, 0.025f, 0.12f),
                     color * 0.54f);
+                Box("Painted-T90SM-ReliktShoulderBacking", root,
+                    V(x, 1.34f, 2.90f),
+                    V(0.16f, 0.025f, 0.16f),
+                    color * 0.52f);
             }
+            foreach (float x in new[] { -1.50f, 1.50f })
+            {
+                Box("Painted-T90SM-RearCornerClosure", root,
+                    V(x, 1.37f, -2.98f),
+                    V(0.20f, 0.08f, 0.22f),
+                    color * 0.54f);
+            }
+            TankFittingShapeFactory.BuildTowCable(
+                "T90SM-BowTowCable",
+                root,
+                new[]
+                {
+                    V(-1.25f, 1.36f, 2.07f),
+                    V(0f, 1.43f, 1.62f),
+                    V(1.25f, 1.36f, 2.07f)
+                },
+                0.022f,
+                20,
+                6,
+                Dark());
+            TankFittingShapeFactory.BuildTowCable(
+                "T90SM-DeckTowCable",
+                root,
+                new[]
+                {
+                    V(-0.55f, 1.424f, -0.40f),
+                    V(-0.95f, 1.420f, -1.05f),
+                    V(-0.60f, 1.428f, -1.70f)
+                },
+                0.018f,
+                20,
+                6,
+                Dark());
         }
 
         private static TankHullProfilePoint[] Curve(

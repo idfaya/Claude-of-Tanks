@@ -167,6 +167,119 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void BuildsSourceReliktAndRemainingOwnerFittings()
+        {
+            TankView view = Create();
+            try
+            {
+                Transform[] relikt = view.Root
+                    .GetComponentsInChildren<Transform>(true)
+                    .Where(item =>
+                        item.name == "T90SM-TurretRelikt")
+                    .ToArray();
+                Assert.That(relikt.Length, Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "T90SM-TurretReliktCover"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "T90SM-TurretReliktStrip"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    relikt.Min(item => item.localPosition.x),
+                    Is.EqualTo(-1.0536683f).Within(0.0001f));
+                Assert.That(
+                    relikt.Max(item => item.localPosition.x),
+                    Is.EqualTo(1.0536683f).Within(0.0001f));
+                Assert.That(
+                    relikt.Min(item => item.localPosition.z),
+                    Is.EqualTo(0.9444583f).Within(0.0001f));
+                Assert.That(
+                    relikt.Max(item => item.localPosition.z),
+                    Is.EqualTo(1.3264304f).Within(0.0001f));
+
+                Assert.That(
+                    Count(view, "Painted-T90SM-RearTowerBody"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90SM-RearTowerPanel"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90SM-RearTowerLens"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90SM-RoofSensor"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90SM-LeftRoofStowage"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90SM-LeftRoofStowageLatch"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-RearCornerClosure"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-ReliktShoulderBacking"),
+                    Is.EqualTo(2));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
+        [Test]
+        public void AppliesT90SMMaterialRoles()
+        {
+            TankView view = Create();
+            try
+            {
+                Renderer hull =
+                    FindRenderer(view, "Painted-T90SM-HullLoft");
+                Renderer barrel = FindRenderer(
+                    view,
+                    "Painted-T90SM-2A46M5ForwardTube");
+                Renderer track =
+                    FindRenderer(view, "T90SM-TrackPad");
+                Renderer relikt =
+                    FindRenderer(view, "T90SM-TurretRelikt");
+                Renderer glass =
+                    FindRenderer(view, "T90SM-SosnaAperture");
+                Renderer wood =
+                    FindRenderer(view, "T90SM-UnditchingLog");
+                Renderer rubber =
+                    FindRenderer(view, "T90SM-RearMudFlap");
+
+                Assert.That(hull.sharedMaterial.mainTexture, Is.Not.Null);
+                Assert.That(barrel.sharedMaterial.mainTexture, Is.Not.Null);
+                Assert.That(track.sharedMaterial.mainTexture, Is.Null);
+                Assert.That(relikt.sharedMaterial.mainTexture, Is.Null);
+                Assert.That(glass.sharedMaterial.mainTexture, Is.Null);
+                Assert.That(wood.sharedMaterial.mainTexture, Is.Null);
+                Assert.That(rubber.sharedMaterial.mainTexture, Is.Null);
+                Assert.That(
+                    track.sharedMaterial.color.r,
+                    Is.EqualTo(0x35 / 255f).Within(0.002f));
+                Assert.That(
+                    relikt.sharedMaterial.color.r,
+                    Is.EqualTo(0x35 / 255f).Within(0.002f));
+                Assert.That(
+                    glass.sharedMaterial.color.b,
+                    Is.EqualTo(0x40 / 255f).Within(0.002f));
+                Assert.That(
+                    wood.sharedMaterial.color.r,
+                    Is.EqualTo(0x47 / 255f).Within(0.002f));
+                Assert.That(
+                    rubber.sharedMaterial.color.r,
+                    Is.EqualTo(0x3b / 255f).Within(0.002f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create()
         {
             ContentCatalog catalog = ContentCatalog.Load();
@@ -201,6 +314,13 @@ namespace ClaudeOfTanks.Tests
             return view.Root
                 .GetComponentsInChildren<Transform>(true)
                 .Count(item => item.name == name);
+        }
+
+        private static Renderer FindRenderer(
+            TankView view,
+            string name)
+        {
+            return Find(view, name).GetComponent<Renderer>();
         }
 
         private static void AssertBounds(

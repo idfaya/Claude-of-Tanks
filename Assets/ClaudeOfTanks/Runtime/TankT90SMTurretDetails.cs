@@ -44,6 +44,7 @@ namespace ClaudeOfTanks.Runtime
             TankT90SMTurretArmorDetails.Build(root, color);
             TankT90SMTurretEquipmentDetails.Build(root, color);
             TankT90SMBustleDetails.Build(root, color);
+            TankT90SMTurretFinalDetails.Build(root, color);
         }
 
         private static void AddFoundation(

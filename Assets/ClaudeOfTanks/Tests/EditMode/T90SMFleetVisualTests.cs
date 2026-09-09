@@ -30,6 +30,9 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "Painted-T90SM-CenterKeel"),
                     Is.EqualTo(1));
                 Assert.That(
+                    Count(view, "Painted-T90SM-WidthAnchor"),
+                    Is.EqualTo(2));
+                Assert.That(
                     Count(view, "T90SM-RightInnerSkirtLug"),
                     Is.EqualTo(1));
                 Assert.That(
@@ -41,6 +44,17 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(view, "Painted-T90SM-BowModuleLap"),
                     Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90SM-BowTowCable"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90SM-DeckTowCable"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Find(view, "T90SM-BowTowCable")
+                        .GetComponent<MeshFilter>()
+                        .sharedMesh.vertexCount,
+                    Is.EqualTo(126));
             }
             finally
             {

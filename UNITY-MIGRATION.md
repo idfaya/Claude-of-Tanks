@@ -706,8 +706,15 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   and half-sunk OPVT. Its dedicated 2A46M-5 owner replaces the generic gun
   with the source saddle, mantlet plug/canvas/straps, three tube courses,
   six sleeve rings, tapered fume extractor, elliptical muzzle collar and
-  recessed bore. Relikt, remaining fittings, and final materials remain
-  follow-up stages.
+  recessed bore. The final turret owner computes the six single-row Relikt
+  cassettes from the source ring-skin formula and adds their covers/strips,
+  rear tower and sight panel, roof sensor, left stowage bin, and both hull
+  closure pairs. T-90SM is also routed through the T-90 material applicator:
+  painted armor/barrel surfaces retain camouflage while tracks/Relikt,
+  optics, rubber and the olive-brown unditching log use their source roles.
+  `TankFittingShapeFactory` now also owns the shared centripetal Catmull-Rom
+  tube primitive used by its bow and rear-deck tow cables. Whole-vehicle
+  receipt and visual audit remains.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

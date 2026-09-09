@@ -25,6 +25,11 @@ namespace ClaudeOfTanks.Runtime
             Color baseColor)
         {
             if (renderers == null) return;
+            bool isT90SM =
+                string.Equals(
+                    vehicleId,
+                    "t90sm",
+                    StringComparison.Ordinal);
             bool usesT90AColors =
                 string.Equals(
                     vehicleId,
@@ -37,7 +42,8 @@ namespace ClaudeOfTanks.Runtime
                 string.Equals(
                     vehicleId,
                     "t90a_burlak",
-                    StringComparison.Ordinal);
+                    StringComparison.Ordinal) ||
+                isT90SM;
             for (int index = 0; index < renderers.Length; index++)
             {
                 Renderer renderer = renderers[index];
@@ -45,7 +51,8 @@ namespace ClaudeOfTanks.Runtime
                 if (material == null) continue;
                 Role role = ResolveRole(
                     renderer.gameObject.name,
-                    usesT90AColors);
+                    usesT90AColors,
+                    isT90SM);
                 ApplyRole(
                     material,
                     role,
@@ -56,8 +63,48 @@ namespace ClaudeOfTanks.Runtime
 
         private static Role ResolveRole(
             string name,
-            bool isT90A)
+            bool isT90A,
+            bool isT90SM)
         {
+            if (isT90SM &&
+                string.Equals(
+                    name,
+                    "T90SM-UnditchingLog",
+                    StringComparison.Ordinal))
+            {
+                return Role.Wood;
+            }
+            if (isT90SM &&
+                string.Equals(
+                    name,
+                    "T90SM-TurretRelikt",
+                    StringComparison.Ordinal))
+            {
+                return Role.Track;
+            }
+            if (isT90SM &&
+                (name.IndexOf(
+                     "Aperture",
+                     StringComparison.Ordinal) >= 0 ||
+                 string.Equals(
+                     name,
+                     "T90SM-PanoramaWindow",
+                     StringComparison.Ordinal)))
+            {
+                return Role.Glass;
+            }
+            if (isT90SM &&
+                (string.Equals(
+                     name,
+                     "T90SM-FrontMudFlap",
+                     StringComparison.Ordinal) ||
+                 string.Equals(
+                     name,
+                     "T90SM-RearMudFlap",
+                     StringComparison.Ordinal)))
+            {
+                return Role.Rubber;
+            }
             if (string.Equals(
                     name,
                     "T90-ShtoraLens",

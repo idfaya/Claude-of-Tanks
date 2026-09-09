@@ -101,6 +101,51 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void TowCableBuildsCentripetalTubeThroughSourceKnots()
+        {
+            GameObject owner = new GameObject("TowCableOwner");
+            try
+            {
+                Vector3[] points =
+                {
+                    new Vector3(-1.25f, 1.36f, 2.07f),
+                    new Vector3(0f, 1.43f, 1.62f),
+                    new Vector3(1.25f, 1.36f, 2.07f)
+                };
+                Transform cable =
+                    TankFittingShapeFactory.BuildTowCable(
+                        "Proof-TowCable",
+                        owner.transform,
+                        points,
+                        0.022f,
+                        20,
+                        6,
+                        Color.black);
+                Mesh mesh = cable
+                    .GetComponent<MeshFilter>()
+                    .sharedMesh;
+                Assert.That(mesh.vertexCount, Is.EqualTo(126));
+                Assert.That(mesh.triangles.Length, Is.EqualTo(720));
+                Assert.That(
+                    mesh.bounds.min.x,
+                    Is.LessThanOrEqualTo(points[0].x));
+                Assert.That(
+                    mesh.bounds.max.x,
+                    Is.GreaterThanOrEqualTo(points[2].x));
+                Assert.That(
+                    mesh.bounds.min.z,
+                    Is.LessThan(points[1].z));
+                Assert.That(
+                    mesh.bounds.max.y,
+                    Is.GreaterThan(points[1].y));
+            }
+            finally
+            {
+                Object.DestroyImmediate(owner);
+            }
+        }
+
         private static int Count(
             Transform root,
             string name)
