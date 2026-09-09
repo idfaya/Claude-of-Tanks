@@ -37,6 +37,19 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(view, "T90ABurlak-ShoulderK5Seam"),
                     Is.EqualTo(8));
+                Transform firstK5 = view.Root
+                    .GetComponentsInChildren<Transform>(true)
+                    .First(item =>
+                        item.name ==
+                        "Painted-T90ABurlak-ShoulderK5");
+                Quaternion firstRotation = Quaternion.Euler(
+                    -0.24f * Mathf.Rad2Deg,
+                    0.31f * Mathf.Rad2Deg,
+                    0f);
+                AssertVector(
+                    firstK5.localPosition,
+                    new Vector3(-0.72f, 0.39f, 1.28f) +
+                    firstRotation * new Vector3(0f, 0f, -0.045f));
                 Assert.That(
                     Count(view, "T90ABurlak-ShoulderReturnFace"),
                     Is.EqualTo(2));

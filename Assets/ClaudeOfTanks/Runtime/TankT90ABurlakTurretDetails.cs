@@ -146,23 +146,26 @@ namespace ClaudeOfTanks.Runtime
                     float width = cassette[index, 5];
                     float height = cassette[index, 6];
                     float depth = cassette[index, 7];
-                    Transform armor = Box(
-                        "Painted-T90ABurlak-ShoulderK5",
-                        root,
-                        V(side * x, y, z - 0.045f),
-                        V(width, height, depth),
-                        color * 0.53f);
-                    armor.localRotation = Quaternion.Euler(
+                    Vector3 anchor = V(side * x, y, z);
+                    Quaternion rotation = Quaternion.Euler(
                         roll * Mathf.Rad2Deg,
                         -side * yaw * Mathf.Rad2Deg,
                         0f);
+                    Transform armor = Box(
+                        "Painted-T90ABurlak-ShoulderK5",
+                        root,
+                        anchor + rotation * V(0f, 0f, -0.045f),
+                        V(width, height, depth),
+                        color * 0.53f);
+                    armor.localRotation = rotation;
                     Transform seam = Box(
                         "T90ABurlak-ShoulderK5Seam",
                         root,
-                        V(side * x, y + height * 0.52f, z + 0.03f),
+                        anchor + rotation *
+                            V(0f, height * 0.52f, 0.03f),
                         V(width * 0.76f, 0.012f, depth * 0.72f),
                         Dark());
-                    seam.localRotation = armor.localRotation;
+                    seam.localRotation = rotation;
                 }
 
                 Transform frontReturn = Box(
