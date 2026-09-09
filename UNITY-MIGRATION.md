@@ -688,8 +688,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   tangent/equal-pitch track course. T-90SM uses it with its six exact wheel
   stations, `x=+/-1.405 m` lanes, idler/sprocket/return-roller positions,
   contact knees and `0.165 m` pitch; all generic gear renderers are disabled.
-  Skirts/ERA, stern equipment and the rotating package remain separate
-  follow-up stages.
+  Its dedicated hull-armor owner now adds the two falling bow prongs, 20
+  main and two low fender lips, source driver deck/grilles, tow/headlight
+  fittings, twelve planted glacis Relikt cassettes, twelve segmented skirt
+  panels and the bow caps/flaps/horns. Stern equipment and the rotating
+  package remain separate follow-up stages.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

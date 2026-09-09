@@ -110,6 +110,76 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void BuildsBowDeckReliktAndSegmentedSkirts()
+        {
+            TankView view = Create();
+            try
+            {
+                Assert.That(
+                    Count(view, "Painted-T90SM-BowProng"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-FenderLip"),
+                    Is.EqualTo(20));
+                Assert.That(
+                    Count(view, "Painted-T90SM-LowBowFenderLip"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-DriverHatch"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90SM-DriverPeriscope"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90SM-EngineGrille"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "T90SM-TowEye"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-Headlight"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-GlacisRelikt"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90SM-GlacisReliktSeam"),
+                    Is.EqualTo(8));
+                Assert.That(
+                    Count(view, "Painted-T90SM-SkirtPanel"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90SM-SkirtBatten"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90SM-SkirtBottomLip"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "Painted-T90SM-BowSkirtCap"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90SM-FrontMudFlap"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-OuterFenderHorn"),
+                    Is.EqualTo(2));
+                Renderer[] hullArmor = view.Root
+                    .GetComponentsInChildren<Renderer>(true)
+                    .Where(item =>
+                        item.name.StartsWith("Painted-T90SM-Bow") ||
+                        item.name.StartsWith("Painted-T90SM-Outer"))
+                    .ToArray();
+                Assert.That(
+                    hullArmor.Max(item => item.bounds.max.z),
+                    Is.EqualTo(3.465f).Within(0.0001f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create()
         {
             ContentCatalog catalog = ContentCatalog.Load();

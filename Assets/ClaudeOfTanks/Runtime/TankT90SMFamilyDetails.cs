@@ -52,6 +52,7 @@ namespace ClaudeOfTanks.Runtime
                     3.02f, 1.22f),
                 color);
             TankT90SMRunningGearDetails.Build(root, color);
+            TankT90SMHullArmorDetails.Build(root, color);
             AddFinalHullReceipts(root, color);
         }
 
