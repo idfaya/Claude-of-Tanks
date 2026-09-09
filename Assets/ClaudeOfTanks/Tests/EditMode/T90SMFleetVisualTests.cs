@@ -313,6 +313,71 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void BuildsBroadCheeksNoseWedgesAndFlushSideCassettes()
+        {
+            TankView view = Create();
+            try
+            {
+                Assert.That(
+                    Count(view, "Painted-T90SM-BroadCheek"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-NoseWedgeOuter"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-NoseWedgeMiddle"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-NoseWedgeInner"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-ForwardCheekWedge"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-MainCheekCassette"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-FlankTransitionAft"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-FlankTransitionFront"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-RightCassetteCrown"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90SM-LeftFlankBin"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90SM-LeftRoofEdgeCassette"),
+                    Is.EqualTo(1));
+
+                Mesh cheek = Find(
+                        view,
+                        "Painted-T90SM-BroadCheek")
+                    .GetComponent<MeshFilter>()
+                    .sharedMesh;
+                AssertBounds(
+                    cheek.bounds,
+                    new Vector3(-1.55f, 0.08f, -0.30f),
+                    new Vector3(-0.2325f, 0.4635f, 1.40f));
+                Mesh cassette = Find(
+                        view,
+                        "Painted-T90SM-MainCheekCassette")
+                    .GetComponent<MeshFilter>()
+                    .sharedMesh;
+                AssertBounds(
+                    cassette.bounds,
+                    new Vector3(-1.735f, 0.08f, 0.10f),
+                    new Vector3(-1.10f, 0.50f, 1.08f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create()
         {
             ContentCatalog catalog = ContentCatalog.Load();
