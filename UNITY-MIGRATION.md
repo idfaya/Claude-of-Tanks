@@ -540,7 +540,9 @@ The port preserves the source project's runtime units and conventions:
 	  C# lathe carries the curved dome normal field instead of faceted default
 	  mesh normals. The ninth batch adds a dedicated C# gear-pad translator with
 	  156 visible `T90-TrackPad` elements, matching the TS bake's primary
-	  `gearTrackPads` count and reducing the slab-like fallback track read.
+	  `gearTrackPads` count and reducing the slab-like fallback track read. The
+	  tenth batch adds a dedicated suspension translator that mirrors the TS
+	  road-wheel tire/disc/inset split, 12 suspension links, and 24 joint bosses.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

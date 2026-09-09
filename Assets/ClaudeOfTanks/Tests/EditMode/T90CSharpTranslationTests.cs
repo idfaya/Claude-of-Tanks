@@ -60,6 +60,21 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90-TrackPad"),
                     Is.EqualTo(156));
                 Assert.That(
+                    Count(view, "T90-GearRoadWheelTire"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90-GearRoadWheelDisc"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90-GearRoadWheelInset"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90-GearSuspensionLink"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90-GearSuspensionJointBoss"),
+                    Is.EqualTo(24));
+                Assert.That(
                     Count(view, "T90-K5RoofVerticalSeam"),
                     Is.EqualTo(2));
                 Assert.That(
