@@ -227,6 +227,28 @@ namespace ClaudeOfTanks.Editor
                 material.SetFloat(
                     "_Cull",
                     sourceMaterial?.side == 2 ? 0f : 2f);
+            if (material.HasProperty("_UseCamo"))
+                material.SetFloat(
+                    "_UseCamo",
+                    string.IsNullOrEmpty(sourceMaterial?.camoProjection)
+                        ? 0f
+                        : 1f);
+            if (material.HasProperty("_CamoScale"))
+                material.SetFloat(
+                    "_CamoScale",
+                    sourceMaterial?.camoUvScale > 0f
+                        ? sourceMaterial.camoUvScale
+                        : 0.34f);
+            if (material.HasProperty("_FlatLighting"))
+                material.SetFloat(
+                    "_FlatLighting",
+                    sourceMaterial?.type == "MeshBasicMaterial"
+                        ? 1f
+                        : 0f);
+            if (material.HasProperty("_EmissionBoost"))
+                material.SetFloat(
+                    "_EmissionBoost",
+                    EmissionBoost(sourceMaterial));
             float opacity = sourceMaterial?.opacity ?? 1f;
             if (sourceMaterial?.transparent == true ||
                 opacity < 0.999f)
@@ -245,6 +267,17 @@ namespace ClaudeOfTanks.Editor
             }
             materials.Add(key, material);
             return material;
+        }
+
+        private static float EmissionBoost(
+            PresentationMaterial sourceMaterial)
+        {
+            string role = sourceMaterial?.appearanceRole ?? string.Empty;
+            if (role.Contains("track") ||
+                role.Contains("wheel") ||
+                role.Contains("rubber"))
+                return 0.25f;
+            return 0.12f;
         }
 
         private static GameObject Section(
@@ -314,6 +347,10 @@ namespace ClaudeOfTanks.Editor
     {
         public string name;
         public string type;
+        public string appearanceRole;
+        public string vehicleMaterialRole;
+        public string camoProjection;
+        public float camoUvScale;
         public PresentationColor color;
         public PresentationColor emissive;
         public float roughness;

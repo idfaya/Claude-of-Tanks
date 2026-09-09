@@ -85,12 +85,17 @@ function hexOf(color, fallback) {
   };
 }
 
-function materialOf(material) {
+function materialOf(material, object) {
   const source = Array.isArray(material) ? material[0] : material;
   const base = colorOf(source);
+  const userData = source?.userData ?? {};
   return {
     name: source?.name ?? '',
     type: source?.type ?? '',
+    appearanceRole: userData.appearanceRole ?? object?.userData?.appearanceRole ?? '',
+    vehicleMaterialRole: userData.vehicleMaterialRole ?? '',
+    camoProjection: userData.camoProjection ?? '',
+    camoUvScale: rounded(userData.camoUvScale ?? 0),
     color: base,
     emissive: hexOf(source?.emissive, { r: 0, g: 0, b: 0 }),
     roughness: rounded(source?.roughness ?? 0.5),
@@ -168,7 +173,7 @@ function meshRecord(object, instanceIndex, matrixWorld, target, targetMatrixInve
   return {
     name: `TS-T90-${object.name || 'mesh'}${suffix}`,
     target,
-    material: materialOf(object.material),
+    material: materialOf(object.material, object),
     vertices,
     normals,
     uvs,

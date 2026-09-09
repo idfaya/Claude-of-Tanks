@@ -129,6 +129,12 @@ namespace ClaudeOfTanks.Tests
                     renderer.sharedMaterial.shader.name,
                     Is.EqualTo("ClaudeOfTanks/TankBakedPresentation"));
                 Assert.That(
+                    renderer.sharedMaterial.GetFloat("_UseCamo"),
+                    Is.EqualTo(1f));
+                Assert.That(
+                    renderer.sharedMaterial.GetFloat("_ZWrite"),
+                    Is.EqualTo(1f));
+                Assert.That(
                     Find(view, "TS-T90-turretGlass")
                         .GetComponent<Renderer>()
                         .sharedMaterial

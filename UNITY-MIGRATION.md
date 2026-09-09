@@ -503,10 +503,13 @@ The port preserves the source project's runtime units and conventions:
   the hand-authored schema as a fallback path. The baked source now carries
   463 mesh records, 236,680 vertices and 79,772 triangles from the TS source
   builder, including TS normals, UVs, vertex colors, opacity/emissive/
-  roughness/metalness/side material fields, and the two source vehicle marking
-  meshes. Unity renders those through the dedicated
-  `ClaudeOfTanks/TankBakedPresentation` shader; TS runtime shader/texture
-  parity remains the only known visual gap for a bit-perfect match
+  roughness/metalness/side material fields, appearance roles, camouflage
+  projection metadata, and the two source vehicle marking meshes. Unity
+  renders those through the dedicated `ClaudeOfTanks/TankBakedPresentation`
+  shader with the opaque depth path preserved after screenshot review. The
+  remaining known gap for a bit-perfect match is true TS CanvasTexture/normal/
+  roughness map baking, which requires a browser/Canvas-backed extractor rather
+  than the current Node geometry-only source
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side
