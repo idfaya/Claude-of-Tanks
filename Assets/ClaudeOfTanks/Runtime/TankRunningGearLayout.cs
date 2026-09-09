@@ -10,6 +10,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (TankAbramsXFamilyDetails.Supports(definition?.id)) return 7;
             if (TankM1A3FamilyDetails.Supports(definition?.id)) return 7;
+            if (TankM1A2FamilyDetails.Supports(definition?.id)) return 7;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 7;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return 6;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 6;
@@ -48,6 +49,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (TankAbramsXFamilyDetails.Supports(definition?.id)) return 1.375f;
             if (TankM1A3FamilyDetails.Supports(definition?.id)) return 1.46f;
+            if (TankM1A2FamilyDetails.Supports(definition?.id)) return 1.425f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 1.425f;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return definition.id == "type89" ? 1.25f : 1.278f;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 1.276f;
@@ -83,6 +85,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (TankAbramsXFamilyDetails.Supports(definition?.id)) return 0.57f;
             if (TankM1A3FamilyDetails.Supports(definition?.id)) return 0.64f;
+            if (TankM1A2FamilyDetails.Supports(definition?.id)) return 0.58f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 0.58f;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return definition.id == "type89" ? 0.44f : 0.414f;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.506f;
@@ -114,6 +117,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (TankAbramsXFamilyDetails.Supports(definition?.id)) return 0.4184f;
             if (TankM1A3FamilyDetails.Supports(definition?.id)) return 0.43f;
+            if (TankM1A2FamilyDetails.Supports(definition?.id)) return 0.42f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 0.42f;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return definition.id == "type89" ? 0.4f : 0.3645f;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.44f;
@@ -149,6 +153,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (TankAbramsXFamilyDetails.Supports(definition?.id)) return 0.2992f;
             if (TankM1A3FamilyDetails.Supports(definition?.id)) return 0.32f;
+            if (TankM1A2FamilyDetails.Supports(definition?.id)) return 0.31f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 0.31f;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return definition.id == "type89" ? 0.32f : 0.2925f;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.42f;
@@ -186,6 +191,8 @@ namespace ClaudeOfTanks.Runtime
                 return TankRunningGearStations.AbramsXAt(index);
             if (TankM1A3FamilyDetails.Supports(definition?.id))
                 return TankRunningGearStations.M1A3At(index);
+            if (TankM1A2FamilyDetails.Supports(definition?.id))
+                return TankRunningGearStations.AbramsM1At(index);
             if (TankAbramsM1FamilyDetails.Supports(definition?.id))
                 return TankRunningGearStations.AbramsM1At(index);
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id))
@@ -231,6 +238,8 @@ namespace ClaudeOfTanks.Runtime
                 return new Vector2(-3.0399f, 0.869f);
             if (TankM1A3FamilyDetails.Supports(definition?.id))
                 return new Vector2(-3.42f, 0.96f);
+            if (TankM1A2FamilyDetails.Supports(definition?.id))
+                return new Vector2(-3.28f, 1.1f);
             if (TankAbramsM1FamilyDetails.Supports(definition?.id))
                 return new Vector2(-3.28f, 1.1f);
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id))
@@ -275,6 +284,8 @@ namespace ClaudeOfTanks.Runtime
                 return new Vector2(3.0078f, 0.8653f);
             if (TankM1A3FamilyDetails.Supports(definition?.id))
                 return new Vector2(3.27f, 0.88f);
+            if (TankM1A2FamilyDetails.Supports(definition?.id))
+                return new Vector2(3.02f, 0.85f);
             if (TankAbramsM1FamilyDetails.Supports(definition?.id))
                 return new Vector2(3.02f, 0.85f);
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id))
@@ -315,6 +326,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (TankAbramsXFamilyDetails.Supports(definition?.id)) return 0.331f;
             if (TankM1A3FamilyDetails.Supports(definition?.id)) return 0.35f;
+            if (TankM1A2FamilyDetails.Supports(definition?.id)) return 0.32f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 0.32f;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return definition.id == "type89" ? 0.26f : 0.288f;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.394f;
@@ -346,6 +358,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (TankAbramsXFamilyDetails.Supports(definition?.id)) return 0.3239f;
             if (TankM1A3FamilyDetails.Supports(definition?.id)) return 0.35f;
+            if (TankM1A2FamilyDetails.Supports(definition?.id)) return 0.34f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 0.34f;
             if (TankType89FamilyDetails.SupportsRunningGear(definition?.id)) return definition.id == "type89" ? 0.27f : 0.261f;
             if (TankWarriorFamilyDetails.Supports(definition?.id)) return 0.373f;
@@ -377,6 +390,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (TankAbramsXFamilyDetails.Supports(definition?.id)) return 2.7746147f;
             if (TankM1A3FamilyDetails.Supports(definition?.id)) return 2.9996f;
+            if (TankM1A2FamilyDetails.Supports(definition?.id)) return 2.6839f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 2.6839f;
             if (definition?.id == "type89") return 2.3847f;
             if (definition?.id == "type89_light_tiger") return 2.5317f;
@@ -398,6 +412,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (TankAbramsXFamilyDetails.Supports(definition?.id)) return -2.8137147f;
             if (TankM1A3FamilyDetails.Supports(definition?.id)) return -3.1496f;
+            if (TankM1A2FamilyDetails.Supports(definition?.id)) return -2.9224f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return -2.9224f;
             if (definition?.id == "type89") return -2.4906f;
             if (definition?.id == "type89_light_tiger") return -2.4722f;
@@ -420,6 +435,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (TankAbramsXFamilyDetails.Supports(definition?.id)) return 0.0735827f;
             if (TankM1A3FamilyDetails.Supports(definition?.id)) return 0.063f;
+            if (TankM1A2FamilyDetails.Supports(definition?.id)) return 0.059f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 0.059f;
             if (definition?.id == "type89") return 0.0568f;
             if (definition?.id == "type89_light_tiger") return 0.0733f;
@@ -444,6 +460,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (TankAbramsXFamilyDetails.Supports(definition?.id)) return 1.2262173f;
             if (TankM1A3FamilyDetails.Supports(definition?.id)) return 1.3319f;
+            if (TankM1A2FamilyDetails.Supports(definition?.id)) return 1.448f;
             if (TankAbramsM1FamilyDetails.Supports(definition?.id)) return 1.448f;
             if (definition?.id == "type89") return 1.3478f;
             if (definition?.id == "type89_light_tiger") return 1.0558f;

@@ -70,6 +70,8 @@ namespace ClaudeOfTanks.Runtime
                 !TankAbramsXFamilyDetails.Supports(
                     definition.id) &&
                 !TankM1A3FamilyDetails.Supports(
+                    definition.id) &&
+                !TankM1A2FamilyDetails.Supports(
                     definition.id))
                 AddAbrams(
                     root,

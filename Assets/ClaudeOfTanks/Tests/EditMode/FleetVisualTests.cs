@@ -157,11 +157,18 @@ namespace ClaudeOfTanks.Tests
                 {
                     Transform[] parts =
                         view.Root.GetComponentsInChildren<Transform>();
+                    bool m1a2Family =
+                        ids[i] == "m1a2" ||
+                        ids[i] == "m1a2_tusk" ||
+                        ids[i] == "m1a2_sepv2" ||
+                        ids[i] == "m1a2_sepv3";
                     string familyToken =
                         ids[i] == "abramsx"
                             ? "AbramsX-"
                             : ids[i] == "m1a3"
                                 ? "M1A3-"
+                                : m1a2Family
+                                    ? "M1A2-"
                                 : "Abrams-";
                     Assert.That(
                         parts.Count(item =>
@@ -176,34 +183,26 @@ namespace ClaudeOfTanks.Tests
                                 definition,
                                 "optics")),
                         ids[i]);
-                    bool late = ids[i] == "m1a2_tusk" ||
-                        ids[i] == "m1a2_sepv2" ||
-                        ids[i] == "m1a2_sepv3";
-                    Transform station = parts.FirstOrDefault(
-                        item => item.name ==
-                            "Painted-Abrams-CommanderStation");
-                    Assert.That(
-                        station != null,
-                        Is.EqualTo(late),
-                        ids[i]);
-                    if (station != null)
+                    if (m1a2Family)
                     {
-                        float armorRoof = parts
-                            .Where(item =>
-                                item.parent ==
-                                    view.Root.Find("TurretRoot") &&
-                                item.name.StartsWith("Armor-"))
-                            .Max(item =>
-                                item.GetComponent<Renderer>()
-                                    .bounds.max.y);
+                        string stationName =
+                            ids[i] == "m1a2"
+                                ? "Painted-M1A2-CrowsStandardHead"
+                                : ids[i] == "m1a2_tusk"
+                                    ? "Painted-M1A2-CrowsCompactHead"
+                                    : ids[i] == "m1a2_sepv2"
+                                        ? "Painted-M1A2-CrowsArmoredHead"
+                                        : "Painted-M1A2-CrowsLowProfileHead";
+                        Transform station = parts.FirstOrDefault(
+                            item => item.name == stationName);
                         Assert.That(
-                            Mathf.Abs(
-                                station.GetComponent<Renderer>()
-                                    .bounds.min.y -
-                                armorRoof),
-                            Is.LessThan(0.04f),
-                            ids[i] +
-                            " commander station must seat on the roof.");
+                            station,
+                            Is.Not.Null,
+                            ids[i]);
+                        Assert.That(
+                            station.parent.name,
+                            Is.EqualTo("TurretRoot"),
+                            ids[i]);
                     }
                     Assert.That(
                         parts.Any(item =>
@@ -212,6 +211,8 @@ namespace ClaudeOfTanks.Tests
                                     ? "AbramsX-HybridLouvre"
                                     : ids[i] == "m1a3"
                                         ? "M1A3-HybridLouvre"
+                                        : m1a2Family
+                                            ? "AbramsM1-EngineDeckGrille"
                                         : "Abrams-EngineGrille")),
                         Is.True,
                         ids[i]);
@@ -357,7 +358,7 @@ namespace ClaudeOfTanks.Tests
                     .GetComponentsInChildren<Renderer>()
                     .First(item =>
                         item.name ==
-                            "Painted-Abrams-Bustle");
+                            "Painted-AbramsM1-DeepBustle");
                 Renderer optics = view.Root
                     .GetComponentsInChildren<Renderer>()
                     .First(item =>

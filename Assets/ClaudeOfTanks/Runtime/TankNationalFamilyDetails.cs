@@ -10,6 +10,7 @@ namespace ClaudeOfTanks.Runtime
             return
                 TankAbramsXFamilyDetails.Supports(id) ||
                 TankM1A3FamilyDetails.Supports(id) ||
+                TankM1A2FamilyDetails.Supports(id) ||
                 TankAbramsM1FamilyDetails.Supports(id) ||
                 TankLeopardFamilyDetails.Supports(id) ||
                 TankChallengerFamilyDetails.Supports(id) ||
@@ -76,6 +77,14 @@ namespace ClaudeOfTanks.Runtime
                 height,
                 length);
             TankM1A3FamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
+            TankM1A2FamilyDetails.Build(
                 root,
                 turret,
                 definition,

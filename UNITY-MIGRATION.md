@@ -430,6 +430,19 @@ The port preserves the source project's runtime units and conventions:
   bore evacuator and preserves its exact source-visible muzzle station. All
   22 catalog-authored hit surfaces remain authoritative across Garage, solo,
   replay, and network with no added collider or generic Abrams fittings
+- The production M1A2 family now shares the source-authored Tejas hull,
+  deep-bustle turret, exact seven-wheel rear-drive course, and gun-owned M256
+  while replacing the generic Abrams fallback across Garage, solo, replay,
+  and network. The base M1A2 keeps its clean standard CROWS and split loader
+  shield; TUSK adds the armored CROWS, LAGS loader station, rear slat cage,
+  infantry phone, and urban lighting; SEPv2 adds the tall armored CROWS,
+  armored loader M2, CIP panels, forward tow cable, rigid ammunition crate,
+  and UAAPU exhaust; SEPv3 adds the wide-low CROWS-LP, Trophy launchers and
+  four radar faces, left-rear UAAPU, ADL, split IFF, enlarged IFLIR, and
+  deterministic physical ULCANS treatment. Catalog armor remains the only
+  `Armor-*` owner: the four variants preserve 32/133/129/155 hit surfaces
+  (0/101/97/123 reactive) with no presentation collider, generic side armor,
+  or generic Abrams fittings
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
