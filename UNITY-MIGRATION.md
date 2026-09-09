@@ -657,8 +657,12 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   running gear through dedicated C# entry points, applies the source
   `0.94 x 0.92 x 1.02` hull section and `+0.12 m` seat, narrows the running
   gear gauge to `0.975`, and restores all eight authored fender closures.
-  Its generic `Soviet-*` fallback is disabled; the dedicated Burlak turret
-  and gun remain the next migration batch.
+  Its generic `Soviet-*` fallback is disabled. The dedicated rotating
+  package now includes the final 18-station three-ring core, closed ring
+  apron, mirrored shoulder carriers and eight planted K-5 cassettes, plus
+  the full-scale five-station welded autoloader bustle with roof lids, side
+  pods, rear rails and service grid. Roof equipment, gun and material-role
+  parity remain the next migration batches.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
