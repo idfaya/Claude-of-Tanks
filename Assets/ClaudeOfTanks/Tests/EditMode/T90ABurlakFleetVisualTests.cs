@@ -115,6 +115,55 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void BuildsRoofEquipmentAndAsymmetricSmokeProgram()
+        {
+            TankView view = Create();
+            try
+            {
+                Assert.That(
+                    Count(view, "Painted-T90ABurlak-PanoramaHead"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90ABurlak-Hatch"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90ABurlak-PeriscopeBody"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "T90ABurlak-AutoloaderFeedLid"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90ABurlak-AutoloaderRubRail"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90ABurlak-NsvtReceiver"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90ABurlak-NsvtAmmoCan"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90ABurlak-NsvtShield"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90ABurlak-SmokeLauncher"),
+                    Is.EqualTo(11));
+                Assert.That(
+                    Count(view, "T90ABurlak-RadioWhip"),
+                    Is.EqualTo(1));
+                Transform whip =
+                    Find(view, "T90ABurlak-RadioWhip");
+                Assert.That(
+                    whip.GetComponent<MeshFilter>()
+                        .sharedMesh.bounds.size.y,
+                    Is.EqualTo(2.67f).Within(0.0001f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create()
         {
             ContentCatalog catalog = ContentCatalog.Load();

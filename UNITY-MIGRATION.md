@@ -661,8 +661,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   package now includes the final 18-station three-ring core, closed ring
   apron, mirrored shoulder carriers and eight planted K-5 cassettes, plus
   the full-scale five-station welded autoloader bustle with roof lids, side
-  pods, rear rails and service grid. Roof equipment, gun and material-role
-  parity remain the next migration batches.
+  pods, rear rails and service grid. Its roof package now includes the
+  panoramic head, two hatches, five periscopes, forward sight, autoloader
+  feed deck, integrated NSVT station, asymmetric 6/5 smoke banks and the
+  2.67 m radio whip. Gun and material-role parity remain the next migration
+  batch.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
