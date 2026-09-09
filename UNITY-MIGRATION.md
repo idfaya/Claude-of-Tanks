@@ -728,8 +728,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   seven-panel side band, closed crowned front mudguards, five-course flank
   and transom cages, asymmetric service bays and rear fittings.
   `TankMudguardShapeFactory` now carries the shared TS seven-point closed
-  crown/cut/rake extrusion and attached support contract. The complete
-  rotating package remains a follow-up.
+  crown/cut/rake extrusion and attached support contract. The final source
+  rebuild now also owns the rotating pivot, 21-station inner welded shell,
+  nine-station continuous outer skin, buried ring and three crown facets;
+  turret Relikt, bustle, equipment and gun remain follow-ups.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

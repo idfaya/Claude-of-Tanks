@@ -68,6 +68,9 @@ namespace ClaudeOfTanks.Runtime
                 TankT90MSFamilyDetails.BuildHull(
                     root,
                     color);
+                TankT90MSTurretDetails.Build(
+                    turret,
+                    color);
             }
             else
             {

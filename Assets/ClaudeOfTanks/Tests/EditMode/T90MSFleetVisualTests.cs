@@ -70,11 +70,61 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Find(view, "Turret")
                         .GetComponent<Renderer>().enabled,
-                    Is.True);
+                    Is.False);
                 Assert.That(
                     Find(view, "Gun")
                         .GetComponent<Renderer>().enabled,
                     Is.True);
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
+        [Test]
+        public void BuildsFinalSourceWeldedTurretCore()
+        {
+            TankView view = Create();
+            try
+            {
+                Transform root =
+                    Find(view, "T90MS-PresentationRoot");
+                Assert.That(
+                    root.localPosition,
+                    Is.EqualTo(new Vector3(0f, 0.043f, -0.15f)));
+
+                Mesh inner = Find(
+                        view,
+                        "Painted-T90MS-InnerWeldedShell")
+                    .GetComponent<MeshFilter>()
+                    .sharedMesh;
+                AssertBounds(
+                    inner.bounds,
+                    new Vector3(-1.434f, 0f, -1.58178f),
+                    new Vector3(1.417f, 0.743f, 1.04f));
+                Assert.That(inner.vertexCount, Is.EqualTo(744));
+
+                Mesh outer = Find(
+                        view,
+                        "Painted-T90MS-OuterWeldedSkin")
+                    .GetComponent<MeshFilter>()
+                    .sharedMesh;
+                AssertBounds(
+                    outer.bounds,
+                    new Vector3(-1.58f, 0.03f, -1.72f),
+                    new Vector3(1.58f, 0.61f, 1.34f));
+                Assert.That(outer.vertexCount, Is.EqualTo(312));
+
+                Assert.That(
+                    Count(view, "T90MS-BuriedTurretRing"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90MS-CrownFacet"),
+                    Is.EqualTo(3));
+                Assert.That(
+                    Count(view, "T90MS-CrownWeld"),
+                    Is.EqualTo(2));
             }
             finally
             {
