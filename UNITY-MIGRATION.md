@@ -466,6 +466,17 @@ The port preserves the source project's runtime units and conventions:
   diagnostic renderers hidden behind dedicated geometry. Garage, solo,
   replay, and network share this owner and add no generic side armor or
   presentation colliders
+- `t72b3m` now has a dedicated T-72B3M obr. 2022 Unity presentation owner
+  instead of the shared Soviet fittings layer. The low extended hull carries
+  the six-wheel T-72B3M course, Relikt soft-bag skirt run, glacis cassette
+  raft, engine louvres, rear slat cage, twin fuel drums and bow fittings.
+  Its cast turret adds Relikt cheek cassettes, side soft bags, Sosna-U box,
+  commander station, NSVT, bustle slat rack, smoke banks and paired radio
+  whips. The 2A46M-5 sleeve/evacuator/muzzle remains attached beneath the
+  authoritative `Gun` transform. All 223 catalog hit surfaces remain present,
+  with all 204 Relikt ERA surfaces visible and the 19 structural diagnostic
+  renderers hidden behind dedicated geometry; no generic side armor, shared
+  Soviet fallback fittings, or presentation colliders are added
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

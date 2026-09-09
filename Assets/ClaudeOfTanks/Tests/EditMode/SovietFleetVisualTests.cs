@@ -10,7 +10,6 @@ namespace ClaudeOfTanks.Tests
     {
         private static readonly string[] ProductionIds =
         {
-            "t72b3m",
             "t72bu",
             "t80",
             "t80b",
