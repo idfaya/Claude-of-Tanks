@@ -1,4 +1,3 @@
-using System;
 using ClaudeOfTanks.Runtime;
 using ClaudeOfTanks.Simulation;
 using NUnit.Framework;
@@ -11,12 +10,6 @@ namespace ClaudeOfTanks.Tests
         [Test]
         public void AddsTranslatedMeshHullAndTurretSurfaces()
         {
-            string previous =
-                Environment.GetEnvironmentVariable(
-                    "COT_DISABLE_T90_BAKED_PRESENTATION");
-            Environment.SetEnvironmentVariable(
-                "COT_DISABLE_T90_BAKED_PRESENTATION",
-                "1");
             TankView view = Create();
             try
             {
@@ -108,9 +101,6 @@ namespace ClaudeOfTanks.Tests
             finally
             {
                 view.Destroy();
-                Environment.SetEnvironmentVariable(
-                    "COT_DISABLE_T90_BAKED_PRESENTATION",
-                    previous);
             }
         }
 

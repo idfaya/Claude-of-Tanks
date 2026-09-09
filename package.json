@@ -5,9 +5,6 @@
   "description": "A browser-native Three.js armored combat simulator with plate-level armor, first-party procedural vehicles, destructible battlefields, and persistent multiplayer.",
   "scripts": {
     "agent-docs": "node scripts/run-agent-docs.ts",
-    "unity:presentation:update": "node tools/gen-unity-presentation-schemas.mjs",
-    "unity:presentation:check": "node tools/gen-unity-presentation-schemas.mjs --check",
-    "unity:presentation:bake": "npm run unity:presentation:update && tools/uloop.sh execute-dynamic-code --code \"ClaudeOfTanks.Editor.TankPresentationPrefabBaker.BakeAll();\" --yield-to-foreground-requests",
     "unity:server:build": "tools/build-unity-server.sh",
     "fx:textures:bake": "node tools/bake-fx-textures.mjs",
     "minimap:assets": "node tools/bake-minimap-assets.mjs",

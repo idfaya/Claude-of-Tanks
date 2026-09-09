@@ -107,6 +107,22 @@ namespace ClaudeOfTanks.Tests
                     projectRoot,
                     "tools/gen-unity-content.mjs")),
                 Is.False);
+            Assert.That(
+                File.Exists(Path.Combine(
+                    projectRoot,
+                    "tools/gen-unity-presentation-schemas.mjs")),
+                Is.False);
+            Assert.That(
+                Directory.Exists(Path.Combine(
+                    projectRoot,
+                    "Assets/ClaudeOfTanks/Generated/PresentationSource")),
+                Is.False);
+            Assert.That(
+                Directory.Exists(Path.Combine(
+                    projectRoot,
+                    "Assets/ClaudeOfTanks/Resources/Generated/" +
+                    "TankPresentation")),
+                Is.False);
         }
 
         private static void AddFiles(

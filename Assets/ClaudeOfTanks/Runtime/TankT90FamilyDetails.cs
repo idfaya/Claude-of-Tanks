@@ -4,9 +4,6 @@ namespace ClaudeOfTanks.Runtime
 {
     internal static class TankT90FamilyDetails
     {
-        private const string DisableBakedPresentationVariable =
-            "COT_DISABLE_T90_BAKED_PRESENTATION";
-
         public static bool Supports(string id)
         {
             return id == "t90";
@@ -23,27 +20,12 @@ namespace ClaudeOfTanks.Runtime
         {
             if (!Supports(definition?.id)) return;
 
-            if (!BakedPresentationDisabled() &&
-                TankBakedPresentationCatalog.TryBuild(
-                    definition.id,
-                    root,
-                    turret))
-            {
-                return;
-            }
-
             TankPresentationGenerator.Build(
                 TankT90PresentationSchema.Create(),
                 root,
                 turret,
                 definition,
                 color);
-        }
-
-        private static bool BakedPresentationDisabled()
-        {
-            return System.Environment.GetEnvironmentVariable(
-                DisableBakedPresentationVariable) == "1";
         }
 
         internal static Color Dark()

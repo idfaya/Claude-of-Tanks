@@ -87,8 +87,9 @@ EditMode tests, and PlayMode tests are C#-native and do not launch Node or
 execute TypeScript. `CSharpRuntimeBoundaryTests` enforces that boundary.
 `Resources/Content/content-catalog.json` is the canonical language-neutral
 Unity content asset; C# owns its schema, loading, and validation. TypeScript
-remains allowed only as an offline authoring source for vehicle presentation
-geometry and its Unity bake artifacts.
+remains only as the reference implementation while vehicle presentation
+builders are translated into shared C# shape factories and per-vehicle
+composition code. Generated TS meshes are not a runtime or repository asset.
 
 ## Implemented
 
@@ -512,32 +513,13 @@ geometry and its Unity bake artifacts.
   transform. All 166 catalog hit surfaces stay present, the 141 ERA
   renderers stay visible, and structural diagnostic surfaces are hidden
 	  behind dedicated geometry without adding generic side armor or presentation
-	  colliders. T-90 is now the first TS-baked Unity presentation pilot: the
-	  `unity:presentation:update` pipeline runs the TypeScript `createTank`
-	  rendered-material builder in a Vite/Puppeteer browser so the real Canvas
-	  textures can be exported with the Three.js mesh hierarchy. The Unity editor
-	  `TankPresentationPrefabBaker` converts that source into
-	  `Resources/Generated/TankPresentation/t90.prefab` plus mesh sub-assets and
-	  imported albedo, normal, roughness and bump textures. Runtime now
-	  instantiates the baked prefab and only keeps the hand-authored schema as a
-	  fallback path. The baked source carries 463 mesh records, 236,680 vertices
-	  and 79,772 triangles from the TS source builder, including TS normals, UVs,
-	  vertex colors, opacity/emissive/roughness/metalness/clearcoat/specular/side
-	  material fields, normal and bump scale, appearance roles, camouflage
-	  projection metadata, the two source vehicle marking meshes, and ten
-	  browser-exported usage-specific texture assets. Unity renders those through
-	  the dedicated `ClaudeOfTanks/TankBakedPresentation` shader with the opaque
-	  depth path preserved after screenshot review, sampling the baked albedo,
-	  normal, roughness and bump maps where the TS source material provides them.
-	  A separate C# translation route can now be forced with
-	  `COT_DISABLE_T90_BAKED_PRESENTATION=1`; that route deliberately bypasses
-	  the baked prefab, runs the C# T-90 schema, hides the generic fallback gear,
-	  and serves as the iterative porting baseline. It is not yet visually
-	  equivalent to the TS bake and should be advanced in focused geometry
-	  batches against the TS-prefixed baked reference. The first follow-up batch
-	  ports the TS `t90Gear` envelope values into C# fallback output: rear
+	  colliders. T-90 now uses the translated C# schema as its only runtime model
+	  path. The abandoned TS mesh payload, prefab, imported textures, shader,
+	  runtime loader, and editor baker were removed, eliminating roughly 44 MiB
+	  of duplicated single-vehicle resources. The first geometry batch ports the
+	  TS `t90Gear` envelope values into C# output: rear
 	  sprocket, front idler, upper/lower track bands, rising track spans and
-	  bottom cleats are now present when the bake is disabled. The second batch
+	  bottom cleats are now present. The second batch
 	  mirrors the TS `t90SkirtCourse` and mudguard anchors: K-5 side-skirt
 	  seams, width anchors, forward skirt planes, and front/rear rubber
 	  mudguards are now represented in the C# fallback path. The third batch
@@ -552,12 +534,12 @@ geometry and its Unity bake artifacts.
 	  mirrors the TS `t90-k5-turret-era` seam/cap grammar for the turret roof
 	  Kontakt-5 panels and inner/outer cheek leaf banks. The seventh batch ports
 	  the geometric part of TS `meshDomeCurved`: C# now has a reusable lathe
-	  mesh helper and the fallback T-90 turret dome uses the same ring profile
+	  mesh helper and the T-90 turret dome uses the same ring profile
 	  and 30-segment silhouette instead of a Unity sphere primitive. The eighth
 	  batch adds the TS-style profile subdivision and cap-normal floor so the
 	  C# lathe carries the curved dome normal field instead of faceted default
 	  mesh normals. The ninth batch adds a dedicated C# gear-pad translator with
-	  156 visible `T90-TrackPad` elements, matching the TS bake's primary
+	  156 visible `T90-TrackPad` elements, matching the TS reference's primary
 	  `gearTrackPads` count and reducing the slab-like fallback track read. The
 	  tenth batch adds a dedicated suspension translator that mirrors the TS
 	  road-wheel tire/disc/inset split, 12 suspension links, and 24 joint bosses.

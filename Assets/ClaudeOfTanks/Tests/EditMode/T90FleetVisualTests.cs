@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using ClaudeOfTanks.Runtime;
 using ClaudeOfTanks.Simulation;
@@ -10,50 +9,39 @@ namespace ClaudeOfTanks.Tests
     public sealed class T90FleetVisualTests
     {
         [Test]
-        public void UsesCatalogArmorAndNativeSixWheelCourse()
+        public void UsesCatalogArmorAndTranslatedSixWheelCourse()
         {
-            ContentCatalog catalog =
-                ContentCatalog.Load();
+            ContentCatalog catalog = ContentCatalog.Load();
             VehicleDefinition definition =
                 catalog.GetVehicle("t90");
-            TankView view =
-                Create(catalog);
+            TankView view = Create(catalog);
             try
             {
-                Assert.That(
-                    CountPrefix(view, "Armor-"),
-                    Is.EqualTo(166));
-                Assert.That(
-                    Count(view, "T90-BakedPresentationPrefab"),
-                    Is.EqualTo(1));
+                Assert.That(CountPrefix(view, "Armor-"), Is.EqualTo(166));
                 Assert.That(
                     definition.armor.hullPlates
                         .Concat(definition.armor.turretPlates)
                         .Count(plate => plate.kind == "era"),
                     Is.EqualTo(141));
                 Assert.That(
-                    FindAll(view, "RoadWheel-L").Length,
-                    Is.EqualTo(6));
+                    Count(view, "T90-PresentationSchema"),
+                    Is.EqualTo(1));
+                Assert.That(CountPrefix(view, "TS-T90-"), Is.EqualTo(0));
                 Assert.That(
-                    FindAll(view, "RoadWheel-R").Length,
-                    Is.EqualTo(6));
+                    Count(view, "T90-GearRoadWheelTire"),
+                    Is.EqualTo(12));
                 Assert.That(
-                    CountPrefix(view, "TS-T90-gearReturnRoller"),
-                    Is.GreaterThanOrEqualTo(2));
+                    Count(view, "T90-GearRoadWheelDisc"),
+                    Is.EqualTo(12));
                 Assert.That(
-                    Find(view, "Sprocket-L")
-                        .localPosition,
-                    Is.EqualTo(new Vector3(
-                        -1.395f,
-                        0.9f,
-                        -2.52f)));
+                    Count(view, "T90-GearRoadWheelInset"),
+                    Is.EqualTo(12));
                 Assert.That(
-                    Find(view, "Idler-L")
-                        .localPosition,
-                    Is.EqualTo(new Vector3(
-                        -1.395f,
-                        0.71f,
-                        2.7f)));
+                    Find(view, "T90-Sprocket").localPosition,
+                    Is.EqualTo(new Vector3(-1.62f, 0.9f, -2.52f)));
+                Assert.That(
+                    Find(view, "T90-Idler").localPosition,
+                    Is.EqualTo(new Vector3(-1.62f, 0.71f, 2.7f)));
             }
             finally
             {
@@ -64,32 +52,20 @@ namespace ClaudeOfTanks.Tests
         [Test]
         public void ReplacesGenericShellAndKeepsKontakt5Visible()
         {
-            TankView view =
-                Create(ContentCatalog.Load());
+            TankView view = Create(ContentCatalog.Load());
             try
             {
                 AssertHidden(view, "Hull");
                 AssertHidden(view, "UpperHull");
                 AssertHidden(view, "Turret");
                 AssertHidden(view, "Gun");
+                Assert.That(Count(view, "SideArmor"), Is.EqualTo(0));
+                Assert.That(VisibleArmor(view), Is.EqualTo(141));
                 Assert.That(
-                    Count(view, "SideArmor"),
-                    Is.EqualTo(0));
+                    CountPrefix(view, "Painted-T90-"),
+                    Is.GreaterThanOrEqualTo(60));
                 Assert.That(
-                    VisibleArmor(view),
-                    Is.EqualTo(141));
-                Assert.That(
-                    Count(view, "Painted-Soviet-FuelDrum"),
-                    Is.EqualTo(0));
-                Assert.That(
-                    Count(view, "Soviet-ShtoraLens"),
-                    Is.EqualTo(0));
-                Assert.That(
-                    CountPrefix(view, "TS-T90-"),
-                    Is.GreaterThanOrEqualTo(72));
-                Assert.That(
-                    view.Root.GetComponentsInChildren<Collider>(true)
-                        .Length,
+                    view.Root.GetComponentsInChildren<Collider>(true).Length,
                     Is.EqualTo(0));
             }
             finally
@@ -99,120 +75,30 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
-        public void PreservesTsBakeMeshAndMaterialData()
+        public void BuildsHullGearRearAndCageIdentity()
         {
-            TankView view =
-                Create(ContentCatalog.Load());
+            TankView view = Create(ContentCatalog.Load());
             try
             {
+                Assert.That(Count(view, "T90-TrackPad"), Is.EqualTo(156));
                 Assert.That(
-                    CountPrefix(view, "TS-T90-vehicleMarking_"),
+                    Count(view, "T90-GearSuspensionLink"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90-GearSuspensionJointBoss"),
+                    Is.EqualTo(24));
+                Assert.That(
+                    Count(view, "Painted-T90-K5SkirtPanel"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "Painted-T90-RubberSkirt"),
+                    Is.EqualTo(10));
+                Assert.That(
+                    Count(view, "T90-RearQuarterSlat"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90-SplitUnditchingLog"),
                     Is.EqualTo(2));
-
-                Mesh bakedMesh =
-                    Find(view, "TS-T90-hull")
-                        .GetComponent<MeshFilter>()
-                        .sharedMesh;
-                Assert.That(
-                    bakedMesh.normals.Length,
-                    Is.EqualTo(bakedMesh.vertexCount));
-                Assert.That(
-                    bakedMesh.uv.Length,
-                    Is.EqualTo(bakedMesh.vertexCount));
-                Assert.That(
-                    bakedMesh.colors.Length,
-                    Is.EqualTo(bakedMesh.vertexCount));
-
-                Renderer renderer =
-                    Find(view, "TS-T90-hull")
-                        .GetComponent<Renderer>();
-                Assert.That(
-                    renderer.sharedMaterial.shader.name,
-                    Is.EqualTo("ClaudeOfTanks/TankBakedPresentation"));
-                Assert.That(
-                    renderer.sharedMaterial.GetFloat("_UseCamo"),
-                    Is.EqualTo(1f));
-                Assert.That(
-                    renderer.sharedMaterial.GetFloat("_HasMainTex"),
-                    Is.EqualTo(1f));
-                Assert.That(
-                    renderer.sharedMaterial.GetTexture("_MainTex"),
-                    Is.Not.Null);
-                Assert.That(
-                    renderer.sharedMaterial.GetFloat("_HasNormalMap"),
-                    Is.EqualTo(1f));
-                Assert.That(
-                    renderer.sharedMaterial.GetTexture("_NormalMap"),
-                    Is.Not.Null);
-                Assert.That(
-                    renderer.sharedMaterial.GetFloat("_HasRoughnessMap"),
-                    Is.EqualTo(1f));
-                Assert.That(
-                    renderer.sharedMaterial.GetTexture("_RoughnessMap"),
-                    Is.Not.Null);
-                Assert.That(
-                    renderer.sharedMaterial.GetFloat("_NormalScale"),
-                    Is.GreaterThan(0f));
-                Assert.That(
-                    renderer.sharedMaterial.GetFloat("_EmissionIntensity"),
-                    Is.EqualTo(1f));
-                Assert.That(
-                    renderer.sharedMaterial.GetFloat("_SpecularIntensity"),
-                    Is.EqualTo(0.55f)
-                        .Within(0.001f));
-                Assert.That(
-                    view.Root.GetComponentsInChildren<Renderer>(true)
-                        .Any((candidate) =>
-                            candidate.sharedMaterial != null &&
-                            candidate.sharedMaterial.HasProperty("_HasBumpMap") &&
-                            candidate.sharedMaterial.GetFloat("_HasBumpMap") > 0.5f &&
-                            candidate.sharedMaterial.GetTexture("_BumpMap") != null),
-                    Is.True);
-                Assert.That(
-                    renderer.sharedMaterial.GetFloat("_ZWrite"),
-                    Is.EqualTo(1f));
-                Assert.That(
-                    Find(view, "TS-T90-turretGlass")
-                        .GetComponent<Renderer>()
-                        .sharedMaterial
-                        .color
-                        .a,
-                    Is.EqualTo(1f));
-            }
-            finally
-            {
-                view.Destroy();
-            }
-        }
-
-        [Test]
-        public void BuildsHullKontakt5RearAndCageIdentity()
-        {
-            TankView view =
-                Create(ContentCatalog.Load());
-            try
-            {
-                Assert.That(
-                    Count(view, "TS-T90-hull"),
-                    Is.EqualTo(1));
-                Assert.That(
-                    Count(view, "TS-T90-hullExternalArmor"),
-                    Is.EqualTo(1));
-                Assert.That(
-                    Count(view, "TS-T90-hullRubber"),
-                    Is.EqualTo(1));
-                Assert.That(
-                    Count(view, "TS-T90-gearTrackBandL"),
-                    Is.EqualTo(1));
-                Assert.That(
-                    Count(view, "TS-T90-gearTrackBandR"),
-                    Is.EqualTo(1));
-                Assert.That(
-                    Count(view, "TS-T90-hullWood"),
-                    Is.EqualTo(1));
-                Assert.That(
-                    Count(view, "TS-T90-hullEquipment"),
-                    Is.EqualTo(1));
             }
             finally
             {
@@ -223,36 +109,26 @@ namespace ClaudeOfTanks.Tests
         [Test]
         public void BuildsCastTurretShtoraAndRoofStation()
         {
-            TankView view =
-                Create(ContentCatalog.Load());
+            TankView view = Create(ContentCatalog.Load());
             try
             {
                 Assert.That(
-                    Count(view, "TS-T90-turret"),
+                    Count(view, "Painted-T90-CSharpCastDomeMesh"),
                     Is.EqualTo(1));
                 Assert.That(
-                    Count(view, "TS-T90-turretExternalArmor"),
-                    Is.EqualTo(1));
+                    Count(view, "Painted-T90-K5CheekLeaf"),
+                    Is.EqualTo(4));
                 Assert.That(
-                    Count(view, "TS-T90-turretDetail"),
-                    Is.EqualTo(1));
+                    Count(view, "T90-ShtoraLens"),
+                    Is.EqualTo(2));
                 Assert.That(
-                    Count(view, "TS-T90-turretEquipment"),
-                    Is.EqualTo(1));
+                    Count(view, "Painted-T90-SmokeLauncher"),
+                    Is.EqualTo(8));
                 Assert.That(
-                    Count(view, "TS-T90-turretGlass"),
-                    Is.EqualTo(1));
+                    Count(view, "T90-RadioWhip"),
+                    Is.EqualTo(2));
                 Assert.That(
-                    CountPrefix(view, "TS-T90-fitting_smokeBank"),
-                    Is.GreaterThanOrEqualTo(4));
-                Assert.That(
-                    Count(view, "TS-T90-browningDerivedMachineGunBody"),
-                    Is.EqualTo(1));
-                Assert.That(
-                    CountPrefix(view, "TS-T90-fitting_antennaWhip"),
-                    Is.GreaterThanOrEqualTo(4));
-                Assert.That(
-                    Count(view, "TS-T90-turretDark"),
+                    Count(view, "Painted-T90-BustleRack"),
                     Is.EqualTo(1));
             }
             finally
@@ -264,23 +140,22 @@ namespace ClaudeOfTanks.Tests
         [Test]
         public void KeepsTwoA46MOnAuthoritativeGun()
         {
-            TankView view =
-                Create(ContentCatalog.Load());
+            TankView view = Create(ContentCatalog.Load());
             try
             {
                 foreach (string name in new[]
                     {
-                        "TS-T90-gun",
-                        "TS-T90-gunDark",
-                        "TS-T90-gunMount",
-                        "TS-T90-muzzleBoreShadowRim",
-                        "TS-T90-muzzleBoreShadowDisc"
+                        "Painted-T90-2A46MSaddle",
+                        "Painted-T90-2A46MRoot",
+                        "Painted-T90-2A46MEvacuator",
+                        "Painted-T90-2A46MForwardTube",
+                        "T90-MuzzleBore"
                     })
                 {
                     AssertGunOwned(view, name);
                 }
                 Assert.That(
-                    Count(view, "T90-BakedGunFittings"),
+                    Count(view, "T90-GunFittings"),
                     Is.EqualTo(1));
             }
             finally
@@ -289,116 +164,7 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
-        [Test]
-        public void BuildsCSharpTranslatedFallbackWhenBakeIsDisabled()
-        {
-            string previous =
-                Environment.GetEnvironmentVariable(
-                    "COT_DISABLE_T90_BAKED_PRESENTATION");
-            Environment.SetEnvironmentVariable(
-                "COT_DISABLE_T90_BAKED_PRESENTATION",
-                "1");
-            TankView view =
-                Create(ContentCatalog.Load());
-            try
-            {
-                Assert.That(
-                    Count(view, "T90-BakedPresentationPrefab"),
-                    Is.EqualTo(0));
-                Assert.That(
-                    Count(view, "T90-PresentationSchema"),
-                    Is.EqualTo(1));
-                Assert.That(
-                    CountPrefix(view, "TS-T90-"),
-                    Is.EqualTo(0));
-                Assert.That(
-                    CountPrefix(view, "Painted-T90-"),
-                    Is.GreaterThanOrEqualTo(60));
-                Assert.That(
-                    Count(view, "T90-RoadWheelInset"),
-                    Is.EqualTo(12));
-                Assert.That(
-                    Count(view, "T90-ReturnRoller"),
-                    Is.EqualTo(6));
-                Assert.That(
-                    Count(view, "T90-Sprocket"),
-                    Is.EqualTo(2));
-                Assert.That(
-                    Count(view, "T90-Idler"),
-                    Is.EqualTo(2));
-                Assert.That(
-                    Count(view, "T90-TrackUpperBand"),
-                    Is.EqualTo(2));
-                Assert.That(
-                    Count(view, "T90-TrackLowerBand"),
-                    Is.EqualTo(2));
-                Assert.That(
-                    Count(view, "T90-TrackCleat"),
-                    Is.EqualTo(28));
-                Assert.That(
-                    Count(view, "T90-K5SkirtVerticalSeam"),
-                    Is.EqualTo(6));
-                Assert.That(
-                    Count(view, "T90-K5SkirtLowerSeam"),
-                    Is.EqualTo(6));
-                Assert.That(
-                    Count(view, "Painted-T90-FrontSkirtPlane"),
-                    Is.EqualTo(2));
-                Assert.That(
-                    Count(view, "T90-WidthAnchor"),
-                    Is.EqualTo(2));
-                Assert.That(
-                    Count(view, "T90-FrontMudguard"),
-                    Is.EqualTo(2));
-                Assert.That(
-                    Count(view, "T90-RearMudguard"),
-                    Is.EqualTo(2));
-                Assert.That(
-                    Count(view, "Painted-T90-GunnerThermalHead"),
-                    Is.EqualTo(1));
-                Assert.That(
-                    Count(view, "T90-GunnerThermalLens"),
-                    Is.EqualTo(1));
-                Assert.That(
-                    Count(view, "Painted-T90-CupolaPeriscope"),
-                    Is.EqualTo(5));
-                Assert.That(
-                    Count(view, "T90-SkirtHingeBracket"),
-                    Is.EqualTo(10));
-                Assert.That(
-                    Count(view, "T90-SkirtLowerPin"),
-                    Is.EqualTo(10));
-                Assert.That(
-                    Find(view, "T90-Sprocket")
-                        .localPosition,
-                    Is.EqualTo(new Vector3(
-                        -1.62f,
-                        0.9f,
-                        -2.52f)));
-                Assert.That(
-                    Find(view, "T90-Idler")
-                        .localPosition,
-                    Is.EqualTo(new Vector3(
-                        -1.62f,
-                        0.71f,
-                        2.7f)));
-                AssertHidden(view, "RoadWheel-L");
-                AssertHidden(view, "RoadWheel-R");
-                AssertHidden(view, "Sprocket-L");
-                AssertHidden(view, "Idler-L");
-                AssertGunOwned(view, "Painted-T90-2A46MForwardTube");
-            }
-            finally
-            {
-                view.Destroy();
-                Environment.SetEnvironmentVariable(
-                    "COT_DISABLE_T90_BAKED_PRESENTATION",
-                    previous);
-            }
-        }
-
-        private static TankView Create(
-            ContentCatalog catalog)
+        private static TankView Create(ContentCatalog catalog)
         {
             VehicleDefinition definition =
                 catalog.GetVehicle("t90");
@@ -420,9 +186,7 @@ namespace ClaudeOfTanks.Tests
             string name)
         {
             Assert.That(
-                Find(view, name)
-                    .GetComponent<Renderer>()
-                    .enabled,
+                Find(view, name).GetComponent<Renderer>().enabled,
                 Is.False);
         }
 
@@ -431,31 +195,30 @@ namespace ClaudeOfTanks.Tests
             string name)
         {
             Transform part = Find(view, name);
-            Assert.That(
-                part.parent.parent.name,
-                Is.EqualTo("Gun"));
+            Assert.That(part.parent.parent.name, Is.EqualTo("Gun"));
         }
 
-        private static int VisibleArmor(
-            TankView view)
+        private static int VisibleArmor(TankView view)
         {
             return FindAllByPrefix(view, "Armor-")
-                .Count(item =>
-                    item.GetComponent<Renderer>().enabled);
+                .Count(item => item.GetComponent<Renderer>().enabled);
         }
 
-        private static int Count(
-            TankView view,
-            string name)
+        private static int Count(TankView view, string name)
         {
             return FindAll(view, name).Length;
         }
 
-        private static int CountPrefix(
-            TankView view,
-            string prefix)
+        private static int CountPrefix(TankView view, string prefix)
         {
             return FindAllByPrefix(view, prefix).Length;
+        }
+
+        private static Transform Find(TankView view, string name)
+        {
+            Transform[] matches = FindAll(view, name);
+            Assert.That(matches, Is.Not.Empty, name);
+            return matches[0];
         }
 
         private static Transform[] FindAll(
@@ -476,13 +239,6 @@ namespace ClaudeOfTanks.Tests
                 .GetComponentsInChildren<Transform>(true)
                 .Where(item => item.name.StartsWith(prefix))
                 .ToArray();
-        }
-
-        private static Transform Find(
-            TankView view,
-            string name)
-        {
-            return FindAll(view, name).First();
         }
     }
 }
