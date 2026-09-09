@@ -49,7 +49,8 @@ namespace ClaudeOfTanks.Tests
                         item.name.StartsWith(
                             "Painted-Soviet-"));
                     if (ProductionIds[i] == "t90a_vladimir" ||
-                        ProductionIds[i] == "t90a_burlak")
+                        ProductionIds[i] == "t90a_burlak" ||
+                        ProductionIds[i] == "t90sm")
                     {
                         Assert.That(genericParts, Is.EqualTo(0));
                         if (ProductionIds[i] == "t90a_vladimir")

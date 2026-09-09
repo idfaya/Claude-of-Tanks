@@ -680,6 +680,12 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   Its final receipt audit also restores both shoulder return faces, station
   head side plates, service box and work light, and reseats all 22 outboard
   skirt/K-5 pieces to the source `x=+/-1.68 m` inner clearance.
+- T-90SM translation has started from the final `buildT90SM` owner rather
+  than the superseded modern-family proxy. Its source 8/4/4/5-point hull and
+  variable track-bay roof now build through `TankHullLoftShapeFactory`, with
+  the final belly channels, center keel and rear-deck module attached. The
+  source running gear, skirts/ERA, stern equipment and rotating package
+  remain separate follow-up stages.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
