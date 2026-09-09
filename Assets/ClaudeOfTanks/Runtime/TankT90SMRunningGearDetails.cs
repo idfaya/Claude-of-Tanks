@@ -27,6 +27,7 @@ namespace ClaudeOfTanks.Runtime
                 root,
                 1.405f,
                 0.44f,
+                0.09f,
                 0.165f,
                 0.83f,
                 0.05f,

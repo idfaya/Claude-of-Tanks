@@ -20,6 +20,7 @@ namespace ClaudeOfTanks.Tests
                         owner.transform,
                         1.405f,
                         0.44f,
+                        0.09f,
                         0.165f,
                         0.83f,
                         0.05f,
@@ -57,6 +58,9 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     pads.Min(item => item.localPosition.y),
                     Is.EqualTo(0.05f).Within(0.0001f));
+                Assert.That(
+                    pads.Max(item => item.localPosition.y),
+                    Is.GreaterThan(1.16f));
             }
             finally
             {
@@ -76,6 +80,7 @@ namespace ClaudeOfTanks.Tests
                         owner.transform,
                         1.4f,
                         0.4f,
+                        0.09f,
                         0.165f,
                         0.8f,
                         0.05f,

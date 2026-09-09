@@ -717,8 +717,14 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   receipt and visual audit remains.
 - T-90MS translation has started from its distinct final `buildT90MS` owner,
   not the completed T-90SM shell. Its source 10/9/6/6/7-point longitudinal
-  hull loft and full closed center glacis now replace the generic hull while
-  running gear and the complete rotating package remain staged follow-ups.
+  hull loft and full closed center glacis now replace the generic hull. Its
+  six `0.788 m` cadence road-wheel stations, `dishR=0.72` wheel faces,
+  idler/sprocket/roller stations and `0.61 m` linked track course replace all
+  generic gear. The complete armor and rotating package remain follow-ups.
+- `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
+  tangent departure/approach angles, ground termination and segmented
+  catenary support spans instead of constructing wraps around ground-derived
+  proxy centers. Track thickness is explicit and owns the pad height.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

@@ -64,6 +64,7 @@ namespace ClaudeOfTanks.Runtime
                     2.42f, 1.22f,
                     3.43f, 1.22f),
                 color);
+            TankT90MSRunningGearDetails.Build(root, color);
             TankShapeFactory.OrientedSlabPart(
                 "Painted-T90MS-CenterGlacis",
                 root,
