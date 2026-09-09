@@ -691,8 +691,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   Its dedicated hull-armor owner now adds the two falling bow prongs, 20
   main and two low fender lips, source driver deck/grilles, tow/headlight
   fittings, twelve planted glacis Relikt cassettes, twelve segmented skirt
-  panels and the bow caps/flaps/horns. Stern equipment and the rotating
-  package remain separate follow-up stages.
+  panels and the bow caps/flaps/horns. Its stern owner now supplies four
+  raked tail racks, corner bins/flaps, nested log/stowage/spare links, the
+  twenty-part scalloped curtain, open rear-quarter cage, and 13-louvre rear
+  service field. The rotating package remains a separate follow-up stage.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

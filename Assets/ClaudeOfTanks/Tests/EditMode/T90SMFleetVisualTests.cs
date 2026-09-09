@@ -180,6 +180,71 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void BuildsTailRacksScallopsCageAndServiceField()
+        {
+            TankView view = Create();
+            try
+            {
+                Assert.That(
+                    Count(view, "Painted-T90SM-InnerTailRack"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-OuterTailRack"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90SM-CornerBin"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90SM-UnditchingLog"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90SM-SpareTrackLink"),
+                    Is.EqualTo(4));
+                Assert.That(
+                    Count(view, "Painted-T90SM-ScallopedSkirt"),
+                    Is.EqualTo(20));
+                Assert.That(
+                    Count(view, "T90SM-ScallopedSkirtBatten"),
+                    Is.EqualTo(10));
+                Assert.That(
+                    Count(view, "Painted-T90SM-CageRail"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "Painted-T90SM-CageStile"),
+                    Is.EqualTo(14));
+                Assert.That(
+                    Count(view, "Painted-T90SM-CageStub"),
+                    Is.EqualTo(16));
+                Assert.That(
+                    Count(view, "Painted-T90SM-CagePost"),
+                    Is.EqualTo(8));
+                Assert.That(
+                    Count(view, "Painted-T90SM-CageAnchor"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90SM-RearServiceLouvre"),
+                    Is.EqualTo(13));
+                Assert.That(
+                    Count(view, "T90SM-RearTowEye"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90SM-RearMudFlap"),
+                    Is.EqualTo(2));
+                Renderer toe = Find(
+                        view,
+                        "Painted-T90SM-OuterRackToe")
+                    .GetComponent<Renderer>();
+                Assert.That(
+                    toe.bounds.min.z,
+                    Is.EqualTo(-3.435f).Within(0.0001f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create()
         {
             ContentCatalog catalog = ContentCatalog.Load();
