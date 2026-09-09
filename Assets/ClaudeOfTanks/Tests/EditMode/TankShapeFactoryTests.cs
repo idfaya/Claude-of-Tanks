@@ -242,6 +242,52 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void MudguardBuildsClosedCrownedCutProfileAndSupport()
+        {
+            GameObject root = new GameObject("ShapeFactoryTestRoot");
+            try
+            {
+                Transform panel = TankMudguardShapeFactory.Build(
+                    "Mudguard",
+                    root.transform,
+                    V(1f, 2f, 3f),
+                    Quaternion.identity,
+                    0.05f,
+                    0.40f,
+                    0.72f,
+                    Color.black,
+                    Color.white,
+                    0.018f,
+                    0.075f);
+                Mesh mesh = Mesh(panel);
+
+                AssertVector(
+                    mesh.bounds.min,
+                    V(-0.025f, -0.36f, -0.20f));
+                AssertVector(
+                    mesh.bounds.max,
+                    V(0.025f, 0.378f, 0.20f));
+                Assert.That(mesh.vertexCount, Is.EqualTo(72));
+                Assert.That(mesh.triangles.Length, Is.EqualTo(72));
+                AssertAllTrianglesFaceOutward(mesh);
+
+                Transform support =
+                    root.transform.Find("MudguardSupport");
+                Assert.That(support, Is.Not.Null);
+                AssertVector(
+                    support.localPosition,
+                    V(1f, 2.3348f, 3f));
+                AssertVector(
+                    Mesh(support).bounds.size,
+                    V(0.0725f, 0.0576f, 0.376f));
+            }
+            finally
+            {
+                DestroyGenerated(root);
+            }
+        }
+
         private static void AssertCylinder(
             Transform root,
             TankShapeAxis axis,

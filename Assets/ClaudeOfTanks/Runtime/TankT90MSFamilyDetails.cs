@@ -78,6 +78,7 @@ namespace ClaudeOfTanks.Runtime
                 V(-1.06f, 0.84f, 3.43f),
                 color * 0.58f);
             TankT90MSHullArmorDetails.Build(root, color);
+            TankT90MSSternDetails.Build(root, color);
         }
 
         private static TankHullProfilePoint[] Curve(

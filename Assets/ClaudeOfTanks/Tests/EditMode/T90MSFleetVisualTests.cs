@@ -224,6 +224,98 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void BuildsSourceSkirtsTailEquipmentAndPerimeterCage()
+        {
+            TankView view = Create();
+            try
+            {
+                Assert.That(
+                    Count(view, "Painted-T90MS-TailRack"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90MS-TailOuterRack"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90MS-RearFuelDrum"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90MS-RearFuelDrumBand"),
+                    Is.EqualTo(4));
+
+                Assert.That(
+                    Count(view, "Painted-T90MS-SkirtRelikt"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "T90MS-SkirtReliktFaceSeam"),
+                    Is.EqualTo(18));
+                Assert.That(
+                    Count(view, "T90MS-SkirtReliktRubberHem"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "Painted-T90MS-SkirtPanel"),
+                    Is.EqualTo(14));
+                Assert.That(
+                    Count(view, "T90MS-SkirtBatten"),
+                    Is.EqualTo(14));
+                Assert.That(
+                    Count(view, "T90MS-SkirtBolt"),
+                    Is.EqualTo(14));
+                Assert.That(
+                    Count(view, "T90MS-SkirtBottomLip"),
+                    Is.EqualTo(14));
+
+                Assert.That(
+                    Count(view, "T90MS-FlankCageRail"),
+                    Is.EqualTo(10));
+                Assert.That(
+                    Count(view, "T90MS-FlankCagePost"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90MS-FlankCageBracket"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "T90MS-TransomCageRail"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "T90MS-TransomCagePost"),
+                    Is.EqualTo(8));
+                Assert.That(
+                    Count(view, "T90MS-ServiceBayBacking"),
+                    Is.EqualTo(4));
+                Assert.That(
+                    Count(view, "Painted-T90MS-ServiceLouvre"),
+                    Is.EqualTo(14));
+                Assert.That(
+                    Count(view, "Painted-T90MS-WidthAnchor"),
+                    Is.EqualTo(2));
+
+                Assert.That(
+                    Count(view, "T90MS-RearMudFlap"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90MS-FrontMudFlap"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90MS-FrontMudFlapSupport"),
+                    Is.EqualTo(2));
+                Transform flap = Find(
+                    view,
+                    "T90MS-FrontMudFlap");
+                Assert.That(
+                    flap.localPosition,
+                    Is.EqualTo(new Vector3(-1.53f, 0.73f, 3.345f)));
+                AssertBounds(
+                    flap.GetComponent<MeshFilter>().sharedMesh.bounds,
+                    new Vector3(-0.025f, -0.36f, -0.20f),
+                    new Vector3(0.025f, 0.378f, 0.20f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create()
         {
             ContentCatalog catalog = ContentCatalog.Load();

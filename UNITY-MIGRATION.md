@@ -723,8 +723,13 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   generic gear. Its first hull-armor owner adds the 22-piece fender line,
   closed sloped front shoulders/shells, driver deck, five engine grilles,
   glacis fittings, 12 two-course Relikt cassettes with faceplates and flush
-  seams, bow cable, log and spare links. Skirts, stern cage and the complete
-  rotating package remain follow-ups.
+  seams, bow cable, log and spare links. Its side/stern owner adds the
+  unequal rear drums and tail cells, six tall Relikt skirt cassettes, the
+  seven-panel side band, closed crowned front mudguards, five-course flank
+  and transom cages, asymmetric service bays and rear fittings.
+  `TankMudguardShapeFactory` now carries the shared TS seven-point closed
+  crown/cut/rake extrusion and attached support contract. The complete
+  rotating package remains a follow-up.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived
