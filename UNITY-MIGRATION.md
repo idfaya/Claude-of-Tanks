@@ -590,6 +590,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 	  now mirror the TS hull, barrel, wheel, rubber, track, detail, dark,
 	  glass, wood, and Shtora roles without adding baked texture resources or
 	  changing any other vehicle's material path.
+  The shared C# shape layer now also includes the TS `loftHull` algorithm:
+  merged profile knots, piecewise-linear deck/belly/width/sponson sampling,
+  <=0.36 m station subdivision, upper/lower band pinching, and retained
+  internal section faces are emitted as one runtime mesh.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side
