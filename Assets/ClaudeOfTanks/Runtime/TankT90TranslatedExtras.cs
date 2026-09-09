@@ -15,6 +15,7 @@ namespace ClaudeOfTanks.Runtime
             TankT90TranslatedGearPads.Build(root, color);
             TankT90TranslatedSuspension.Build(root, color);
             AddTurretMeshSurfaces(turret, color);
+            TankT90RevolutionDetails.Build(root, turret, color);
             AddKontakt5TurretSeams(turret, color);
             AddTurretRoofDetails(turret, color);
             AddBustleRackDetails(turret);
@@ -210,9 +211,6 @@ namespace ClaudeOfTanks.Runtime
                 V(), new Color(0.28f, 0.34f, 0.24f));
             Part("T90-BustleRearMesh", PrimitiveType.Cube, turret,
                 V(0f, 0.5f, -1.755f), V(1.42f, 0.44f, 0.03f),
-                V(), Dark());
-            Part("T90-OpvtBaseCollar", PrimitiveType.Cylinder, turret,
-                V(0.32f, 0.4f, -1.13f), V(0.058f, 0.05f, 0.058f),
                 V(), Dark());
             Part("T90-OpvtRackStay", PrimitiveType.Cube, turret,
                 V(0.32f, 0.62f, -1.16f), V(0.03f, 0.03f, 0.3f),

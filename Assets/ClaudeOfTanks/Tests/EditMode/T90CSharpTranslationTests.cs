@@ -53,6 +53,36 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90-OpvtRackStay"),
                     Is.EqualTo(1));
                 Assert.That(
+                    Count(view, "T90-ShtoraDrum"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-ShtoraRim"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-ShtoraVentFin"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "T90-CommanderCupolaRim"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90-GunnerHatch"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90-SmokeLauncherCap"),
+                    Is.EqualTo(8));
+                Assert.That(
+                    Count(view, "T90-AntennaBase"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "T90-RadioWhip"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "Painted-T90-RearFuelDrum"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-UnditchingLogEnd"),
+                    Is.EqualTo(4));
+                Assert.That(
                     Count(view, "T90-BustleCableCoil"),
                     Is.EqualTo(1));
                 Assert.That(

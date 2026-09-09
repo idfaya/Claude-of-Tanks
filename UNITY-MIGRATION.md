@@ -570,6 +570,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 	  `0.385 m` road-wheel radius, `1.395 m` lane center, layered tire/dish/hub
 	  widths, source-sized sprocket/idler and return rollers, and torus bow
 	  recovery eyes while removing duplicate schema wheel inserts.
+	  The seventeenth batch replaces the remaining non-gun Unity cylinder
+	  approximations with explicit C# revolution geometry. It restores split
+	  log ends and straps, rear fuel drums, layered round Shtora emitters,
+	  commander and gunner hatch stacks, complete smoke banks, the OPVT tube,
+	  and all five source-authored antenna stations.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

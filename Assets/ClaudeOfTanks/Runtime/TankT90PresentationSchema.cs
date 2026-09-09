@@ -216,11 +216,6 @@ namespace ClaudeOfTanks.Runtime
                     V(side * 0.6f, 1.5f, -3.26f),
                     V(0.98f, 0.3f, 0.3f), V(),
                     TankPresentationColor.Base, 0.6f);
-                Add(parts, "T90-SplitUnditchingLog",
-                    PrimitiveType.Cylinder, TankPresentationTarget.Root,
-                    V(side * 0.64f, 1.3f, -3.44f),
-                    V(0.088f, 0.59f, 0.088f), V(0f, 0f, 90f),
-                    TankPresentationColor.Wood);
             }
         }
 
@@ -269,16 +264,6 @@ namespace ClaudeOfTanks.Runtime
                     V(side * 0.98f, 0.44f, 0.93f),
                     V(0.035f, 0.3f, 0.24f), V(),
                     TankPresentationColor.Dark);
-                Add(parts, "Painted-T90-ShtoraHousing",
-                    PrimitiveType.Cylinder, TankPresentationTarget.Turret,
-                    V(side * 0.52f, 0.5f, 1.3f),
-                    V(0.14f, 0.11f, 0.14f), V(90f, 0f, 0f),
-                    TankPresentationColor.Base, 0.58f);
-                Add(parts, "T90-ShtoraLens", PrimitiveType.Cylinder,
-                    TankPresentationTarget.Turret,
-                    V(side * 0.52f, 0.5f, 1.43f),
-                    V(0.09f, 0.025f, 0.09f), V(90f, 0f, 0f),
-                    TankPresentationColor.ShtoraGlass);
             }
             Add(parts, "T90-K5VertexGapPlate", PrimitiveType.Cube,
                 TankPresentationTarget.Turret, V(0f, 0.42f, 1.31f),
@@ -297,10 +282,6 @@ namespace ClaudeOfTanks.Runtime
         private static void AddRoofWeaponsAndBustle(
             List<TankPresentationPart> parts)
         {
-            Add(parts, "Painted-T90-CommanderCupola",
-                PrimitiveType.Cylinder, TankPresentationTarget.Turret,
-                V(0.52f, 0.7f, -0.3f), V(0.25f, 0.12f, 0.25f), V(),
-                TankPresentationColor.Base, 0.6f);
             Add(parts, "T90-NsvtReceiver", PrimitiveType.Cube,
                 TankPresentationTarget.Turret, V(0.6f, 0.91f, -0.42f),
                 V(0.26f, 0.18f, 0.46f), V(), TankPresentationColor.Dark);
@@ -320,28 +301,6 @@ namespace ClaudeOfTanks.Runtime
                     V(-0.65f + rail * 0.325f, 0.76f, -1.75f),
                     V(0.04f, 0.3f, 0.04f), V(),
                     TankPresentationColor.Dark);
-            for (int side = -1; side <= 1; side += 2)
-            for (int tube = 0; tube < 4; tube++)
-                Add(parts, "Painted-T90-SmokeLauncher",
-                    PrimitiveType.Cylinder, TankPresentationTarget.Turret,
-                    V(side * (1.02f + tube * 0.06f),
-                        0.52f + tube * 0.024f,
-                        -0.18f - tube * 0.04f),
-                    V(0.04f, 0.13f, 0.04f),
-                    V(62f, 0f, side * 18f),
-                    TankPresentationColor.Base, 0.52f);
-            Add(parts, "T90-OpvtMast", PrimitiveType.Cylinder,
-                TankPresentationTarget.Turret, V(0.32f, 0.98f, -1.13f),
-                V(0.052f, 0.64f, 0.052f), V(),
-                TankPresentationColor.Dark);
-            Add(parts, "T90-RadioWhip", PrimitiveType.Cylinder,
-                TankPresentationTarget.Turret, V(-0.27f, 1.24f, -1.1f),
-                V(0.014f, 1.2f, 0.014f), V(),
-                TankPresentationColor.Dark);
-            Add(parts, "T90-RadioWhip", PrimitiveType.Cylinder,
-                TankPresentationTarget.Turret, V(1.04f, 1.15f, 0.6f),
-                V(0.014f, 1.1f, 0.014f), V(),
-                TankPresentationColor.Dark);
         }
 
         private static void AddGun(

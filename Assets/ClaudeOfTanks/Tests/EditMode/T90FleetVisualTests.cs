@@ -126,7 +126,7 @@ namespace ClaudeOfTanks.Tests
                     Is.EqualTo(8));
                 Assert.That(
                     Count(view, "T90-RadioWhip"),
-                    Is.EqualTo(2));
+                    Is.EqualTo(5));
                 Assert.That(
                     Count(view, "Painted-T90-BustleRack"),
                     Is.EqualTo(1));
