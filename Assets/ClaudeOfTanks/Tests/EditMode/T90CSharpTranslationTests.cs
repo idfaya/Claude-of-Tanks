@@ -50,6 +50,24 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(view, "T90-GunMountCheekPlate"),
                     Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-K5RoofVerticalSeam"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-K5RoofEdgeSeam"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90-K5InnerLeafCap"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90-K5OuterLeafCap"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-K5LeafOuterEdgeSeam"),
+                    Is.EqualTo(4));
+                Assert.That(
+                    Count(view, "T90-K5LeafTopSeam"),
+                    Is.EqualTo(4));
                 AssertMeshVertexCount(
                     view,
                     "Painted-T90-CSharpUpperHullWedge",

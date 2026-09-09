@@ -13,6 +13,7 @@ namespace ClaudeOfTanks.Runtime
             if (root == null || turret == null) return;
             AddHullMeshSurfaces(root, color);
             AddTurretMeshSurfaces(turret, color);
+            AddKontakt5TurretSeams(turret, color);
             AddTurretRoofDetails(turret, color);
             AddBustleRackDetails(turret);
             AddGunMountDetails(turret);
@@ -83,6 +84,51 @@ namespace ClaudeOfTanks.Runtime
                     0.09f),
                 BoxTriangles(),
                 color * 0.56f);
+        }
+
+        private static void AddKontakt5TurretSeams(
+            Transform turret,
+            Color color)
+        {
+            Part("T90-K5RoofVerticalSeam", PrimitiveType.Cube, turret,
+                V(-0.4f, 0.802f, -0.05f), V(0.028f, 0.052f, 0.7f),
+                V(), Dark());
+            Part("T90-K5RoofVerticalSeam", PrimitiveType.Cube, turret,
+                V(0.37f, 0.802f, -0.05f), V(0.028f, 0.052f, 0.7f),
+                V(), Dark());
+            Part("T90-K5RoofEdgeSeam", PrimitiveType.Cube, turret,
+                V(-0.02f, 0.832f, 0.25f), V(0.7f, 0.012f, 0.03f),
+                V(), Dark());
+            Part("T90-K5RoofEdgeSeam", PrimitiveType.Cube, turret,
+                V(-0.02f, 0.832f, -0.55f), V(0.7f, 0.012f, 0.03f),
+                V(), Dark());
+            for (int side = -1; side <= 1; side += 2)
+            {
+                Part("Painted-T90-K5InnerLeafCap", PrimitiveType.Cube,
+                    turret, V(side * 0.98f, 0.44f, 1.03f),
+                    V(0.06f, 0.32f, 0.46f),
+                    V(-25f, -side * 25f, 0f), color * 0.53f);
+                Part("Painted-T90-K5OuterLeafCap", PrimitiveType.Cube,
+                    turret, V(side * 1.55f, 0.4f, 0.66f),
+                    V(0.06f, 0.32f, 0.32f),
+                    V(-23f, -side * 41f, 0f), color * 0.53f);
+                Part("T90-K5LeafOuterEdgeSeam", PrimitiveType.Cube,
+                    turret, V(side * 0.62f, 0.44f, 1.16f),
+                    V(0.024f, 0.3f, 0.008f),
+                    V(-25f, -side * 25f, 0f), Dark());
+                Part("T90-K5LeafTopSeam", PrimitiveType.Cube,
+                    turret, V(side * 0.62f, 0.31f, 1.16f),
+                    V(0.66f, 0.03f, 0.008f),
+                    V(-25f, -side * 25f, 0f), Dark());
+                Part("T90-K5LeafOuterEdgeSeam", PrimitiveType.Cube,
+                    turret, V(side * 1.265f, 0.4f, 0.72f),
+                    V(0.024f, 0.3f, 0.008f),
+                    V(-23f, -side * 41f, 0f), Dark());
+                Part("T90-K5LeafTopSeam", PrimitiveType.Cube,
+                    turret, V(side * 1.265f, 0.265f, 0.72f),
+                    V(0.72f, 0.03f, 0.008f),
+                    V(-23f, -side * 41f, 0f), Dark());
+            }
         }
 
         private static void AddTurretRoofDetails(

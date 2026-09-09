@@ -530,7 +530,9 @@ The port preserves the source project's runtime units and conventions:
 	  box-only approximation with translated multi-vertex surfaces for the upper
 	  hull wedge, swept glacis, rear deck and turret cheek wedges. The fifth
 	  batch extends the translated extras with TS-aligned bustle cargo panels,
-	  OPVT base/stay pieces, and cannon-base/gun-mount plates.
+	  OPVT base/stay pieces, and cannon-base/gun-mount plates. The sixth batch
+	  mirrors the TS `t90-k5-turret-era` seam/cap grammar for the turret roof
+	  Kontakt-5 panels and inner/outer cheek leaf banks.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side
