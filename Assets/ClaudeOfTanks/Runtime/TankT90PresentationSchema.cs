@@ -42,7 +42,15 @@ namespace ClaudeOfTanks.Runtime
         {
             "Soviet-",
             "Painted-Soviet-",
-            "ReturnRoller-"
+            "RunningGear-",
+            "RoadWheel-",
+            "WheelHub-",
+            "SuspensionArm-",
+            "SuspensionJoint-",
+            "ReturnRoller-",
+            "Sprocket-",
+            "Idler-",
+            "TrackLinks-"
         };
 
         public static TankPresentationSchema Create()

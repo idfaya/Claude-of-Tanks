@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using ClaudeOfTanks.Runtime;
 using ClaudeOfTanks.Simulation;
@@ -285,6 +286,52 @@ namespace ClaudeOfTanks.Tests
             finally
             {
                 view.Destroy();
+            }
+        }
+
+        [Test]
+        public void BuildsCSharpTranslatedFallbackWhenBakeIsDisabled()
+        {
+            string previous =
+                Environment.GetEnvironmentVariable(
+                    "COT_DISABLE_T90_BAKED_PRESENTATION");
+            Environment.SetEnvironmentVariable(
+                "COT_DISABLE_T90_BAKED_PRESENTATION",
+                "1");
+            TankView view =
+                Create(ContentCatalog.Load());
+            try
+            {
+                Assert.That(
+                    Count(view, "T90-BakedPresentationPrefab"),
+                    Is.EqualTo(0));
+                Assert.That(
+                    Count(view, "T90-PresentationSchema"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    CountPrefix(view, "TS-T90-"),
+                    Is.EqualTo(0));
+                Assert.That(
+                    CountPrefix(view, "Painted-T90-"),
+                    Is.GreaterThanOrEqualTo(60));
+                Assert.That(
+                    Count(view, "T90-RoadWheelInset"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90-ReturnRoller"),
+                    Is.EqualTo(6));
+                AssertHidden(view, "RoadWheel-L");
+                AssertHidden(view, "RoadWheel-R");
+                AssertHidden(view, "Sprocket-L");
+                AssertHidden(view, "Idler-L");
+                AssertGunOwned(view, "Painted-T90-2A46MForwardTube");
+            }
+            finally
+            {
+                view.Destroy();
+                Environment.SetEnvironmentVariable(
+                    "COT_DISABLE_T90_BAKED_PRESENTATION",
+                    previous);
             }
         }
 

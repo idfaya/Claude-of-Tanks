@@ -510,7 +510,13 @@ The port preserves the source project's runtime units and conventions:
 	  browser-exported usage-specific texture assets. Unity renders those through
 	  the dedicated `ClaudeOfTanks/TankBakedPresentation` shader with the opaque
 	  depth path preserved after screenshot review, sampling the baked albedo,
-	  normal, roughness and bump maps where the TS source material provides them
+	  normal, roughness and bump maps where the TS source material provides them.
+	  A separate C# translation route can now be forced with
+	  `COT_DISABLE_T90_BAKED_PRESENTATION=1`; that route deliberately bypasses
+	  the baked prefab, runs the C# T-90 schema, hides the generic fallback gear,
+	  and serves as the iterative porting baseline. It is not yet visually
+	  equivalent to the TS bake and should be advanced in focused geometry
+	  batches against the TS-prefixed baked reference.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side
