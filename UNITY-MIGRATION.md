@@ -703,8 +703,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   the connected armored T05BV-1 station and complete shared-factory NSVT.
   Its squared-bustle owner adds the two rising-underbody cassettes, rear slat
   grille, asymmetric side cells, continuous four-course cage, basket ring,
-  and half-sunk OPVT. Relikt, remaining fittings, gun, and final materials
-  remain follow-up stages.
+  and half-sunk OPVT. Its dedicated 2A46M-5 owner replaces the generic gun
+  with the source saddle, mantlet plug/canvas/straps, three tube courses,
+  six sleeve rings, tapered fume extractor, elliptical muzzle collar and
+  recessed bore. Relikt, remaining fittings, and final materials remain
+  follow-up stages.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

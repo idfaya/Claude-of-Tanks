@@ -106,7 +106,7 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Find(view, "Gun")
                         .GetComponent<Renderer>().enabled,
-                    Is.True);
+                    Is.False);
             }
             finally
             {
