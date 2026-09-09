@@ -19,11 +19,25 @@ namespace ClaudeOfTanks.Runtime
             Transform root,
             Color color)
         {
+            BuildBody(root, color);
+            BuildRunningGear(root, color);
+        }
+
+        public static void BuildBody(
+            Transform root,
+            Color color)
+        {
             AddHull(root, color);
             AddGlacisKit(root, color);
             AddSkirts(root, color);
-            AddRunningGear(root, color);
             AddRearService(root, color);
+        }
+
+        public static void BuildRunningGear(
+            Transform root,
+            Color color)
+        {
+            AddRunningGear(root, color);
         }
 
         private static void AddHull(

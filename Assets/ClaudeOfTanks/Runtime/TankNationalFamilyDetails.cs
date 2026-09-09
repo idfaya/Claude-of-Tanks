@@ -29,6 +29,7 @@ namespace ClaudeOfTanks.Runtime
                 TankT14FamilyDetails.Supports(id) ||
                 TankT90AFamilyDetails.Supports(id) ||
                 TankT90FamilyDetails.Supports(id) ||
+                TankT90ABurlakFamilyDetails.Supports(id) ||
                 TankT72BUFamilyDetails.Supports(id) ||
                 TankT72B3MFamilyDetails.Supports(id) ||
                 TankPumaFamilyDetails.Supports(id) ||

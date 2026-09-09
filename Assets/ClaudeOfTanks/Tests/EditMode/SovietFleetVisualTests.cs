@@ -48,14 +48,18 @@ namespace ClaudeOfTanks.Tests
                             "Soviet-") ||
                         item.name.StartsWith(
                             "Painted-Soviet-"));
-                    if (ProductionIds[i] == "t90a_vladimir")
+                    if (ProductionIds[i] == "t90a_vladimir" ||
+                        ProductionIds[i] == "t90a_burlak")
                     {
                         Assert.That(genericParts, Is.EqualTo(0));
-                        Assert.That(
-                            parts.Any(item =>
-                                item.name ==
-                                "T90AVladimir-PresentationRoot"),
-                            Is.True);
+                        if (ProductionIds[i] == "t90a_vladimir")
+                        {
+                            Assert.That(
+                                parts.Any(item =>
+                                    item.name ==
+                                    "T90AVladimir-PresentationRoot"),
+                                Is.True);
+                        }
                     }
                     else
                     {
@@ -135,7 +139,36 @@ namespace ClaudeOfTanks.Tests
                     Count(
                         burlak,
                         "Painted-Soviet-BurlakStowage"),
+                    Is.EqualTo(0));
+                Assert.That(
+                    Count(
+                        burlak,
+                        "Painted-T90A-UpperHull"),
                     Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        burlak,
+                        "Painted-T90ABurlak-FenderClosure-Centre") +
+                    Count(
+                        burlak,
+                        "Painted-T90ABurlak-FenderClosure-Forward") +
+                    Count(
+                        burlak,
+                        "Painted-T90ABurlak-FenderClosure-Shoulder") +
+                    Count(
+                        burlak,
+                        "Painted-T90ABurlak-FenderClosure-Bow"),
+                    Is.EqualTo(8));
+                Transform burlakHull = burlak.Root
+                    .GetComponentsInChildren<Transform>()
+                    .First(item =>
+                        item.name == "T90ABurlak-HullSection");
+                Assert.That(
+                    burlakHull.localPosition,
+                    Is.EqualTo(new Vector3(0f, 0.12f, 0f)));
+                Assert.That(
+                    burlakHull.localScale,
+                    Is.EqualTo(new Vector3(0.94f, 0.92f, 1.02f)));
                 Assert.That(
                     Count(
                         ukrainian,

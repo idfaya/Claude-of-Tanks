@@ -34,6 +34,13 @@ namespace ClaudeOfTanks.Runtime
                     color);
                 return;
             }
+            if (TankT90ABurlakFamilyDetails.Supports(id))
+            {
+                TankT90ABurlakFamilyDetails.BuildHull(
+                    root,
+                    color);
+                return;
+            }
             else
             {
                 AddRearGear(

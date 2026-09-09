@@ -652,6 +652,13 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   face and louvres, dark unditching log, five engine grilles, headlight/tow
   fittings, two-row glacis K-5, four-column side K-5 banks, and rear-quarter
   slat cages.
+- T-90A Burlak chassis translation has started from the final
+  `buildT90BurlakHybridNative2026` owner. It reuses the T-90A body and native
+  running gear through dedicated C# entry points, applies the source
+  `0.94 x 0.92 x 1.02` hull section and `+0.12 m` seat, narrows the running
+  gear gauge to `0.975`, and restores all eight authored fender closures.
+  Its generic `Soviet-*` fallback is disabled; the dedicated Burlak turret
+  and gun remain the next migration batch.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
