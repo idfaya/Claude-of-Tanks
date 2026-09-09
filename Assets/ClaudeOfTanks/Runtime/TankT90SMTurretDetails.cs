@@ -43,6 +43,7 @@ namespace ClaudeOfTanks.Runtime
             AddCupolas(root, color);
             TankT90SMTurretArmorDetails.Build(root, color);
             TankT90SMTurretEquipmentDetails.Build(root, color);
+            TankT90SMBustleDetails.Build(root, color);
         }
 
         private static void AddFoundation(
