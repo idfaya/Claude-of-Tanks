@@ -200,17 +200,50 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90A-ShtoraLens"),
                     Is.EqualTo(2));
                 Assert.That(
+                    Count(view, "T90A-ShtoraDrum"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90A-ShtoraRim"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90A-ShtoraVentFin"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "T90A-ShtoraSidePlate"),
+                    Is.EqualTo(4));
+                Assert.That(
                     Count(view, "Painted-T90A-ESSAHousing"),
                     Is.EqualTo(1));
                 Assert.That(
                     Count(view, "Painted-T90A-RoofCupola"),
                     Is.EqualTo(2));
                 Assert.That(
+                    Count(view, "T90A-RoofCupolaRim"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90A-RoofCupolaLid"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90A-CupolaPeriscope"),
+                    Is.EqualTo(8));
+                Assert.That(
+                    Count(view, "Painted-T90A-CupolaLampPod"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90A-CupolaLampLens"),
+                    Is.EqualTo(2));
+                Assert.That(
                     Count(view, "T90A-RemoteNsvtReceiver"),
                     Is.EqualTo(1));
                 Assert.That(
                     Count(view, "Painted-T90A-SmokeLauncher"),
-                    Is.EqualTo(12));
+                    Is.EqualTo(0));
+                Assert.That(
+                    Count(view, "T90A-CrosswindMast"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90A-CrosswindMastHead"),
+                    Is.EqualTo(1));
             }
             finally
             {

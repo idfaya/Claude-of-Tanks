@@ -595,8 +595,8 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side
   cassettes, welded/faceted cheek foundation, two-leaf turret K-5 chevron,
   red Shtora emitters, ESSA sight, dual roof cupolas, remote NSVT station,
-  smoke banks, rear fuel drums, split unditching log, and 2A46M-2 fittings
-  under the authoritative `Gun` transform. All 145 catalog hit surfaces stay
+  rear fuel drums, split unditching log, and 2A46M-2 fittings under the
+  authoritative `Gun` transform. All 145 catalog hit surfaces stay
   present, the 105 ERA renderers stay visible, and structural diagnostic
   surfaces are hidden behind dedicated geometry without adding generic side
   armor or presentation colliders. This checkpoint passed focused T-90A
@@ -613,6 +613,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   used by the current T-90A source. Its 18-point outline, z=0.50/0.55 lower
   breakpoints, 1.02 flare, 0.78 crown inset, rear shelf, and crown replace the
   former 3.1 m rectangular placeholder at the source seat `(0,1.335,-0.06)`.
+  The third batch replaces the remaining Shtora, cupola, lamp, and crosswind
+  Unity primitives with source-sized C# box/cylinder assemblies. Both
+  three-level cupolas now carry all eight authored periscope blocks, and the
+  twelve legacy smoke tubes are removed because the active base `buildT90A`
+  source does not create smoke banks.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

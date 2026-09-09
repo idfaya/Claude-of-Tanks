@@ -112,6 +112,34 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void MigratedT90AHullAndTurretAvoidLegacyPrimitives()
+        {
+            string projectRoot =
+                Directory.GetParent(Application.dataPath).FullName;
+            string runtime = Path.Combine(
+                projectRoot,
+                "Assets/ClaudeOfTanks/Runtime");
+            foreach (string active in new[]
+                {
+                    "TankT90AHullDetails.cs",
+                    "TankT90ATurretDetails.cs",
+                    "TankT90ATurretRevolutionDetails.cs"
+                })
+            {
+                string text = File.ReadAllText(
+                    Path.Combine(runtime, active));
+                Assert.That(
+                    text.Contains("TankDetailGeometry." + "Part("),
+                    Is.False,
+                    active);
+                Assert.That(
+                    text.Contains("PrimitiveType." + "Cylinder"),
+                    Is.False,
+                    active);
+            }
+        }
+
+        [Test]
         public void UnityAssetsContainNoExecutableTypeScriptSources()
         {
             string projectRoot =
