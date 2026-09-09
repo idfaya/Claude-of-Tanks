@@ -528,7 +528,9 @@ The port preserves the source project's runtime units and conventions:
 	  bustle-rack rails and skirt fasteners without growing the main schema file.
 	  The fourth batch adds a reusable C# `MeshPart` helper and begins replacing
 	  box-only approximation with translated multi-vertex surfaces for the upper
-	  hull wedge, swept glacis, rear deck and turret cheek wedges.
+	  hull wedge, swept glacis, rear deck and turret cheek wedges. The fifth
+	  batch extends the translated extras with TS-aligned bustle cargo panels,
+	  OPVT base/stay pieces, and cannon-base/gun-mount plates.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

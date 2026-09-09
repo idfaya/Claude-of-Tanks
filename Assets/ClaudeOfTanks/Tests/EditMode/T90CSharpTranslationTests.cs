@@ -35,6 +35,21 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(view, "Painted-T90-CSharpTurretCheekWedge-R"),
                     Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90-BustleCargoBox"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90-OpvtBaseCollar"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90-OpvtRackStay"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90-CannonBaseBoot"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90-GunMountCheekPlate"),
+                    Is.EqualTo(2));
                 AssertMeshVertexCount(
                     view,
                     "Painted-T90-CSharpUpperHullWedge",

@@ -15,6 +15,7 @@ namespace ClaudeOfTanks.Runtime
             AddTurretMeshSurfaces(turret, color);
             AddTurretRoofDetails(turret, color);
             AddBustleRackDetails(turret);
+            AddGunMountDetails(turret);
             AddHullSkirtFasteners(root);
         }
 
@@ -112,6 +113,18 @@ namespace ClaudeOfTanks.Runtime
         private static void AddBustleRackDetails(
             Transform turret)
         {
+            Part("Painted-T90-BustleCargoBox", PrimitiveType.Cube, turret,
+                V(0f, 0.42f, -1.78f), V(1.3f, 0.44f, 0.24f),
+                V(), new Color(0.28f, 0.34f, 0.24f));
+            Part("T90-BustleRearMesh", PrimitiveType.Cube, turret,
+                V(0f, 0.5f, -1.755f), V(1.42f, 0.44f, 0.03f),
+                V(), Dark());
+            Part("T90-OpvtBaseCollar", PrimitiveType.Cylinder, turret,
+                V(0.32f, 0.4f, -1.13f), V(0.058f, 0.05f, 0.058f),
+                V(), Dark());
+            Part("T90-OpvtRackStay", PrimitiveType.Cube, turret,
+                V(0.32f, 0.62f, -1.16f), V(0.03f, 0.03f, 0.3f),
+                V(), Dark());
             for (int side = -1; side <= 1; side += 2)
             {
                 Part("T90-BustleSideRail", PrimitiveType.Cube, turret,
@@ -122,6 +135,29 @@ namespace ClaudeOfTanks.Runtime
                         V(side * 0.42f, 0.66f + rung * 0.095f, -1.78f),
                         V(0.68f, 0.025f, 0.035f), V(), Dark());
             }
+        }
+
+        private static void AddGunMountDetails(
+            Transform turret)
+        {
+            Part("T90-CannonBaseBoot", PrimitiveType.Cylinder, turret,
+                V(0f, 0.32f, 1.08f), V(0.5f, 0.15f, 0.4f),
+                V(90f, 0f, 0f), Dark());
+            Part("T90-GunMountAccessPlate", PrimitiveType.Cube, turret,
+                V(-0.245f, 0.55f, 0.341f), V(0.15f, 0.1f, 0.016f),
+                V(), Dark());
+            for (int side = -1; side <= 1; side += 2)
+            {
+                Part("T90-GunMountCheekPlate", PrimitiveType.Cube, turret,
+                    V(side * 0.1425f, 0.35f, 0.958f),
+                    V(0.175f, 0.18f, 0.016f), V(), Dark());
+                Part("T90-GunMountLatch", PrimitiveType.Cube, turret,
+                    V(side * 0.085f, 0.3015f, 1.302f),
+                    V(0.06f, 0.043f, 0.014f), V(), Dark());
+            }
+            Part("T90-GunMountCenterPlate", PrimitiveType.Cube, turret,
+                V(0f, 0.25f, 0.958f), V(0.11f, 0.1f, 0.016f),
+                V(), Dark());
         }
 
         private static void AddHullSkirtFasteners(
