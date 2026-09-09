@@ -21,13 +21,22 @@ namespace ClaudeOfTanks.Runtime
             if (TankT72BUFamilyDetails.Supports(id)) return;
             if (TankT72B3MFamilyDetails.Supports(id)) return;
 
-            AddRearGear(
-                root,
-                definition,
-                color,
-                width,
-                height,
-                length);
+            if (TankT90AVladimirFamilyDetails.Supports(id))
+            {
+                TankT90AVladimirFamilyDetails.BuildHull(
+                    root,
+                    color);
+            }
+            else
+            {
+                AddRearGear(
+                    root,
+                    definition,
+                    color,
+                    width,
+                    height,
+                    length);
+            }
             if (id == "bmpt_t90")
             {
                 TankSovietBmptDetails.Build(

@@ -631,6 +631,12 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   Hull and barrel retain camouflage, while wheels, tracks, optics, Shtora,
   rubber, wood, and detail fittings recover their TS roughness, metalness,
   dark-olive color floors, and emissive treatment without baked textures.
+- `t90a_vladimir` hull migration has started with a dedicated C# owner. Its
+  source `-4.755..+2.10 m` longitudinal hull profile now uses the shared loft
+  factory, while the six `0.375 m` wheels, `+-1.46 m` track centers,
+  `-3.30/+1.65 m` sprocket/idler stations, return rollers, fenders, skirts,
+  and rear mud flaps use variant-specific runtime geometry. The Soviet turret
+  fallback remains explicit until the following turret/equipment batch.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
