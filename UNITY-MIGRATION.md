@@ -763,8 +763,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   `TankT90FamilyHullShapeFactory` owns the common T-90 section data, while
   the Proryv hull applies the final installed `-0.04 m` visible offset,
   `1.35 m` flat sponson clearance, central glacis and paired shoulder
-  bridges. Running gear, skirts, stern, turret and gun remain follow-up
-  stages.
+  bridges. Its native running gear now supplies the final six `0.31 m`
+  road-wheel stations, layered rims/hubs/bolts, four return rollers,
+  corrected end-wheel centers and a `.165 m` linked-track course. Skirts,
+  stern, turret and gun remain follow-up stages.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

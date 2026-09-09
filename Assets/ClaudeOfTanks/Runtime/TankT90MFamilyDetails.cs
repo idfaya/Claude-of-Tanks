@@ -29,6 +29,9 @@ namespace ClaudeOfTanks.Runtime
                 color,
                 -0.04f,
                 1.35f);
+            TankT90MRunningGearDetails.Build(
+                root,
+                presentation);
             AddCenterGlacis(presentation, color);
             AddShoulderBridges(presentation, color);
         }

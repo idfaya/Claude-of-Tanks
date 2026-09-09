@@ -86,6 +86,82 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [TestCase("t90m")]
+        [TestCase("t90m_proryv")]
+        public void BuildsNativeSixWheelLinkedCourse(string id)
+        {
+            TankView view = Create(id);
+            try
+            {
+                Assert.That(
+                    Count(view, "T90M-RoadWheelTire"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "Painted-T90M-RoadWheelDisc"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90M-RoadWheelOuterRim"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90M-RoadWheelInnerRim"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "Painted-T90M-RoadWheelHub"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90M-RoadWheelHubInset"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90M-RoadWheelBolt"),
+                    Is.EqualTo(96));
+                Assert.That(
+                    Count(view, "Painted-T90M-Sprocket"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90M-Idler"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90M-ReturnRoller"),
+                    Is.EqualTo(8));
+
+                Transform[] pads = view.Root
+                    .GetComponentsInChildren<Transform>(true)
+                    .Where(item => item.name == "T90M-TrackPad")
+                    .ToArray();
+                Assert.That(pads.Length, Is.EqualTo(150));
+                Assert.That(
+                    pads.Min(item => item.localPosition.y),
+                    Is.EqualTo(0.05f).Within(0.0001f));
+                Assert.That(
+                    pads.Max(item => item.localPosition.y),
+                    Is.EqualTo(1.195f).Within(0.0001f));
+                Assert.That(
+                    pads.Min(item => item.localPosition.x),
+                    Is.EqualTo(-1.435f).Within(0.0001f));
+                Assert.That(
+                    pads.Max(item => item.localPosition.x),
+                    Is.EqualTo(1.435f).Within(0.0001f));
+
+                Renderer[] genericGear = view.Root
+                    .GetComponentsInChildren<Renderer>(true)
+                    .Where(item =>
+                        item.name.StartsWith("RoadWheel-") ||
+                        item.name.StartsWith("Sprocket-") ||
+                        item.name.StartsWith("Idler-") ||
+                        item.name.StartsWith("ReturnRoller-") ||
+                        item.name.StartsWith("TrackLinks-"))
+                    .ToArray();
+                Assert.That(genericGear.Length, Is.GreaterThan(0));
+                Assert.That(
+                    genericGear.All(item => !item.enabled),
+                    Is.True);
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create(string id)
         {
             ContentCatalog catalog = ContentCatalog.Load();
