@@ -16,6 +16,7 @@ namespace ClaudeOfTanks.Runtime
         {
             string id = definition?.id;
             if (!IsFamily(id)) return;
+            if (TankT90AFamilyDetails.Supports(id)) return;
             if (TankT90FamilyDetails.Supports(id)) return;
             if (TankT72BUFamilyDetails.Supports(id)) return;
             if (TankT72B3MFamilyDetails.Supports(id)) return;

@@ -27,6 +27,7 @@ namespace ClaudeOfTanks.Runtime
                 TankLeopard1A5FamilyDetails.Supports(id) ||
                 TankMbt70FamilyDetails.Supports(id) ||
                 TankT14FamilyDetails.Supports(id) ||
+                TankT90AFamilyDetails.Supports(id) ||
                 TankT90FamilyDetails.Supports(id) ||
                 TankT72BUFamilyDetails.Supports(id) ||
                 TankT72B3MFamilyDetails.Supports(id) ||
@@ -98,6 +99,14 @@ namespace ClaudeOfTanks.Runtime
                 height,
                 length);
             TankAbramsM1FamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color,
+                width,
+                height,
+                length);
+            TankT90AFamilyDetails.Build(
                 root,
                 turret,
                 definition,

@@ -14,7 +14,6 @@ namespace ClaudeOfTanks.Tests
             "t80b",
             "t80bv",
             "t80u",
-            "t90a",
             "t90a_vladimir",
             "t90a_burlak",
             "t90sm",
@@ -73,7 +72,7 @@ namespace ClaudeOfTanks.Tests
                 ContentCatalog.Load();
             TankView early = Create(catalog, "t80");
             TankView reactive = Create(catalog, "t80bv");
-            TankView shtora = Create(catalog, "t90a");
+            TankView shtora = Create(catalog, "t90a_vladimir");
             TankView modern = Create(catalog, "t90m");
             TankView burlak = Create(
                 catalog,

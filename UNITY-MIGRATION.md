@@ -495,6 +495,20 @@ The port preserves the source project's runtime units and conventions:
   renderers stay visible, and structural diagnostic surfaces are hidden
   behind dedicated geometry without adding generic side armor or presentation
   colliders
+- `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
+  port keeps the source six-wheel T-90A course, raised rear sprocket and
+  front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side
+  cassettes, welded/faceted cheek foundation, two-leaf turret K-5 chevron,
+  red Shtora emitters, ESSA sight, dual roof cupolas, remote NSVT station,
+  smoke banks, rear fuel drums, split unditching log, and 2A46M-2 fittings
+  under the authoritative `Gun` transform. All 145 catalog hit surfaces stay
+  present, the 105 ERA renderers stay visible, and structural diagnostic
+  surfaces are hidden behind dedicated geometry without adding generic side
+  armor or presentation colliders. This checkpoint passed focused T-90A
+  EditMode coverage, adjacent Soviet fallback coverage, full Unity EditMode
+  and PlayMode suites, content and attribution checks, TypeScript typecheck,
+  the full `npm test` pre/core/post suite, and public/private production
+  builds before its stage commit.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
