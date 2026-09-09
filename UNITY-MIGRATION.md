@@ -746,7 +746,9 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   sleeve rings, tapered fume extractor and recessed `5.32 m` bore. T-90MS
   now routes through the T-90 material applicator with its exact final dark,
   rubber, wood, canvas, track, glass and bore-shadow roles. Shared tactical
-  number decals and the final whole-vehicle receipt audit remain follow-ups.
+  numbers now use deterministic runtime-generated transparent textures on
+  mirrored turret-local planes; their texture owner releases those resources
+  with the vehicle. The final whole-vehicle receipt audit remains a follow-up.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

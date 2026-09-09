@@ -12,7 +12,6 @@ namespace ClaudeOfTanks.Runtime
         private readonly Material[] _materials;
         private readonly Texture2D _camouflageTexture;
         private readonly Color _aliveColor;
-
         private TankView(
             Transform root,
             Transform turret,
@@ -447,6 +446,7 @@ namespace ClaudeOfTanks.Runtime
 
         public void Destroy()
         {
+            TankGeneratedTextureOwner.ReleaseOwnedTextures(_root);
             if (_root != null) DestroyObject(_root.gameObject);
             for (int i = 0; i < _meshes.Length; i++) DestroyObject(_meshes[i]);
             for (int i = 0; i < _materials.Length; i++) DestroyObject(_materials[i]);

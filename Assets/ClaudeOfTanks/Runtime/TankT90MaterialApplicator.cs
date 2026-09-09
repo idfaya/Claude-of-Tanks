@@ -57,6 +57,12 @@ namespace ClaudeOfTanks.Runtime
                 Renderer renderer = renderers[index];
                 Material material = renderer?.sharedMaterial;
                 if (material == null) continue;
+                if (renderer.gameObject.name.StartsWith(
+                        "VehicleMarking-",
+                        StringComparison.Ordinal))
+                {
+                    continue;
+                }
                 Role role = ResolveRole(
                     renderer.gameObject.name,
                     usesT90AColors,

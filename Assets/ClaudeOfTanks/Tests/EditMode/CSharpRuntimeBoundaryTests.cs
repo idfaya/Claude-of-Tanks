@@ -130,6 +130,8 @@ namespace ClaudeOfTanks.Tests
                     "TankPintleMachineGunFactory.cs",
                     "TankLinkedTrackShapeFactory.cs",
                     "TankMudguardShapeFactory.cs",
+                    "TankTacticalNumberFactory.cs",
+                    "TankGeneratedTextureOwner.cs",
                     "TankT90ABurlakFamilyDetails.cs",
                     "TankT90ABurlakTurretDetails.cs",
                     "TankT90ABurlakTurretEquipmentDetails.cs",

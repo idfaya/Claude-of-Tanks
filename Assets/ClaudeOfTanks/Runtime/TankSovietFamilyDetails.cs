@@ -70,7 +70,8 @@ namespace ClaudeOfTanks.Runtime
                     color);
                 TankT90MSTurretDetails.Build(
                     turret,
-                    color);
+                    color,
+                    definition?.visual?.number);
                 TankT90MSGunDetails.Build(
                     turret,
                     color);

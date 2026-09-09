@@ -37,7 +37,8 @@ namespace ClaudeOfTanks.Runtime
 
         public static void Build(
             Transform turret,
-            Color color)
+            Color color,
+            string tacticalNumber)
         {
             HideRenderer(turret.Find("Turret"));
             GameObject rootObject =
@@ -53,6 +54,18 @@ namespace ClaudeOfTanks.Runtime
             TankT90MSTurretArmorDetails.Build(root, color);
             TankT90MSBustleDetails.Build(root, color);
             TankT90MSTurretEquipmentDetails.Build(root, color);
+            if (!string.IsNullOrEmpty(tacticalNumber))
+            {
+                TankTacticalNumberFactory.BuildPair(
+                    "T90MS",
+                    root,
+                    tacticalNumber,
+                    0.25f,
+                    V(1.67f, 0.30f, -0.38f),
+                    Quaternion.Euler(0f, 90f, 0f),
+                    V(-1.67f, 0.30f, -0.38f),
+                    Quaternion.Euler(0f, -90f, 0f));
+            }
         }
 
         private static void AddInnerShell(
