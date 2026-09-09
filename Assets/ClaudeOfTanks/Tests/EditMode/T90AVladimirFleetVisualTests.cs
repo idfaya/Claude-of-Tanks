@@ -68,6 +68,22 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "Painted-T90AVladimir-Crown"),
                     Is.EqualTo(1));
                 Assert.That(
+                    VertexCount(
+                        view,
+                        "Painted-T90AVladimir-CrownTransition"),
+                    Is.EqualTo(240));
+                Assert.That(
+                    VertexCount(
+                        view,
+                        "Painted-T90AVladimir-WeldedBustle"),
+                    Is.EqualTo(168));
+                Assert.That(
+                    Count(view, "T90AVladimir-BustleRail"),
+                    Is.EqualTo(18));
+                Assert.That(
+                    Count(view, "T90AVladimir-CrownFacet"),
+                    Is.EqualTo(2));
+                Assert.That(
                     Count(view, "Painted-T90AVladimir-K5Flank"),
                     Is.EqualTo(12));
                 Assert.That(
@@ -171,6 +187,15 @@ namespace ClaudeOfTanks.Tests
             return view.Root
                 .GetComponentsInChildren<Transform>(true)
                 .Count(item => item.name == name);
+        }
+
+        private static int VertexCount(
+            TankView view,
+            string name)
+        {
+            return Find(view, name)
+                .GetComponent<MeshFilter>()
+                .sharedMesh.vertexCount;
         }
 
         private static void AssertBounds(

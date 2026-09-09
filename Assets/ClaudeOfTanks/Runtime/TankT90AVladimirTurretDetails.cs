@@ -80,6 +80,30 @@ namespace ClaudeOfTanks.Runtime
                 0.75f,
                 color * 0.64f,
                 1.60f);
+            TankWeldedStationLoftShapeFactory.Build(
+                "Painted-T90AVladimir-CrownTransition",
+                root,
+                new[]
+                {
+                    S(0.78f, 0.12f, 0.42f, -0.72f, 0.72f, -0.82f, 0.82f, -0.45f, 0.45f),
+                    S(0.38f, 0.10f, 0.54f, -0.98f, 1.00f, -1.08f, 1.10f, -0.68f, 0.70f),
+                    S(-0.05f, 0.08f, 0.62f, -1.14f, 1.16f, -1.22f, 1.24f, -0.90f, 0.93f),
+                    S(-0.45f, 0.19f, 0.52f, -1.18f, 1.18f, -0.91f, 0.91f, -1.05f, 1.05f),
+                    S(-0.70f, 0.15f, 0.57f, -1.24f, 1.24f, -1.00f, 1.00f, -1.13f, 1.13f),
+                    S(-0.94f, 0.10f, 0.62f, -1.23f, 1.23f, -1.04f, 1.04f, -1.14f, 1.14f),
+                    S(-1.24f, 0.07f, 0.61f, -1.15f, 1.15f, -0.98f, 0.98f, -1.07f, 1.07f)
+                },
+                color * 0.58f);
+            Box("T90AVladimir-CrownFacet", root,
+                V(-0.38f, 0.625f, -0.83f),
+                V(0.62f, 0.020f, 0.34f),
+                TankT90AFamilyDetails.Dark())
+                .localRotation = Quaternion.Euler(0f, -2.86f, 0f);
+            Box("T90AVladimir-CrownFacet", root,
+                V(0.43f, 0.617f, -0.90f),
+                V(0.44f, 0.018f, 0.29f),
+                TankT90AFamilyDetails.Dark())
+                .localRotation = Quaternion.Euler(0f, 4.01f, 0f);
             Box("Painted-T90AVladimir-LeftSideHead", root,
                 V(-1.27f, 0.12f, -0.55f),
                 V(0.19f, 0.38f, 0.50f), color * 0.56f)
@@ -232,9 +256,18 @@ namespace ClaudeOfTanks.Runtime
             Transform root,
             Color color)
         {
-            Box("Painted-T90AVladimir-Bustle", root,
-                V(0f, 0.30f, -1.72f),
-                V(2.10f, 0.50f, 1.55f), color * 0.55f);
+            TankWeldedStationLoftShapeFactory.Build(
+                "Painted-T90AVladimir-WeldedBustle",
+                root,
+                new[]
+                {
+                    S(-0.62f, 0.02f, 0.56f, -1.25f, 1.25f, -1.05f, 1.05f, -1.17f, 1.17f),
+                    S(-1.10f, 0.04f, 0.60f, -1.24f, 1.24f, -1.02f, 1.02f, -1.14f, 1.14f),
+                    S(-1.70f, 0.05f, 0.58f, -1.05f, 1.05f, -0.88f, 0.88f, -0.96f, 0.96f),
+                    S(-2.30f, 0.06f, 0.52f, -0.84f, 0.84f, -0.70f, 0.70f, -0.77f, 0.77f),
+                    S(-2.72f, 0.02f, 0.46f, -0.66f, 0.66f, -0.54f, 0.54f, -0.61f, 0.61f)
+                },
+                color * 0.55f);
             float[] xs = { -0.88f, -0.47f, 0.40f, 0.70f };
             for (int index = 0; index < xs.Length; index++)
             {
@@ -242,13 +275,70 @@ namespace ClaudeOfTanks.Runtime
                     V(xs[index], 0.34f, -1.47f),
                     V(0.30f, 0.42f, 0.44f), color * 0.50f);
             }
+            float[] railZ =
+                { -0.68f, -1.10f, -1.70f, -2.30f, -2.60f };
+            float[] railX =
+                { 1.230f, 1.226f, 1.042f, 0.830f, 0.700f };
             for (int side = -1; side <= 1; side += 2)
             {
-                Box("T90AVladimir-BustleRail", root,
-                    V(side * 1.15f, 0.34f, -1.45f),
-                    V(0.055f, 0.055f, 1.55f),
-                    TankT90AFamilyDetails.Dark());
+                for (int index = 0; index < railZ.Length - 1; index++)
+                {
+                    float x0 = side * (railX[index] + 0.018f);
+                    float x1 = side * (railX[index + 1] + 0.018f);
+                    float dx = x1 - x0;
+                    float dz = railZ[index + 1] - railZ[index];
+                    Transform rail = Box(
+                        "T90AVladimir-BustleRail",
+                        root,
+                        V(
+                            (x0 + x1) * 0.5f,
+                            0.34f,
+                            (railZ[index] + railZ[index + 1]) * 0.5f),
+                        V(
+                            0.055f,
+                            0.055f,
+                            Mathf.Sqrt(dx * dx + dz * dz) + 0.035f),
+                        TankT90AFamilyDetails.Dark());
+                    rail.localRotation = Quaternion.Euler(
+                        0f,
+                        Mathf.Atan2(dx, dz) * Mathf.Rad2Deg,
+                        0f);
+                }
+                for (int index = 0; index < railZ.Length; index++)
+                {
+                    Box("T90AVladimir-BustleRail",
+                        root,
+                        V(
+                            side * (railX[index] + 0.018f),
+                            0.31f,
+                            railZ[index]),
+                        V(0.055f, 0.24f, 0.055f),
+                        TankT90AFamilyDetails.Dark());
+                }
             }
+        }
+
+        private static TankWeldedStation S(
+            float z,
+            float bottomY,
+            float topY,
+            float middleLeftX,
+            float middleRightX,
+            float bottomLeftX,
+            float bottomRightX,
+            float topLeftX,
+            float topRightX)
+        {
+            return new TankWeldedStation(
+                z,
+                bottomY,
+                topY,
+                middleLeftX,
+                middleRightX,
+                bottomLeftX,
+                bottomRightX,
+                topLeftX,
+                topRightX);
         }
 
         private static Transform Box(
