@@ -119,13 +119,15 @@ namespace ClaudeOfTanks.Runtime
                     new Vector3(side * 0.95f, 1.1f, 2.97f),
                     new Vector3(0.22f, 0.12f, 0.16f),
                     TankT90AFamilyDetails.Dark());
-                Transform hook = Part(
+                Transform hook = TankShapeFactory.TorusPart(
                     "T90A-TowHook",
-                    PrimitiveType.Cylinder,
                     root,
-                    new Vector3(side * 0.4f, 0.68f, 3.04f),
-                    new Vector3(0.06f, 0.025f, 0.06f),
+                    0.06f,
+                    0.014f,
+                    10,
                     TankT90AFamilyDetails.Dark());
+                hook.localPosition =
+                    new Vector3(side * 0.4f, 0.68f, 3.04f);
                 hook.localRotation =
                     Quaternion.Euler(90f, 0f, 0f);
             }
@@ -193,16 +195,17 @@ namespace ClaudeOfTanks.Runtime
                     index++)
                 {
                     Vector3 center =
-                        new Vector3(side * 1.62f, 0.455f, WheelStations[index]);
-                    Transform dish = Part(
+                        new Vector3(side * 1.395f, 0.455f, WheelStations[index]);
+                    Transform dish = TankShapeFactory.CylinderPart(
                         "T90A-RoadWheelDish",
-                        PrimitiveType.Cylinder,
                         root,
-                        center,
-                        new Vector3(0.32f, 0.045f, 0.32f),
-                        TankT90AFamilyDetails.Dark());
-                    dish.localRotation =
-                        Quaternion.Euler(0f, 0f, 90f);
+                        0.3234f,
+                        0.3234f,
+                        0.2352f,
+                        26,
+                        TankShapeAxis.X,
+                        color * 0.48f);
+                    dish.localPosition = center;
                     for (int spoke = 0;
                         spoke < 6;
                         spoke++)
@@ -222,15 +225,20 @@ namespace ClaudeOfTanks.Runtime
                     index < RollerStations.Length;
                     index++)
                 {
-                    Transform roller = Part(
+                    Transform roller = TankShapeFactory.CylinderPart(
                         "T90A-ReturnRoller",
-                        PrimitiveType.Cylinder,
                         root,
-                        new Vector3(side * 1.48f, 0.82f, RollerStations[index]),
-                        new Vector3(0.086f, 0.035f, 0.086f),
+                        0.086f,
+                        0.086f,
+                        0.305f,
+                        20,
+                        TankShapeAxis.X,
                         color * 0.45f);
-                    roller.localRotation =
-                        Quaternion.Euler(0f, 0f, 90f);
+                    roller.localPosition =
+                        new Vector3(
+                            side * 1.395f,
+                            0.82f,
+                            RollerStations[index]);
                 }
             }
         }
@@ -262,24 +270,76 @@ namespace ClaudeOfTanks.Runtime
                     new Vector3(side * 0.72f, 1.26f, -2.81f),
                     new Vector3(1.18f, 0.16f, 0.28f),
                     color * 0.6f);
-                Transform drum = Part(
+                Transform drum = TankShapeFactory.CylinderPart(
                     "Painted-T90A-RearFuelDrum",
-                    PrimitiveType.Cylinder,
                     root,
-                    new Vector3(side * 0.72f, 1.325f, -3.18f),
-                    new Vector3(0.145f, 0.23f, 0.145f),
+                    0.145f,
+                    0.145f,
+                    0.46f,
+                    14,
+                    TankShapeAxis.Z,
                     color * 0.6f);
-                drum.localRotation =
-                    Quaternion.Euler(90f, 0f, 0f);
-                Transform log = Part(
-                    "T90A-SplitUnditchingLog",
-                    PrimitiveType.Cylinder,
+                drum.localPosition =
+                    new Vector3(side * 0.72f, 1.325f, -3.1775f);
+                Cylinder(
+                    "T90A-RearFuelDrumFrontBand",
                     root,
-                    new Vector3(side * 0.575f, 1.36f, -3.23f),
-                    new Vector3(0.095f, 0.425f, 0.095f),
+                    new Vector3(side * 0.72f, 1.325f, -2.975f),
+                    0.149f,
+                    0.03f,
+                    14,
+                    TankShapeAxis.Z,
+                    TankT90AFamilyDetails.Dark());
+                Cylinder(
+                    "T90A-RearFuelDrumStrap",
+                    root,
+                    new Vector3(side * 0.72f, 1.325f, -3.19f),
+                    0.147f,
+                    0.022f,
+                    14,
+                    TankShapeAxis.Z,
+                    TankT90AFamilyDetails.Dark());
+                Cylinder(
+                    "T90A-RearFuelDrumStrap",
+                    root,
+                    new Vector3(side * 0.72f, 1.325f, -3.33f),
+                    0.147f,
+                    0.022f,
+                    14,
+                    TankShapeAxis.Z,
+                    TankT90AFamilyDetails.Dark());
+                Transform log = TankShapeFactory.CylinderPart(
+                    "T90A-SplitUnditchingLog",
+                    root,
+                    0.095f,
+                    0.095f,
+                    0.85f,
+                    10,
+                    TankShapeAxis.X,
                     TankT90AFamilyDetails.Wood());
-                log.localRotation =
-                    Quaternion.Euler(0f, 0f, 90f);
+                log.localPosition =
+                    new Vector3(side * 0.575f, 1.36f, -3.23f);
+            }
+            Cylinder(
+                "T90A-RearDeckTube",
+                root,
+                new Vector3(0f, 1.39f, -1.43f),
+                0.09f,
+                1.9f,
+                10,
+                TankShapeAxis.X,
+                TankT90AFamilyDetails.Dark());
+            for (int side = -1; side <= 1; side += 2)
+            {
+                Cylinder(
+                    "T90A-UnditchingLogStrap",
+                    root,
+                    new Vector3(side * 0.5775f, 1.36f, -3.23f),
+                    0.102f,
+                    0.045f,
+                    10,
+                    TankShapeAxis.X,
+                    TankT90AFamilyDetails.Dark());
             }
         }
 
@@ -291,13 +351,39 @@ namespace ClaudeOfTanks.Runtime
             Vector3 scale,
             Color color)
         {
-            return TankDetailGeometry.Part(
+            if (type != PrimitiveType.Cube)
+                throw new System.InvalidOperationException(
+                    "T-90A hull parts must use C# shape factories.");
+            Transform part = TankShapeFactory.BoxPart(
                 name,
-                type,
                 parent,
-                position,
                 scale,
                 color);
+            part.localPosition = position;
+            return part;
+        }
+
+        private static Transform Cylinder(
+            string name,
+            Transform parent,
+            Vector3 position,
+            float radius,
+            float length,
+            int segments,
+            TankShapeAxis axis,
+            Color color)
+        {
+            Transform part = TankShapeFactory.CylinderPart(
+                name,
+                parent,
+                radius,
+                radius,
+                length,
+                segments,
+                axis,
+                color);
+            part.localPosition = position;
+            return part;
         }
     }
 }

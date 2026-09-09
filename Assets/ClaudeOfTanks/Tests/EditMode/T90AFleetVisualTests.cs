@@ -37,6 +37,19 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90A-ReturnRoller"),
                     Is.EqualTo(6));
                 Assert.That(
+                    Count(view, "T90A-RoadWheelDish"),
+                    Is.EqualTo(12));
+                Transform dish =
+                    Find(view, "T90A-RoadWheelDish");
+                Assert.That(
+                    Mathf.Abs(dish.localPosition.x),
+                    Is.EqualTo(1.395f).Within(0.0001f));
+                Assert.That(
+                    MaximumRadiusX(
+                        dish.GetComponent<MeshFilter>()
+                            .sharedMesh.vertices),
+                    Is.EqualTo(0.3234f).Within(0.0001f));
+                Assert.That(
                     Find(view, "Sprocket-L")
                         .localPosition,
                     Is.EqualTo(new Vector3(
@@ -118,6 +131,18 @@ namespace ClaudeOfTanks.Tests
                     Is.EqualTo(2));
                 Assert.That(
                     Count(view, "T90A-SplitUnditchingLog"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90A-RearFuelDrumFrontBand"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90A-RearFuelDrumStrap"),
+                    Is.EqualTo(4));
+                Assert.That(
+                    Count(view, "T90A-UnditchingLogStrap"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90A-TowHook"),
                     Is.EqualTo(2));
             }
             finally
@@ -282,6 +307,20 @@ namespace ClaudeOfTanks.Tests
             string name)
         {
             return FindAll(view, name).First();
+        }
+
+        private static float MaximumRadiusX(Vector3[] vertices)
+        {
+            float radius = 0f;
+            for (int index = 0; index < vertices.Length; index++)
+            {
+                radius = Mathf.Max(
+                    radius,
+                    Mathf.Sqrt(
+                        vertices[index].y * vertices[index].y +
+                        vertices[index].z * vertices[index].z));
+            }
+            return radius;
         }
     }
 }

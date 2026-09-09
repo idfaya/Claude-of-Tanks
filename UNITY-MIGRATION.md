@@ -604,6 +604,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   and PlayMode suites, content and attribution checks, TypeScript typecheck,
   the full `npm test` pre/core/post suite, and public/private production
   builds before its stage commit.
+  The first shared-factory conversion batch moves the complete T-90A hull to
+  rounded C# boxes plus explicit X/Z-axis cylinders and torus hooks. It
+  restores the source `1.395 m` wheel lane, `0.3234 m` painted dish, `0.46 m`
+  rear fuel drums with three strap courses, and split 0.85 m unditching logs
+  without changing catalog armor or generic suspension ownership.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
