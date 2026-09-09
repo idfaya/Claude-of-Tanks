@@ -20,11 +20,10 @@ namespace ClaudeOfTanks.Runtime
         {
             if (!Supports(definition?.id)) return;
 
-            if (TankGeneratedPresentationCatalog.TryBuild(
+            if (TankBakedPresentationCatalog.TryBuild(
                     definition.id,
                     root,
-                    turret,
-                    definition))
+                    turret))
             {
                 return;
             }

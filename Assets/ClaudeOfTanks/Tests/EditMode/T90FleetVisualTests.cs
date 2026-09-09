@@ -23,7 +23,7 @@ namespace ClaudeOfTanks.Tests
                     CountPrefix(view, "Armor-"),
                     Is.EqualTo(166));
                 Assert.That(
-                    Count(view, "T90-TsGeneratedPresentationSchema"),
+                    Count(view, "T90-BakedPresentationPrefab"),
                     Is.EqualTo(1));
                 Assert.That(
                     definition.armor.hullPlates
@@ -192,7 +192,7 @@ namespace ClaudeOfTanks.Tests
                     AssertGunOwned(view, name);
                 }
                 Assert.That(
-                    Count(view, "T90-TsGunFittings"),
+                    Count(view, "T90-BakedGunFittings"),
                     Is.EqualTo(1));
             }
             finally

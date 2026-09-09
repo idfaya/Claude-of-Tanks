@@ -4,7 +4,7 @@ import '../src/vehicles/tankFactory.ts';
 import { createTank } from '../src/vehicles/tankFactory.ts';
 
 const outputUrl = new URL(
-  '../Assets/ClaudeOfTanks/Resources/Generated/tank-presentation-schemas.json',
+  '../Assets/ClaudeOfTanks/Generated/PresentationSource/tank-presentation-schemas.json',
   import.meta.url,
 );
 const check = process.argv.includes('--check');
@@ -203,12 +203,12 @@ const text = `${JSON.stringify(payload)}\n`;
 if (check) {
   const current = await readFile(outputUrl, 'utf8');
   if (current !== text) {
-    console.error('Unity presentation schema is stale; run npm run unity:presentation:update');
+    console.error('Unity presentation source schema is stale; run npm run unity:presentation:update');
     process.exit(1);
   }
   console.log(`[unity-presentation] PASS ${ids.join(',')}`);
 } else {
   await mkdir(new URL('.', outputUrl), { recursive: true });
   await writeFile(outputUrl, text);
-  console.log(`[unity-presentation] wrote ${ids.join(',')} -> ${outputUrl.pathname}`);
+  console.log(`[unity-presentation] wrote source ${ids.join(',')} -> ${outputUrl.pathname}`);
 }
