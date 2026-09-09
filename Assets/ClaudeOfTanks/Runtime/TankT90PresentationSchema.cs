@@ -255,10 +255,6 @@ namespace ClaudeOfTanks.Runtime
         private static void AddTurret(
             List<TankPresentationPart> parts)
         {
-            Add(parts, "Painted-T90-TurretRingCollar",
-                PrimitiveType.Cylinder, TankPresentationTarget.Turret,
-                V(0f, -0.02f, -0.02f), V(1.58f, 0.05f, 1.58f), V(),
-                TankPresentationColor.Base, 0.45f);
             Add(parts, "Painted-T90-MantletTunnel", PrimitiveType.Cube,
                 TankPresentationTarget.Turret, V(0f, 0.22f, 1.0f),
                 V(0.54f, 0.3f, 0.6f), V(), TankPresentationColor.Base,

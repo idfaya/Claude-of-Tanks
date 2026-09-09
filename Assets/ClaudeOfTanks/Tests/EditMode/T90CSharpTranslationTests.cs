@@ -35,6 +35,15 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "Painted-T90-CSharpCastDomeMesh"),
                     Is.EqualTo(1));
                 Assert.That(
+                    Count(view, "Painted-T90-TurretRingCollar"),
+                    Is.EqualTo(0));
+                Assert.That(
+                    Count(view, "Painted-T90-CastSeat"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90-CastSeatSeam"),
+                    Is.EqualTo(1));
+                Assert.That(
                     Count(view, "Painted-T90-BustleCargoBox"),
                     Is.EqualTo(1));
                 Assert.That(
@@ -95,6 +104,10 @@ namespace ClaudeOfTanks.Tests
                     view,
                     "Painted-T90-CSharpCastDomeMesh",
                     468);
+                AssertMeshVertexCount(
+                    view,
+                    "Painted-T90-CastSeat",
+                    108);
                 Bounds castBounds = Find(
                         view,
                         "Painted-T90-CSharpCastDomeMesh")

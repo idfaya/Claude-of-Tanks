@@ -73,6 +73,39 @@ namespace ClaudeOfTanks.Runtime
                 "Painted-T90-CSharpCastDomeMesh",
                 turret,
                 color * 0.64f);
+            Vector2[] castSeatPlan =
+            {
+                new Vector2(-0.48f, 1.3f),
+                new Vector2(0.48f, 1.3f),
+                new Vector2(1.12f, 0.98f),
+                new Vector2(1.42f, 0.48f),
+                new Vector2(1.48f, -0.3f),
+                new Vector2(1.25f, -1.03f),
+                new Vector2(0.84f, -1.46f),
+                new Vector2(-0.76f, -1.46f),
+                new Vector2(-1.22f, -1.04f),
+                new Vector2(-1.46f, -0.32f),
+                new Vector2(-1.41f, 0.48f),
+                new Vector2(-1.1f, 0.98f)
+            };
+            Transform castSeat = TankShapeFactory.PolyTurretPart(
+                "Painted-T90-CastSeat",
+                turret,
+                castSeatPlan,
+                0.13f,
+                1f,
+                0.96f,
+                color * 0.64f);
+            castSeat.localPosition = V(0f, -0.09f, 0f);
+            Transform castSeatSeam = TankShapeFactory.PolyTurretPart(
+                "T90-CastSeatSeam",
+                turret,
+                castSeatPlan,
+                0.02f,
+                0.965f,
+                0.955f,
+                Dark());
+            castSeatSeam.localPosition = V(0f, -0.108f, 0f);
             TankShapeFactory.OrientedSlabPart(
                 "Painted-T90-CSharpTurretCheekWedge-L",
                 turret,

@@ -560,6 +560,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 	  with the current TS-authoritative eight-station, five-level asymmetric
 	  `castSectionLoft`. Its 468 flat-shaded vertices preserve the independent
 	  cheek, shoulder, crown, floor, roof, and terminal cap planes.
+	  The fifteenth batch ports `polyTurret`, `polyLoft`, and
+	  `polyMultiLoft`, including scalar/per-station height and inset values,
+	  ring offsets, optional cap heights, outward winding, and zero UVs. The
+	  base T-90 now uses the exact 12-point cast-seat and seam lofts instead of
+	  the superseded cylindrical turret-ring approximation.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

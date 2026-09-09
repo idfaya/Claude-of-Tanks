@@ -307,6 +307,59 @@ namespace ClaudeOfTanks.Runtime
                 color);
         }
 
+        public static Transform PolyTurretPart(
+            string name,
+            Transform parent,
+            Vector2[] plan,
+            float height,
+            float flare,
+            float inset,
+            Color color)
+        {
+            return TankPolyLoftShapeFactory.BuildTurret(
+                name,
+                parent,
+                plan,
+                height,
+                flare,
+                inset,
+                color);
+        }
+
+        public static Transform PolyLoftPart(
+            string name,
+            Transform parent,
+            Vector2[] plan,
+            TankShapeStationValues bottom,
+            TankShapeStationValues top,
+            TankShapeStationValues inset,
+            Color color)
+        {
+            return TankPolyLoftShapeFactory.BuildLoft(
+                name,
+                parent,
+                plan,
+                bottom,
+                top,
+                inset,
+                color);
+        }
+
+        public static Transform PolyMultiLoftPart(
+            string name,
+            Transform parent,
+            Vector2[] plan,
+            TankShapeLoftRing[] rings,
+            Color color)
+        {
+            return TankPolyLoftShapeFactory.BuildMultiLoft(
+                name,
+                parent,
+                plan,
+                rings,
+                color);
+        }
+
         private static bool HasOutwardRing(Vector3[] corners)
         {
             Vector3 center = Vector3.zero;
