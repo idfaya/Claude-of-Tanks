@@ -633,10 +633,12 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   dark-olive color floors, and emissive treatment without baked textures.
 - `t90a_vladimir` hull migration has started with a dedicated C# owner. Its
   source `-4.755..+2.10 m` longitudinal hull profile now uses the shared loft
-  factory, while the six `0.375 m` wheels, `+-1.46 m` track centers,
+  factory, while the six `0.375 m` wheels, `+/-1.46 m` track centers,
   `-3.30/+1.65 m` sprocket/idler stations, return rollers, fenders, skirts,
-  and rear mud flaps use variant-specific runtime geometry. The Soviet turret
-  fallback remains explicit until the following turret/equipment batch.
+  and linked courses use variant-specific runtime geometry. The following
+  batch replaces the Soviet turret fallback with Vladimir's two-course cast
+  shell, crown, frontal/flank K-5, Shtora, ESSA, paired six-tube smoke banks,
+  remote Kord, bustle, and source-local 5.32 m 2A46M assembly.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and

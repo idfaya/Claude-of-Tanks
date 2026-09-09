@@ -12,8 +12,7 @@ namespace ClaudeOfTanks.Runtime
 
         private static readonly float[] ReturnRollerStations =
         {
-            1.175f, -0.0416667f,
-            -1.2583333f, -2.475f
+            -2.35f, -1.02f, 0.32f, 1.28f
         };
 
         public static bool Supports(string id)
@@ -40,32 +39,63 @@ namespace ClaudeOfTanks.Runtime
                 "Painted-T90AVladimir-HullLoft",
                 root,
                 Curve(
-                    -4.755f, 1.34f,
-                    -3.15f, 1.40f,
-                    -1.55f, 1.42f,
-                    0.55f, 1.34f,
-                    1.35f, 1.22f,
-                    2.10f, 0.72f),
+                    -4.755f, 1.51f,
+                    -4.51f, 1.655f,
+                    -4.29f, 1.671f,
+                    -4.15f, 1.50f,
+                    -4.13f, 1.50f,
+                    -4.02f, 1.56f,
+                    -3.92f, 1.51f,
+                    -3.85f, 1.475f,
+                    -3.72f, 1.51f,
+                    -3.15f, 1.49f,
+                    -3.05f, 1.47f,
+                    -2.85f, 1.47f,
+                    -2.72f, 1.50f,
+                    -2.55f, 1.51f,
+                    -0.92f, 1.50f,
+                    -0.86f, 1.46f,
+                    0.36f, 1.45f,
+                    0.59f, 1.33f,
+                    0.77f, 1.38f,
+                    1.68f, 1.29f,
+                    2.10f, 1.08f),
                 Curve(
-                    -4.755f, 0.24f,
-                    -3.15f, 0.18f,
-                    -1.2f, 0.18f,
-                    0.75f, 0.22f,
-                    2.10f, 0.34f),
+                    -4.755f, 1.50f,
+                    -4.61f, 1.19f,
+                    -4.46f, 1.20f,
+                    -4.40f, 1.12f,
+                    -4.30f, 0.80f,
+                    -4.24f, 0.71f,
+                    -4.13f, 0.71f,
+                    -4.02f, 0.76f,
+                    -3.92f, 0.83f,
+                    -3.78f, 0.57f,
+                    -2.87f, 0.42f,
+                    1.22f, 0.42f,
+                    1.68f, 0.60f,
+                    2.10f, 1.08f),
                 Curve(
-                    -4.755f, 1.80f,
-                    -3.15f, 1.84f,
-                    -1.55f, 1.89f,
-                    0.55f, 1.84f,
-                    1.35f, 1.70f,
-                    2.10f, 0.86f),
+                    -4.755f, 0.90f,
+                    -4.32f, 0.95f,
+                    -4.05f, 1.42f,
+                    -3.95f, 1.60f,
+                    -3.72f, 1.17f,
+                    -3.00f, 1.17f,
+                    -2.80f, 1.60f,
+                    -2.70f, 1.58f,
+                    -0.94f, 1.58f,
+                    -0.82f, 1.60f,
+                    1.22f, 1.60f,
+                    1.35f, 1.17f,
+                    1.68f, 1.05f,
+                    2.10f, 0.94f),
                 Curve(
-                    -4.755f, 1.70f,
-                    -3.15f, 1.72f,
-                    -1.55f, 1.75f,
-                    0.55f, 1.72f,
-                    1.35f, 1.62f,
-                    2.10f, 0.72f),
+                    -4.755f, 0.85f,
+                    -4.32f, 0.90f,
+                    -4.26f, 1.00f,
+                    1.68f, 1.00f,
+                    2.10f, 0.94f),
                 1.22f,
                 color);
             AddRunningGearFaces(root, color);
@@ -131,10 +161,10 @@ namespace ClaudeOfTanks.Runtime
                         root,
                         new Vector3(
                             side * 1.40f,
-                            0.95f,
+                            0.86f,
                             ReturnRollerStations[index]),
-                        0.11f,
-                        0.11f,
+                        0.086f,
+                        0.086f,
                         0.16f,
                         18,
                         color * 0.40f);
@@ -142,18 +172,18 @@ namespace ClaudeOfTanks.Runtime
                 Cylinder(
                     "T90AVladimir-Sprocket",
                     root,
-                    new Vector3(side * 1.46f, 0.75f, -3.30f),
-                    0.31f,
-                    0.31f,
+                    new Vector3(side * 1.46f, 0.70f, -3.30f),
+                    0.29f,
+                    0.29f,
                     0.25f,
                     20,
                     color * 0.42f);
                 Cylinder(
                     "T90AVladimir-Idler",
                     root,
-                    new Vector3(side * 1.46f, 0.74f, 1.65f),
-                    0.34f,
-                    0.34f,
+                    new Vector3(side * 1.46f, 0.82f, 1.65f),
+                    0.28f,
+                    0.28f,
                     0.25f,
                     20,
                     color * 0.42f);
@@ -162,53 +192,52 @@ namespace ClaudeOfTanks.Runtime
 
         private static void AddTrackRuns(Transform root)
         {
-            const int horizontalPads = 58;
-            const int verticalPads = 12;
             Color track = new Color(0.10f, 0.105f, 0.095f);
             for (int side = -1; side <= 1; side += 2)
             {
-                for (int index = 0;
-                    index < horizontalPads;
-                    index++)
-                {
-                    float z = Mathf.Lerp(
-                        -3.61f,
-                        1.99f,
-                        index / (horizontalPads - 1f));
-                    Box(
-                        "T90AVladimir-TrackPad",
-                        root,
-                        new Vector3(side * 1.46f, 0.095f, z),
-                        new Vector3(0.56f, 0.065f, 0.092f),
-                        track);
-                    Box(
-                        "T90AVladimir-TrackPad",
-                        root,
-                        new Vector3(side * 1.46f, 1.22f, z),
-                        new Vector3(0.56f, 0.065f, 0.092f),
-                        track);
-                }
-                for (int index = 1;
-                    index < verticalPads - 1;
-                    index++)
-                {
-                    float y = Mathf.Lerp(
-                        0.095f,
-                        1.22f,
-                        index / (verticalPads - 1f));
-                    Box(
-                        "T90AVladimir-TrackPad",
-                        root,
-                        new Vector3(side * 1.46f, y, 1.99f),
-                        new Vector3(0.56f, 0.092f, 0.065f),
-                        track);
-                    Box(
-                        "T90AVladimir-TrackPad",
-                        root,
-                        new Vector3(side * 1.46f, y, -3.61f),
-                        new Vector3(0.56f, 0.092f, 0.065f),
-                        track);
-                }
+                AddTrackSegment(root, side, track,
+                    new Vector2(-2.91f, 0.11f),
+                    new Vector2(1.31f, 0.11f), 44);
+                AddTrackSegment(root, side, track,
+                    new Vector2(1.31f, 0.11f),
+                    new Vector2(1.93f, 0.72f), 9);
+                AddTrackSegment(root, side, track,
+                    new Vector2(1.93f, 0.72f),
+                    new Vector2(1.65f, 0.90f), 5);
+                AddTrackSegment(root, side, track,
+                    new Vector2(1.65f, 0.90f),
+                    new Vector2(-3.30f, 0.90f), 51);
+                AddTrackSegment(root, side, track,
+                    new Vector2(-3.30f, 0.90f),
+                    new Vector2(-3.59f, 0.70f), 5);
+                AddTrackSegment(root, side, track,
+                    new Vector2(-3.59f, 0.70f),
+                    new Vector2(-2.91f, 0.11f), 10);
+            }
+        }
+
+        private static void AddTrackSegment(
+            Transform root,
+            int side,
+            Color color,
+            Vector2 start,
+            Vector2 end,
+            int count)
+        {
+            float angle = -Mathf.Atan2(
+                end.y - start.y,
+                end.x - start.x) * Mathf.Rad2Deg;
+            for (int index = 0; index < count; index++)
+            {
+                float t = (index + 0.5f) / count;
+                Vector2 point = Vector2.Lerp(start, end, t);
+                Transform pad = Box(
+                    "T90AVladimir-TrackPad",
+                    root,
+                    new Vector3(side * 1.46f, point.y, point.x),
+                    new Vector3(0.56f, 0.03f, 0.09f),
+                    color);
+                pad.localRotation = Quaternion.Euler(angle, 0f, 0f);
             }
         }
 
@@ -218,23 +247,35 @@ namespace ClaudeOfTanks.Runtime
         {
             for (int side = -1; side <= 1; side += 2)
             {
+                for (int index = 0; index < 10; index++)
+                {
+                    Box(
+                        "Painted-T90AVladimir-Fender",
+                        root,
+                        new Vector3(
+                            side * 1.70f,
+                            1.32f,
+                            -3.90f + index * 0.545f),
+                        new Vector3(0.16f, 0.05f, 0.48f),
+                        color * 0.58f);
+                }
                 Box(
-                    "Painted-T90AVladimir-Fender",
+                    "Painted-T90AVladimir-FenderRoot",
                     root,
-                    new Vector3(side * 1.75f, 1.30f, -1.30f),
-                    new Vector3(0.18f, 0.12f, 5.45f),
+                    new Vector3(side * 1.40f, 1.30f, -3.86f),
+                    new Vector3(0.50f, 0.04f, 0.54f),
                     color * 0.58f);
                 Box(
                     "Painted-T90AVladimir-SideSkirt",
                     root,
-                    new Vector3(side * 1.80f, 0.92f, -1.30f),
-                    new Vector3(0.12f, 0.58f, 5.30f),
+                    new Vector3(side * 1.78f, 1.04f, -0.4375f),
+                    new Vector3(0.10f, 0.52f, 4.275f),
                     color * 0.52f);
                 Box(
-                    "Painted-T90AVladimir-MudFlap",
+                    "Painted-T90AVladimir-FrontFlap",
                     root,
-                    new Vector3(side * 1.72f, 0.63f, -4.45f),
-                    new Vector3(0.08f, 0.68f, 0.52f),
+                    new Vector3(side * 1.45f, 1.02f, 2.06f),
+                    new Vector3(0.60f, 0.11f, 0.34f),
                     TankT90AFamilyDetails.Dark());
             }
         }

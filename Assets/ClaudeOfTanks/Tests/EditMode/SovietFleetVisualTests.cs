@@ -43,14 +43,27 @@ namespace ClaudeOfTanks.Tests
                     Transform[] parts =
                         view.Root.GetComponentsInChildren<
                             Transform>();
-                    Assert.That(
-                        parts.Count(item =>
-                            item.name.StartsWith(
-                                "Soviet-") ||
-                            item.name.StartsWith(
-                                "Painted-Soviet-")),
-                        Is.GreaterThanOrEqualTo(12),
-                        ProductionIds[i]);
+                    int genericParts = parts.Count(item =>
+                        item.name.StartsWith(
+                            "Soviet-") ||
+                        item.name.StartsWith(
+                            "Painted-Soviet-"));
+                    if (ProductionIds[i] == "t90a_vladimir")
+                    {
+                        Assert.That(genericParts, Is.EqualTo(0));
+                        Assert.That(
+                            parts.Any(item =>
+                                item.name ==
+                                "T90AVladimir-PresentationRoot"),
+                            Is.True);
+                    }
+                    else
+                    {
+                        Assert.That(
+                            genericParts,
+                            Is.GreaterThanOrEqualTo(12),
+                            ProductionIds[i]);
+                    }
                     Assert.That(
                         parts.Any(item =>
                             item.name == "ERA"),
@@ -101,7 +114,7 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(
                         shtora,
-                        "Soviet-ShtoraLens"),
+                        "T90AVladimir-ShtoraLens"),
                     Is.EqualTo(2));
                 Assert.That(
                     Count(

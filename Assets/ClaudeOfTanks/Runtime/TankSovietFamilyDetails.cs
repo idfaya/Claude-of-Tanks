@@ -26,6 +26,13 @@ namespace ClaudeOfTanks.Runtime
                 TankT90AVladimirFamilyDetails.BuildHull(
                     root,
                     color);
+                TankT90AVladimirTurretDetails.Build(
+                    turret,
+                    color);
+                TankT90AVladimirGunDetails.Build(
+                    turret,
+                    color);
+                return;
             }
             else
             {

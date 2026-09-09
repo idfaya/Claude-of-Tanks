@@ -25,8 +25,8 @@ namespace ClaudeOfTanks.Tests
                     .sharedMesh;
                 AssertBounds(
                     mesh.bounds,
-                    new Vector3(-1.89f, 0.18f, -4.755f),
-                    new Vector3(1.89f, 1.42f, 2.10f));
+                    new Vector3(-1.60f, 0.42f, -4.755f),
+                    new Vector3(1.60f, 1.671f, 2.10f));
                 Assert.That(mesh.vertexCount, Is.GreaterThan(1000));
                 Assert.That(
                     Count(view, "T90AVladimir-RoadWheelDish"),
@@ -48,16 +48,58 @@ namespace ClaudeOfTanks.Tests
                     Is.EqualTo(2));
                 Assert.That(
                     Count(view, "T90AVladimir-TrackPad"),
-                    Is.EqualTo(272));
+                    Is.EqualTo(248));
                 Assert.That(
                     Count(view, "Painted-T90AVladimir-Fender"),
-                    Is.EqualTo(2));
+                    Is.EqualTo(20));
                 Assert.That(
                     Count(view, "Painted-T90AVladimir-SideSkirt"),
                     Is.EqualTo(2));
                 Assert.That(
-                    Count(view, "Soviet-ShtoraLens"),
+                    Count(view, "T90AVladimir-ShtoraLens"),
                     Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90AVladimir-LowerCheek"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90AVladimir-UpperCheek"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90AVladimir-Crown"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90AVladimir-K5Flank"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "Painted-T90AVladimir-SmokeCanister"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "Painted-T90AVladimir-KordTower"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90AVladimir-MuzzleBore"),
+                    Is.EqualTo(1));
+                Transform turret = view.Root.Find("TurretRoot");
+                AssertVector(
+                    Find(view, "T90AVladimir-PresentationRoot")
+                        .localPosition,
+                    new Vector3(0f, 0.10f, -0.90f));
+                AssertVector(
+                    turret.InverseTransformPoint(
+                        Find(view, "T90AVladimir-GunFittings")
+                            .position),
+                    new Vector3(0f, 0.34f, 0.15f));
+                AssertVector(
+                    turret.InverseTransformPoint(
+                        Find(view, "T90AVladimir-MuzzleBore")
+                            .position),
+                    new Vector3(0f, 0.34f, 5.486f));
+                Assert.That(
+                    view.Root.GetComponentsInChildren<Transform>(true)
+                        .Count(item =>
+                            item.name.StartsWith("Soviet-") ||
+                            item.name.StartsWith("Painted-Soviet-")),
+                    Is.EqualTo(0));
                 Assert.That(
                     hull.GetComponent<Collider>(),
                     Is.Null);
@@ -154,6 +196,21 @@ namespace ClaudeOfTanks.Tests
             Assert.That(
                 bounds.max.z,
                 Is.EqualTo(maximum.z).Within(0.0001f));
+        }
+
+        private static void AssertVector(
+            Vector3 actual,
+            Vector3 expected)
+        {
+            Assert.That(
+                actual.x,
+                Is.EqualTo(expected.x).Within(0.0001f));
+            Assert.That(
+                actual.y,
+                Is.EqualTo(expected.y).Within(0.0001f));
+            Assert.That(
+                actual.z,
+                Is.EqualTo(expected.z).Within(0.0001f));
         }
     }
 }

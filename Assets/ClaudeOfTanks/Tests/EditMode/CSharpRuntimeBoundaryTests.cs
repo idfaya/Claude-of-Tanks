@@ -124,7 +124,10 @@ namespace ClaudeOfTanks.Tests
                     "TankT90AHullDetails.cs",
                     "TankT90ATurretDetails.cs",
                     "TankT90ATurretRevolutionDetails.cs",
-                    "TankT90AGunDetails.cs"
+                    "TankT90AGunDetails.cs",
+                    "TankT90AVladimirFamilyDetails.cs",
+                    "TankT90AVladimirTurretDetails.cs",
+                    "TankT90AVladimirGunDetails.cs"
                 })
             {
                 string text = File.ReadAllText(
