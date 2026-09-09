@@ -538,7 +538,9 @@ The port preserves the source project's runtime units and conventions:
 	  and 30-segment silhouette instead of a Unity sphere primitive. The eighth
 	  batch adds the TS-style profile subdivision and cap-normal floor so the
 	  C# lathe carries the curved dome normal field instead of faceted default
-	  mesh normals.
+	  mesh normals. The ninth batch adds a dedicated C# gear-pad translator with
+	  156 visible `T90-TrackPad` elements, matching the TS bake's primary
+	  `gearTrackPads` count and reducing the slab-like fallback track read.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

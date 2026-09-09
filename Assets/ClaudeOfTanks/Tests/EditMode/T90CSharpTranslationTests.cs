@@ -57,6 +57,9 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90-GunMountCheekPlate"),
                     Is.EqualTo(2));
                 Assert.That(
+                    Count(view, "T90-TrackPad"),
+                    Is.EqualTo(156));
+                Assert.That(
                     Count(view, "T90-K5RoofVerticalSeam"),
                     Is.EqualTo(2));
                 Assert.That(

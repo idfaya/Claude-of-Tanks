@@ -12,6 +12,7 @@ namespace ClaudeOfTanks.Runtime
         {
             if (root == null || turret == null) return;
             AddHullMeshSurfaces(root, color);
+            TankT90TranslatedGearPads.Build(root, color);
             AddTurretMeshSurfaces(turret, color);
             AddKontakt5TurretSeams(turret, color);
             AddTurretRoofDetails(turret, color);
