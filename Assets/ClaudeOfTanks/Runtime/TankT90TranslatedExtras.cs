@@ -245,9 +245,17 @@ namespace ClaudeOfTanks.Runtime
                 Part("T90-SkirtHingeBracket", PrimitiveType.Cube, root,
                     V(side * 1.86f, 1.39f, -1.28f + station * 0.76f),
                     V(0.035f, 0.08f, 0.12f), V(), Dark());
-                Part("T90-SkirtLowerPin", PrimitiveType.Cylinder, root,
-                    V(side * 1.86f, 0.66f, -1.28f + station * 0.76f),
-                    V(0.022f, 0.026f, 0.022f), V(0f, 0f, 90f), Dark());
+                Transform pin = TankShapeFactory.CylinderPart(
+                    "T90-SkirtLowerPin",
+                    root,
+                    0.022f,
+                    0.022f,
+                    0.052f,
+                    8,
+                    TankShapeAxis.X,
+                    Dark());
+                pin.localPosition =
+                    V(side * 1.86f, 0.66f, -1.28f + station * 0.76f);
             }
         }
 
@@ -303,15 +311,8 @@ namespace ClaudeOfTanks.Runtime
                 part.localPosition = position;
             }
             else
-            {
-                part = TankDetailGeometry.Part(
-                    name,
-                    type,
-                    parent,
-                    position,
-                    scale,
-                    color);
-            }
+                throw new System.InvalidOperationException(
+                    "Translated T-90 parts must use C# shape factories.");
             part.localRotation = Quaternion.Euler(rotation);
             return part;
         }

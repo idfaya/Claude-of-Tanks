@@ -120,13 +120,15 @@ namespace ClaudeOfTanks.Runtime
             Vector3 rotation,
             Color color)
         {
-            Transform part = TankDetailGeometry.Part(
+            if (type != PrimitiveType.Cube)
+                throw new System.InvalidOperationException(
+                    "Translated suspension parts must use C# shape factories.");
+            Transform part = TankShapeFactory.BoxPart(
                 name,
-                type,
                 parent,
-                position,
                 scale,
                 color);
+            part.localPosition = position;
             part.localRotation = Quaternion.Euler(rotation);
             return part;
         }

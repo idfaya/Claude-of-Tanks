@@ -65,7 +65,50 @@ namespace ClaudeOfTanks.Tests
                 violations,
                 Is.Empty,
                 "Unity runtime/test code must remain C#-native. " +
-                "Vehicle model TS is restricted to offline presentation bake.");
+                "Vehicle model TS is reference-only during C# translation.");
+        }
+
+        [Test]
+        public void BaseT90HasNoLegacyPrimitiveOwners()
+        {
+            string projectRoot =
+                Directory.GetParent(Application.dataPath).FullName;
+            string runtime = Path.Combine(
+                projectRoot,
+                "Assets/ClaudeOfTanks/Runtime");
+            foreach (string legacy in new[]
+                {
+                    "TankT90HullDetails.cs",
+                    "TankT90TurretDetails.cs",
+                    "TankT90GunDetails.cs"
+                })
+            {
+                Assert.That(
+                    File.Exists(Path.Combine(runtime, legacy)),
+                    Is.False,
+                    legacy);
+            }
+            foreach (string active in new[]
+                {
+                    "TankT90PresentationSchema.cs",
+                    "TankT90TranslatedExtras.cs",
+                    "TankT90TranslatedGearPads.cs",
+                    "TankT90TranslatedSuspension.cs",
+                    "TankT90RevolutionDetails.cs",
+                    "TankT90GunTranslation.cs"
+                })
+            {
+                string text = File.ReadAllText(
+                    Path.Combine(runtime, active));
+                Assert.That(
+                    text.Contains("TankDetailGeometry." + "Part("),
+                    Is.False,
+                    active);
+                Assert.That(
+                    text.Contains("PrimitiveType." + "Cylinder"),
+                    Is.False,
+                    active);
+            }
         }
 
         [Test]

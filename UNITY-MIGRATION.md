@@ -580,6 +580,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 	  tapered root, elliptical cast collar, three frustum canvas folds, five
 	  sleeve rings, four authored tube sections, evacuator swell, and a
 	  `5.15 m` visible muzzle independent of the `6 m` combat barrel length.
+	  The nineteenth batch removes the superseded `TankT90HullDetails`,
+	  `TankT90TurretDetails`, and `TankT90GunDetails` primitive owners. A
+	  boundary test now requires every active base-T-90 file to avoid
+	  `TankDetailGeometry.Part` and Unity cylinder primitives; TypeScript
+	  remains reference-only during translation rather than a bake source.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side
