@@ -737,7 +737,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   station interpolation and surface-normal equations. Its joined bustle
   continues the crown through a seven-station shoulder into the six-station
   removable magazine, then adds asymmetric service hardware and the complete
-  open rear/flank cage. Roof equipment and gun remain follow-ups.
+  open rear/flank cage. Its roof-equipment owner adds both low crew stations,
+  six paired periscopes, the recessed autoloader port, Sosna, the complete
+  offset Tagil weapon tower with shared-factory Kord, ten smoke launchers and
+  the source-height antenna; no generic Soviet equipment remains. The gun
+  and final material-role audit remain follow-ups.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

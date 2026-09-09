@@ -52,6 +52,7 @@ namespace ClaudeOfTanks.Runtime
             AddCrownFacets(root, color);
             TankT90MSTurretArmorDetails.Build(root, color);
             TankT90MSBustleDetails.Build(root, color);
+            TankT90MSTurretEquipmentDetails.Build(root, color);
         }
 
         private static void AddInnerShell(

@@ -161,6 +161,85 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void BuildsCrewStationsTagilTowerSmokeAndAntenna()
+        {
+            TankView view = Create();
+            try
+            {
+                Assert.That(
+                    Count(view, "Painted-T90MS-CommanderCupolaBase"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90MS-GunnerCupola"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90MS-RoofPeriscopeSlot"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "T90MS-RoofPeriscopeGlass"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "T90MS-AutoloaderPortWeld"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90MS-SosnaHousing"),
+                    Is.EqualTo(1));
+
+                Transform tower =
+                    Find(view, "T90MS-TagilWeaponTower");
+                Assert.That(
+                    tower.localPosition,
+                    Is.EqualTo(new Vector3(-0.64f, 0f, -1.195f)));
+                Mesh foundation = Find(
+                        view,
+                        "Painted-T90MS-TagilTowerFoundation")
+                    .GetComponent<MeshFilter>()
+                    .sharedMesh;
+                AssertBounds(
+                    foundation.bounds,
+                    new Vector3(-0.25f, 0.70f, -0.29f),
+                    new Vector3(0.25f, 0.98f, 0.29f));
+                Mesh head = Find(
+                        view,
+                        "Painted-T90MS-TagilTowerArmoredHead")
+                    .GetComponent<MeshFilter>()
+                    .sharedMesh;
+                AssertBounds(
+                    head.bounds,
+                    new Vector3(-0.23f, 0.98f, -0.165f),
+                    new Vector3(0.23f, 1.54f, 0.165f));
+                Assert.That(head.vertexCount, Is.EqualTo(60));
+                Assert.That(
+                    Count(view, "T90MS-TagilTowerFeedLink"),
+                    Is.EqualTo(7));
+                Assert.That(
+                    Count(view, "T90MS-TagilRemoteKord"),
+                    Is.EqualTo(1));
+
+                Assert.That(
+                    Count(view, "T90MS-Left-Detail-SmokeLauncher") +
+                    Count(view, "T90MS-Right-Detail-SmokeLauncher"),
+                    Is.EqualTo(10));
+                Assert.That(
+                    Count(view, "T90MS-AntennaWhip"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90MS-Detail-RadioWhip"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    view.Root.GetComponentsInChildren<Transform>(true)
+                        .Count(item =>
+                            item.name.StartsWith("Soviet-") ||
+                            item.name.StartsWith("Painted-Soviet-")),
+                    Is.EqualTo(0));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create()
         {
             ContentCatalog catalog = ContentCatalog.Load();

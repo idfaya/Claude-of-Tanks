@@ -42,7 +42,7 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
-        public void ReplacesGenericHullWithoutClaimingLaterStages()
+        public void ReplacesGenericHullAndTurretButKeepsTemporaryGun()
         {
             TankView view = Create();
             try
@@ -66,7 +66,7 @@ namespace ClaudeOfTanks.Tests
                         .Count(item =>
                             item.name.StartsWith("Soviet-") ||
                             item.name.StartsWith("Painted-Soviet-")),
-                    Is.GreaterThanOrEqualTo(12));
+                    Is.EqualTo(0));
                 Assert.That(
                     Find(view, "Turret")
                         .GetComponent<Renderer>().enabled,
