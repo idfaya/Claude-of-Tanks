@@ -273,6 +273,29 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(view, "T90A-2A46M2SleeveRing"),
                     Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "Painted-T90A-2A46M2ForwardTube"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90A-RecoilCover"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90A-MuzzleBoreDisc"),
+                    Is.EqualTo(1));
+                Transform turret = view.Root.Find("TurretRoot");
+                Transform fittings = Find(view, "T90A-GunFittings");
+                AssertVector(
+                    turret.InverseTransformPoint(fittings.position),
+                    new Vector3(0f, 0.18f, 0.615f));
+                Transform muzzle = Find(view, "T90A-MuzzleBore");
+                AssertVector(
+                    turret.InverseTransformPoint(muzzle.position),
+                    new Vector3(0f, 0.185f, 5.551f));
+                Assert.That(
+                    Find(view, "Painted-T90A-2A46M2ForwardTube")
+                        .GetComponent<MeshFilter>()
+                        .sharedMesh.bounds.extents.x,
+                    Is.EqualTo(0.102f).Within(0.0001f));
             }
             finally
             {
@@ -380,6 +403,21 @@ namespace ClaudeOfTanks.Tests
                         vertices[index].z * vertices[index].z));
             }
             return radius;
+        }
+
+        private static void AssertVector(
+            Vector3 actual,
+            Vector3 expected)
+        {
+            Assert.That(
+                actual.x,
+                Is.EqualTo(expected.x).Within(0.0001f));
+            Assert.That(
+                actual.y,
+                Is.EqualTo(expected.y).Within(0.0001f));
+            Assert.That(
+                actual.z,
+                Is.EqualTo(expected.z).Within(0.0001f));
         }
     }
 }

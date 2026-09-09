@@ -618,6 +618,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   three-level cupolas now carry all eight authored periscope blocks, and the
   twelve legacy smoke tubes are removed because the active base `buildT90A`
   source does not create smoke banks.
+  The fourth batch ports the complete gun-local 2A46M-2 assembly to shared C#
+  shapes: X-axis saddle, tapered root, elliptical cast collar, split recoil
+  housing, boot folds, 0.108/0.102 m thermal-jacket courses, fume extractor,
+  muzzle collar, and recessed bore. The visible muzzle now follows the source
+  `4.92 m` datum independently of the catalog's 6 m combat barrel.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
