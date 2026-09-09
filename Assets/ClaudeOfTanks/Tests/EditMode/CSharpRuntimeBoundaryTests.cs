@@ -154,6 +154,7 @@ namespace ClaudeOfTanks.Tests
                     "TankT90MSBustleDetails.cs",
                     "TankT90MSTurretEquipmentDetails.cs",
                     "TankT90MSGunDetails.cs",
+                    "TankT90MSMaterialRoles.cs",
                     "TankT90AVladimirFamilyDetails.cs",
                     "TankT90AVladimirHullEquipmentDetails.cs",
                     "TankT90AVladimirTurretDetails.cs",

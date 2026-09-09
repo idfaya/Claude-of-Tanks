@@ -21,7 +21,8 @@ namespace ClaudeOfTanks.Runtime
             float? rearCut = null,
             float rake = 0f,
             Vector2[] normalizedProfile = null,
-            bool support = true)
+            bool support = true,
+            string supportName = null)
         {
             if (length <= 0f || height <= 0f)
                 throw new ArgumentOutOfRangeException(
@@ -68,7 +69,7 @@ namespace ClaudeOfTanks.Runtime
             if (support)
             {
                 Transform hanger = TankShapeFactory.BoxPart(
-                    name + "Support",
+                    supportName ?? name + "Support",
                     parent,
                     new Vector3(
                         resolvedThickness * 1.45f,

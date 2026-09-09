@@ -301,6 +301,64 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void AppliesFinalT90MSMaterialRoles()
+        {
+            TankView view = Create();
+            try
+            {
+                Renderer hull = Renderer(
+                    view,
+                    "Painted-T90MS-HullLoft");
+                Renderer relikt = Renderer(
+                    view,
+                    "Painted-T90MS-NoseReliktFace");
+                Renderer barrel = Renderer(
+                    view,
+                    "Painted-T90MS-2A46M5Tube");
+                Renderer support = Renderer(
+                    view,
+                    "Painted-T90MS-FrontMudFlapSupport");
+                Renderer dark = Renderer(
+                    view,
+                    "T90MS-ChevronGapPlate");
+                Renderer rubber = Renderer(
+                    view,
+                    "T90MS-RearMudFlap");
+                Renderer track = Renderer(
+                    view,
+                    "T90MS-TrackPad");
+                Renderer wood = Renderer(
+                    view,
+                    "T90MS-UnditchingLog");
+                Renderer glass = Renderer(
+                    view,
+                    "T90MS-SosnaLens");
+                Renderer canvas = Renderer(
+                    view,
+                    "Painted-T90MS-GunBootSection");
+                Renderer shadow = Renderer(
+                    view,
+                    "T90MS-2A46M5MuzzleBoreDisc");
+
+                Assert.That(hull.sharedMaterial.mainTexture, Is.Not.Null);
+                Assert.That(relikt.sharedMaterial.mainTexture, Is.Not.Null);
+                Assert.That(barrel.sharedMaterial.mainTexture, Is.Not.Null);
+                Assert.That(support.sharedMaterial.mainTexture, Is.Not.Null);
+                AssertColor(dark, 0x3a, 0x3a, 0x2e);
+                AssertColor(rubber, 0x3d, 0x3c, 0x35);
+                AssertColor(track, 0x35, 0x36, 0x34);
+                AssertColor(wood, 0x47, 0x3e, 0x32);
+                AssertColor(glass, 0x2a, 0x35, 0x40);
+                AssertColor(canvas, 0x42, 0x45, 0x2f);
+                AssertColor(shadow, 0x0b, 0x0c, 0x0a);
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create()
         {
             ContentCatalog catalog = ContentCatalog.Load();
@@ -370,6 +428,29 @@ namespace ClaudeOfTanks.Tests
         {
             return !float.IsNaN(value) &&
                 !float.IsInfinity(value);
+        }
+
+        private static Renderer Renderer(
+            TankView view,
+            string name)
+        {
+            return Find(view, name).GetComponent<Renderer>();
+        }
+
+        private static void AssertColor(
+            Renderer renderer,
+            int red,
+            int green,
+            int blue)
+        {
+            Color color = renderer.sharedMaterial.color;
+            Assert.That(color.r,
+                Is.EqualTo(red / 255f).Within(0.002f));
+            Assert.That(color.g,
+                Is.EqualTo(green / 255f).Within(0.002f));
+            Assert.That(color.b,
+                Is.EqualTo(blue / 255f).Within(0.002f));
+            Assert.That(renderer.sharedMaterial.mainTexture, Is.Null);
         }
     }
 }

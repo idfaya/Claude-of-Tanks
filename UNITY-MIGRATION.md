@@ -743,8 +743,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   the source-height antenna; no generic Soviet equipment remains. Its
   dedicated 2A46M-5 owner replaces the generic gun with the source trunnion,
   tapered three-section canvas boot, four true-cylinder tube courses, six
-  sleeve rings, tapered fume extractor and recessed `5.32 m` bore. The final
-  material-role and whole-vehicle receipt audits remain follow-ups.
+  sleeve rings, tapered fume extractor and recessed `5.32 m` bore. T-90MS
+  now routes through the T-90 material applicator with its exact final dark,
+  rubber, wood, canvas, track, glass and bore-shadow roles. Shared tactical
+  number decals and the final whole-vehicle receipt audit remain follow-ups.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

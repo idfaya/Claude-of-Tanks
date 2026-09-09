@@ -193,6 +193,10 @@ namespace ClaudeOfTanks.Runtime
                     2.86f,
                     color);
             }
+            Box("Painted-T90MS-BowServiceBlock", root,
+                V(1.08f, 1.20f, 3.26f),
+                V(0.14f, 0.08f, 0.14f),
+                color * 0.54f);
         }
 
         private static void AddHeadlight(

@@ -5,7 +5,7 @@ namespace ClaudeOfTanks.Runtime
 {
     internal static class TankT90MaterialApplicator
     {
-        private enum Role
+        internal enum Role
         {
             Hull,
             Barrel,
@@ -16,6 +16,8 @@ namespace ClaudeOfTanks.Runtime
             Dark,
             Glass,
             Wood,
+            Canvas,
+            Shadow,
             Shtora
         }
 
@@ -30,6 +32,11 @@ namespace ClaudeOfTanks.Runtime
                     vehicleId,
                     "t90sm",
                     StringComparison.Ordinal);
+            bool isT90MS =
+                string.Equals(
+                    vehicleId,
+                    "t90ms",
+                    StringComparison.Ordinal);
             bool usesT90AColors =
                 string.Equals(
                     vehicleId,
@@ -43,7 +50,8 @@ namespace ClaudeOfTanks.Runtime
                     vehicleId,
                     "t90a_burlak",
                     StringComparison.Ordinal) ||
-                isT90SM;
+                isT90SM ||
+                isT90MS;
             for (int index = 0; index < renderers.Length; index++)
             {
                 Renderer renderer = renderers[index];
@@ -52,11 +60,13 @@ namespace ClaudeOfTanks.Runtime
                 Role role = ResolveRole(
                     renderer.gameObject.name,
                     usesT90AColors,
-                    isT90SM);
+                    isT90SM,
+                    isT90MS);
                 ApplyRole(
                     material,
                     role,
                     usesT90AColors,
+                    isT90MS,
                     baseColor);
             }
         }
@@ -64,8 +74,14 @@ namespace ClaudeOfTanks.Runtime
         private static Role ResolveRole(
             string name,
             bool isT90A,
-            bool isT90SM)
+            bool isT90SM,
+            bool isT90MS)
         {
+            Role? t90MSRole =
+                isT90MS
+                    ? TankT90MSMaterialRoles.Resolve(name)
+                    : null;
+            if (t90MSRole.HasValue) return t90MSRole.Value;
             if (isT90SM &&
                 string.Equals(
                     name,
@@ -291,6 +307,7 @@ namespace ClaudeOfTanks.Runtime
             Material material,
             Role role,
             bool isT90A,
+            bool isT90MS,
             Color baseColor)
         {
             float roughness;
@@ -332,6 +349,14 @@ namespace ClaudeOfTanks.Runtime
                     metallic = 0f;
                     emission = Rgb(0x0c, 0x0a, 0x07);
                     break;
+                case Role.Canvas:
+                    roughness = 0.97f;
+                    metallic = 0f;
+                    break;
+                case Role.Shadow:
+                    roughness = 0.98f;
+                    metallic = 0f;
+                    break;
                 case Role.Shtora:
                     roughness = 0.9f;
                     metallic = 0.18f;
@@ -349,6 +374,7 @@ namespace ClaudeOfTanks.Runtime
                 ApplyT90AColor(
                     material,
                     role,
+                    isT90MS,
                     baseColor);
             if (emission.maxColorComponent <= 0f) return;
             material.EnableKeyword("_EMISSION");
@@ -359,16 +385,21 @@ namespace ClaudeOfTanks.Runtime
         private static void ApplyT90AColor(
             Material material,
             Role role,
+            bool isT90MS,
             Color baseColor)
         {
             switch (role)
             {
                 case Role.Dark:
-                    material.color = Rgb(0x32, 0x36, 0x29);
+                    material.color = isT90MS
+                        ? Rgb(0x3a, 0x3a, 0x2e)
+                        : Rgb(0x32, 0x36, 0x29);
                     material.mainTexture = null;
                     break;
                 case Role.Rubber:
-                    material.color = Rgb(0x3b, 0x3a, 0x33);
+                    material.color = isT90MS
+                        ? Rgb(0x3d, 0x3c, 0x35)
+                        : Rgb(0x3b, 0x3a, 0x33);
                     material.mainTexture = null;
                     break;
                 case Role.Track:
@@ -381,6 +412,14 @@ namespace ClaudeOfTanks.Runtime
                     break;
                 case Role.Wood:
                     material.color = Rgb(0x47, 0x3e, 0x32);
+                    material.mainTexture = null;
+                    break;
+                case Role.Canvas:
+                    material.color = Rgb(0x42, 0x45, 0x2f);
+                    material.mainTexture = null;
+                    break;
+                case Role.Shadow:
+                    material.color = Rgb(0x0b, 0x0c, 0x0a);
                     material.mainTexture = null;
                     break;
                 case Role.Shtora:

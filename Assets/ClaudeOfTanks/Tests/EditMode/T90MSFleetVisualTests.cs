@@ -239,6 +239,9 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(view, "Painted-T90MS-Headlight"),
                     Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90MS-BowServiceBlock"),
+                    Is.EqualTo(1));
 
                 Assert.That(
                     Count(view, "Painted-T90MS-GlacisRelikt"),
@@ -347,7 +350,7 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90MS-FrontMudFlap"),
                     Is.EqualTo(2));
                 Assert.That(
-                    Count(view, "T90MS-FrontMudFlapSupport"),
+                    Count(view, "Painted-T90MS-FrontMudFlapSupport"),
                     Is.EqualTo(2));
                 Transform flap = Find(
                     view,
