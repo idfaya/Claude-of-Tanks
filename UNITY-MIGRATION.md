@@ -477,6 +477,15 @@ The port preserves the source project's runtime units and conventions:
   with all 204 Relikt ERA surfaces visible and the 19 structural diagnostic
   renderers hidden behind dedicated geometry; no generic side armor, shared
   Soviet fallback fittings, or presentation colliders are added
+- `t72bu` now has a dedicated T-72BU / T-90 obr. 1992 Unity presentation
+  owner. The port keeps the native six-wheel T-72 running gear, Kontakt-5
+  glacis and skirt identity, low cast dome, pointed cheek K-5 wedges,
+  Shtora housings, Luna/Agat sight cluster, NSVT, smoke banks, bustle rails,
+  rear service drums, unditching log, and the 2A46M-4 fittings under the
+  authoritative `Gun` transform. All 180 catalog hit surfaces stay present,
+  the 160 ERA renderers stay visible, and the structural diagnostic surfaces
+  are hidden behind dedicated geometry without adding generic side armor or
+  presentation colliders
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
