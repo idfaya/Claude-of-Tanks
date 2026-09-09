@@ -42,7 +42,7 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
-        public void ReplacesGenericHullAndTurretButKeepsTemporaryGun()
+        public void ReplacesGenericHullTurretAndGun()
         {
             TankView view = Create();
             try
@@ -74,7 +74,7 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Find(view, "Gun")
                         .GetComponent<Renderer>().enabled,
-                    Is.True);
+                    Is.False);
             }
             finally
             {

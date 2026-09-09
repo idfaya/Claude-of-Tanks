@@ -740,8 +740,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   open rear/flank cage. Its roof-equipment owner adds both low crew stations,
   six paired periscopes, the recessed autoloader port, Sosna, the complete
   offset Tagil weapon tower with shared-factory Kord, ten smoke launchers and
-  the source-height antenna; no generic Soviet equipment remains. The gun
-  and final material-role audit remain follow-ups.
+  the source-height antenna; no generic Soviet equipment remains. Its
+  dedicated 2A46M-5 owner replaces the generic gun with the source trunnion,
+  tapered three-section canvas boot, four true-cylinder tube courses, six
+  sleeve rings, tapered fume extractor and recessed `5.32 m` bore. The final
+  material-role and whole-vehicle receipt audits remain follow-ups.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

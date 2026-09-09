@@ -240,6 +240,67 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void BuildsFinalSourceTwoA46M5Gun()
+        {
+            TankView view = Create();
+            try
+            {
+                Transform assembly =
+                    Find(view, "T90MS-2A46M5Assembly");
+                Assert.That(
+                    assembly.localPosition,
+                    Is.EqualTo(new Vector3(0f, 0.38f, 1f)));
+                Assert.That(
+                    Count(view, "Painted-T90MS-2A46M5Saddle"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90MS-2A46M5RootCone"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90MS-MantletPlug"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90MS-GunBootSection"),
+                    Is.EqualTo(3));
+                Assert.That(
+                    Count(view, "T90MS-GunBootCrease"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90MS-GunBootClamp"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90MS-2A46M5Tube"),
+                    Is.EqualTo(4));
+                Assert.That(
+                    Count(view, "T90MS-2A46M5SleeveRing"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "Painted-T90MS-2A46M5FumeExtractor"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90MS-2A46M5FumeBand"),
+                    Is.EqualTo(2));
+
+                Transform bore =
+                    Find(view, "T90MS-2A46M5MuzzleBore");
+                Assert.That(
+                    bore.localPosition,
+                    Is.EqualTo(new Vector3(0f, 0.004f, 5.316f)));
+                Assert.That(
+                    Count(view, "T90MS-2A46M5MuzzleBoreDisc"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Find(view, "Gun")
+                        .GetComponent<Renderer>().enabled,
+                    Is.False);
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create()
         {
             ContentCatalog catalog = ContentCatalog.Load();
