@@ -421,6 +421,15 @@ The port preserves the source project's runtime units and conventions:
   open-yoke remote weapon station. Its gun-owned segmented 130 mm plant and
   all 69 catalog-authored hit surfaces now render consistently in Garage,
   solo, replay, and network with no added collider or generic Abrams fittings
+- AbramsX now uses its independent knife-edge hull, exact seven-wheel
+  rear-drive course, 24 kneed skirt cassettes, three-seat forward crew
+  capsule, hybrid cooling plenums and asymmetric stern service equipment.
+  Its centered low-profile turret carries paired D-hood panoramic heads,
+  smoke banks, network masts, and an open XM914 station with visible
+  ammunition feed and return links. The gun-owned slim XM360 plant omits the
+  bore evacuator and preserves its exact source-visible muzzle station. All
+  22 catalog-authored hit surfaces remain authoritative across Garage, solo,
+  replay, and network with no added collider or generic Abrams fittings
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
