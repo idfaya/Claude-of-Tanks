@@ -150,6 +150,24 @@ namespace ClaudeOfTanks.Tests
                     renderer.sharedMaterial.GetTexture("_RoughnessMap"),
                     Is.Not.Null);
                 Assert.That(
+                    renderer.sharedMaterial.GetFloat("_NormalScale"),
+                    Is.GreaterThan(0f));
+                Assert.That(
+                    renderer.sharedMaterial.GetFloat("_EmissionIntensity"),
+                    Is.EqualTo(1f));
+                Assert.That(
+                    renderer.sharedMaterial.GetFloat("_SpecularIntensity"),
+                    Is.EqualTo(0.55f)
+                        .Within(0.001f));
+                Assert.That(
+                    view.Root.GetComponentsInChildren<Renderer>(true)
+                        .Any((candidate) =>
+                            candidate.sharedMaterial != null &&
+                            candidate.sharedMaterial.HasProperty("_HasBumpMap") &&
+                            candidate.sharedMaterial.GetFloat("_HasBumpMap") > 0.5f &&
+                            candidate.sharedMaterial.GetTexture("_BumpMap") != null),
+                    Is.True);
+                Assert.That(
                     renderer.sharedMaterial.GetFloat("_ZWrite"),
                     Is.EqualTo(1f));
                 Assert.That(

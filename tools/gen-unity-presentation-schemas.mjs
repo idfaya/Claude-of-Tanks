@@ -331,7 +331,7 @@ async function writeTextures(textures) {
 const generated = geometryOnly
   ? {
       payload: {
-        schemaVersion: 2,
+        schemaVersion: 4,
         vehicles: ids.map(vehicleRecord),
       },
       textures: [],

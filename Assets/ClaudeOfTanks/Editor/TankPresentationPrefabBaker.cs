@@ -8,7 +8,7 @@ namespace ClaudeOfTanks.Editor
 {
     public static class TankPresentationPrefabBaker
     {
-        private const int SupportedSchemaVersion = 3;
+        private const int SupportedSchemaVersion = 4;
         private const string SourcePath =
             "Assets/ClaudeOfTanks/Generated/PresentationSource/tank-presentation-schemas.json";
         private const string OutputRoot =
@@ -186,8 +186,12 @@ namespace ClaudeOfTanks.Editor
                   $"{color.r:0.####}_{color.g:0.####}_{color.b:0.####}_" +
                   $"{emissive?.r:0.####}_{emissive?.g:0.####}_{emissive?.b:0.####}_" +
                   $"{sourceMaterial?.roughness:0.####}_{sourceMaterial?.metalness:0.####}_" +
+                  $"{sourceMaterial?.clearcoat:0.####}_{sourceMaterial?.clearcoatRoughness:0.####}_" +
+                  $"{sourceMaterial?.specularIntensity:0.####}_{sourceMaterial?.normalScale:0.####}_" +
+                  $"{sourceMaterial?.bumpScale:0.####}_{sourceMaterial?.emissiveIntensity:0.####}_" +
                   $"{sourceMaterial?.opacity:0.####}_{sourceMaterial?.transparent}_{sourceMaterial?.side}_" +
-                  $"{sourceMaterial?.mapPath}_{sourceMaterial?.normalMapPath}_{sourceMaterial?.roughnessMapPath}";
+                  $"{sourceMaterial?.mapPath}_{sourceMaterial?.normalMapPath}_{sourceMaterial?.roughnessMapPath}_" +
+                  $"{sourceMaterial?.bumpMapPath}_{sourceMaterial?.emissiveMapPath}";
             if (materials.TryGetValue(key, out Material existing))
                 return existing;
 
@@ -212,9 +216,13 @@ namespace ClaudeOfTanks.Editor
             if (material.HasProperty("_EmissionColor") &&
                 emissive != null)
             {
+                float intensity = sourceMaterial?.emissiveIntensity ?? 1f;
                 material.SetColor(
                     "_EmissionColor",
-                    new Color(emissive.r, emissive.g, emissive.b));
+                    new Color(emissive.r, emissive.g, emissive.b) *
+                    (material.HasProperty("_EmissionIntensity") ? 1f : intensity));
+                if (material.HasProperty("_EmissionIntensity"))
+                    material.SetFloat("_EmissionIntensity", intensity);
                 if (emissive.r > 0f || emissive.g > 0f || emissive.b > 0f)
                     material.EnableKeyword("_EMISSION");
             }
@@ -252,12 +260,21 @@ namespace ClaudeOfTanks.Editor
                 material.SetFloat(
                     "_EmissionBoost",
                     EmissionBoost(sourceMaterial));
+            SetFloat(material, "_NormalScale", sourceMaterial?.normalScale ?? 1f);
+            SetFloat(material, "_BumpScale", sourceMaterial?.bumpScale ?? 1f);
+            SetFloat(material, "_Clearcoat", sourceMaterial?.clearcoat ?? 0f);
+            SetFloat(material, "_ClearcoatRoughness", sourceMaterial?.clearcoatRoughness ?? 0f);
+            SetFloat(material, "_SpecularIntensity", sourceMaterial?.specularIntensity ?? 1f);
             Texture2D mainTexture =
                 LoadTexture(sourceMaterial?.mapPath, true, false);
             Texture2D normalTexture =
                 LoadTexture(sourceMaterial?.normalMapPath, false, true);
             Texture2D roughnessTexture =
                 LoadTexture(sourceMaterial?.roughnessMapPath, false, false);
+            Texture2D bumpTexture =
+                LoadTexture(sourceMaterial?.bumpMapPath, false, false);
+            Texture2D emissiveTexture =
+                LoadTexture(sourceMaterial?.emissiveMapPath, true, false);
             if (mainTexture != null && material.HasProperty("_MainTex"))
             {
                 material.SetTexture("_MainTex", mainTexture);
@@ -276,6 +293,19 @@ namespace ClaudeOfTanks.Editor
                 material.SetTexture("_RoughnessMap", roughnessTexture);
                 if (material.HasProperty("_HasRoughnessMap"))
                     material.SetFloat("_HasRoughnessMap", 1f);
+            }
+            if (bumpTexture != null && material.HasProperty("_BumpMap"))
+            {
+                material.SetTexture("_BumpMap", bumpTexture);
+                if (material.HasProperty("_HasBumpMap"))
+                    material.SetFloat("_HasBumpMap", 1f);
+            }
+            if (emissiveTexture != null && material.HasProperty("_EmissionMap"))
+            {
+                material.SetTexture("_EmissionMap", emissiveTexture);
+                if (material.HasProperty("_HasEmissionMap"))
+                    material.SetFloat("_HasEmissionMap", 1f);
+                material.EnableKeyword("_EMISSION");
             }
             float opacity = sourceMaterial?.opacity ?? 1f;
             if (sourceMaterial?.transparent == true ||
@@ -340,6 +370,15 @@ namespace ClaudeOfTanks.Editor
             }
 
             return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+        }
+
+        private static void SetFloat(
+            Material material,
+            string property,
+            float value)
+        {
+            if (material.HasProperty(property))
+                material.SetFloat(property, value);
         }
 
         private static float EmissionBoost(
@@ -426,8 +465,14 @@ namespace ClaudeOfTanks.Editor
         public float camoUvScale;
         public PresentationColor color;
         public PresentationColor emissive;
+        public float emissiveIntensity;
         public float roughness;
         public float metalness;
+        public float clearcoat;
+        public float clearcoatRoughness;
+        public float specularIntensity;
+        public float normalScale;
+        public float bumpScale;
         public float opacity;
         public bool transparent;
         public int side;

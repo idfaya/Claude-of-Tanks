@@ -121,7 +121,8 @@ function texturePath(
 ) {
   const image = texture?.image as HTMLCanvasElement | undefined;
   if (!texture || !image || typeof image.toDataURL !== 'function') return '';
-  const existing = texturePaths.get(texture.uuid);
+  const key = `${texture.uuid}:${usage}`;
+  const existing = texturePaths.get(key);
   if (existing) return existing;
   const path =
     `Assets/ClaudeOfTanks/Generated/PresentationSource/Textures/` +
@@ -130,7 +131,7 @@ function texturePath(
     path,
     dataUrl: image.toDataURL('image/png'),
   });
-  texturePaths.set(texture.uuid, path);
+  texturePaths.set(key, path);
   return path;
 }
 
@@ -160,6 +161,8 @@ function materialRecord(
     clearcoat: rounded(physical?.clearcoat ?? 0),
     clearcoatRoughness: rounded(physical?.clearcoatRoughness ?? 0),
     specularIntensity: rounded(physical?.specularIntensity ?? 1),
+    normalScale: rounded(standard?.normalScale?.x ?? 1),
+    bumpScale: rounded(standard?.bumpScale ?? 1),
     opacity: rounded(source?.opacity ?? 1),
     transparent: Boolean(source?.transparent),
     side: source?.side ?? THREE.FrontSide,
@@ -306,7 +309,7 @@ export function exportTankPresentation(ids: string[]): ExportResult {
   const textures: TextureRecord[] = [];
   return {
     payload: {
-      schemaVersion: 3,
+      schemaVersion: 4,
       vehicles: ids.map((id) => vehicleRecord(id, textures)),
     },
     textures,

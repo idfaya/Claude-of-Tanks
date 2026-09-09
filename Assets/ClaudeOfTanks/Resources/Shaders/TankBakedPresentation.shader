@@ -6,6 +6,8 @@ Shader "ClaudeOfTanks/TankBakedPresentation"
         _MainTex ("Albedo", 2D) = "white" {}
         _NormalMap ("Normal", 2D) = "bump" {}
         _RoughnessMap ("Roughness", 2D) = "white" {}
+        _BumpMap ("Bump", 2D) = "gray" {}
+        _EmissionMap ("Emission", 2D) = "white" {}
         _EmissionColor ("Emission", Color) = (0, 0, 0, 1)
         _Metallic ("Metallic", Range(0, 1)) = 0
         _Glossiness ("Smoothness", Range(0, 1)) = 0.5
@@ -17,9 +19,17 @@ Shader "ClaudeOfTanks/TankBakedPresentation"
         _HasMainTex ("Has Main Texture", Float) = 0
         _HasNormalMap ("Has Normal Map", Float) = 0
         _HasRoughnessMap ("Has Roughness Map", Float) = 0
+        _HasBumpMap ("Has Bump Map", Float) = 0
+        _HasEmissionMap ("Has Emission Map", Float) = 0
         _CamoScale ("Camo Scale", Float) = 0.34
         _FlatLighting ("Flat Lighting", Float) = 0
         _EmissionBoost ("Emission Boost", Float) = 0.12
+        _EmissionIntensity ("Emission Intensity", Float) = 1
+        _NormalScale ("Normal Scale", Float) = 1
+        _BumpScale ("Bump Scale", Float) = 1
+        _Clearcoat ("Clearcoat", Range(0, 1)) = 0
+        _ClearcoatRoughness ("Clearcoat Roughness", Range(0, 1)) = 0
+        _SpecularIntensity ("Specular Intensity", Range(0, 1)) = 1
     }
 
     SubShader
@@ -38,6 +48,8 @@ Shader "ClaudeOfTanks/TankBakedPresentation"
         sampler2D _MainTex;
         sampler2D _NormalMap;
         sampler2D _RoughnessMap;
+        sampler2D _BumpMap;
+        sampler2D _EmissionMap;
         fixed4 _EmissionColor;
         half _Metallic;
         half _Glossiness;
@@ -45,9 +57,17 @@ Shader "ClaudeOfTanks/TankBakedPresentation"
         half _HasMainTex;
         half _HasNormalMap;
         half _HasRoughnessMap;
+        half _HasBumpMap;
+        half _HasEmissionMap;
         half _CamoScale;
         half _FlatLighting;
         half _EmissionBoost;
+        half _EmissionIntensity;
+        half _NormalScale;
+        half _BumpScale;
+        half _Clearcoat;
+        half _ClearcoatRoughness;
+        half _SpecularIntensity;
 
         struct Input
         {
@@ -83,16 +103,29 @@ Shader "ClaudeOfTanks/TankBakedPresentation"
             fixed3 mapped = lerp(camo, tex, saturate(_HasMainTex));
             output.Albedo = lerp(tint.rgb, tint.rgb * mapped, saturate(max(_UseCamo, _HasMainTex)));
             output.Alpha = 1;
+            fixed3 emissionTex = tex2D(_EmissionMap, input.uv_MainTex).rgb;
+            fixed3 emissionMapped = lerp(fixed3(1, 1, 1), emissionTex, saturate(_HasEmissionMap));
             output.Emission =
-                _EmissionColor.rgb +
+                _EmissionColor.rgb * _EmissionIntensity * emissionMapped +
                 output.Albedo * saturate(_FlatLighting) * _EmissionBoost;
             output.Metallic = _Metallic;
-            fixed roughness = tex2D(_RoughnessMap, input.uv_MainTex).g;
-            output.Smoothness = lerp(_Glossiness, 1.0 - roughness, saturate(_HasRoughnessMap));
+            fixed roughnessTex = tex2D(_RoughnessMap, input.uv_MainTex).g;
+            fixed baseRoughness = 1.0 - _Glossiness;
+            fixed roughness = baseRoughness * lerp(1.0, roughnessTex, saturate(_HasRoughnessMap));
+            fixed clearcoatSmoothness = (1.0 - _ClearcoatRoughness) * _Clearcoat * _SpecularIntensity;
+            output.Smoothness = saturate(1.0 - roughness + clearcoatSmoothness * 0.18);
+            fixed3 normalMapped = UnpackNormal(tex2D(_NormalMap, input.uv_MainTex));
+            normalMapped.xy *= _NormalScale;
+            fixed bumpHeight = tex2D(_BumpMap, input.uv_MainTex).r;
+            fixed3 bumpNormal = normalize(fixed3(
+                -ddx(bumpHeight) * _BumpScale,
+                -ddy(bumpHeight) * _BumpScale,
+                1));
+            fixed3 detailNormal = lerp(bumpNormal, normalMapped, saturate(_HasNormalMap));
             output.Normal = lerp(
                 fixed3(0, 0, 1),
-                UnpackNormal(tex2D(_NormalMap, input.uv_MainTex)),
-                saturate(_HasNormalMap));
+                detailNormal,
+                saturate(max(_HasNormalMap, _HasBumpMap)));
         }
         ENDCG
     }
