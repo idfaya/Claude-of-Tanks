@@ -38,10 +38,10 @@ namespace ClaudeOfTanks.Tests
                     Is.EqualTo(12));
                 Assert.That(
                     Find(view, "T90-Sprocket").localPosition,
-                    Is.EqualTo(new Vector3(-1.62f, 0.9f, -2.52f)));
+                    Is.EqualTo(new Vector3(-1.395f, 0.9f, -2.52f)));
                 Assert.That(
                     Find(view, "T90-Idler").localPosition,
-                    Is.EqualTo(new Vector3(-1.62f, 0.71f, 2.7f)));
+                    Is.EqualTo(new Vector3(-1.395f, 0.71f, 2.7f)));
             }
             finally
             {

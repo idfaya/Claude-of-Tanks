@@ -565,6 +565,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 	  ring offsets, optional cap heights, outward winding, and zero UVs. The
 	  base T-90 now uses the exact 12-point cast-seat and seam lofts instead of
 	  the superseded cylindrical turret-ring approximation.
+	  The sixteenth batch moves the T-90 running gear off scaled Unity cylinder
+	  primitives and onto explicit X-axis C# cylinders. It restores the source
+	  `0.385 m` road-wheel radius, `1.395 m` lane center, layered tire/dish/hub
+	  widths, source-sized sprocket/idler and return rollers, and torus bow
+	  recovery eyes while removing duplicate schema wheel inserts.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

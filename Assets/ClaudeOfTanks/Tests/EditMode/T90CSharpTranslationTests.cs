@@ -59,6 +59,9 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90-RearTowEye"),
                     Is.EqualTo(2));
                 Assert.That(
+                    Count(view, "T90-RecoveryEye"),
+                    Is.EqualTo(2));
+                Assert.That(
                     Count(view, "T90-CannonBaseBoot"),
                     Is.EqualTo(1));
                 Assert.That(
@@ -71,11 +74,32 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90-GearRoadWheelTire"),
                     Is.EqualTo(12));
                 Assert.That(
+                    Count(view, "T90-GearRoadWheelShoulder"),
+                    Is.EqualTo(12));
+                Assert.That(
                     Count(view, "T90-GearRoadWheelDisc"),
                     Is.EqualTo(12));
                 Assert.That(
                     Count(view, "T90-GearRoadWheelInset"),
                     Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90-GearRoadWheelHub"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90-GearRoadWheelHubCap"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90-Sprocket"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-Idler"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-ReturnRoller"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(view, "T90-ReturnRollerDisc"),
+                    Is.EqualTo(6));
                 Assert.That(
                     Count(view, "T90-GearSuspensionLink"),
                     Is.EqualTo(12));
@@ -134,6 +158,17 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Find(view, "Painted-T90-LowerTub").localScale,
                     Is.EqualTo(Vector3.one));
+                Mesh wheelMesh = Find(
+                        view,
+                        "T90-GearRoadWheelTire")
+                    .GetComponent<MeshFilter>()
+                    .sharedMesh;
+                Assert.That(
+                    wheelMesh.bounds.size.x,
+                    Is.EqualTo(0.22f).Within(0.0001f));
+                Assert.That(
+                    MaximumRadiusX(wheelMesh.vertices),
+                    Is.EqualTo(0.385f).Within(0.0001f));
             }
             finally
             {
@@ -230,6 +265,20 @@ namespace ClaudeOfTanks.Tests
             Assert.That(actual.x, Is.EqualTo(expected.x).Within(0.0001f));
             Assert.That(actual.y, Is.EqualTo(expected.y).Within(0.0001f));
             Assert.That(actual.z, Is.EqualTo(expected.z).Within(0.0001f));
+        }
+
+        private static float MaximumRadiusX(Vector3[] vertices)
+        {
+            float radius = 0f;
+            for (int index = 0; index < vertices.Length; index++)
+            {
+                radius = Mathf.Max(
+                    radius,
+                    Mathf.Sqrt(
+                        vertices[index].y * vertices[index].y +
+                        vertices[index].z * vertices[index].z));
+            }
+            return radius;
         }
     }
 }

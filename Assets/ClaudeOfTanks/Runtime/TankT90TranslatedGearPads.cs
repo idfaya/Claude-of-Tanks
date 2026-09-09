@@ -67,13 +67,12 @@ namespace ClaudeOfTanks.Runtime
             float z,
             float rotationX)
         {
-            Transform part = TankDetailGeometry.Part(
+            Transform part = TankShapeFactory.BoxPart(
                 "T90-TrackPad",
-                PrimitiveType.Cube,
                 root,
-                new Vector3(side * 1.62f, y, z),
                 new Vector3(0.62f, 0.045f, 0.075f),
                 color * 0.36f);
+            part.localPosition = new Vector3(side * 1.395f, y, z);
             part.localRotation =
                 Quaternion.Euler(rotationX, 0f, 0f);
         }

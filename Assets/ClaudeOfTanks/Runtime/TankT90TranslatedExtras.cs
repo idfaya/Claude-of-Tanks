@@ -20,7 +20,7 @@ namespace ClaudeOfTanks.Runtime
             AddBustleRackDetails(turret);
             AddGunMountDetails(turret);
             AddHullSkirtFasteners(root);
-            AddRearTowEyes(root);
+            AddTowEyes(root);
         }
 
         private static void AddHullMeshSurfaces(
@@ -276,8 +276,21 @@ namespace ClaudeOfTanks.Runtime
             }
         }
 
-        private static void AddRearTowEyes(Transform root)
+        private static void AddTowEyes(Transform root)
         {
+            for (int side = -1; side <= 1; side += 2)
+            {
+                Transform frontEye = TankShapeFactory.TorusPart(
+                    "T90-RecoveryEye",
+                    root,
+                    0.085f,
+                    0.016f,
+                    10,
+                    Dark());
+                frontEye.localPosition = V(side * 0.82f, 0.66f, 3.05f);
+                frontEye.localRotation = Quaternion.Euler(90f, 0f, 0f);
+            }
+
             float[] xPositions = { -0.56f, 0.48f };
             float[] yPositions = { 0.72f, 0.69f };
             for (int index = 0; index < xPositions.Length; index++)
