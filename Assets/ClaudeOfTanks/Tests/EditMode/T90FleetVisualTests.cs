@@ -23,6 +23,9 @@ namespace ClaudeOfTanks.Tests
                     CountPrefix(view, "Armor-"),
                     Is.EqualTo(166));
                 Assert.That(
+                    Count(view, "T90-PresentationSchema"),
+                    Is.EqualTo(1));
+                Assert.That(
                     definition.armor.hullPlates
                         .Concat(definition.armor.turretPlates)
                         .Count(plate => plate.kind == "era"),
