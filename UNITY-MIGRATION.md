@@ -500,9 +500,13 @@ The port preserves the source project's runtime units and conventions:
   as bake source data, and the Unity editor `TankPresentationPrefabBaker`
   converts it into `Resources/Generated/TankPresentation/t90.prefab` plus
   mesh sub-assets. Runtime now instantiates the baked prefab and only keeps
-  the hand-authored schema as a fallback path. The baked source currently
-  carries 461 mesh records, 236,672 vertices and 79,768 triangles from the TS
-  source builder
+  the hand-authored schema as a fallback path. The baked source now carries
+  463 mesh records, 236,680 vertices and 79,772 triangles from the TS source
+  builder, including TS normals, UVs, vertex colors, opacity/emissive/
+  roughness/metalness/side material fields, and the two source vehicle marking
+  meshes. Unity renders those through the dedicated
+  `ClaudeOfTanks/TankBakedPresentation` shader; TS runtime shader/texture
+  parity remains the only known visual gap for a bit-perfect match
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

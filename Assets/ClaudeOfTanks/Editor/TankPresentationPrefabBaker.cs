@@ -8,7 +8,7 @@ namespace ClaudeOfTanks.Editor
 {
     public static class TankPresentationPrefabBaker
     {
-        private const int SupportedSchemaVersion = 1;
+        private const int SupportedSchemaVersion = 2;
         private const string SourcePath =
             "Assets/ClaudeOfTanks/Generated/PresentationSource/tank-presentation-schemas.json";
         private const string OutputRoot =
@@ -121,8 +121,54 @@ namespace ClaudeOfTanks.Editor
                     source.vertices[offset + 2]);
             }
             mesh.vertices = vertices;
+            if (source.normals != null &&
+                source.normals.Length == source.vertices.Length)
+            {
+                Vector3[] normals =
+                    new Vector3[source.normals.Length / 3];
+                for (int i = 0; i < normals.Length; i++)
+                {
+                    int offset = i * 3;
+                    normals[i] = new Vector3(
+                        source.normals[offset],
+                        source.normals[offset + 1],
+                        source.normals[offset + 2]);
+                }
+                mesh.normals = normals;
+            }
+            if (source.uvs != null &&
+                source.uvs.Length == vertices.Length * 2)
+            {
+                Vector2[] uvs = new Vector2[source.uvs.Length / 2];
+                for (int i = 0; i < uvs.Length; i++)
+                {
+                    int offset = i * 2;
+                    uvs[i] = new Vector2(
+                        source.uvs[offset],
+                        source.uvs[offset + 1]);
+                }
+                mesh.uv = uvs;
+            }
+            if (source.colors != null &&
+                source.colors.Length == source.vertices.Length)
+            {
+                Color[] colors =
+                    new Color[source.colors.Length / 3];
+                for (int i = 0; i < colors.Length; i++)
+                {
+                    int offset = i * 3;
+                    colors[i] = new Color(
+                        source.colors[offset],
+                        source.colors[offset + 1],
+                        source.colors[offset + 2],
+                        1f);
+                }
+                mesh.colors = colors;
+            }
             mesh.triangles = source.triangles;
-            mesh.RecalculateNormals();
+            if (mesh.normals == null ||
+                mesh.normals.Length != vertices.Length)
+                mesh.RecalculateNormals();
             mesh.RecalculateBounds();
             return mesh;
         }
@@ -131,21 +177,72 @@ namespace ClaudeOfTanks.Editor
             PresentationMesh source,
             Dictionary<string, Material> materials)
         {
-            PresentationColor color = source.color;
+            PresentationMaterial sourceMaterial = source.material;
+            PresentationColor color = sourceMaterial?.color;
+            PresentationColor emissive = sourceMaterial?.emissive;
             string key = color == null
                 ? "1_1_1"
-                : $"{color.r:0.####}_{color.g:0.####}_{color.b:0.####}";
+                : $"{sourceMaterial?.type}_{sourceMaterial?.name}_" +
+                  $"{color.r:0.####}_{color.g:0.####}_{color.b:0.####}_" +
+                  $"{emissive?.r:0.####}_{emissive?.g:0.####}_{emissive?.b:0.####}_" +
+                  $"{sourceMaterial?.roughness:0.####}_{sourceMaterial?.metalness:0.####}_" +
+                  $"{sourceMaterial?.opacity:0.####}_{sourceMaterial?.transparent}_{sourceMaterial?.side}";
             if (materials.TryGetValue(key, out Material existing))
                 return existing;
 
+            Shader shader =
+                Shader.Find("ClaudeOfTanks/TankBakedPresentation");
+            if (shader == null)
+                shader = Shader.Find("Standard");
             Material material =
-                new Material(Shader.Find("Standard"))
+                new Material(shader)
                 {
                     name = "Mat-" + key,
                     color = color == null
                         ? Color.white
-                        : new Color(color.r, color.g, color.b)
+                        : new Color(
+                            color.r,
+                            color.g,
+                            color.b,
+                            sourceMaterial?.opacity ?? 1f)
                 };
+            if (material.HasProperty("_EmissionColor") &&
+                emissive != null)
+            {
+                material.SetColor(
+                    "_EmissionColor",
+                    new Color(emissive.r, emissive.g, emissive.b));
+                if (emissive.r > 0f || emissive.g > 0f || emissive.b > 0f)
+                    material.EnableKeyword("_EMISSION");
+            }
+            if (material.HasProperty("_Metallic"))
+                material.SetFloat(
+                    "_Metallic",
+                    sourceMaterial?.metalness ?? 0f);
+            if (material.HasProperty("_Glossiness"))
+                material.SetFloat(
+                    "_Glossiness",
+                    1f - (sourceMaterial?.roughness ?? 0.5f));
+            if (material.HasProperty("_Cull"))
+                material.SetFloat(
+                    "_Cull",
+                    sourceMaterial?.side == 2 ? 0f : 2f);
+            float opacity = sourceMaterial?.opacity ?? 1f;
+            if (sourceMaterial?.transparent == true ||
+                opacity < 0.999f)
+            {
+                material.SetFloat("_Mode", 3f);
+                material.SetInt(
+                    "_SrcBlend",
+                    (int)UnityEngine.Rendering.BlendMode.SrcAlpha);
+                material.SetInt(
+                    "_DstBlend",
+                    (int)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+                material.SetInt("_ZWrite", 0);
+                material.EnableKeyword("_ALPHABLEND_ON");
+                material.renderQueue =
+                    (int)UnityEngine.Rendering.RenderQueue.Transparent;
+            }
             materials.Add(key, material);
             return material;
         }
@@ -204,9 +301,28 @@ namespace ClaudeOfTanks.Editor
     {
         public string name;
         public string target;
-        public PresentationColor color;
+        public PresentationMaterial material;
         public float[] vertices;
+        public float[] normals;
+        public float[] uvs;
+        public float[] colors;
         public int[] triangles;
+    }
+
+    [Serializable]
+    internal sealed class PresentationMaterial
+    {
+        public string name;
+        public string type;
+        public PresentationColor color;
+        public PresentationColor emissive;
+        public float roughness;
+        public float metalness;
+        public float opacity;
+        public bool transparent;
+        public int side;
+        public bool vertexColors;
+        public bool hasMap;
     }
 
     [Serializable]

@@ -13,7 +13,6 @@ const ids = idsArg ? idsArg.slice('--ids='.length).split(',').filter(Boolean) : 
 
 const EXCLUDED_PREFIXES = [
   'procShadow_',
-  'vehicleMarking_',
 ];
 
 const HIDDEN_BASE_NAMES = [
@@ -77,6 +76,33 @@ function colorOf(material) {
   };
 }
 
+function hexOf(color, fallback) {
+  if (!color) return fallback;
+  return {
+    r: rounded(color.r ?? fallback.r),
+    g: rounded(color.g ?? fallback.g),
+    b: rounded(color.b ?? fallback.b),
+  };
+}
+
+function materialOf(material) {
+  const source = Array.isArray(material) ? material[0] : material;
+  const base = colorOf(source);
+  return {
+    name: source?.name ?? '',
+    type: source?.type ?? '',
+    color: base,
+    emissive: hexOf(source?.emissive, { r: 0, g: 0, b: 0 }),
+    roughness: rounded(source?.roughness ?? 0.5),
+    metalness: rounded(source?.metalness ?? 0),
+    opacity: rounded(source?.opacity ?? 1),
+    transparent: Boolean(source?.transparent),
+    side: source?.side ?? THREE.FrontSide,
+    vertexColors: Boolean(source?.vertexColors),
+    hasMap: Boolean(source?.map),
+  };
+}
+
 function targetFor(object, rigs) {
   let current = object;
   while (current) {
@@ -102,13 +128,35 @@ function shouldExport(object) {
 function meshRecord(object, instanceIndex, matrixWorld, target, targetMatrixInverse) {
   const sourceGeometry = object.geometry;
   const position = sourceGeometry.attributes.position;
+  const normal = sourceGeometry.attributes.normal;
+  const uv = sourceGeometry.attributes.uv;
+  const color = sourceGeometry.attributes.color;
   const index = sourceGeometry.index;
   const localMatrix = targetMatrixInverse.clone().multiply(matrixWorld);
+  const normalMatrix = new THREE.Matrix3().getNormalMatrix(localMatrix);
   const vertex = new THREE.Vector3();
+  const direction = new THREE.Vector3();
   const vertices = [];
+  const normals = [];
+  const uvs = [];
+  const colors = [];
   for (let i = 0; i < position.count; i++) {
     vertex.fromBufferAttribute(position, i).applyMatrix4(localMatrix);
     vertices.push(rounded(vertex.x), rounded(vertex.y), rounded(vertex.z));
+    if (normal) {
+      direction.fromBufferAttribute(normal, i).applyNormalMatrix(normalMatrix).normalize();
+      normals.push(rounded(direction.x), rounded(direction.y), rounded(direction.z));
+    }
+    if (uv) {
+      uvs.push(rounded(uv.getX(i)), rounded(uv.getY(i)));
+    }
+    if (color) {
+      colors.push(
+        rounded(color.getX(i)),
+        rounded(color.getY(i)),
+        rounded(color.getZ(i)),
+      );
+    }
   }
   const triangles = [];
   if (index) {
@@ -120,8 +168,11 @@ function meshRecord(object, instanceIndex, matrixWorld, target, targetMatrixInve
   return {
     name: `TS-T90-${object.name || 'mesh'}${suffix}`,
     target,
-    color: colorOf(object.material),
+    material: materialOf(object.material),
     vertices,
+    normals,
+    uvs,
+    colors,
     triangles,
   };
 }
@@ -195,7 +246,7 @@ function canonical(value) {
 }
 
 const payload = canonical({
-  schemaVersion: 1,
+  schemaVersion: 2,
   vehicles: ids.map(vehicleRecord),
 });
 const text = `${JSON.stringify(payload)}\n`;

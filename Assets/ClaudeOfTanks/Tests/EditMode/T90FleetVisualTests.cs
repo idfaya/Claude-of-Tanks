@@ -85,11 +85,56 @@ namespace ClaudeOfTanks.Tests
                     Is.EqualTo(0));
                 Assert.That(
                     CountPrefix(view, "TS-T90-"),
-                    Is.GreaterThanOrEqualTo(70));
+                    Is.GreaterThanOrEqualTo(72));
                 Assert.That(
                     view.Root.GetComponentsInChildren<Collider>(true)
                         .Length,
                     Is.EqualTo(0));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
+        [Test]
+        public void PreservesTsBakeMeshAndMaterialData()
+        {
+            TankView view =
+                Create(ContentCatalog.Load());
+            try
+            {
+                Assert.That(
+                    CountPrefix(view, "TS-T90-vehicleMarking_"),
+                    Is.EqualTo(2));
+
+                Mesh bakedMesh =
+                    Find(view, "TS-T90-hull")
+                        .GetComponent<MeshFilter>()
+                        .sharedMesh;
+                Assert.That(
+                    bakedMesh.normals.Length,
+                    Is.EqualTo(bakedMesh.vertexCount));
+                Assert.That(
+                    bakedMesh.uv.Length,
+                    Is.EqualTo(bakedMesh.vertexCount));
+                Assert.That(
+                    bakedMesh.colors.Length,
+                    Is.EqualTo(bakedMesh.vertexCount));
+
+                Renderer renderer =
+                    Find(view, "TS-T90-hull")
+                        .GetComponent<Renderer>();
+                Assert.That(
+                    renderer.sharedMaterial.shader.name,
+                    Is.EqualTo("ClaudeOfTanks/TankBakedPresentation"));
+                Assert.That(
+                    Find(view, "TS-T90-turretGlass")
+                        .GetComponent<Renderer>()
+                        .sharedMaterial
+                        .color
+                        .a,
+                    Is.LessThan(0.8f));
             }
             finally
             {
