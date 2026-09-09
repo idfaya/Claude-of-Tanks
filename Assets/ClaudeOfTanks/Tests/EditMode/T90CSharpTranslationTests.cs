@@ -92,16 +92,31 @@ namespace ClaudeOfTanks.Tests
                 AssertMeshVertexCount(
                     view,
                     "Painted-T90-CSharpUpperHullWedge",
-                    8);
+                    36);
                 AssertMeshVertexCount(
                     view,
                     "Painted-T90-CSharpTurretCheekWedge-L",
-                    8);
+                    36);
             }
             finally
             {
                 view.Destroy();
             }
+        }
+
+        [Test]
+        public void DestroysTranslatedRuntimeMeshes()
+        {
+            TankView view = Create();
+            Mesh mesh = Find(
+                    view,
+                    "Painted-T90-CSharpCastDomeMesh")
+                .GetComponent<MeshFilter>()
+                .sharedMesh;
+
+            view.Destroy();
+
+            Assert.That(mesh == null, Is.True);
         }
 
         private static TankView Create()

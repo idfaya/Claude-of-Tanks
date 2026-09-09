@@ -43,7 +43,9 @@ namespace ClaudeOfTanks.Runtime
         private static bool IsGeneratedMesh(MeshFilter filter)
         {
             return filter.name.StartsWith("Armor-") ||
-                filter.name.StartsWith("TrackLinks-");
+                filter.name.StartsWith("TrackLinks-") ||
+                (filter.sharedMesh != null &&
+                 filter.sharedMesh.name == filter.name + "Mesh");
         }
 
         public static TankView Create(TankState tank)

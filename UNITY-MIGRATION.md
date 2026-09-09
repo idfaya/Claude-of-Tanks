@@ -543,6 +543,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 	  `gearTrackPads` count and reducing the slab-like fallback track read. The
 	  tenth batch adds a dedicated suspension translator that mirrors the TS
 	  road-wheel tire/disc/inset split, 12 suspension links, and 24 joint bosses.
+	  The eleventh batch extracts TS-compatible `orientedSlab`, `frustum`,
+	  axis-selectable cylinder/cone, and subdivided ring-lathe builders into
+	  shared C# shape factories. T-90 now consumes those factories directly;
+	  its former local eight-vertex prism helpers and the duplicate mesh/lathe
+	  implementation in `TankDetailGeometry` have been removed.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

@@ -26,37 +26,41 @@ namespace ClaudeOfTanks.Runtime
             Transform root,
             Color color)
         {
-            TankDetailGeometry.MeshPart(
+            TankShapeFactory.FrustumPart(
                 "Painted-T90-CSharpUpperHullWedge",
                 root,
-                BoxVertices(
-                    -1.55f, 1.55f,
-                    0.96f, 1.36f,
-                    -2.68f, 2.18f,
-                    0.22f),
-                BoxTriangles(),
+                1.55f,
+                2.18f,
+                -2.68f,
+                1.33f,
+                2.18f,
+                -2.68f,
+                0.96f,
+                1.36f,
                 color * 0.58f);
-            TankDetailGeometry.MeshPart(
+            TankShapeFactory.OrientedSlabPart(
                 "Painted-T90-CSharpSweptGlacisMesh",
                 root,
-                QuadPrism(
-                    V(-1.22f, 1.18f, 2.1f),
-                    V(1.22f, 1.18f, 2.1f),
-                    V(1.42f, 1.0f, 2.95f),
-                    V(-1.42f, 1.0f, 2.95f),
-                    0.08f),
-                BoxTriangles(),
+                V(-1.22f, 1.18f, 2.1f),
+                V(1.22f, 1.18f, 2.1f),
+                V(1.42f, 1.0f, 2.95f),
+                V(-1.42f, 1.0f, 2.95f),
+                V(-1.22f, 1.26f, 2.1f),
+                V(1.22f, 1.26f, 2.1f),
+                V(1.42f, 1.08f, 2.95f),
+                V(-1.42f, 1.08f, 2.95f),
                 color * 0.64f);
-            TankDetailGeometry.MeshPart(
+            TankShapeFactory.OrientedSlabPart(
                 "T90-CSharpRearDeckStep",
                 root,
-                QuadPrism(
-                    V(-1.28f, 1.42f, -2.72f),
-                    V(1.28f, 1.42f, -2.72f),
-                    V(1.45f, 1.32f, -1.4f),
-                    V(-1.45f, 1.32f, -1.4f),
-                    0.06f),
-                BoxTriangles(),
+                V(-1.28f, 1.42f, -2.72f),
+                V(1.28f, 1.42f, -2.72f),
+                V(1.45f, 1.32f, -1.4f),
+                V(-1.45f, 1.32f, -1.4f),
+                V(-1.28f, 1.48f, -2.72f),
+                V(1.28f, 1.48f, -2.72f),
+                V(1.45f, 1.38f, -1.4f),
+                V(-1.45f, 1.38f, -1.4f),
                 color * 0.45f);
         }
 
@@ -64,7 +68,7 @@ namespace ClaudeOfTanks.Runtime
             Transform turret,
             Color color)
         {
-            TankDetailGeometry.LathePart(
+            TankShapeFactory.LathePart(
                 "Painted-T90-CSharpCastDomeMesh",
                 turret,
                 new[]
@@ -93,27 +97,29 @@ namespace ClaudeOfTanks.Runtime
                 0.72f,
                 color * 0.64f,
                 2.7f);
-            TankDetailGeometry.MeshPart(
+            TankShapeFactory.OrientedSlabPart(
                 "Painted-T90-CSharpTurretCheekWedge-L",
                 turret,
-                QuadPrism(
-                    V(-0.22f, 0.36f, 1.33f),
-                    V(-1.26f, 0.34f, 0.86f),
-                    V(-1.36f, 0.62f, 0.44f),
-                    V(-0.34f, 0.7f, 0.66f),
-                    0.09f),
-                BoxTriangles(),
+                V(-0.22f, 0.36f, 1.33f),
+                V(-1.26f, 0.34f, 0.86f),
+                V(-1.36f, 0.62f, 0.44f),
+                V(-0.34f, 0.7f, 0.66f),
+                V(-0.22f, 0.45f, 1.33f),
+                V(-1.26f, 0.43f, 0.86f),
+                V(-1.36f, 0.71f, 0.44f),
+                V(-0.34f, 0.79f, 0.66f),
                 color * 0.56f);
-            TankDetailGeometry.MeshPart(
+            TankShapeFactory.OrientedSlabPart(
                 "Painted-T90-CSharpTurretCheekWedge-R",
                 turret,
-                QuadPrism(
-                    V(0.22f, 0.36f, 1.33f),
-                    V(1.26f, 0.34f, 0.86f),
-                    V(1.36f, 0.62f, 0.44f),
-                    V(0.34f, 0.7f, 0.66f),
-                    0.09f),
-                BoxTriangles(),
+                V(0.22f, 0.36f, 1.33f),
+                V(1.26f, 0.34f, 0.86f),
+                V(1.36f, 0.62f, 0.44f),
+                V(0.34f, 0.7f, 0.66f),
+                V(0.22f, 0.45f, 1.33f),
+                V(1.26f, 0.43f, 0.86f),
+                V(1.36f, 0.71f, 0.44f),
+                V(0.34f, 0.79f, 0.66f),
                 color * 0.56f);
         }
 
@@ -270,62 +276,6 @@ namespace ClaudeOfTanks.Runtime
                 color);
             part.localRotation = Quaternion.Euler(rotation);
             return part;
-        }
-
-        private static Vector3[] BoxVertices(
-            float xMin,
-            float xMax,
-            float yMin,
-            float yMax,
-            float zMin,
-            float zMax,
-            float topInset)
-        {
-            return new[]
-            {
-                V(xMin, yMin, zMin),
-                V(xMax, yMin, zMin),
-                V(xMax, yMin, zMax),
-                V(xMin, yMin, zMax),
-                V(xMin + topInset, yMax, zMin),
-                V(xMax - topInset, yMax, zMin),
-                V(xMax - topInset, yMax, zMax),
-                V(xMin + topInset, yMax, zMax)
-            };
-        }
-
-        private static Vector3[] QuadPrism(
-            Vector3 a,
-            Vector3 b,
-            Vector3 c,
-            Vector3 d,
-            float thickness)
-        {
-            Vector3 lift = Vector3.up * thickness;
-            return new[]
-            {
-                a,
-                b,
-                c,
-                d,
-                a + lift,
-                b + lift,
-                c + lift,
-                d + lift
-            };
-        }
-
-        private static int[] BoxTriangles()
-        {
-            return new[]
-            {
-                0, 2, 1, 0, 3, 2,
-                4, 5, 6, 4, 6, 7,
-                0, 1, 5, 0, 5, 4,
-                1, 2, 6, 1, 6, 5,
-                2, 3, 7, 2, 7, 6,
-                3, 0, 4, 3, 4, 7
-            };
         }
 
         private static Vector3 V(
