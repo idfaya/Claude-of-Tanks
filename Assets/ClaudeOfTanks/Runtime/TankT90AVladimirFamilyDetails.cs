@@ -101,6 +101,9 @@ namespace ClaudeOfTanks.Runtime
             AddRunningGearFaces(root, color);
             AddTrackRuns(root);
             AddSideStructure(root, color);
+            TankT90AVladimirHullEquipmentDetails.Build(
+                root,
+                color);
         }
 
         private static void AddRunningGearFaces(

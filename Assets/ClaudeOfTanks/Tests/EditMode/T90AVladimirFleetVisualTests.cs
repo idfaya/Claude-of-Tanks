@@ -56,6 +56,39 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "Painted-T90AVladimir-SideSkirt"),
                     Is.EqualTo(2));
                 Assert.That(
+                    Count(view, "Painted-T90AVladimir-TailDrum"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90AVladimir-ServiceLouvre"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "T90AVladimir-UnditchingLog"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90AVladimir-EngineGrille"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "Painted-T90AVladimir-Headlight"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90AVladimir-TowEye"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90AVladimir-GlacisK5"),
+                    Is.EqualTo(4));
+                Assert.That(
+                    Count(view, "Painted-T90AVladimir-SideK5"),
+                    Is.EqualTo(8));
+                Assert.That(
+                    Count(view, "T90AVladimir-SlatRail"),
+                    Is.EqualTo(10));
+                Assert.That(
+                    Count(view, "T90AVladimir-SlatStile"),
+                    Is.EqualTo(14));
+                Assert.That(
+                    Count(view, "T90AVladimir-SlatBracket"),
+                    Is.EqualTo(8));
+                Assert.That(
                     Count(view, "T90AVladimir-ShtoraLens"),
                     Is.EqualTo(2));
                 Assert.That(

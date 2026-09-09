@@ -648,6 +648,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   The former box bustle is replaced by the source 7-station crown transition
   and 5-station tapered welded bustle, with segmented side rails seated on its
   real shell.
+  Hull equipment now includes the source tail drums/rack, layered service
+  face and louvres, dark unditching log, five engine grilles, headlight/tow
+  fittings, two-row glacis K-5, four-column side K-5 banks, and rear-quarter
+  slat cages.
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
