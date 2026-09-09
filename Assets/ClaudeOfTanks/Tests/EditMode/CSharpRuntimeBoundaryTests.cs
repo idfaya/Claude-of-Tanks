@@ -85,6 +85,30 @@ namespace ClaudeOfTanks.Tests
                 "Executable JavaScript/TypeScript must not ship inside Unity assets.");
         }
 
+        [Test]
+        public void ContentCatalogIsCanonicalUnityData()
+        {
+            string projectRoot =
+                Directory.GetParent(Application.dataPath).FullName;
+            Assert.That(
+                File.Exists(Path.Combine(
+                    projectRoot,
+                    "Assets/ClaudeOfTanks/Resources/Content/" +
+                    "content-catalog.json")),
+                Is.True);
+            Assert.That(
+                File.Exists(Path.Combine(
+                    projectRoot,
+                    "Assets/ClaudeOfTanks/Resources/Generated/" +
+                    "content-catalog.json")),
+                Is.False);
+            Assert.That(
+                File.Exists(Path.Combine(
+                    projectRoot,
+                    "tools/gen-unity-content.mjs")),
+                Is.False);
+        }
+
         private static void AddFiles(
             string root,
             string pattern,

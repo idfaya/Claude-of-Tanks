@@ -82,17 +82,13 @@ The port preserves the source project's runtime units and conventions:
 
 ## C# ownership boundary
 
-Unity runtime, dedicated server, private-room signaling, EditMode tests, and
-PlayMode tests are C#-native and do not launch Node or execute TypeScript.
-`CSharpRuntimeBoundaryTests` enforces that boundary. TypeScript remains allowed
-only as an offline authoring source for vehicle presentation geometry and its
-Unity bake artifacts.
-
-The remaining non-vehicle migration item is authoring ownership for the
-generated content catalog. Unity already consumes the checked-in catalog
-without Node, but map, equipment, and camouflage records still originate in
-the TypeScript catalog generator. Those records must move to C#-owned Unity
-content before the non-vehicle conversion can be declared complete.
+Unity runtime, dedicated server, private-room signaling, content data,
+EditMode tests, and PlayMode tests are C#-native and do not launch Node or
+execute TypeScript. `CSharpRuntimeBoundaryTests` enforces that boundary.
+`Resources/Content/content-catalog.json` is the canonical language-neutral
+Unity content asset; C# owns its schema, loading, and validation. TypeScript
+remains allowed only as an offline authoring source for vehicle presentation
+geometry and its Unity bake artifacts.
 
 ## Implemented
 
@@ -111,7 +107,7 @@ content before the non-vehicle conversion can be declared complete.
 - Programmatic battlefield, first-party primitive tank rigs, shell visuals
 - Chase camera, mouse aim, HUD, battle result, restart
 - EditMode simulation tests
-- Generated parity catalog for all 165 saved vehicle records, 136 release
+- Canonical Unity catalog for all 165 saved vehicle records, 136 release
   vehicles, 126 production vehicles, and all 20 battlefield configurations
 - Runtime `TankSpec` construction and dimension/role/family-driven procedural
   presentation for every production vehicle
@@ -186,12 +182,12 @@ content before the non-vehicle conversion can be declared complete.
   turntable, roof trusses, three warm high-bay fixtures, canonical hero
   staging, restrained tactical selection/command rails, and a live
   vehicle/map/loadout inspector
-- Data-driven Garage loadout editor generated from the canonical TypeScript
+- Data-driven Garage loadout editor backed by the canonical Unity
   catalog, with 14 era/vehicle-gated equipment choices, three slots, all 112
   match-safe camouflage choices, per-vehicle persistence, live preview paint,
   and selection handoff to solo, private-room, and ranked battles
 - Deterministic Unity camouflage textures generated from all 112 canonical
-  TypeScript recipes, including national Factory and per-vehicle Signature
+  catalog recipes, including national Factory and per-vehicle Signature
   resolution, vehicle-scale tiling, projected armor UVs, and shared rendering
   across Garage, solo, network battle, Killcam, and archived replay surfaces
 - Shared production-fleet running gear with closed discrete-link track meshes,
@@ -663,7 +659,7 @@ content before the non-vehicle conversion can be declared complete.
   rating-balanced teams, complete map rotation, authenticated queue polling,
   one-time match tickets, rotating reconnect sessions, stale-generation
   isolation, and bounded match/result reclamation
-- `npm run unity:content:update` / `unity:content:check` drift gate
+- C# catalog schema, fleet/map completeness, and runtime-boundary gates
 
 ## Remaining parity work
 
@@ -678,7 +674,6 @@ These systems still use the TypeScript implementation as their specification:
   and broader world streaming for all 20 maps;
 - remaining production UI polish;
 - installable build-target release artifacts and platform packaging;
-- C# authoring ownership for map, equipment, and camouflage catalog records;
 - per-family procedural vehicle geometry parity and generated technical assets.
 
 Migrate these by extending the simulation contracts rather than moving

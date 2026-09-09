@@ -6,7 +6,7 @@ namespace ClaudeOfTanks.Runtime
 {
     public sealed class ContentCatalog
     {
-        private const string ResourcePath = "Generated/content-catalog";
+        private const string ResourcePath = "Content/content-catalog";
         private const int SupportedSchemaVersion = 6;
         private readonly CatalogData _data;
 
