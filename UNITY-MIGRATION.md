@@ -730,8 +730,12 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   `TankMudguardShapeFactory` now carries the shared TS seven-point closed
   crown/cut/rake extrusion and attached support contract. The final source
   rebuild now also owns the rotating pivot, 21-station inner welded shell,
-  nine-station continuous outer skin, buried ring and three crown facets;
-  turret Relikt, bustle, equipment and gun remain follow-ups.
+  nine-station continuous outer skin, buried ring and three crown facets.
+  Its turret-armor owner adds the two-row/four-carrier frontal chevron,
+  48 individually extruded nose tile layers, paired optic heads and all 54
+  outer-skin-projected flank/lower/shoulder/roof Relikt parts from the same
+  station interpolation and surface-normal equations. Bustle, equipment and
+  gun remain follow-ups.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

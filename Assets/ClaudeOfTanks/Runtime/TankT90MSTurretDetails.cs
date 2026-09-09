@@ -4,6 +4,37 @@ namespace ClaudeOfTanks.Runtime
 {
     internal static class TankT90MSTurretDetails
     {
+        private static readonly TankWeldedStation[] OuterSkinStations =
+        {
+            S(1.34f, 0.05f, 0.46f,
+                -0.33f, 0.33f, -0.25f, 0.25f,
+                -0.25f, 0.25f),
+            S(1.10f, 0.03f, 0.55f,
+                -0.78f, 0.78f, -0.52f, 0.52f,
+                -0.62f, 0.62f),
+            S(0.70f, 0.12f, 0.60f,
+                -1.27f, 1.27f, -0.96f, 0.96f,
+                -0.84f, 0.84f),
+            S(0.20f, 0.18f, 0.61f,
+                -1.55f, 1.55f, -1.30f, 1.30f,
+                -0.80f, 0.80f),
+            S(-0.35f, 0.18f, 0.60f,
+                -1.58f, 1.58f, -1.31f, 1.31f,
+                -0.84f, 0.84f),
+            S(-0.88f, 0.16f, 0.52f,
+                -1.45f, 1.45f, -1.20f, 1.20f,
+                -0.80f, 0.80f),
+            S(-1.20f, 0.13f, 0.45f,
+                -1.27f, 1.27f, -1.06f, 1.06f,
+                -0.77f, 0.77f),
+            S(-1.48f, 0.12f, 0.38f,
+                -1.08f, 1.08f, -0.91f, 0.91f,
+                -0.82f, 0.82f),
+            S(-1.72f, 0.15f, 0.32f,
+                -0.88f, 0.88f, -0.75f, 0.75f,
+                -0.70f, 0.70f)
+        };
+
         public static void Build(
             Transform turret,
             Color color)
@@ -19,6 +50,7 @@ namespace ClaudeOfTanks.Runtime
             AddOuterSkin(root, color);
             AddRing(root);
             AddCrownFacets(root, color);
+            TankT90MSTurretArmorDetails.Build(root, color);
         }
 
         private static void AddInnerShell(
@@ -104,37 +136,36 @@ namespace ClaudeOfTanks.Runtime
             TankWeldedStationLoftShapeFactory.Build(
                 "Painted-T90MS-OuterWeldedSkin",
                 root,
-                new[]
-                {
-                    S(1.34f, 0.05f, 0.46f,
-                        -0.33f, 0.33f, -0.25f, 0.25f,
-                        -0.25f, 0.25f),
-                    S(1.10f, 0.03f, 0.55f,
-                        -0.78f, 0.78f, -0.52f, 0.52f,
-                        -0.62f, 0.62f),
-                    S(0.70f, 0.12f, 0.60f,
-                        -1.27f, 1.27f, -0.96f, 0.96f,
-                        -0.84f, 0.84f),
-                    S(0.20f, 0.18f, 0.61f,
-                        -1.55f, 1.55f, -1.30f, 1.30f,
-                        -0.80f, 0.80f),
-                    S(-0.35f, 0.18f, 0.60f,
-                        -1.58f, 1.58f, -1.31f, 1.31f,
-                        -0.84f, 0.84f),
-                    S(-0.88f, 0.16f, 0.52f,
-                        -1.45f, 1.45f, -1.20f, 1.20f,
-                        -0.80f, 0.80f),
-                    S(-1.20f, 0.13f, 0.45f,
-                        -1.27f, 1.27f, -1.06f, 1.06f,
-                        -0.77f, 0.77f),
-                    S(-1.48f, 0.12f, 0.38f,
-                        -1.08f, 1.08f, -0.91f, 0.91f,
-                        -0.82f, 0.82f),
-                    S(-1.72f, 0.15f, 0.32f,
-                        -0.88f, 0.88f, -0.75f, 0.75f,
-                        -0.70f, 0.70f)
-                },
+                OuterSkinStations,
                 color * 0.61f);
+        }
+
+        internal static TankWeldedStation OuterSkinStationAt(
+            float z)
+        {
+            if (z >= OuterSkinStations[0].Z)
+                return OuterSkinStations[0];
+            int last = OuterSkinStations.Length - 1;
+            if (z <= OuterSkinStations[last].Z)
+                return OuterSkinStations[last];
+            for (int index = 0; index < last; index++)
+            {
+                TankWeldedStation a = OuterSkinStations[index];
+                TankWeldedStation b = OuterSkinStations[index + 1];
+                if (z > a.Z || z < b.Z) continue;
+                float t = (z - a.Z) / (b.Z - a.Z);
+                return S(
+                    z,
+                    Mathf.Lerp(a.BottomY, b.BottomY, t),
+                    Mathf.Lerp(a.TopY, b.TopY, t),
+                    Mathf.Lerp(a.MiddleLeftX, b.MiddleLeftX, t),
+                    Mathf.Lerp(a.MiddleRightX, b.MiddleRightX, t),
+                    Mathf.Lerp(a.BottomLeftX, b.BottomLeftX, t),
+                    Mathf.Lerp(a.BottomRightX, b.BottomRightX, t),
+                    Mathf.Lerp(a.TopLeftX, b.TopLeftX, t),
+                    Mathf.Lerp(a.TopRightX, b.TopRightX, t));
+            }
+            return OuterSkinStations[last];
         }
 
         private static void AddRing(Transform root)
