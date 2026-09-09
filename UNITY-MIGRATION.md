@@ -553,6 +553,9 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 	  parts use one or two bevel segments with a 0.024 m radius cap and the
 	  Three.js rounded-face UV projection. The T-90 schema and translated
 	  extras now use this path without storing generated mesh assets.
+	  The thirteenth batch ports the indexed Three.js torus layout, including
+	  normals and UVs, and restores the T-90 bustle cable coil plus both rear
+	  tow eyes through the shared C# factory.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

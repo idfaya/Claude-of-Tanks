@@ -288,6 +288,25 @@ namespace ClaudeOfTanks.Runtime
                 roofTiltScale);
         }
 
+        public static Transform TorusPart(
+            string name,
+            Transform parent,
+            float radius,
+            float tubeRadius,
+            int radialSegments,
+            Color color,
+            int tubularSegments = 8)
+        {
+            return TankTorusShapeFactory.Build(
+                name,
+                parent,
+                radius,
+                tubeRadius,
+                radialSegments,
+                tubularSegments,
+                color);
+        }
+
         private static bool HasOutwardRing(Vector3[] corners)
         {
             Vector3 center = Vector3.zero;

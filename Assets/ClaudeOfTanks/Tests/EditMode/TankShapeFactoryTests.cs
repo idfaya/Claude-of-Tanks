@@ -208,6 +208,40 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void TorusMatchesThreeSegmentAndUvLayout()
+        {
+            GameObject root = new GameObject("ShapeFactoryTestRoot");
+            try
+            {
+                Transform part = TankShapeFactory.TorusPart(
+                    "Torus",
+                    root.transform,
+                    1f,
+                    0.25f,
+                    12,
+                    Color.white,
+                    8);
+                Mesh mesh = Mesh(part);
+
+                Assert.That(mesh.vertexCount, Is.EqualTo(117));
+                Assert.That(mesh.triangles.Length, Is.EqualTo(576));
+                Assert.That(mesh.normals.Length, Is.EqualTo(117));
+                Assert.That(mesh.uv.Length, Is.EqualTo(117));
+                AssertVector(mesh.bounds.size, V(2.5f, 2.5f, 0.5f));
+                for (int index = 0; index < mesh.normals.Length; index++)
+                {
+                    Assert.That(
+                        mesh.normals[index].magnitude,
+                        Is.EqualTo(1f).Within(0.0001f));
+                }
+            }
+            finally
+            {
+                DestroyGenerated(root);
+            }
+        }
+
         private static void AssertCylinder(
             Transform root,
             TankShapeAxis axis,

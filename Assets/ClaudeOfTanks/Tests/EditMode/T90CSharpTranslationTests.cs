@@ -44,6 +44,12 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90-OpvtRackStay"),
                     Is.EqualTo(1));
                 Assert.That(
+                    Count(view, "T90-BustleCableCoil"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90-RearTowEye"),
+                    Is.EqualTo(2));
+                Assert.That(
                     Count(view, "T90-CannonBaseBoot"),
                     Is.EqualTo(1));
                 Assert.That(

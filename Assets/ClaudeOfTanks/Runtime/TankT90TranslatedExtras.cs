@@ -20,6 +20,7 @@ namespace ClaudeOfTanks.Runtime
             AddBustleRackDetails(turret);
             AddGunMountDetails(turret);
             AddHullSkirtFasteners(root);
+            AddRearTowEyes(root);
         }
 
         private static void AddHullMeshSurfaces(
@@ -218,6 +219,15 @@ namespace ClaudeOfTanks.Runtime
                         V(side * 0.42f, 0.66f + rung * 0.095f, -1.78f),
                         V(0.68f, 0.025f, 0.035f), V(), Dark());
             }
+            Transform cable = TankShapeFactory.TorusPart(
+                "T90-BustleCableCoil",
+                turret,
+                0.15f,
+                0.017f,
+                20,
+                Dark());
+            cable.localPosition = V(0.45f, 0.42f, -1.43f);
+            cable.localRotation = Quaternion.Euler(90f, 0f, 0f);
         }
 
         private static void AddGunMountDetails(
@@ -255,6 +265,25 @@ namespace ClaudeOfTanks.Runtime
                 Part("T90-SkirtLowerPin", PrimitiveType.Cylinder, root,
                     V(side * 1.86f, 0.66f, -1.28f + station * 0.76f),
                     V(0.022f, 0.026f, 0.022f), V(0f, 0f, 90f), Dark());
+            }
+        }
+
+        private static void AddRearTowEyes(Transform root)
+        {
+            float[] xPositions = { -0.56f, 0.48f };
+            float[] yPositions = { 0.72f, 0.69f };
+            for (int index = 0; index < xPositions.Length; index++)
+            {
+                Transform eye = TankShapeFactory.TorusPart(
+                    "T90-RearTowEye",
+                    root,
+                    0.084f,
+                    0.02f,
+                    14,
+                    Dark());
+                eye.localPosition =
+                    V(xPositions[index], yPositions[index], -3.54f);
+                eye.localRotation = Quaternion.Euler(90f, 0f, 0f);
             }
         }
 
