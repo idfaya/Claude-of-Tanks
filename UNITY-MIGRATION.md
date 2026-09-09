@@ -443,6 +443,17 @@ The port preserves the source project's runtime units and conventions:
   `Armor-*` owner: the four variants preserve 32/133/129/155 hit surfaces
   (0/101/97/123 reactive) with no presentation collider, generic side armor,
   or generic Abrams fittings
+- The legacy `t62mv1` content ID now renders the current source-owned
+  T-62 obr. 1975 identity instead of the generic Unity shell. Its widened
+  welded hull carries the exact five-wheel course with no return rollers,
+  segmented fender bins, exposed tracks, twin rear fuel drums and unditching
+  log. The bare organic cast turret carries one DShK, six roof periscopes,
+  rear tool rolls and a single radio whip; the gun-owned U-5TS package carries
+  the KTD-2 and Luna searchlight through elevation. All 19 catalog hit
+  surfaces remain authoritative while their diagnostic plate renderers stay
+  hidden behind the dedicated presentation geometry in Garage, solo, replay,
+  and network. The vehicle adds no ERA, generic Soviet fittings, side armor,
+  return rollers, or presentation colliders
 - Catalog-authored hydropneumatic aim is authoritative for UDES 03,
   Strv 103/103A, STB-1, Type 74, and MBT-70: the configurable nose-down,
   nose-up, slew-rate, compression, and droop envelopes survive content and
