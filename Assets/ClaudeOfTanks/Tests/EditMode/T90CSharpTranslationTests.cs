@@ -91,10 +91,21 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(view, "T90-K5LeafTopSeam"),
                     Is.EqualTo(4));
-                AssertMeshVertexCountAtLeast(
+                AssertMeshVertexCount(
                     view,
                     "Painted-T90-CSharpCastDomeMesh",
-                    1000);
+                    468);
+                Bounds castBounds = Find(
+                        view,
+                        "Painted-T90-CSharpCastDomeMesh")
+                    .GetComponent<MeshFilter>()
+                    .sharedMesh.bounds;
+                AssertVector(
+                    castBounds.min,
+                    new Vector3(-1.62f, -0.06f, -1.46f));
+                AssertVector(
+                    castBounds.max,
+                    new Vector3(1.64f, 0.71f, 1.38f));
                 AssertMeshVertexCount(
                     view,
                     "Painted-T90-CSharpUpperHullWedge",
@@ -178,24 +189,9 @@ namespace ClaudeOfTanks.Tests
                 transform.GetComponent<MeshFilter>();
             Assert.That(filter, Is.Not.Null, name);
             Assert.That(filter.sharedMesh.vertexCount, Is.EqualTo(expected));
-        }
-
-        private static void AssertMeshVertexCountAtLeast(
-            TankView view,
-            string name,
-            int expected)
-        {
-            Transform transform = Find(view, name);
-            Assert.That(transform, Is.Not.Null, name);
-            MeshFilter filter =
-                transform.GetComponent<MeshFilter>();
-            Assert.That(filter, Is.Not.Null, name);
-            Assert.That(
-                filter.sharedMesh.vertexCount,
-                Is.GreaterThanOrEqualTo(expected));
             Assert.That(
                 filter.sharedMesh.normals.Length,
-                Is.EqualTo(filter.sharedMesh.vertexCount));
+                Is.EqualTo(expected));
         }
 
         private static Transform Find(
@@ -212,6 +208,15 @@ namespace ClaudeOfTanks.Tests
                     return transforms[index];
             }
             return null;
+        }
+
+        private static void AssertVector(
+            Vector3 actual,
+            Vector3 expected)
+        {
+            Assert.That(actual.x, Is.EqualTo(expected.x).Within(0.0001f));
+            Assert.That(actual.y, Is.EqualTo(expected.y).Within(0.0001f));
+            Assert.That(actual.z, Is.EqualTo(expected.z).Within(0.0001f));
         }
     }
 }

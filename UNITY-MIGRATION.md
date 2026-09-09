@@ -556,6 +556,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 	  The thirteenth batch ports the indexed Three.js torus layout, including
 	  normals and UVs, and restores the T-90 bustle cable coil plus both rear
 	  tow eyes through the shared C# factory.
+	  The fourteenth batch replaces the obsolete rotational dome approximation
+	  with the current TS-authoritative eight-station, five-level asymmetric
+	  `castSectionLoft`. Its 468 flat-shaded vertices preserve the independent
+	  cheek, shoulder, crown, floor, roof, and terminal cap planes.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

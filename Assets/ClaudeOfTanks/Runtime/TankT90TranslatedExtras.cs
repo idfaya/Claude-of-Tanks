@@ -69,35 +69,10 @@ namespace ClaudeOfTanks.Runtime
             Transform turret,
             Color color)
         {
-            TankShapeFactory.LathePart(
+            TankT90CastTurretShape.BuildBase(
                 "Painted-T90-CSharpCastDomeMesh",
                 turret,
-                new[]
-                {
-                    1.48f,
-                    1.62f,
-                    1.58f,
-                    1.42f,
-                    1.14f,
-                    0.8f,
-                    0.42f,
-                    0.02f
-                },
-                new[]
-                {
-                    0f,
-                    0.13f,
-                    0.31f,
-                    0.46f,
-                    0.6f,
-                    0.7f,
-                    0.765f,
-                    0.79f
-                },
-                30,
-                0.72f,
-                color * 0.64f,
-                2.7f);
+                color * 0.64f);
             TankShapeFactory.OrientedSlabPart(
                 "Painted-T90-CSharpTurretCheekWedge-L",
                 turret,
