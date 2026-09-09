@@ -354,6 +354,21 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "T90-RearMudguard"),
                     Is.EqualTo(2));
                 Assert.That(
+                    Count(view, "Painted-T90-GunnerThermalHead"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90-GunnerThermalLens"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90-CupolaPeriscope"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "T90-SkirtHingeBracket"),
+                    Is.EqualTo(10));
+                Assert.That(
+                    Count(view, "T90-SkirtLowerPin"),
+                    Is.EqualTo(10));
+                Assert.That(
                     Find(view, "T90-Sprocket")
                         .localPosition,
                     Is.EqualTo(new Vector3(

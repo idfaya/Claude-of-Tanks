@@ -78,12 +78,19 @@ namespace ClaudeOfTanks.Runtime
 
     internal sealed class TankPresentationSchema
     {
+        public delegate void ExtraBuilder(
+            Transform root,
+            Transform turret,
+            VehicleDefinition definition,
+            Color color);
+
         public readonly string MarkerName;
         public readonly string GunFittingsRootName;
         public readonly float GunLengthFallback;
         public readonly string[] HiddenNames;
         public readonly string[] HiddenPrefixes;
         public readonly TankPresentationPart[] Parts;
+        public readonly ExtraBuilder ExtraBuild;
 
         public TankPresentationSchema(
             string markerName,
@@ -91,7 +98,8 @@ namespace ClaudeOfTanks.Runtime
             float gunLengthFallback,
             string[] hiddenNames,
             string[] hiddenPrefixes,
-            TankPresentationPart[] parts)
+            TankPresentationPart[] parts,
+            ExtraBuilder extraBuild = null)
         {
             MarkerName = markerName;
             GunFittingsRootName = gunFittingsRootName;
@@ -99,6 +107,7 @@ namespace ClaudeOfTanks.Runtime
             HiddenNames = hiddenNames;
             HiddenPrefixes = hiddenPrefixes;
             Parts = parts;
+            ExtraBuild = extraBuild;
         }
     }
 
@@ -162,6 +171,7 @@ namespace ClaudeOfTanks.Runtime
                 transform.localRotation =
                     Quaternion.Euler(part.Rotation);
             }
+            schema.ExtraBuild?.Invoke(root, turret, definition, color);
         }
 
         private static Transform ResolveParent(

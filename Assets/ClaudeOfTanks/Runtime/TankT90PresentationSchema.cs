@@ -66,7 +66,8 @@ namespace ClaudeOfTanks.Runtime
                 5.15f,
                 HiddenArmorNames,
                 HiddenPrefixes,
-                parts.ToArray());
+                parts.ToArray(),
+                TankT90TranslatedExtras.Build);
         }
 
         private static void AddHull(

@@ -522,7 +522,10 @@ The port preserves the source project's runtime units and conventions:
 	  bottom cleats are now present when the bake is disabled. The second batch
 	  mirrors the TS `t90SkirtCourse` and mudguard anchors: K-5 side-skirt
 	  seams, width anchors, forward skirt planes, and front/rear rubber
-	  mudguards are now represented in the C# fallback path.
+	  mudguards are now represented in the C# fallback path. The third batch
+	  adds a schema extension hook and moves follow-up translated details into
+	  `TankT90TranslatedExtras`, covering turret roof optics, cupola periscopes,
+	  bustle-rack rails and skirt fasteners without growing the main schema file.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side
