@@ -59,7 +59,6 @@ namespace ClaudeOfTanks.Runtime
                 new List<TankPresentationPart>();
             AddHull(parts);
             AddTurret(parts);
-            AddGun(parts);
             return new TankPresentationSchema(
                 "T90-PresentationSchema",
                 "T90-GunFittings",
@@ -301,41 +300,6 @@ namespace ClaudeOfTanks.Runtime
                     V(-0.65f + rail * 0.325f, 0.76f, -1.75f),
                     V(0.04f, 0.3f, 0.04f), V(),
                     TankPresentationColor.Dark);
-        }
-
-        private static void AddGun(
-            List<TankPresentationPart> parts)
-        {
-            Add(parts, "Painted-T90-2A46MSaddle",
-                PrimitiveType.Cylinder, TankPresentationTarget.GunFittings,
-                V(0f, 0.02f, 0.16f), V(0.284f, 0.31f, 0.164f),
-                V(90f, 0f, 0f), TankPresentationColor.Base, 0.49f);
-            Add(parts, "Painted-T90-2A46MRoot",
-                PrimitiveType.Cylinder, TankPresentationTarget.GunFittings,
-                V(0f, 0f, 1.02f), V(0.115f, 0.56f, 0.115f),
-                V(90f, 0f, 0f), TankPresentationColor.Base, 0.46f);
-            Add(parts, "Painted-T90-2A46MEvacuator",
-                PrimitiveType.Cylinder, TankPresentationTarget.GunFittings,
-                V(0f, 0f, 2.6f), V(0.126f, 0.21f, 0.126f),
-                V(90f, 0f, 0f), TankPresentationColor.Base, 0.43f);
-            Add(parts, "Painted-T90-2A46MForwardTube",
-                PrimitiveType.Cylinder, TankPresentationTarget.GunFittings,
-                V(0f, 0f, 3.7f), V(0.104f, 0f, 0.104f),
-                V(90f, 0f, 0f), TankPresentationColor.Base, 0.47f,
-                TankPresentationLengthMode.Fixed, 0f,
-                TankPresentationLengthMode.GunLengthMinus, 2.85f, 0.4f);
-            for (int ring = 0; ring < 4; ring++)
-                Add(parts, "T90-2A46MSleeveRing",
-                    PrimitiveType.Cylinder,
-                    TankPresentationTarget.GunFittings,
-                    V(0f, 0f, 1.6f + ring * 0.72f),
-                    V(0.122f, 0.016f, 0.122f),
-                    V(90f, 0f, 0f), TankPresentationColor.Dark);
-            Add(parts, "T90-MuzzleBore", PrimitiveType.Cylinder,
-                TankPresentationTarget.GunFittings, V(0f, 0f, 0f),
-                V(0.066f, 0.009f, 0.066f), V(90f, 0f, 0f),
-                TankPresentationColor.Black,
-                1f, TankPresentationLengthMode.GunLengthPlus, 0.004f);
         }
 
         private static void Add(

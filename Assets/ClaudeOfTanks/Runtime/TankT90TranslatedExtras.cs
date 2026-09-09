@@ -16,10 +16,10 @@ namespace ClaudeOfTanks.Runtime
             TankT90TranslatedSuspension.Build(root, color);
             AddTurretMeshSurfaces(turret, color);
             TankT90RevolutionDetails.Build(root, turret, color);
+            TankT90GunTranslation.Build(turret, color);
             AddKontakt5TurretSeams(turret, color);
             AddTurretRoofDetails(turret, color);
             AddBustleRackDetails(turret);
-            AddGunMountDetails(turret);
             AddHullSkirtFasteners(root);
             AddTowEyes(root);
         }
@@ -234,29 +234,6 @@ namespace ClaudeOfTanks.Runtime
                 Dark());
             cable.localPosition = V(0.45f, 0.42f, -1.43f);
             cable.localRotation = Quaternion.Euler(90f, 0f, 0f);
-        }
-
-        private static void AddGunMountDetails(
-            Transform turret)
-        {
-            Part("T90-CannonBaseBoot", PrimitiveType.Cylinder, turret,
-                V(0f, 0.32f, 1.08f), V(0.5f, 0.15f, 0.4f),
-                V(90f, 0f, 0f), Dark());
-            Part("T90-GunMountAccessPlate", PrimitiveType.Cube, turret,
-                V(-0.245f, 0.55f, 0.341f), V(0.15f, 0.1f, 0.016f),
-                V(), Dark());
-            for (int side = -1; side <= 1; side += 2)
-            {
-                Part("T90-GunMountCheekPlate", PrimitiveType.Cube, turret,
-                    V(side * 0.1425f, 0.35f, 0.958f),
-                    V(0.175f, 0.18f, 0.016f), V(), Dark());
-                Part("T90-GunMountLatch", PrimitiveType.Cube, turret,
-                    V(side * 0.085f, 0.3015f, 1.302f),
-                    V(0.06f, 0.043f, 0.014f), V(), Dark());
-            }
-            Part("T90-GunMountCenterPlate", PrimitiveType.Cube, turret,
-                V(0f, 0.25f, 0.958f), V(0.11f, 0.1f, 0.016f),
-                V(), Dark());
         }
 
         private static void AddHullSkirtFasteners(

@@ -575,6 +575,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 	  log ends and straps, rear fuel drums, layered round Shtora emitters,
 	  commander and gunner hatch stacks, complete smoke banks, the OPVT tube,
 	  and all five source-authored antenna stations.
+	  The eighteenth batch removes the final T-90 schema gun primitives and
+	  ports the 2A46M as a gun-local C# assembly: X-axis trunnion saddle,
+	  tapered root, elliptical cast collar, three frustum canvas folds, five
+	  sleeve rings, four authored tube sections, evacuator swell, and a
+	  `5.15 m` visible muzzle independent of the `6 m` combat barrel length.
 - `t90a` now has a dedicated T-90A Vladimir Unity presentation owner. The
   port keeps the source six-wheel T-90A course, raised rear sprocket and
   front idler, Kontakt-5 glacis cassettes, rubber skirts with K-5 side

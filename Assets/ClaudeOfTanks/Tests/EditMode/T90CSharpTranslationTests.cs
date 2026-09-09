@@ -96,7 +96,31 @@ namespace ClaudeOfTanks.Tests
                     Is.EqualTo(1));
                 Assert.That(
                     Count(view, "T90-GunMountCheekPlate"),
+                    Is.EqualTo(0));
+                Assert.That(
+                    Count(view, "Painted-T90-GunBootSection"),
+                    Is.EqualTo(3));
+                Assert.That(
+                    Count(view, "T90-GunBootCrease"),
                     Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "T90-GunBootClamp"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90-2A46MSleeveRing"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "T90-MuzzleBoreDisc"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Find(view, "T90-MuzzleBore").localPosition.z,
+                    Is.EqualTo(5.146f).Within(0.0001f));
+                Vector3 gunOrigin = view.Root.Find("TurretRoot")
+                    .InverseTransformPoint(
+                        Find(view, "T90-GunFittings").position);
+                AssertVector(
+                    gunOrigin,
+                    new Vector3(0f, 0.36f, 0.88f));
                 Assert.That(
                     Count(view, "T90-TrackPad"),
                     Is.EqualTo(156));
