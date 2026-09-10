@@ -765,8 +765,12 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   `1.35 m` flat sponson clearance, central glacis and paired shoulder
   bridges. Its native running gear now supplies the final six `0.31 m`
   road-wheel stations, layered rims/hubs/bolts, four return rollers,
-  corrected end-wheel centers and a `.165 m` linked-track course. Skirts,
-  stern, turret and gun remain follow-up stages.
+  corrected end-wheel centers and a `.165 m` linked-track course. The final
+  hull exterior now includes both authored bow-armor passes, base/lower
+  glacis Relikt, driver and engine deck, lights and tow fittings, six-panel
+  upper skirts, seven-panel scalloped curtains, shaped mudguards and the
+  complete layered stern with drums, log and tow cable. Turret and gun remain
+  follow-up stages.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

@@ -34,6 +34,12 @@ namespace ClaudeOfTanks.Runtime
                 presentation);
             AddCenterGlacis(presentation, color);
             AddShoulderBridges(presentation, color);
+            TankT90MHullArmorDetails.Build(
+                presentation,
+                color);
+            TankT90MSternDetails.Build(
+                presentation,
+                color);
         }
 
         private static void AddCenterGlacis(
