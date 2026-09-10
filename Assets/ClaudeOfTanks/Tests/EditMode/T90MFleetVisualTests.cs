@@ -280,6 +280,66 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [TestCase("t90m")]
+        [TestCase("t90m_proryv")]
+        public void BuildsFinalWeldedTurretCore(string id)
+        {
+            TankView view = Create(id);
+            try
+            {
+                Transform root =
+                    Find(view, "T90M-PresentationRoot");
+                AssertVector(
+                    root.localPosition,
+                    new Vector3(0f, 0.16f, -0.02f));
+                AssertVector(
+                    root.localScale,
+                    new Vector3(0.95f, 0.65f, 0.913f));
+                Assert.That(
+                    Find(view, "Turret")
+                        .GetComponent<Renderer>().enabled,
+                    Is.False);
+
+                Mesh shell =
+                    Find(view, "Painted-T90M-WeldedShell")
+                        .GetComponent<MeshFilter>()
+                        .sharedMesh;
+                AssertBounds(
+                    shell.bounds,
+                    new Vector3(-1.58f, -0.10f, -1.38f),
+                    new Vector3(1.58f, 0.73f, 1.42f));
+                Assert.That(shell.vertexCount, Is.EqualTo(240));
+                Assert.That(
+                    Count(view, "T90M-ShellWeld"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "Painted-T90M-RingApron"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90M-RingUndercut"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90M-LowerRace"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90M-CrownInner"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90M-CrownOuter"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90M-InnerRoofSaddle"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90M-CheekCarrier"),
+                    Is.EqualTo(2));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create(string id)
         {
             ContentCatalog catalog = ContentCatalog.Load();
@@ -332,6 +392,18 @@ namespace ClaudeOfTanks.Tests
                 Is.EqualTo(expectedMax.y).Within(0.001f));
             Assert.That(bounds.max.z,
                 Is.EqualTo(expectedMax.z).Within(0.001f));
+        }
+
+        private static void AssertVector(
+            Vector3 actual,
+            Vector3 expected)
+        {
+            Assert.That(actual.x,
+                Is.EqualTo(expected.x).Within(0.0001f));
+            Assert.That(actual.y,
+                Is.EqualTo(expected.y).Within(0.0001f));
+            Assert.That(actual.z,
+                Is.EqualTo(expected.z).Within(0.0001f));
         }
     }
 }

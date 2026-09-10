@@ -769,8 +769,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   hull exterior now includes both authored bow-armor passes, base/lower
   glacis Relikt, driver and engine deck, lights and tow fittings, six-panel
   upper skirts, seven-panel scalloped curtains, shaped mudguards and the
-  complete layered stern with drums, log and tow cable. Turret and gun remain
-  follow-up stages.
+  complete layered stern with drums, log and tow cable. The final welded
+  turret core now replaces the generic cylinder with its seven asymmetric
+  stations, three buried ring/apron layers, faceted crown, roof saddle and
+  broad cheek carriers at the exact installed `(0.95, 0.65, 0.913)` scale.
+  Turret ERA, bustle, equipment and gun remain follow-up stages.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived
