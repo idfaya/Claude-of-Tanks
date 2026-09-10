@@ -49,7 +49,7 @@ namespace ClaudeOfTanks.Tests
         [TestCase("t80")]
         [TestCase("t80b")]
         [TestCase("t80bv")]
-        public void ReplacesGenericHullButKeepsPendingFallbacks(
+        public void ReplacesGenericHullAndRearButKeepsPendingTurretFallback(
             string id)
         {
             TankView view = Create(id);
@@ -71,10 +71,92 @@ namespace ClaudeOfTanks.Tests
                     Is.True);
                 Assert.That(
                     Count(view, "Painted-Soviet-FuelDrum"),
-                    Is.EqualTo(2));
+                    Is.Zero);
+                Assert.That(
+                    Count(view, "Soviet-TurbineGrille"),
+                    Is.Zero);
                 Assert.That(
                     Count(view, "Painted-Soviet-SmokeLauncher"),
                     Is.GreaterThan(0));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
+        [TestCase("t80", 0.58f, 0.60f, 0, 2)]
+        [TestCase("t80b", -0.58f, 0.60f, 0, 2)]
+        [TestCase("t80bv", 0.58f, 0.30f, 6, 0)]
+        public void BuildsFinalHullExteriorAndVariantStowage(
+            string id,
+            float linksX,
+            float linksZ,
+            int k1Plates,
+            int frontReturns)
+        {
+            TankView view = Create(id);
+            try
+            {
+                Assert.That(Count(view, "Painted-T80-TurbineShoulder"),
+                    Is.EqualTo(2));
+                Assert.That(Count(view, "T80-EngineDeckGrilleRib"),
+                    Is.EqualTo(5));
+                Assert.That(Count(view, "T80-HeadlightAssembly"),
+                    Is.EqualTo(2));
+                Assert.That(Count(view, "Painted-T80-SkirtPanel"),
+                    Is.EqualTo(14));
+                Assert.That(Count(view, "T80-SkirtBatten"),
+                    Is.EqualTo(14));
+                Assert.That(Count(view, "T80-SkirtBolt"),
+                    Is.EqualTo(14));
+                Assert.That(Count(view, "Painted-T80-WidthAnchor"),
+                    Is.Zero);
+                Assert.That(Count(view, "T80BV-K1SkirtFrontPlate"),
+                    Is.EqualTo(k1Plates));
+                Assert.That(Count(view, "T80-FrontSkirtReturn"),
+                    Is.EqualTo(frontReturns));
+                Renderer[] hullRenderers =
+                    Find(view, "T80-HullPresentationRoot")
+                        .GetComponentsInChildren<Renderer>(true);
+                Assert.That(hullRenderers.Max(item => item.bounds.max.x),
+                    Is.LessThanOrEqualTo(1.761f));
+                Assert.That(hullRenderers.Min(item => item.bounds.min.x),
+                    Is.GreaterThanOrEqualTo(-1.761f));
+
+                Assert.That(Count(view, "T80-RearTurbineGrille"),
+                    Is.EqualTo(1));
+                Assert.That(Count(view, "T80-RearTurbineLouvre"),
+                    Is.EqualTo(4));
+                Assert.That(Count(view, "T80-RearFuelDrum"),
+                    Is.EqualTo(2));
+                Assert.That(Count(view, "T80-RearFuelDrumCap"),
+                    Is.EqualTo(2));
+                Assert.That(Count(view, "T80-UnditchingLog"),
+                    Is.EqualTo(1));
+                Assert.That(Count(view, "T80-UnditchingLogStrap"),
+                    Is.EqualTo(2));
+                Assert.That(Count(view, "T80-BowTowCable"),
+                    Is.EqualTo(1));
+                Assert.That(Count(view, "T80-DeckTowCable"),
+                    Is.EqualTo(1));
+                Assert.That(Count(view, "T80-SpareTrackLink"),
+                    Is.EqualTo(4));
+                Assert.That(Count(view, "T80-SpareTrackLinkRidge"),
+                    Is.EqualTo(4));
+                Assert.That(Count(view, "T80-SpareTrackCarrierRail"),
+                    Is.EqualTo(2));
+                Assert.That(Count(view, "T80-SpareTrackCarrierFoot"),
+                    Is.EqualTo(4));
+
+                Transform carrier =
+                    Find(view, "T80-SpareTrackCarrier");
+                Assert.That(carrier.localPosition.x,
+                    Is.EqualTo(linksX).Within(0.0001f));
+                Assert.That(carrier.localPosition.y,
+                    Is.EqualTo(1.395f).Within(0.0001f));
+                Assert.That(carrier.localPosition.z,
+                    Is.EqualTo(linksZ).Within(0.0001f));
             }
             finally
             {

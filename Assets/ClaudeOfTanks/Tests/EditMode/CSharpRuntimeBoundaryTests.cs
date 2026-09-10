@@ -177,6 +177,8 @@ namespace ClaudeOfTanks.Tests
                     "TankT80FamilyDetails.cs",
                     "TankT80RunningGearDetails.cs",
                     "TankT80EndWheelDetails.cs",
+                    "TankT80HullExteriorDetails.cs",
+                    "TankT80SternDetails.cs",
                     "TankT90AVladimirFamilyDetails.cs",
                     "TankT90AVladimirHullEquipmentDetails.cs",
                     "TankT90AVladimirTurretDetails.cs",

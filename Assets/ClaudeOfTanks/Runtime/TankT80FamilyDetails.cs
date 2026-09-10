@@ -74,6 +74,13 @@ namespace ClaudeOfTanks.Runtime
                 root,
                 presentation,
                 color);
+            TankT80HullExteriorDetails.Build(
+                presentation,
+                color,
+                id);
+            TankT80SternDetails.Build(
+                presentation,
+                id);
         }
 
         private static TankHullProfilePoint[] Curve(

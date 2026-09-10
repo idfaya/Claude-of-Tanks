@@ -113,6 +113,16 @@ namespace ClaudeOfTanks.Tests
                     Count(
                         early,
                         "Soviet-TurbineGrille"),
+                    Is.Zero);
+                Assert.That(
+                    Count(
+                        early,
+                        "T80-EngineDeckGrilleBacking"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        ukrainian,
+                        "Soviet-TurbineGrille"),
                     Is.EqualTo(2));
                 Assert.That(
                     Count(

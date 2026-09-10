@@ -111,7 +111,7 @@ namespace ClaudeOfTanks.Runtime
                     definition?.visual?.number);
                 return;
             }
-            else
+            else if (!TankT80FamilyDetails.Supports(id))
             {
                 AddRearGear(
                     root,
@@ -148,7 +148,8 @@ namespace ClaudeOfTanks.Runtime
                 definition,
                 color,
                 width);
-            if (IsT80(id))
+            if (IsT80(id) &&
+                !TankT80FamilyDetails.Supports(id))
             {
                 AddTurbineDeck(
                     root,

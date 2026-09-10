@@ -796,8 +796,15 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   hull and catalog armor renderers are disabled. Their native running gear
   now adds the six `0.335 m` pressed-wheel stations, torsion arms, five
   return rollers, detailed sprocket/idler faces and the shared `0.165 m`
-  linked-shoe course at the source contact and wrap datums. Exterior fittings,
-  cast turret, variant armor, gun, materials and markings remain.
+  linked-shoe course at the source contact and wrap datums. The translated
+  hull exterior now owns the turbine shoulders and louvred deck, arrow bow,
+  recovery fittings, headlights, mud flaps and seven-panel side-skirt bands;
+  the BV keeps its short six-plate K-1 skirt course while the earlier marks
+  keep their front returns. The dedicated stern adds the four-rib turbine
+  grille, tilted fuel drums, strapped unditching log, bow cable and each
+  variant's exact four-link carrier/deck-cable seat. Generic Soviet rear and
+  turbine fallback geometry is no longer built for these three vehicles.
+  Cast turret, variant armor, gun, materials and markings remain.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived
