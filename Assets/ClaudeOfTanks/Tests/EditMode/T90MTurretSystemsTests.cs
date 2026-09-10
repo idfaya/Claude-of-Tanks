@@ -92,6 +92,88 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [TestCase("t90m")]
+        [TestCase("t90m_proryv")]
+        public void BuildsFinalRoofEquipmentAndRemovesFallback(string id)
+        {
+            TankView view = Create(id);
+            try
+            {
+                Assert.That(
+                    Count(view, "Painted-T90M-CommanderCupola"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90M-GunnerCupola"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90M-SosnaHousing"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90M-SosnaLens"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90M-RoofPeriscopeSlot"),
+                    Is.EqualTo(5));
+                Assert.That(
+                    Count(view, "T90M-RoofPeriscopeGlass"),
+                    Is.EqualTo(5));
+
+                Assert.That(
+                    Count(view, "Painted-T90M-KordRace"),
+                    Is.EqualTo(1));
+                Transform kord = Find(view, "T90M-RemoteKord");
+                Assert.That(
+                    kord.localScale.y,
+                    Is.EqualTo(1f / 0.65f).Within(0.0001f));
+                Assert.That(
+                    Count(view, "T90M-Left-Detail-SmokeLauncher") +
+                    Count(view, "T90M-Right-Detail-SmokeLauncher"),
+                    Is.EqualTo(12));
+                Assert.That(
+                    Count(view, "T90M-0-AntennaWhip") +
+                    Count(view, "T90M-1-AntennaWhip"),
+                    Is.EqualTo(2));
+
+                Assert.That(
+                    Count(view, "Painted-T90M-SearchlightHousing"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90M-SearchlightLens"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90M-CommanderRoofCollar"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(view, "Painted-T90M-GunnerRoofCollar"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    FindAll(view, "Painted-T90M-CommanderRoofCollar")
+                        .Select(item => item.localPosition.y),
+                    Is.All.EqualTo(0.995f).Within(0.0001f));
+                Assert.That(
+                    FindAll(view, "Painted-T90M-GunnerRoofCollar")
+                        .Select(item => item.localPosition.y),
+                    Is.All.EqualTo(0.985f).Within(0.0001f));
+                Assert.That(
+                    Count(view, "T90M-FinalRoofPeriscopeSlot"),
+                    Is.EqualTo(14));
+                Assert.That(
+                    Count(view, "Painted-T90M-RoofEquipmentBox"),
+                    Is.EqualTo(6));
+
+                Assert.That(
+                    view.Root.GetComponentsInChildren<Transform>(true)
+                        .Count(item =>
+                            item.name.StartsWith("Soviet-") ||
+                            item.name.StartsWith("Painted-Soviet-")),
+                    Is.EqualTo(0));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create(string id)
         {
             ContentCatalog catalog = ContentCatalog.Load();
@@ -122,9 +204,15 @@ namespace ClaudeOfTanks.Tests
             TankView view,
             string name)
         {
+            return FindAll(view, name).Count();
+        }
+
+        private static System.Collections.Generic.IEnumerable<Transform>
+            FindAll(TankView view, string name)
+        {
             return view.Root
                 .GetComponentsInChildren<Transform>(true)
-                .Count(item => item.name == name);
+                .Where(item => item.name == name);
         }
     }
 }

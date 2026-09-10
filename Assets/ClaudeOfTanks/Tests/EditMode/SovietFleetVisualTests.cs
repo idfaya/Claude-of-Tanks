@@ -51,7 +51,9 @@ namespace ClaudeOfTanks.Tests
                     if (ProductionIds[i] == "t90a_vladimir" ||
                         ProductionIds[i] == "t90a_burlak" ||
                         ProductionIds[i] == "t90sm" ||
-                        ProductionIds[i] == "t90ms")
+                        ProductionIds[i] == "t90ms" ||
+                        ProductionIds[i] == "t90m" ||
+                        ProductionIds[i] == "t90m_proryv")
                     {
                         Assert.That(genericParts, Is.EqualTo(0));
                         if (ProductionIds[i] == "t90a_vladimir")
@@ -130,13 +132,13 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(
                         modern,
-                        "Painted-Soviet-PanoramicSight"),
+                        "Painted-T90M-KordRace"),
                     Is.EqualTo(1));
                 Assert.That(
                     Count(
                         modern,
-                        "Painted-Soviet-ModernStowage"),
-                    Is.EqualTo(1));
+                        "Painted-T90M-BustleTopStore"),
+                    Is.EqualTo(4));
                 Assert.That(
                     Count(
                         burlak,
@@ -262,34 +264,19 @@ namespace ClaudeOfTanks.Tests
             {
                 Renderer hull = view.Root.Find("Hull")
                     .GetComponent<Renderer>();
-                Renderer stowage = FindRenderer(
+                Renderer housing = FindRenderer(
                     view,
-                    "Painted-Soviet-ModernStowage");
+                    "Painted-T90M-SosnaHousing");
                 Renderer lens = FindRenderer(
                     view,
-                    "Soviet-PanoramicLens");
+                    "T90M-SosnaLens");
                 Assert.That(
-                    stowage.sharedMaterial.mainTexture,
+                    housing.sharedMaterial.mainTexture,
                     Is.SameAs(
                         hull.sharedMaterial.mainTexture));
                 Assert.That(
                     lens.sharedMaterial.mainTexture,
                     Is.Null);
-
-                VehicleDefinition definition =
-                    catalog.GetVehicle("t90m");
-                float roof =
-                    definition.armor.turretPlates
-                        .Where(plate =>
-                            plate.name.StartsWith(
-                                "turret_roof"))
-                        .SelectMany(plate => plate.verts)
-                        .Max(point => point.y);
-                Assert.That(
-                    stowage.transform.localPosition.y +
-                        stowage.transform.localScale.y *
-                        0.5f,
-                    Is.LessThanOrEqualTo(roof + 0.03f));
             }
             finally
             {

@@ -780,7 +780,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   The common aft package now includes the four-station welded magazine,
   service lids and side bins, open cage, backed terminal louvres, attached
   transverse cylinder, armored shoulders and top stores. Equipment and gun
-  remain follow-up stages.
+  remain follow-up stages. The dedicated roof-equipment pass now adds both
+  crew stations, Sosna, periscopes, the integrated panoramic/Kord station,
+  twelve smoke launchers, two antennae and the final searchlight/roof detail
+  pass; generic Soviet roof fittings are no longer built. Gun, material roles
+  and final markings remain follow-up stages.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

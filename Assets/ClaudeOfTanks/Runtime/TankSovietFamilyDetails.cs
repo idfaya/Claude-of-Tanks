@@ -100,6 +100,7 @@ namespace ClaudeOfTanks.Runtime
                     turret,
                     color,
                     id);
+                return;
             }
             else
             {
