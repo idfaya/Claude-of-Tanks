@@ -174,6 +174,7 @@ namespace ClaudeOfTanks.Tests
                     "TankT90MGunDetails.cs",
                     "TankT90MMaterialRoles.cs",
                     "TankSovietChevronArmorFactory.cs",
+                    "TankT80FamilyDetails.cs",
                     "TankT90AVladimirFamilyDetails.cs",
                     "TankT90AVladimirHullEquipmentDetails.cs",
                     "TankT90AVladimirTurretDetails.cs",
