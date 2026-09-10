@@ -777,7 +777,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   primary fan modules and six inner-brow modules, while T-90M Proryv uses
   the exact shared Soviet chevron carrier/tile/gasket construction. Both
   retain the four-module-per-side flank course and final surface seams.
-  Bustle, equipment and gun remain follow-up stages.
+  The common aft package now includes the four-station welded magazine,
+  service lids and side bins, open cage, backed terminal louvres, attached
+  transverse cylinder, armored shoulders and top stores. Equipment and gun
+  remain follow-up stages.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

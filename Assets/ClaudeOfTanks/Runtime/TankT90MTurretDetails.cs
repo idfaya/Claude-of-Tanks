@@ -25,6 +25,7 @@ namespace ClaudeOfTanks.Runtime
                 root,
                 color,
                 id == "t90m_proryv");
+            TankT90MBustleDetails.Build(root, color);
         }
 
         private static void AddWeldedShell(
