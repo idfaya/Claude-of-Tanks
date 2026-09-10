@@ -793,8 +793,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 - T-80 family translation has started from the final `buildT80Line` owner.
   T-80, T-80B and T-80BV now share the exact 17/9/2/2/6-station pressure
   hull loft, including the BV-only `1.02 m` rear lower-tub width. Generic
-  hull and catalog armor renderers are disabled; running gear, exterior
-  fittings, cast turret, variant armor, gun, materials and markings remain.
+  hull and catalog armor renderers are disabled. Their native running gear
+  now adds the six `0.335 m` pressed-wheel stations, torsion arms, five
+  return rollers, detailed sprocket/idler faces and the shared `0.165 m`
+  linked-shoe course at the source contact and wrap datums. Exterior fittings,
+  cast turret, variant armor, gun, materials and markings remain.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

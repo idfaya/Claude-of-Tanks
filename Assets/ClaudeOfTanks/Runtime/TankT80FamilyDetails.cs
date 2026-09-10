@@ -70,6 +70,10 @@ namespace ClaudeOfTanks.Runtime
                     2.46f, 1.24f,
                     3.05f, 1.24f),
                 color);
+            TankT80RunningGearDetails.Build(
+                root,
+                presentation,
+                color);
         }
 
         private static TankHullProfilePoint[] Curve(
