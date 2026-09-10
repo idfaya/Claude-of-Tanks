@@ -783,8 +783,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   remain follow-up stages. The dedicated roof-equipment pass now adds both
   crew stations, Sosna, periscopes, the integrated panoramic/Kord station,
   twelve smoke launchers, two antennae and the final searchlight/roof detail
-  pass; generic Soviet roof fittings are no longer built. Gun, material roles
-  and final markings remain follow-up stages.
+  pass; generic Soviet roof fittings are no longer built. The dedicated
+  2A46M-5 now preserves the source pivot and installed counter-scale, sealed
+  saddle, accordion boot, ten-stage circular tube, muzzle collar/bore and
+  evacuator crest while replacing the generic cube gun. Material roles and
+  final markings remain follow-up stages.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

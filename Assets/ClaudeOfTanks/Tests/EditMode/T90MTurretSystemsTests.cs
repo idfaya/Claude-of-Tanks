@@ -174,6 +174,88 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [TestCase("t90m")]
+        [TestCase("t90m_proryv")]
+        public void BuildsFinalTwoA46M5Gun(string id)
+        {
+            TankView view = Create(id);
+            try
+            {
+                Transform assembly =
+                    Find(view, "T90M-2A46M5Assembly");
+                Assert.That(
+                    assembly.localPosition,
+                    Is.EqualTo(new Vector3(0f, 0.21f, 1.15f)));
+                Assert.That(
+                    assembly.localScale,
+                    Is.EqualTo(new Vector3(
+                        1f / 0.95f,
+                        1f / 0.65f,
+                        1f)));
+                Assert.That(
+                    Find(view, "Gun")
+                        .GetComponent<Renderer>().enabled,
+                    Is.False);
+
+                Assert.That(
+                    Count(view, "Painted-T90M-2A46M5Saddle"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90M-2A46M5RootCone"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90M-GunBootSection"),
+                    Is.EqualTo(4));
+                Assert.That(
+                    Count(view, "T90M-GunBootCrease"),
+                    Is.EqualTo(3));
+                Assert.That(
+                    Count(view, "T90M-GunBootClamp"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90M-CoaxPort"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T90M-CoaxPortWasher"),
+                    Is.EqualTo(1));
+
+                Assert.That(
+                    Count(view, "Painted-T90M-2A46M5ThermalSleeve"),
+                    Is.EqualTo(3));
+                Assert.That(
+                    Count(view, "Painted-T90M-2A46M5ForwardTube"),
+                    Is.EqualTo(7));
+                Assert.That(
+                    Count(view, "T90M-2A46M5SleeveRing"),
+                    Is.EqualTo(3));
+                Assert.That(
+                    Count(view, "Painted-T90M-2A46M5EvacuatorCrest"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T90M-2A46M5MuzzleCollar"),
+                    Is.EqualTo(1));
+                Transform rim =
+                    Find(view, "Painted-T90M-2A46M5MuzzleRim");
+                Assert.That(
+                    rim.localPosition,
+                    Is.EqualTo(new Vector3(0f, 0f, 4.9145f)));
+                Assert.That(
+                    Count(view, "T90M-2A46M5MuzzleBoreDisc"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Find(
+                            view,
+                            "Painted-T90M-2A46M5ThermalSleeve")
+                        .GetComponent<MeshFilter>()
+                        .sharedMesh.bounds.extents.x,
+                    Is.EqualTo(0.108f).Within(0.0001f));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create(string id)
         {
             ContentCatalog catalog = ContentCatalog.Load();
