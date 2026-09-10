@@ -8,6 +8,7 @@ import { resolve } from 'node:path';
 import { createServer } from 'vite';
 import puppeteer from 'puppeteer';
 import '../src/vehicles/tankFactory.ts';
+import { chromiumSandboxLaunchOptions } from './chromium-sandbox.mjs';
 import {
   TANK_ASSET_SCHEMA_VERSION, TANK_ASSET_VIEWS, expectedMuzzleBoreCount,
 } from '../src/vehicles/tankAssets.ts';
@@ -99,7 +100,10 @@ await server.listen();
 const browser = await puppeteer.launch({
   headless: 'new',
   protocolTimeout: 15 * 60 * 1000,
-  args: ['--use-gl=angle', '--enable-webgl', '--no-sandbox', '--disable-dev-shm-usage'],
+  ...chromiumSandboxLaunchOptions('tank-assets-check', await puppeteer.executablePath()),
+  args: ['--use-gl=angle', '--enable-webgl', '--no-sandbox',
+    '--disable-dev-shm-usage', '--disable-breakpad', '--disable-crash-reporter',
+    '--disable-crashpad'],
 });
 const page = await browser.newPage();
 const pageErrors = [];

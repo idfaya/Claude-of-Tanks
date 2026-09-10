@@ -9,6 +9,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { createServer } from 'vite';
 import puppeteer from 'puppeteer';
+import { chromiumSandboxLaunchOptions } from './chromium-sandbox.mjs';
 
 const args = process.argv.slice(2);
 const option = (name, fallback = '') => {
@@ -43,7 +44,10 @@ const ids = selectedIds.length ? selectedIds : registeredIds;
 const port = server.httpServer.address().port;
 const browser = await puppeteer.launch({
   headless: 'new',
-  args: ['--use-gl=angle', '--enable-webgl', '--no-sandbox', '--disable-dev-shm-usage'],
+  ...chromiumSandboxLaunchOptions('fleet-surface-overlap', await puppeteer.executablePath()),
+  args: ['--use-gl=angle', '--enable-webgl', '--no-sandbox',
+    '--disable-dev-shm-usage', '--disable-breakpad', '--disable-crash-reporter',
+    '--disable-crashpad'],
 });
 const rows = [];
 let nextIndex = 0;

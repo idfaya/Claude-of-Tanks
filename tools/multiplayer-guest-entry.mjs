@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import puppeteer from 'puppeteer';
 import { createServer as createViteServer } from 'vite';
 import { createSignalingServer } from '../server/signalingServer.ts';
+import { chromiumSandboxLaunchOptions } from './chromium-sandbox.mjs';
 
 const root = new URL('..', import.meta.url).pathname;
 const errors = [];
@@ -42,9 +43,13 @@ try {
   browser = await puppeteer.launch({
     headless: true,
     protocolTimeout: 360_000,
+    ...chromiumSandboxLaunchOptions('multiplayer-guest-entry', await puppeteer.executablePath()),
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
+      '--disable-features=WebRtcHideLocalIpsWithMdns',
+      '--disable-breakpad',
+      '--disable-crash-reporter',
       '--disable-background-timer-throttling',
       '--disable-renderer-backgrounding',
       '--disable-backgrounding-occluded-windows',

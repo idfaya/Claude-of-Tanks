@@ -661,11 +661,10 @@ const garagePhasePresentation = createGaragePhasePresentationRuntime({
   },
   getGroundHeight: () => 0,
   getPhase: () => game.phase,
-  // Constrained/mobile devices trade the inactive showroom's buffers for a
-  // lower VRAM ceiling. Desktop keeps the bounded static stage resident, so
-  // battle exit refreshes only camera-dependent shadows instead of uploading
-  // the same immutable geometry again.
-  shouldReleaseGpuOnBattle: () => getDeviceTier() === 'mobile',
+  // Garage and battlefield are phase-exclusive. Release the inactive
+  // showroom's buffers on every tier, then restore them under the covered
+  // return transition so battle residency never includes both scenes.
+  shouldReleaseGpuOnBattle: () => true,
   posePedestal: () => pedestal.poseCurrent(),
   poseCamera: () => {
     if (!resetGarageShowroom?.()) garageEnvironmentPresentation.poseCamera();

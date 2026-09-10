@@ -5,6 +5,7 @@
 // Run after `npm run build` (or use `npm run qa:trace`).
 import { preview } from 'vite';
 import puppeteer from 'puppeteer';
+import { chromiumSandboxLaunchOptions } from './chromium-sandbox.mjs';
 
 const server = await preview({
   root: process.cwd(),
@@ -17,7 +18,10 @@ const base = `http://127.0.0.1:${port}/`;
 const browser = await puppeteer.launch({
   headless: 'new',
   protocolTimeout: 360000,
-  args: ['--use-gl=angle', '--enable-webgl', '--no-sandbox', '--disable-dev-shm-usage'],
+  ...chromiumSandboxLaunchOptions('qa-trace', await puppeteer.executablePath()),
+  args: ['--use-gl=angle', '--enable-webgl', '--no-sandbox',
+    '--disable-dev-shm-usage', '--disable-breakpad', '--disable-crash-reporter',
+    '--disable-crashpad'],
 });
 
 const viewport = {
@@ -65,7 +69,7 @@ try {
     const trace = window.__QA_TRACE;
     trace.mark('qa:production-probe', { source: 'qa-trace-probe' });
     const snapshot = trace.snapshot({ frames: false });
-    const buttons = [...document.querySelectorAll('#cot-perfhud button')].map((button) => {
+    const buttons = [...document.querySelectorAll('#cot-perfhud .ph-action')].map((button) => {
       const rect = button.getBoundingClientRect();
       return { label: button.textContent.trim(), width: rect.width, height: rect.height };
     });

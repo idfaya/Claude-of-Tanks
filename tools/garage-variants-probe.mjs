@@ -4,6 +4,10 @@ import { mkdir } from 'node:fs/promises';
 import path from 'node:path';
 import puppeteer from 'puppeteer';
 import { scoreGarageQuality } from '../src/ui/garageQualityRubric.ts';
+import {
+  chromiumSandboxArgs,
+  chromiumSandboxLaunchOptions,
+} from './chromium-sandbox.mjs';
 
 const argv = process.argv.slice(2);
 const option = (name, fallback = '') => {
@@ -15,21 +19,32 @@ const shotsDir = option('shots', '');
 const orbitShots = option('orbit-shots', '') === '1';
 const cpuRate = Math.max(1, Number(option('cpu-rate', '1')) || 1);
 const maxGapMs = Number(option('max-gap', cpuRate > 1 ? '120' : '80'));
-const browser = await puppeteer.launch({
+const sandboxLaunchOptions = chromiumSandboxLaunchOptions(
+  'garage-variants',
+  await puppeteer.executablePath(),
+);
+const launchBrowser = () => puppeteer.launch({
   headless: 'new',
-  args: ['--use-gl=angle', '--enable-webgl', '--no-sandbox', '--disable-dev-shm-usage'],
+  ...sandboxLaunchOptions,
+  args: ['--use-gl=angle', '--enable-webgl', '--no-sandbox',
+    '--disable-dev-shm-usage', '--disable-breakpad', '--disable-crash-reporter',
+    '--disable-crashpad', ...chromiumSandboxArgs('garage-variants')],
 });
-const page = await browser.newPage();
+let browser = await launchBrowser();
+let page = await browser.newPage();
 const cdp = await page.createCDPSession();
 if (cpuRate > 1) await cdp.send('Emulation.setCPUThrottlingRate', { rate: cpuRate });
 await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
 const errors = [];
-page.on('console', (message) => {
-  if (message.type() === 'error' && !/github-stars|favicon\.ico/.test(message.text())) {
-    errors.push(message.text());
-  }
-});
-page.on('pageerror', (error) => errors.push(String(error)));
+const attachDiagnostics = (target) => {
+  target.on('console', (message) => {
+    if (message.type() === 'error' && !/github-stars|favicon\.ico/.test(message.text())) {
+      errors.push(message.text());
+    }
+  });
+  target.on('pageerror', (error) => errors.push(String(error)));
+};
+attachDiagnostics(page);
 
 const startFrameProbe = async (name) => page.evaluate((key) => {
   const probe = { gaps: [], running: true, started: performance.now() };
@@ -210,7 +225,17 @@ try {
   const persistedOutdoorId = 'railyard_overhaul';
   await page.evaluate((id) => localStorage.setItem('cot.garage.variant', id), persistedOutdoorId);
   const persistedReloadStartedAt = Date.now();
-  await page.reload({ waitUntil: 'domcontentloaded', timeout: 60_000 });
+  await page.close();
+  await browser.close();
+  browser = await launchBrowser();
+  page = await browser.newPage();
+  attachDiagnostics(page);
+  await page.setViewport({ width: 1280, height: 720, deviceScaleFactor: 1 });
+  await page.evaluateOnNewDocument((id) => {
+    localStorage.setItem('cot.garage.variant', id);
+  }, persistedOutdoorId);
+  await page.goto(`${baseUrl}/?nosplash=1&qa=1`,
+    { waitUntil: 'domcontentloaded', timeout: 60_000 });
   await page.waitForFunction((id) => {
     const stats = window.__GARAGE_WORKSHOP?.stats();
     return window.__GAME_READY === true && stats?.selected === id

@@ -17,6 +17,7 @@ import path from 'node:path';
 import { createServer } from 'vite';
 import puppeteer from 'puppeteer';
 import { MAP_IDS } from '../src/world/maps/index.ts';
+import { chromiumSandboxLaunchOptions } from './chromium-sandbox.mjs';
 
 const args = process.argv.slice(2);
 const valueArg = (name, fallback) => {
@@ -79,11 +80,13 @@ const address = server.httpServer.address();
 const port = typeof address === 'object' && address ? address.port : server.config.server.port;
 const browser = await puppeteer.launch({
   headless: 'new',
+  ...chromiumSandboxLaunchOptions('map-environment-audit', await puppeteer.executablePath()),
   // Uncap rAF for performance certification. Sampling a compositor-locked
   // 60 Hz cadence only reports host/vsync jitter (16.7 vs 18 ms), not whether
   // added world detail changed renderer throughput.
   args: [
     '--use-gl=angle', '--enable-webgl', '--no-sandbox', '--disable-dev-shm-usage',
+    '--disable-breakpad', '--disable-crash-reporter', '--disable-crashpad',
     '--disable-frame-rate-limit', '--disable-gpu-vsync', '--disable-renderer-backgrounding',
   ],
 });

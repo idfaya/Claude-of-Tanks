@@ -12,6 +12,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createServer } from 'vite';
 import puppeteer from 'puppeteer';
+import { chromiumSandboxLaunchOptions } from './chromium-sandbox.mjs';
 
 const check = process.argv.includes('--check');
 const root = process.cwd();
@@ -41,7 +42,10 @@ await server.listen();
 
 const browser = await puppeteer.launch({
   headless: 'new',
-  args: ['--use-gl=angle', '--enable-webgl', '--no-sandbox', '--disable-dev-shm-usage'],
+  ...chromiumSandboxLaunchOptions('fleet-freeze', await puppeteer.executablePath()),
+  args: ['--use-gl=angle', '--enable-webgl', '--no-sandbox',
+    '--disable-dev-shm-usage', '--disable-breakpad', '--disable-crash-reporter',
+    '--disable-crashpad'],
 });
 const page = await browser.newPage();
 page.setDefaultTimeout(120000);

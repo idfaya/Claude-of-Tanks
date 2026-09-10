@@ -3,6 +3,7 @@ import process from 'node:process';
 import puppeteer from 'puppeteer';
 import { createServer as createViteServer } from 'vite';
 import { createSignalingServer } from '../server/signalingServer.ts';
+import { chromiumSandboxLaunchOptions } from './chromium-sandbox.mjs';
 
 function numericArg(name, fallback) {
   const prefix = `--${name}=`;
@@ -104,9 +105,13 @@ try {
   const signalUrl = `ws://127.0.0.1:${signalAddress.port}/signal`;
   browser = await puppeteer.launch({
     headless: true,
+    ...chromiumSandboxLaunchOptions('multiplayer-four-player', await puppeteer.executablePath()),
     args: [
       '--no-sandbox',
       '--disable-setuid-sandbox',
+      '--disable-features=WebRtcHideLocalIpsWithMdns',
+      '--disable-breakpad',
+      '--disable-crash-reporter',
       '--disable-background-timer-throttling',
       '--disable-renderer-backgrounding',
       '--disable-backgrounding-occluded-windows',

@@ -30,4 +30,10 @@ elif [ "$mode" != "server" ]; then
   exit 1
 fi
 
+if [ "$(uname -s)" = "Darwin" ] && [ -n "${TRAE_SANDBOX_SBOX_ID:-}" ]; then
+  echo "Refusing to launch Unity from the TRAE sandbox: injected processes crash while forking Bee." >&2
+  echo "Run this build from a normal terminal after installing the target's Unity build support." >&2
+  exit 2
+fi
+
 exec "$unity" "$@"
