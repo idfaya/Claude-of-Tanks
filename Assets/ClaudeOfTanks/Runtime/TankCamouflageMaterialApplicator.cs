@@ -42,7 +42,9 @@ namespace ClaudeOfTanks.Runtime
                 vehicle.id == "t90a_vladimir" ||
                 vehicle.id == "t90a_burlak" ||
                 vehicle.id == "t90sm" ||
-                vehicle.id == "t90ms")
+                vehicle.id == "t90ms" ||
+                vehicle.id == "t90m" ||
+                vehicle.id == "t90m_proryv")
             {
                 TankT90MaterialApplicator.Apply(
                     renderers,

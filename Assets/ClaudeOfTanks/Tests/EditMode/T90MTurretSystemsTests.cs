@@ -256,6 +256,66 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [TestCase("t90m")]
+        [TestCase("t90m_proryv")]
+        public void AppliesFinalMaterialRoles(string id)
+        {
+            TankView view = Create(id);
+            try
+            {
+                Renderer hull =
+                    Renderer(view, "Painted-T90M-HullLoft");
+                Renderer barrel = Renderer(
+                    view,
+                    "Painted-T90M-2A46M5ThermalSleeve");
+                Renderer fuelDrum =
+                    Renderer(view, "Painted-T90M-RearFuelDrum");
+                Renderer dark =
+                    Renderer(view, "T90M-EngineGrilleBacking");
+                Renderer tire =
+                    Renderer(view, "T90M-RoadWheelTire");
+                Renderer track =
+                    Renderer(view, "T90M-TrackPad");
+                Renderer glass =
+                    Renderer(view, "T90M-SosnaLens");
+                Renderer shadow =
+                    Renderer(view, "T90M-2A46M5MuzzleBoreDisc");
+
+                Assert.That(hull.sharedMaterial.mainTexture, Is.Not.Null);
+                Assert.That(
+                    barrel.sharedMaterial.mainTexture,
+                    Is.SameAs(hull.sharedMaterial.mainTexture));
+                AssertColor(fuelDrum, 0x39, 0x48, 0x2e);
+                Assert.That(fuelDrum.sharedMaterial.mainTexture, Is.Null);
+                AssertColor(dark, 0x36, 0x34, 0x2f);
+                AssertColor(tire, 0x22, 0x20, 0x1b);
+                AssertColor(track, 0x35, 0x36, 0x34);
+                AssertColor(glass, 0x2a, 0x35, 0x40);
+                AssertColor(shadow, 0x0b, 0x0c, 0x0a);
+
+                Renderer era = Renderer(
+                    view,
+                    id == "t90m"
+                        ? "Painted-T90M-FanRelikt"
+                        : "T90M-ProryvChevron-Tile");
+                if (id == "t90m")
+                {
+                    AssertColor(era, 0x39, 0x48, 0x2e);
+                    Assert.That(era.sharedMaterial.mainTexture, Is.Null);
+                }
+                else
+                {
+                    Assert.That(
+                        era.sharedMaterial.mainTexture,
+                        Is.SameAs(hull.sharedMaterial.mainTexture));
+                }
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create(string id)
         {
             ContentCatalog catalog = ContentCatalog.Load();
@@ -295,6 +355,29 @@ namespace ClaudeOfTanks.Tests
             return view.Root
                 .GetComponentsInChildren<Transform>(true)
                 .Where(item => item.name == name);
+        }
+
+        private static Renderer Renderer(
+            TankView view,
+            string name)
+        {
+            return Find(view, name).GetComponent<Renderer>();
+        }
+
+        private static void AssertColor(
+            Renderer renderer,
+            int red,
+            int green,
+            int blue)
+        {
+            Color color = renderer.sharedMaterial.color;
+            const float tolerance = 1.5f / 255f;
+            Assert.That(color.r,
+                Is.EqualTo(red / 255f).Within(tolerance));
+            Assert.That(color.g,
+                Is.EqualTo(green / 255f).Within(tolerance));
+            Assert.That(color.b,
+                Is.EqualTo(blue / 255f).Within(tolerance));
         }
     }
 }

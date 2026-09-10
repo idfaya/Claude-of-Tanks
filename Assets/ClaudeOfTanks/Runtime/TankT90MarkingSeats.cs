@@ -25,6 +25,10 @@ namespace ClaudeOfTanks.Runtime
                     return BuildT90SM(parent, tacticalNumber);
                 case "t90ms":
                     return BuildT90MS(parent, tacticalNumber);
+                case "t90m":
+                    return BuildT90M(parent, tacticalNumber);
+                case "t90m_proryv":
+                    return BuildProryv(parent, tacticalNumber);
                 default:
                     throw new ArgumentException(
                         "Unsupported T-90 marking seat id: " + id,
@@ -139,6 +143,42 @@ namespace ClaudeOfTanks.Runtime
                     V(1.0750685f, 0.5469447f, -1.2616064f),
                     Q(-0.1696276f, 0.7701519f,
                         0.1322612f, 0.6004993f)));
+        }
+
+        private static Transform BuildT90M(
+            Transform parent,
+            string number)
+        {
+            return TankTacticalNumberFactory.BuildRussianSet(
+                "T90M",
+                parent,
+                number,
+                I("Insignia", 0.24f,
+                    V(-1.4480341f, 0.165569f, -0.7226291f),
+                    Q(0.1393199f, -0.7743919f,
+                        0.1092811f, 0.6074247f)),
+                D("Designation", 0.24f,
+                    V(-1.2128691f, 0.4837245f, -0.9243102f),
+                    Q(-0.3260054f, -0.6973086f,
+                        -0.2703507f, 0.5782661f)));
+        }
+
+        private static Transform BuildProryv(
+            Transform parent,
+            string number)
+        {
+            return TankTacticalNumberFactory.BuildRussianSet(
+                "T90MProryv",
+                parent,
+                number,
+                I("Insignia", 0.24f,
+                    V(-1.4480341f, 0.165569f, -0.7226291f),
+                    Q(0.1393199f, -0.7743919f,
+                        0.1092811f, 0.6074247f)),
+                D("Designation", 0.24f,
+                    V(-1.6783698f, 0.0550144f, 0.3690795f),
+                    Q(-0.1390394f, -0.7239085f,
+                        -0.1274581f, 0.6636105f)));
         }
 
         private static TankTacticalMarkingSeat I(

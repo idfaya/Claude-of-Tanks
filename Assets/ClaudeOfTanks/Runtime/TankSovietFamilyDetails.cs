@@ -103,6 +103,10 @@ namespace ClaudeOfTanks.Runtime
                 TankT90MGunDetails.Build(
                     turret,
                     color);
+                TankT90MarkingSeats.Build(
+                    id,
+                    turret.Find("T90M-PresentationRoot"),
+                    definition?.visual?.number);
                 return;
             }
             else

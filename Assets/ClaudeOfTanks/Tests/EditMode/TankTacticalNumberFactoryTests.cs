@@ -284,6 +284,69 @@ namespace ClaudeOfTanks.Tests
             Assert.That(insigniaTexture == null, Is.True);
         }
 
+        [TestCase(
+            "t90m", "T90M",
+            -1.2128691f, 0.4837245f, -0.9243102f,
+            -0.3260054f, -0.6973086f, -0.2703507f, 0.5782661f)]
+        [TestCase(
+            "t90m_proryv", "T90MProryv",
+            -1.6783698f, 0.0550144f, 0.3690795f,
+            -0.1390394f, -0.7239085f, -0.1274581f, 0.6636105f)]
+        public void T90MVariantsBuildGeneratedMarkingSeats(
+            string id,
+            string prefix,
+            float designationX,
+            float designationY,
+            float designationZ,
+            float designationQx,
+            float designationQy,
+            float designationQz,
+            float designationQw)
+        {
+            TankView view = Create(id);
+            try
+            {
+                Transform root =
+                    Find(view, prefix + "-TacticalMarkings");
+                Assert.That(
+                    root.parent.name,
+                    Is.EqualTo("T90M-PresentationRoot"));
+                Assert.That(root.childCount, Is.EqualTo(2));
+                AssertSeat(
+                    Find(
+                        view,
+                        "VehicleMarking-" + prefix + "-Insignia"),
+                    0.24f,
+                    new Vector3(
+                        -1.4480341f,
+                        0.165569f,
+                        -0.7226291f),
+                    new Quaternion(
+                        0.1393199f,
+                        -0.7743919f,
+                        0.1092811f,
+                        0.6074247f));
+                AssertSeat(
+                    Find(
+                        view,
+                        "VehicleMarking-" + prefix + "-Designation"),
+                    0.24f,
+                    new Vector3(
+                        designationX,
+                        designationY,
+                        designationZ),
+                    new Quaternion(
+                        designationQx,
+                        designationQy,
+                        designationQz,
+                        designationQw));
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
         private static TankView Create(string id)
         {
             ContentCatalog catalog = ContentCatalog.Load();

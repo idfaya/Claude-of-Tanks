@@ -786,8 +786,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   pass; generic Soviet roof fittings are no longer built. The dedicated
   2A46M-5 now preserves the source pivot and installed counter-scale, sealed
   saddle, accordion boot, ten-stage circular tube, muzzle collar/bore and
-  evacuator crest while replacing the generic cube gun. Material roles and
-  final markings remain follow-up stages.
+  evacuator crest while replacing the generic cube gun. Dedicated material
+  roles preserve the source dark/rubber/track/glass and T-90M canvas colors,
+  and both variants now consume their generated insignia/designation seats.
+  This closes the T-90M/Proryv vehicle pair pending the family-wide audit.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

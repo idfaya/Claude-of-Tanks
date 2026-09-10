@@ -27,6 +27,11 @@ namespace ClaudeOfTanks.Runtime
             Color baseColor)
         {
             if (renderers == null) return;
+            if (TankT90MMaterialRoles.Supports(vehicleId))
+            {
+                TankT90MMaterialRoles.Apply(renderers, baseColor);
+                return;
+            }
             bool isT90SM =
                 string.Equals(
                     vehicleId,
