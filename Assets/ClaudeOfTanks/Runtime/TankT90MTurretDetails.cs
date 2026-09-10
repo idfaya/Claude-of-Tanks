@@ -6,7 +6,8 @@ namespace ClaudeOfTanks.Runtime
     {
         public static void Build(
             Transform turret,
-            Color color)
+            Color color,
+            string id)
         {
             HideRenderer(turret.Find("Turret"));
             GameObject rootObject =
@@ -20,6 +21,10 @@ namespace ClaudeOfTanks.Runtime
             AddAprons(root, color);
             AddCrown(root, color);
             AddCheekCarriers(root, color);
+            TankT90MTurretArmorDetails.Build(
+                root,
+                color,
+                id == "t90m_proryv");
         }
 
         private static void AddWeldedShell(

@@ -340,6 +340,73 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void BuildsVariantSpecificTurretRelikt()
+        {
+            TankView t90m = Create("t90m");
+            TankView proryv = Create("t90m_proryv");
+            try
+            {
+                Assert.That(
+                    Count(t90m, "Painted-T90M-FanRelikt"),
+                    Is.EqualTo(14));
+                Assert.That(
+                    Count(t90m, "T90M-FanReliktSeam"),
+                    Is.EqualTo(14));
+                Assert.That(
+                    Count(t90m, "Painted-T90M-InnerBrowRelikt"),
+                    Is.EqualTo(6));
+                Assert.That(
+                    Count(t90m, "T90M-ProryvChevron-Tile"),
+                    Is.EqualTo(0));
+
+                Assert.That(
+                    Count(proryv, "T90M-ProryvChevron-Carrier"),
+                    Is.EqualTo(8));
+                Assert.That(
+                    Count(proryv, "T90M-ProryvChevron-Gasket"),
+                    Is.EqualTo(24));
+                Assert.That(
+                    Count(proryv, "T90M-ProryvChevron-Tile"),
+                    Is.EqualTo(24));
+                Assert.That(
+                    Count(
+                        proryv,
+                        "T90M-ProryvChevronCenterClosure"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(proryv, "Painted-T90M-FanRelikt"),
+                    Is.EqualTo(0));
+
+                foreach (TankView view in new[] { t90m, proryv })
+                {
+                    Assert.That(
+                        Count(view, "Painted-T90M-FlankRelikt"),
+                        Is.EqualTo(8));
+                    Assert.That(
+                        Count(view, "T90M-FlankReliktSeam"),
+                        Is.EqualTo(8));
+                    Assert.That(
+                        Count(view, "T90M-FinalFrontReliktSeam"),
+                        Is.EqualTo(12));
+                    Assert.That(
+                        Count(view, "T90M-FinalFlankReliktSeam"),
+                        Is.EqualTo(8));
+                    Assert.That(
+                        Count(view, "T90M-FinalFlankWeld"),
+                        Is.EqualTo(2));
+                    Assert.That(
+                        Count(view, "T90M-MantletGapPlate"),
+                        Is.EqualTo(1));
+                }
+            }
+            finally
+            {
+                t90m.Destroy();
+                proryv.Destroy();
+            }
+        }
+
         private static TankView Create(string id)
         {
             ContentCatalog catalog = ContentCatalog.Load();

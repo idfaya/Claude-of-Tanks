@@ -773,7 +773,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   turret core now replaces the generic cylinder with its seven asymmetric
   stations, three buried ring/apron layers, faceted crown, roof saddle and
   broad cheek carriers at the exact installed `(0.95, 0.65, 0.913)` scale.
-  Turret ERA, bustle, equipment and gun remain follow-up stages.
+  Turret protection now preserves the model split: T-90M uses its fourteen
+  primary fan modules and six inner-brow modules, while T-90M Proryv uses
+  the exact shared Soviet chevron carrier/tile/gasket construction. Both
+  retain the four-module-per-side flank course and final surface seams.
+  Bustle, equipment and gun remain follow-up stages.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived
