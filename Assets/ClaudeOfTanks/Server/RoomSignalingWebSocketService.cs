@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ClaudeOfTanks.Network;
-using UnityEngine;
 
 namespace ClaudeOfTanks.Server
 {
@@ -396,7 +395,7 @@ namespace ClaudeOfTanks.Server
             string json =
                 new UTF8Encoding(false, true).GetString(bytes, 0, length);
             RoomSignalingEnvelope envelope =
-                JsonUtility.FromJson<RoomSignalingEnvelope>(json);
+                ServerJson.Deserialize<RoomSignalingEnvelope>(json);
             if (envelope == null || string.IsNullOrEmpty(envelope.type))
                 throw new FormatException("Signaling message type is missing.");
             return envelope;

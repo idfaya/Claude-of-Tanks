@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>ClaudeOfTanks.Server</AssemblyName>
+    <RootNamespace>ClaudeOfTanks.StandaloneServer</RootNamespace>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);CS0649</NoWarn>
+    <DefineConstants>$(DefineConstants);COT_STANDALONE_SERVER</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="../../../Assets/ClaudeOfTanks/Simulation/*.cs"
+             Link="Simulation/%(Filename)%(Extension)" />
+    <Compile Include="../../../Assets/ClaudeOfTanks/Network/*.cs"
+             Link="Network/%(Filename)%(Extension)" />
+    <Compile Include="../../../Assets/ClaudeOfTanks/Server/*.cs"
+             Link="Server/%(Filename)%(Extension)" />
+    <Compile Include="../../../Assets/ClaudeOfTanks/Runtime/ContentCatalog.cs"
+             Link="Content/ContentCatalog.cs" />
+    <Compile Include="../../../Assets/ClaudeOfTanks/Runtime/MapSimulationAdapter.cs"
+             Link="Content/MapSimulationAdapter.cs" />
+    <Compile Include="../../../Assets/ClaudeOfTanks/Runtime/MapVegetationLayout.cs"
+             Link="Content/MapVegetationLayout.cs" />
+    <Compile Include="../../../Assets/ClaudeOfTanks/Runtime/RoomMatchBattleFactory.cs"
+             Link="Content/RoomMatchBattleFactory.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="../../../Assets/ClaudeOfTanks/Resources/Content/content-catalog.json"
+             Link="content-catalog.json"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

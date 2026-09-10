@@ -255,6 +255,42 @@ namespace ClaudeOfTanks.Tests
                 Is.False);
         }
 
+        [Test]
+        public void StandaloneServerDoesNotRequireUnityBuildSupport()
+        {
+            string projectRoot =
+                Directory.GetParent(Application.dataPath).FullName;
+            string projectFile = Path.Combine(
+                projectRoot,
+                "server/dotnet/ClaudeOfTanks.Server/" +
+                "ClaudeOfTanks.Server.csproj");
+            Assert.That(File.Exists(projectFile), Is.True);
+            string project = File.ReadAllText(projectFile);
+            StringAssert.Contains("COT_STANDALONE_SERVER", project);
+            StringAssert.Contains(
+                "Assets/ClaudeOfTanks/Simulation/*.cs",
+                project);
+            StringAssert.Contains(
+                "Assets/ClaudeOfTanks/Network/*.cs",
+                project);
+            Assert.That(
+                File.Exists(Path.Combine(
+                    projectRoot,
+                    "tools/build-dotnet-server.sh")),
+                Is.True);
+            Assert.That(
+                File.Exists(Path.Combine(
+                    projectRoot,
+                    "tools/build-unity-server.sh")),
+                Is.False);
+            Assert.That(
+                File.Exists(Path.Combine(
+                    projectRoot,
+                    "Assets/ClaudeOfTanks/Editor/" +
+                    "DedicatedServerBuild.cs")),
+                Is.False);
+        }
+
         private static void AddFiles(
             string root,
             string pattern,

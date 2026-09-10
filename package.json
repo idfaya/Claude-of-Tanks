@@ -5,7 +5,9 @@
   "description": "A browser-native Three.js armored combat simulator with plate-level armor, first-party procedural vehicles, destructible battlefields, and persistent multiplayer.",
   "scripts": {
     "agent-docs": "node scripts/run-agent-docs.ts",
-    "unity:server:build": "tools/build-unity-server.sh",
+    "server:dotnet": "tools/run-dotnet-server.sh",
+    "server:dotnet:build": "tools/build-dotnet-server.sh",
+    "server:dotnet:test": "node tools/dotnet-server-smoke.mjs",
     "fx:textures:bake": "node tools/bake-fx-textures.mjs",
     "minimap:assets": "node tools/bake-minimap-assets.mjs",
     "perf:terrain-stream": "node tools/terrain-stream-benchmark.mjs",

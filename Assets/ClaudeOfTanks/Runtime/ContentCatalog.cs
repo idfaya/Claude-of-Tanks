@@ -1,6 +1,11 @@
 using System;
+using System.IO;
 using ClaudeOfTanks.Simulation;
+#if COT_STANDALONE_SERVER
+using System.Text.Json;
+#else
 using UnityEngine;
+#endif
 
 namespace ClaudeOfTanks.Runtime
 {
@@ -28,13 +33,38 @@ namespace ClaudeOfTanks.Runtime
 
         public static ContentCatalog Load()
         {
+#if COT_STANDALONE_SERVER
+            throw new PlatformNotSupportedException(
+                "Standalone servers must load the content catalog from a file.");
+#else
             TextAsset asset = Resources.Load<TextAsset>(ResourcePath);
             if (asset == null)
             {
                 throw new InvalidOperationException("Generated content catalog is missing.");
             }
 
-            CatalogData data = JsonUtility.FromJson<CatalogData>(asset.text);
+            return LoadFromJson(asset.text);
+#endif
+        }
+
+        public static ContentCatalog LoadFromFile(string path)
+        {
+            if (string.IsNullOrWhiteSpace(path))
+                throw new ArgumentException("Content catalog path is required.", nameof(path));
+            return LoadFromJson(File.ReadAllText(Path.GetFullPath(path)));
+        }
+
+        public static ContentCatalog LoadFromJson(string json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+                throw new InvalidOperationException("Generated content catalog is empty.");
+#if COT_STANDALONE_SERVER
+            CatalogData data = JsonSerializer.Deserialize<CatalogData>(
+                json,
+                new JsonSerializerOptions { IncludeFields = true });
+#else
+            CatalogData data = JsonUtility.FromJson<CatalogData>(json);
+#endif
             if (data == null || data.schemaVersion != SupportedSchemaVersion)
             {
                 throw new InvalidOperationException("Unsupported content catalog schema.");
@@ -349,18 +379,18 @@ namespace ClaudeOfTanks.Runtime
             return new HydropneumaticAimSpec
             {
                 NoseDownRad =
-                    Mathf.Max(0f, noseDownDeg) *
-                    Mathf.Deg2Rad,
+                    MathF.Max(0f, noseDownDeg) *
+                    MathUtil.Deg2Rad,
                 NoseUpRad =
-                    Mathf.Max(0f, noseUpDeg) *
-                    Mathf.Deg2Rad,
+                    MathF.Max(0f, noseUpDeg) *
+                    MathUtil.Deg2Rad,
                 SpeedRadS =
-                    Mathf.Max(0f, rateDegS) *
-                    Mathf.Deg2Rad,
+                    MathF.Max(0f, rateDegS) *
+                    MathUtil.Deg2Rad,
                 CompressionM =
-                    Mathf.Max(0f, compressionM),
+                    MathF.Max(0f, compressionM),
                 DroopM =
-                    Mathf.Max(0f, droopM)
+                    MathF.Max(0f, droopM)
             };
         }
     }
@@ -424,8 +454,10 @@ namespace ClaudeOfTanks.Runtime
         public string number;
         public float trackWidthM;
 
+#if !COT_STANDALONE_SERVER
         public Color Color => ColorUtility.TryParseHtmlString(@base, out Color color)
             ? color : new Color(0.28f, 0.32f, 0.24f);
+#endif
     }
 
     [Serializable] public sealed class VehicleArmor
@@ -464,7 +496,9 @@ namespace ClaudeOfTanks.Runtime
         public float x;
         public float y;
         public float z;
+#if !COT_STANDALONE_SERVER
         public Vector3 ToVector3() { return new Vector3(x, y, z); }
+#endif
     }
 
     [Serializable] public sealed class ArmorPlateDefinition
@@ -532,7 +566,9 @@ namespace ClaudeOfTanks.Runtime
         public float r;
         public float g;
         public float b;
+#if !COT_STANDALONE_SERVER
         public Color ToColor(float alpha = 1f) { return new Color(r, g, b, alpha); }
+#endif
     }
     [Serializable] public sealed class MapStructures
     {

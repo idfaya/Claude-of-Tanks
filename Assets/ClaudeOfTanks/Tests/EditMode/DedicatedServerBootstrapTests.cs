@@ -20,6 +20,7 @@ namespace ClaudeOfTanks.Tests
                 defaults.SignalingListenPrefix,
                 Is.EqualTo("http://127.0.0.1:18792/"));
             Assert.That(defaults.AllowedOrigins, Is.Empty);
+            Assert.That(defaults.ContentCatalogFile, Is.Null);
 
             DedicatedServerOptions configured = DedicatedServerOptions.Parse(
                 new[]
@@ -30,7 +31,9 @@ namespace ClaudeOfTanks.Tests
                     "19001",
                     "--cot-signal-port=19002",
                     "--cot-origins=https://game.example,http://127.0.0.1:5173",
-                    "--cot-rating-file=Temp/test-ratings.bin"
+                    "--cot-rating-file=Temp/test-ratings.bin",
+                    "--cot-content=Assets/ClaudeOfTanks/Resources/Content/" +
+                        "content-catalog.json"
                 },
                 name => null);
             Assert.That(configured.ListenPrefix, Is.EqualTo("http://0.0.0.0:19001/"));
@@ -47,6 +50,11 @@ namespace ClaudeOfTanks.Tests
             Assert.That(
                 configured.RatingFile,
                 Is.EqualTo(System.IO.Path.GetFullPath("Temp/test-ratings.bin")));
+            Assert.That(
+                configured.ContentCatalogFile,
+                Is.EqualTo(System.IO.Path.GetFullPath(
+                    "Assets/ClaudeOfTanks/Resources/Content/" +
+                    "content-catalog.json")));
             Assert.That(
                 DedicatedServerOptions.HasServerFlag(new[] { "--cot-server" }),
                 Is.True);

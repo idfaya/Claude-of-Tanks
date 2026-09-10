@@ -5,6 +5,7 @@ shots/
 [Ll]ibrary/
 [Tt]emp/
 [Oo]bj/
+[Bb]in/
 [Bb]uild/
 [Bb]uilds/
 [Ll]ogs/
@@ -16,6 +17,8 @@ MemoryCaptures/
 .uloop/outputs/
 *.csproj
 *.sln
+!server/dotnet/**/*.csproj
+!server/dotnet/**/*.sln
 *.unityproj
 *.pidb
 *.booproj

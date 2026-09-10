@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using ClaudeOfTanks.Network;
-using UnityEngine;
 
 namespace ClaudeOfTanks.Server
 {
@@ -212,7 +211,7 @@ namespace ClaudeOfTanks.Server
             string json = new UTF8Encoding(false, true).GetString(body);
             if (!json.TrimStart().StartsWith("{", StringComparison.Ordinal))
                 throw new FormatException("Request body must be a JSON object.");
-            T value = JsonUtility.FromJson<T>(json);
+            T value = ServerJson.Deserialize<T>(json);
             if (value == null) throw new FormatException("Request body must be a JSON object.");
             return value;
         }
@@ -258,7 +257,7 @@ namespace ClaudeOfTanks.Server
             return Response(
                 status,
                 Reason(status),
-                Encoding.UTF8.GetBytes(JsonUtility.ToJson(body)),
+                Encoding.UTF8.GetBytes(ServerJson.Serialize(body)),
                 origin);
         }
 

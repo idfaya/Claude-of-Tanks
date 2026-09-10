@@ -4,7 +4,6 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using UnityEngine;
 
 namespace ClaudeOfTanks.Server
 {
@@ -105,7 +104,7 @@ namespace ClaudeOfTanks.Server
             CancellationToken cancellationToken)
         {
             byte[] bytes = Encoding.UTF8.GetBytes(
-                JsonUtility.ToJson(envelope));
+                ServerJson.Serialize(envelope));
             await _sendGate.WaitAsync(cancellationToken)
                 .ConfigureAwait(false);
             try

@@ -28,9 +28,8 @@ tools/uloop.sh screenshot --window-name Game --capture-mode GameView
 Dedicated server build and launch:
 
 ```bash
-npm run unity:server:build -- linux
-./Build/Server/Linux/ClaudeOfTanksServer \
-  -batchmode -nographics --cot-server \
+npm run server:dotnet:build -- linux-x64
+./Build/Server/DotNet/linux-x64/ClaudeOfTanks.Server \
   --cot-bind=0.0.0.0 --cot-port=18791 \
   --cot-signal-port=18792 \
   --cot-origins=https://game.example \
@@ -41,14 +40,15 @@ The same listener serves `/match` WebSocket upgrades and the browser-compatible
 `/healthz`, `/ranked/identity`, `/ranked/profile/:id`,
 `/ranked/leaderboard`, and `/ranked/queue/:id` HTTP API. Environment
 equivalents are `COT_SERVER_BIND`, `COT_SERVER_PORT`,
-`COT_SIGNAL_PORT`, `COT_ALLOWED_ORIGINS`, and `COT_RATING_FILE`. The same
-headless process also starts the native C# private-room signaling service on
-`COT_SIGNAL_PORT`; its WebSocket endpoint is `/signal`.
+`COT_SIGNAL_PORT`, `COT_ALLOWED_ORIGINS`, `COT_RATING_FILE`, and
+`COT_CONTENT_CATALOG`. The same process also starts the native C# private-room
+signaling service on `COT_SIGNAL_PORT`; its WebSocket endpoint is `/signal`.
 
-Install the matching Unity Linux Dedicated Server Build Support module before
-running the build command. `tools/build-unity-server.sh macos <output> player`
-builds a regular macOS player for local `-batchmode -nographics` smoke tests
-when the Dedicated Server module is unavailable.
+The server is a self-contained .NET 8 executable and does not require Unity,
+Unity Hub, the Dedicated Server Build Support module, or a preinstalled .NET
+runtime on the deployment host. A .NET 8 SDK is required only on the build
+machine. Run `npm run server:dotnet:test` for the local HTTP, ranked queue,
+dedicated WebSocket, and private-room signaling smoke test.
 
 Unity CLI Loop `3.4.0` and Input System `1.7.0` are project dependencies.
 The CLI is installed at `~/.local/bin/uloop`; `tools/uloop.sh` binds it to this
@@ -67,7 +67,8 @@ Once the Editor is open, every other `tools/uloop.sh` command is supported.
 | `ClaudeOfTanks.Simulation` | Deterministic fixed-step movement, ballistics, penetration, damage, entities, and seeded RNG. It has `noEngineReferences: true`. |
 | `ClaudeOfTanks.Network` | Transport-independent input admission, authoritative match ticking, and viewer-filtered snapshots. It has `noEngineReferences: true`. |
 | `ClaudeOfTanks.Runtime` | Unity input, procedural rendering, camera, HUD, scene lifecycle, and simulation-to-view synchronization. |
-| `ClaudeOfTanks.Server` | Headless composition root for generated match content, ranked HTTP matchmaking, persistent ratings, and dedicated WebSocket sessions. |
+| `ClaudeOfTanks.Server` | Shared C# service core for generated match content, ranked HTTP matchmaking, persistent ratings, and dedicated WebSocket sessions. |
+| `server/dotnet/ClaudeOfTanks.Server` | Unity-independent .NET 8 process entrypoint and self-contained deployment target. |
 | `ClaudeOfTanks.WebRTC` | Native WebRTC peer transport adapter with reliable control and replaceable zero-retransmit state channels. |
 | `ClaudeOfTanks.Simulation.Tests` | Unity EditMode tests for coordinate conventions, determinism, movement, penetration, and swept shell hits. |
 
@@ -82,7 +83,7 @@ The port preserves the source project's runtime units and conventions:
 
 ## C# ownership boundary
 
-Unity runtime, dedicated server, private-room signaling, content data,
+Unity runtime, standalone .NET dedicated server, private-room signaling, content data,
 EditMode tests, and PlayMode tests are C#-native and do not launch Node or
 execute TypeScript. `CSharpRuntimeBoundaryTests` enforces that boundary.
 `Resources/Content/content-catalog.json` is the canonical language-neutral
@@ -866,9 +867,9 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   exact origin policy, one-time ticket and rotating reconnect authentication,
   stale-generation isolation, per-viewer snapshots, and one authoritative tick
   per match regardless of connected player count
-- Unity headless bootstrap with strict bind/port/origin configuration, a
-  bounded 60 Hz service pump, UI-free Server builds, and reproducible
-  Linux/macOS command-line build tooling
+- Standalone .NET 8 server host with strict bind/port/origin configuration,
+  a bounded 60 Hz service pump, shared Unity-authored C# authority, and
+  self-contained Linux/macOS/Windows command-line publishing
 - Same-origin ranked HTTP and dedicated WebSocket transport with bounded
   headers, JSON bodies, concurrent admissions and per-client request rates;
   CORS policy applies before either transport is admitted

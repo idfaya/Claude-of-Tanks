@@ -4,9 +4,11 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using ClaudeOfTanks.Network;
-using ClaudeOfTanks.Runtime;
 using ClaudeOfTanks.Simulation;
+#if !COT_STANDALONE_SERVER
+using ClaudeOfTanks.Runtime;
 using UnityEngine;
+#endif
 
 namespace ClaudeOfTanks.Server
 {
@@ -17,6 +19,7 @@ namespace ClaudeOfTanks.Server
         public int SignalingPort { get; private set; } = 18792;
         public string[] AllowedOrigins { get; private set; } = Array.Empty<string>();
         public string RatingFile { get; private set; }
+        public string ContentCatalogFile { get; private set; }
 
         public string ListenPrefix =>
             "http://" + BindAddress + ":" + Port + "/";
@@ -37,6 +40,8 @@ namespace ClaudeOfTanks.Server
             string origins = Value(args, "--cot-origins") ?? env("COT_ALLOWED_ORIGINS");
             string ratingFile =
                 Value(args, "--cot-rating-file") ?? env("COT_RATING_FILE");
+            string contentCatalogFile =
+                Value(args, "--cot-content") ?? env("COT_CONTENT_CATALOG");
             if (!string.IsNullOrEmpty(bind)) result.BindAddress = bind;
             IPAddress parsedAddress;
             if (result.BindAddress != "localhost" &&
@@ -87,6 +92,9 @@ namespace ClaudeOfTanks.Server
             }
             if (!string.IsNullOrWhiteSpace(ratingFile))
                 result.RatingFile = Path.GetFullPath(ratingFile);
+            if (!string.IsNullOrWhiteSpace(contentCatalogFile))
+                result.ContentCatalogFile =
+                    Path.GetFullPath(contentCatalogFile);
             Uri listen;
             if (!Uri.TryCreate(result.ListenPrefix, UriKind.Absolute, out listen))
                 throw new ArgumentException("Dedicated server bind address is invalid.");
@@ -132,19 +140,15 @@ namespace ClaudeOfTanks.Server
         }
     }
 
+#if !COT_STANDALONE_SERVER
     public sealed class DedicatedServerRunner : MonoBehaviour
     {
         private DedicatedServerOptions _options;
-        private DedicatedMatchRegistry _registry;
-        private DedicatedMatchWebSocketService _service;
-        private RoomSignalingWebSocketService _signalingService;
-        private RankedHttpApi _httpApi;
-        private readonly DedicatedServerTickScheduler _scheduler =
-            new DedicatedServerTickScheduler();
+        private DedicatedServerHost _host;
         private double _lastTimeS;
 
-        public DedicatedMatchRegistry Registry => _registry;
-        public bool IsRunning => _service != null && _service.IsRunning;
+        public DedicatedMatchRegistry Registry => _host?.Registry;
+        public bool IsRunning => _host != null && _host.IsRunning;
         public string ListenPrefix => _options?.ListenPrefix;
 
         public static DedicatedServerRunner Create(DedicatedServerOptions options)
@@ -161,37 +165,16 @@ namespace ClaudeOfTanks.Server
 
         private void OnEnable()
         {
-            if (_options == null || _service != null) return;
+            if (_options == null || _host != null) return;
             Application.runInBackground = true;
             Application.targetFrameRate = NetworkProtocol.TickRate;
-            _registry = new DedicatedMatchRegistry();
-            ContentCatalog catalog = ContentCatalog.Load();
-            DedicatedServerMatchFactory factory =
-                new DedicatedServerMatchFactory(catalog);
-            RankedRatingStore ratings = new RankedRatingStore(
-                _options.RatingFile ?? Path.Combine(
+            _host = new DedicatedServerHost(
+                _options,
+                ContentCatalog.Load(),
+                Path.Combine(
                     Application.persistentDataPath,
                     "ranked-ratings.bin"));
-            RankedMatchmaker matchmaker = new RankedMatchmaker(
-                ratings,
-                _registry,
-                factory.Create,
-                factory.MapRotation,
-                factory.IsVehicleAllowed,
-                equipmentAllowed: factory.IsEquipmentAllowed);
-            _httpApi = new RankedHttpApi(ratings, matchmaker, _registry);
-            _service = new DedicatedMatchWebSocketService(
-                _registry,
-                _options.ListenPrefix,
-                UnixTimeMs,
-                _options.AllowedOrigins,
-                _httpApi);
-            _service.Start();
-            _signalingService =
-                new RoomSignalingWebSocketService(
-                    _options.SignalingListenPrefix,
-                    _options.AllowedOrigins);
-            _signalingService.Start();
+            _host.Start();
             _lastTimeS = Time.realtimeSinceStartupAsDouble;
             Debug.Log("Dedicated server listening at " + _options.ListenPrefix);
             Debug.Log(
@@ -201,28 +184,16 @@ namespace ClaudeOfTanks.Server
 
         private void Update()
         {
-            if (_service == null) return;
+            if (_host == null) return;
             double now = Time.realtimeSinceStartupAsDouble;
-            int ticks = _scheduler.Consume(now - _lastTimeS);
+            _host.PumpElapsed(now - _lastTimeS);
             _lastTimeS = now;
-            _service.Pump(ticks);
         }
 
         private void OnDestroy()
         {
-            _signalingService?.Dispose();
-            _service?.Dispose();
-            _httpApi?.Dispose();
-            _registry?.Dispose();
-            _service = null;
-            _signalingService = null;
-            _httpApi = null;
-            _registry = null;
-        }
-
-        private static long UnixTimeMs()
-        {
-            return DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            _host?.Dispose();
+            _host = null;
         }
     }
 
@@ -243,4 +214,5 @@ namespace ClaudeOfTanks.Server
             DedicatedServerRunner.Create(DedicatedServerOptions.Parse(arguments));
         }
     }
+#endif
 }

@@ -815,6 +815,9 @@ must be monitored separately from WebRTC gameplay.
 server/dedicatedMatchServer.ts owns ranked WebSocket sessions.
 server/rankedMatchmaker.ts owns queue grouping.
 server/ratingStore.ts owns idempotent rating settlement.
+server/dotnet/ClaudeOfTanks.Server is the standalone C# production host. It
+links the Unity port's renderer-free Simulation, Network, ranked, signaling,
+and generated-content owners directly and publishes without Unity Player.
 
 Private browser hosts are trusted. Ranked moves authority to the service.
 

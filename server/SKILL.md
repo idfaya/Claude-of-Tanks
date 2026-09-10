@@ -23,6 +23,9 @@ The signaling server relays WebRTC descriptions/ICE only and never gameplay.
   `ratingStore.ts` owns bearer identities, persistent Elo, and idempotent results.
 - `dedicatedWorldCollision.ts` inflates match-local state from the generated
   twenty-map collision manifest; do not hand-edit that manifest.
+- `dotnet/ClaudeOfTanks.Server` is the Unity-independent C# process entrypoint.
+  It links the authoritative Unity C# source files directly and publishes a
+  self-contained executable; do not fork a second simulation implementation.
 - A v1 browser-hosted room closes if its host leaves; never silently migrate a
   ranked authority to a player.
 - Production signaling must run behind TLS with an explicit origin allowlist.
@@ -37,3 +40,5 @@ run the rating, matchmaker, HTTP, and real-WebSocket tests. Regenerate world man
 with `tools/capture-world-collision-manifests.mjs` after authored map collision
 changes. Any gameplay authority added here must also run the shared `src/net`
 tests, deterministic match tests, abuse cases, and real WebSocket soak/load tests.
+Run `npm run server:dotnet:test` for the C# standalone health, queue, ticket,
+dedicated WebSocket, and private-room signaling integration path.

@@ -80,7 +80,7 @@ collision facade.
 The Unity 2022.3 port follows the same ownership split. `GameFlowController`
 hands a canonical lobby plan to `NetworkBattleController`;
 `RoomMatchBattleFactory` builds the same map collision, loadout, and game-mode
-simulation used by the Unity dedicated server. Only the host advances that
+simulation used by the standalone .NET dedicated server. Only the host advances that
 simulation. `NetworkBattlePresenter` consumes filtered snapshots for tank,
 shell, destructible, objective, HUD, minimap, audio, and FX presentation.
 The v2 Unity lobby plan preserves team size; `RoomMatchBattleFactory`
@@ -552,4 +552,10 @@ Useful service commands:
 ```bash
 npm run server:signal  # default ws://127.0.0.1:7777/signal
 npm run server:match   # default http://127.0.0.1:8790 + ws://.../match
+npm run server:dotnet  # C# authority: :18791/match and :18792/signal
 ```
+
+`server/dotnet/ClaudeOfTanks.Server` compiles the same C# simulation, network,
+ranked, and signaling owners used by the Unity client tests into a standalone
+.NET 8 process. `npm run server:dotnet:build -- linux-x64` publishes a
+self-contained Linux executable without Unity Player or Unity build modules.

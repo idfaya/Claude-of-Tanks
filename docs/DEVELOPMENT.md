@@ -7,6 +7,7 @@ is the operational companion to SYSTEMS.md.
 
 - A current Node.js runtime
 - npm
+- .NET 8 SDK for standalone C# server builds
 - A browser with WebGL 2 and WebRTC support
 - Chromium available to Puppeteer for browser rigs
 
@@ -41,12 +42,17 @@ Start local signaling:
 
 The default endpoint is ws://127.0.0.1:7777/signal.
 
-Start the dedicated match and ranked HTTP service:
+Start the standalone C# dedicated match, ranked HTTP, and private-room
+signaling service:
 
-    npm run server:match
+    npm run server:dotnet
 
-The default service uses port 8790. Production requires secure WebSocket and
-HTTP endpoints, explicit origin configuration, persistent rating storage, and
+The match/ranked listener defaults to port 18791 and private-room signaling to
+18792. `npm run server:dotnet:build -- linux-x64` creates a self-contained
+Linux executable that requires neither Unity nor a .NET runtime on the host.
+The TypeScript reference service remains available through
+`npm run server:match`. Production requires secure WebSocket and HTTP
+endpoints, explicit origin configuration, persistent rating storage, and
 deployment-specific signaling/TURN configuration.
 
 Production private rooms automatically request short-lived credentials from
