@@ -135,6 +135,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 - Source-plan-driven structure presentation for all 20 maps: 601 road-aligned
   planned buildings, 60 exact tactical landmarks, 197 wall runs, 894 rubble
   piles, 361 sandbag lines, and 346 hedgehogs in five merged material buckets.
+  All 62 catalog building kinds now route through explicit C# recipes matching
+  their TS identity: framed rural facades, porches, balconies, towers, domes,
+  tents, industrial bays, tanks, stacks, gantries, open decks, damaged crowns,
+  setback high-rises, arcology bridges, and persistent destructible ownership.
+  No production kind falls back to the former profile-only box generator.
 - Pure C# authoritative structure manifests for all 20 maps with 1,545 bounded
   building, ruin-section, and wall-piece OBBs. The shared deterministic queries
   block tanks and shells, occlude bot/HUD/network spotting, preserve authored
@@ -905,8 +910,8 @@ These systems still use the TypeScript implementation as their specification:
   126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
   Challenger 2/3, Merkava, Korean, Japanese, French, and Italian identity
   suites plus the Swedish turreted, siege, and IFV lines;
-- per-family structure geometry/material parity, complete vegetation recipes,
-  and broader world streaming for all 20 maps;
+- source texture/material finish parity, complete vegetation recipes, and
+  broader world streaming for all 20 maps;
 - remaining production UI polish;
 - installable build-target release artifacts and platform packaging;
 - per-family procedural vehicle geometry parity and generated technical assets.

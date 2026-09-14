@@ -6,7 +6,7 @@ using UnityEngine.Rendering;
 
 namespace ClaudeOfTanks.Runtime
 {
-    public sealed class MapStructureRuntime : IDisposable
+    public sealed partial class MapStructureRuntime : IDisposable
     {
         private readonly GameObject _root;
         private readonly List<Mesh> _meshes = new List<Mesh>();
@@ -18,6 +18,8 @@ namespace ClaudeOfTanks.Runtime
         private readonly HashSet<string> _destroyedBuildings =
             new HashSet<string>(StringComparer.Ordinal);
         private readonly List<MeshBucket> _ownedBuckets = new List<MeshBucket>();
+        private readonly HashSet<string> _builtKinds =
+            new HashSet<string>(StringComparer.Ordinal);
         private BattleState _syncedState;
         private uint _syncedRevision = uint.MaxValue;
         private Mesh _debrisMesh;
@@ -40,6 +42,10 @@ namespace ClaudeOfTanks.Runtime
         public int SandbagLineCount { get; private set; }
         public int HedgehogCount { get; private set; }
         public int DestroyedBuildingCount => _destroyedBuildings.Count;
+        public int DistinctBuildingKindCount => _builtKinds.Count;
+        public int MinimumBuildingTriangleCount { get; private set; } =
+            int.MaxValue;
+        public float MaximumBuildingHeightRatio { get; private set; }
 
         public static MapStructureRuntime Create(Transform parent, MapDefinition map)
         {
@@ -80,7 +86,29 @@ namespace ClaudeOfTanks.Runtime
                 int bodyStart = bodies.Triangles.Count;
                 int roofStart = roofs.Triangles.Count;
                 int detailStart = details.Triangles.Count;
+                int bodyVertexStart = bodies.Vertices.Count;
+                int roofVertexStart = roofs.Vertices.Count;
+                int detailVertexStart = details.Vertices.Count;
                 AddBuilding(buildings[i], bodies, roofs, details);
+                int triangleCount =
+                    (bodies.Triangles.Count - bodyStart +
+                     roofs.Triangles.Count - roofStart +
+                     details.Triangles.Count - detailStart) / 3;
+                MinimumBuildingTriangleCount = Mathf.Min(
+                    MinimumBuildingTriangleCount,
+                    triangleCount);
+                _builtKinds.Add(buildings[i].kind);
+                float ground = _heightField.HeightAt(
+                    buildings[i].x,
+                    buildings[i].z);
+                float maximumY = Mathf.Max(
+                    MaximumY(bodies, bodyVertexStart),
+                    MaximumY(roofs, roofVertexStart),
+                    MaximumY(details, detailVertexStart));
+                MaximumBuildingHeightRatio = Mathf.Max(
+                    MaximumBuildingHeightRatio,
+                    (maximumY - ground) /
+                    Mathf.Max(0.01f, buildings[i].h));
                 RecordOwnedRange(bodies, ownerId, bodyStart);
                 RecordOwnedRange(roofs, ownerId, roofStart);
                 RecordOwnedRange(details, ownerId, detailStart);
@@ -92,6 +120,8 @@ namespace ClaudeOfTanks.Runtime
                 if (buildings[i].tactical) TacticalBuildingCount++;
             }
             for (int i = 0; i < walls.Length; i++) AddWall(walls[i], wallMesh);
+            if (buildings.Length == 0)
+                MinimumBuildingTriangleCount = 0;
             AddRubble(map.id, buildings, RubblePileCount, cover);
             AddSandbags(map.id, buildings, SandbagLineCount, cover);
             AddHedgehogs(map.id, HedgehogCount, details);
@@ -138,97 +168,6 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 0; i < _ownedBuckets.Count; i++)
                 _ownedBuckets[i].ApplyDestroyed(_destroyedBuildings);
             RebuildDebris();
-        }
-
-        private void AddBuilding(
-            MapBuilding building,
-            MeshBucket bodies,
-            MeshBucket roofs,
-            MeshBucket details)
-        {
-            float y = _heightField.HeightAt(building.x, building.z);
-            Vector3 center = new Vector3(building.x, y, building.z);
-            float yaw = building.yawDeg * Mathf.Deg2Rad;
-            float width = Mathf.Max(3f, building.w);
-            float depth = Mathf.Max(3f, building.d);
-            float height = Mathf.Max(3f, building.h);
-            string profile = building.profile ?? "rural";
-
-            if (profile == "ruin")
-            {
-                AddBox(bodies, center + Local(0f, height * 0.36f, -depth * 0.45f, yaw),
-                    new Vector3(width, height * 0.72f, 0.65f), yaw);
-                AddBox(bodies, center + Local(-width * 0.45f, height * 0.24f, 0f, yaw),
-                    new Vector3(0.65f, height * 0.48f, depth), yaw);
-                AddBox(bodies, center + Local(width * 0.45f, height * 0.16f, depth * 0.12f, yaw),
-                    new Vector3(0.65f, height * 0.32f, depth * 0.76f), yaw);
-                return;
-            }
-            if (profile == "tent")
-            {
-                AddGableRoof(roofs, center + Vector3.up * 0.1f, width, depth, height, yaw);
-                AddBox(details, center + Local(0f, height * 0.35f, depth * 0.49f, yaw),
-                    new Vector3(width * 0.12f, height * 0.7f, 0.08f), yaw);
-                return;
-            }
-            if (profile == "tower")
-            {
-                bool round = building.kind == "lighthouse" ||
-                    building.kind == "watertower" ||
-                    building.kind == "stack";
-                if (round)
-                {
-                    AddCylinder(bodies, center, width * 0.5f, height, yaw, 12);
-                }
-                else
-                {
-                    AddBox(bodies, center + Vector3.up * (height * 0.5f),
-                        new Vector3(width, height, depth), yaw);
-                    AddBox(roofs, center + Vector3.up * (height + 0.45f),
-                        new Vector3(width * 1.12f, 0.9f, depth * 1.12f), yaw);
-                }
-                AddBox(details, center + Vector3.up * (height * 0.68f) +
-                    Local(0f, 0f, depth * 0.51f, yaw),
-                    new Vector3(width * 0.5f, height * 0.08f, 0.1f), yaw);
-                return;
-            }
-
-            float wallHeight = profile == "industrial" ? height * 0.82f : height * 0.68f;
-            AddBox(bodies, center + Vector3.up * (wallHeight * 0.5f),
-                new Vector3(width, wallHeight, depth), yaw);
-            if (profile == "industrial")
-            {
-                AddBox(roofs, center + Vector3.up * (wallHeight + 0.28f),
-                    new Vector3(width * 1.03f, 0.55f, depth * 1.03f), yaw);
-                if ((StableHash(building.kind) & 1) == 0)
-                {
-                    AddCylinder(details,
-                        center + Local(width * 0.28f, wallHeight, -depth * 0.24f, yaw),
-                        Mathf.Min(width, depth) * 0.08f,
-                        Mathf.Max(2.5f, height * 0.55f),
-                        yaw,
-                        8);
-                }
-            }
-            else if (profile == "urban")
-            {
-                AddBox(roofs, center + Vector3.up * (wallHeight + 0.24f),
-                    new Vector3(width * 1.03f, 0.48f, depth * 1.03f), yaw);
-            }
-            else
-            {
-                AddGableRoof(roofs, center + Vector3.up * wallHeight,
-                    width * 1.08f, depth * 1.08f, height - wallHeight, yaw);
-            }
-
-            int floors = Mathf.Clamp(Mathf.RoundToInt(wallHeight / 3f), 1, 8);
-            for (int floor = 0; floor < floors; floor++)
-            {
-                float windowY = 1.6f + floor * 2.8f;
-                AddBox(details,
-                    center + Local(0f, windowY, depth * 0.505f, yaw),
-                    new Vector3(width * 0.46f, 1.1f, 0.08f), yaw);
-            }
         }
 
         private void AddWall(MapWall wall, MeshBucket bucket)
@@ -325,6 +264,22 @@ namespace ClaudeOfTanks.Runtime
                 Start = triangleStart,
                 Count = bucket.Triangles.Count - triangleStart
             });
+        }
+
+        private static float MaximumY(
+            MeshBucket bucket,
+            int start)
+        {
+            float maximum = float.MinValue;
+            for (int i = start;
+                i < bucket.Vertices.Count;
+                i++)
+            {
+                maximum = Mathf.Max(
+                    maximum,
+                    bucket.Vertices[i].y);
+            }
+            return maximum;
         }
 
         private void RebuildDebris()
@@ -447,128 +402,6 @@ namespace ClaudeOfTanks.Runtime
             material.SetFloat("_Glossiness", 0.08f);
             _materials.Add(material);
             return material;
-        }
-
-        private static void AddBox(
-            MeshBucket bucket,
-            Vector3 center,
-            Vector3 size,
-            float yaw)
-        {
-            int start = bucket.Vertices.Count;
-            float hx = size.x * 0.5f;
-            float hy = size.y * 0.5f;
-            float hz = size.z * 0.5f;
-            Vector3[] corners =
-            {
-                new Vector3(-hx, -hy, -hz), new Vector3(hx, -hy, -hz),
-                new Vector3(hx, hy, -hz), new Vector3(-hx, hy, -hz),
-                new Vector3(-hx, -hy, hz), new Vector3(hx, -hy, hz),
-                new Vector3(hx, hy, hz), new Vector3(-hx, hy, hz)
-            };
-            float cos = Mathf.Cos(yaw);
-            float sin = Mathf.Sin(yaw);
-            for (int i = 0; i < corners.Length; i++)
-            {
-                Vector3 value = corners[i];
-                bucket.Vertices.Add(center + new Vector3(
-                    value.x * cos + value.z * sin,
-                    value.y,
-                    -value.x * sin + value.z * cos));
-            }
-            int[] indices =
-            {
-                0, 2, 1, 0, 3, 2, 4, 5, 6, 4, 6, 7,
-                0, 4, 7, 0, 7, 3, 1, 2, 6, 1, 6, 5,
-                3, 7, 6, 3, 6, 2, 0, 1, 5, 0, 5, 4
-            };
-            for (int i = 0; i < indices.Length; i++) bucket.Triangles.Add(start + indices[i]);
-        }
-
-        private static void AddGableRoof(
-            MeshBucket bucket,
-            Vector3 baseCenter,
-            float width,
-            float depth,
-            float height,
-            float yaw)
-        {
-            int start = bucket.Vertices.Count;
-            float hx = width * 0.5f;
-            float hz = depth * 0.5f;
-            Vector3[] local =
-            {
-                new Vector3(-hx, 0f, -hz), new Vector3(hx, 0f, -hz),
-                new Vector3(-hx, 0f, hz), new Vector3(hx, 0f, hz),
-                new Vector3(0f, height, -hz), new Vector3(0f, height, hz)
-            };
-            for (int i = 0; i < local.Length; i++)
-                bucket.Vertices.Add(baseCenter + Local(local[i].x, local[i].y, local[i].z, yaw));
-            int[] indices =
-            {
-                0, 1, 4, 2, 5, 3,
-                0, 4, 5, 0, 5, 2,
-                1, 3, 5, 1, 5, 4,
-                0, 2, 3, 0, 3, 1
-            };
-            for (int i = 0; i < indices.Length; i++) bucket.Triangles.Add(start + indices[i]);
-        }
-
-        private static void AddCylinder(
-            MeshBucket bucket,
-            Vector3 baseCenter,
-            float radius,
-            float height,
-            float yaw,
-            int segments)
-        {
-            int start = bucket.Vertices.Count;
-            bucket.Vertices.Add(baseCenter);
-            bucket.Vertices.Add(baseCenter + Vector3.up * height);
-            for (int i = 0; i < segments; i++)
-            {
-                float angle = yaw + i * Mathf.PI * 2f / segments;
-                Vector3 offset = new Vector3(Mathf.Cos(angle) * radius, 0f, Mathf.Sin(angle) * radius);
-                bucket.Vertices.Add(baseCenter + offset);
-                bucket.Vertices.Add(baseCenter + offset + Vector3.up * height);
-            }
-            for (int i = 0; i < segments; i++)
-            {
-                int next = (i + 1) % segments;
-                int bottom = start + 2 + i * 2;
-                int top = bottom + 1;
-                int nextBottom = start + 2 + next * 2;
-                int nextTop = nextBottom + 1;
-                bucket.Triangles.Add(start);
-                bucket.Triangles.Add(nextBottom);
-                bucket.Triangles.Add(bottom);
-                bucket.Triangles.Add(start + 1);
-                bucket.Triangles.Add(top);
-                bucket.Triangles.Add(nextTop);
-                bucket.Triangles.Add(bottom);
-                bucket.Triangles.Add(nextBottom);
-                bucket.Triangles.Add(top);
-                bucket.Triangles.Add(top);
-                bucket.Triangles.Add(nextBottom);
-                bucket.Triangles.Add(nextTop);
-            }
-        }
-
-        private static Vector3 Local(float x, float y, float z, float yaw)
-        {
-            float cos = Mathf.Cos(yaw);
-            float sin = Mathf.Sin(yaw);
-            return new Vector3(x * cos + z * sin, y, -x * sin + z * cos);
-        }
-
-        private static int StableHash(string value)
-        {
-            unchecked
-            {
-                int hash = 17;
-                for (int i = 0; i < value.Length; i++) hash = hash * 31 + value[i];
-                return hash;
-            }
         }
 
         private static void DestroyObject(UnityEngine.Object value)

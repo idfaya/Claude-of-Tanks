@@ -28,12 +28,19 @@ namespace ClaudeOfTanks.Tests
             int totalTerrainTriangles = 0;
             int totalVegetationStands = 0;
             int totalTrees = 0;
+            HashSet<string> buildingKinds =
+                new HashSet<string>();
+            HashSet<int> recipeSignatures =
+                new HashSet<int>();
             bool foundRaisedTerrain = false;
             bool foundDepressedTerrain = false;
             for (int i = 0; i < catalog.Maps.Length; i++)
             {
                 MapDefinition definition = catalog.Maps[i];
-                AssertSurfaceData(definition);
+                AssertSurfaceData(
+                    definition,
+                    buildingKinds,
+                    recipeSignatures);
                 Assert.That(definition.unityVegetation, Is.Not.Null, definition.id);
                 Assert.That(
                     definition.unityVegetation.stands,
@@ -179,6 +186,20 @@ namespace ClaudeOfTanks.Tests
                     Assert.That(runtime.CraterCount, Is.EqualTo(definition.props.craters), definition.id);
                     Assert.That(runtime.BuildingCount,
                         Is.EqualTo(definition.unityStructures.buildings.Length), definition.id);
+                    Assert.That(
+                        runtime.DistinctBuildingKindCount,
+                        Is.EqualTo(
+                            DistinctBuildingKinds(
+                                definition)),
+                        definition.id);
+                    Assert.That(
+                        runtime.MinimumBuildingTriangleCount,
+                        Is.GreaterThanOrEqualTo(20),
+                        definition.id);
+                    Assert.That(
+                        runtime.MaximumBuildingHeightRatio,
+                        Is.LessThanOrEqualTo(1.65f),
+                        definition.id);
                     Assert.That(runtime.TacticalBuildingCount, Is.EqualTo(3), definition.id);
                     Assert.That(runtime.WallRunCount,
                         Is.EqualTo(definition.unityStructures.walls.Length), definition.id);
@@ -334,7 +355,9 @@ namespace ClaudeOfTanks.Tests
             Assert.That(totalRubble, Is.EqualTo(894));
             Assert.That(totalSandbagLines, Is.EqualTo(361));
             Assert.That(totalHedgehogs, Is.EqualTo(346));
-            Assert.That(totalStructureTriangles, Is.GreaterThan(75000));
+            Assert.That(
+                totalStructureTriangles,
+                Is.InRange(200000, 300000));
             Assert.That(
                 totalAuthoritativeObstacles,
                 Is.EqualTo(66715));
@@ -343,9 +366,16 @@ namespace ClaudeOfTanks.Tests
             Assert.That(totalTrees, Is.EqualTo(65170));
             Assert.That(foundRaisedTerrain, Is.True);
             Assert.That(foundDepressedTerrain, Is.True);
+            Assert.That(buildingKinds, Has.Count.EqualTo(62));
+            Assert.That(
+                recipeSignatures,
+                Has.Count.EqualTo(buildingKinds.Count));
         }
 
-        private static void AssertSurfaceData(MapDefinition map)
+        private static void AssertSurfaceData(
+            MapDefinition map,
+            HashSet<string> buildingKinds,
+            HashSet<int> recipeSignatures)
         {
             Assert.That(map.unitySurface, Is.Not.Null, map.id);
             Assert.That(map.unitySurface.roads, Is.Not.Null.And.Not.Empty, map.id);
@@ -365,6 +395,15 @@ namespace ClaudeOfTanks.Tests
             {
                 MapBuilding building = map.unityStructures.buildings[i];
                 Assert.That(building.kind, Is.Not.Empty, map.id);
+                Assert.That(
+                    MapStructureRuntime.SupportsBuildingKind(
+                        building.kind),
+                    Is.True,
+                    map.id + ":" + building.kind);
+                buildingKinds.Add(building.kind);
+                recipeSignatures.Add(
+                    MapStructureRuntime.BuildingKindSignature(
+                        building.kind));
                 Assert.That(building.profile, Is.Not.Empty, map.id);
                 Assert.That(building.w, Is.GreaterThan(2f), map.id);
                 Assert.That(building.d, Is.GreaterThan(2f), map.id);
@@ -384,6 +423,22 @@ namespace ClaudeOfTanks.Tests
             AssertColor(map.unitySurface.roadColor, map.id + " road");
             AssertColor(map.unitySurface.roadCasingColor, map.id + " road casing");
             AssertColor(map.unitySurface.waterColor, map.id + " water");
+        }
+
+        private static int DistinctBuildingKinds(
+            MapDefinition map)
+        {
+            HashSet<string> kinds =
+                new HashSet<string>();
+            for (int i = 0;
+                i < map.unityStructures.buildings.Length;
+                i++)
+            {
+                kinds.Add(
+                    map.unityStructures
+                        .buildings[i].kind);
+            }
+            return kinds.Count;
         }
 
         private static void AssertColor(MapColor color, string message)

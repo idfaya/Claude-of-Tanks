@@ -40,6 +40,18 @@ namespace ClaudeOfTanks.Runtime
         public int HedgehogCount => _structures != null ? _structures.HedgehogCount : 0;
         public int DestroyedBuildingCount =>
             _structures != null ? _structures.DestroyedBuildingCount : 0;
+        public int DistinctBuildingKindCount =>
+            _structures != null
+                ? _structures.DistinctBuildingKindCount
+                : 0;
+        public int MinimumBuildingTriangleCount =>
+            _structures != null
+                ? _structures.MinimumBuildingTriangleCount
+                : 0;
+        public float MaximumBuildingHeightRatio =>
+            _structures != null
+                ? _structures.MaximumBuildingHeightRatio
+                : 0f;
         public int TreeCount => _vegetation != null ? _vegetation.TreeCount : 0;
         public int VegetationMeshCount =>
             _vegetation != null ? _vegetation.MeshCount : 0;
