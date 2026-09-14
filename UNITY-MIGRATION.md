@@ -832,6 +832,13 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   bustle shell, roof optics, and Oplot-M fender tools. Default Hull/Turret/Gun
   renderers plus generic SideArmor/MissilePod/Soviet fallback parts are
   hidden for this five-vehicle extended line.
+- British legacy production tanks now have a native C# presentation owner
+  covering Chieftain Mk 5, Chieftain Mk 10, Challenger 1, Vickers MBT Mk 1,
+  Centurion Mk 3, and Centurion Mk 5/2. The owner replaces default
+  Hull/Turret/Gun/SideArmor fallback with per-vehicle hull lofts, deep
+  skirt/track-cover courses, Chieftain Stillbrew blocks, Challenger 1
+  Burlington packs, Centurion/Vickers cast turret shells, L7/L11 gun
+  assemblies, roof machine guns, optics, stowage, and tactical markings.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

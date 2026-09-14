@@ -14,6 +14,7 @@ namespace ClaudeOfTanks.Runtime
                 TankAbramsM1FamilyDetails.Supports(id) ||
                 TankLeopardFamilyDetails.Supports(id) ||
                 TankChallengerFamilyDetails.Supports(id) ||
+                TankBritishLegacyFamilyDetails.Supports(id) ||
                 TankMerkavaFamilyDetails.Supports(id) ||
                 TankKoreanFamilyDetails.Supports(id) ||
                 TankJapaneseFamilyDetails.Supports(id) ||
@@ -188,6 +189,11 @@ namespace ClaudeOfTanks.Runtime
                 width,
                 height,
                 length);
+            TankBritishLegacyFamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color);
             TankMerkavaFamilyDetails.Build(
                 root,
                 turret,
