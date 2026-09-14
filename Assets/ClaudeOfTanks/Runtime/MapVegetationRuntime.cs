@@ -157,7 +157,7 @@ namespace ClaudeOfTanks.Runtime
                 seed + "-bark");
             Material birchTrunk = Material(
                 Color.Lerp(new Color(0.82f, 0.79f, 0.69f), ground, 0.08f),
-                MapMaterialRole.Birch,
+                MapMaterialRole.Bark,
                 seed + "-birch-bark");
             Material broadleaf = Material(
                 Color.Lerp(new Color(0.16f, 0.34f, 0.12f), ground, 0.2f),
@@ -251,57 +251,15 @@ namespace ClaudeOfTanks.Runtime
             }
             else if (conifer)
             {
-                AddCone(
-                    canopy,
-                    new Vector3(x, ground + trunkHeight * 0.72f, z),
-                    crownRadius,
-                    height * 0.58f,
-                    yaw);
-                AddCone(
-                    canopy,
-                    new Vector3(x, ground + trunkHeight * 0.98f, z),
-                    crownRadius * 0.76f,
-                    height * 0.48f,
-                    yaw + 0.35f);
+                AddConiferCards(canopy, crownCenter, crownRadius, height, yaw);
             }
             else if (narrow)
             {
-                AddOctahedron(
-                    canopy,
-                    crownCenter + Vector3.up * crownRadius * 0.45f,
-                    crownRadius * 0.72f,
-                    crownRadius * 1.9f);
-                AddOctahedron(
-                    canopy,
-                    crownCenter - Vector3.up * crownRadius * 0.45f,
-                    crownRadius * 0.88f,
-                    crownRadius * 1.65f);
+                AddNarrowBroadleafCards(canopy, crownCenter, crownRadius, height, yaw);
             }
             else
             {
-                AddOctahedron(
-                    canopy,
-                    crownCenter,
-                    crownRadius,
-                    crownRadius * 1.15f);
-                AddOctahedron(
-                    canopy,
-                    crownCenter + Local(
-                        crownRadius * 0.48f,
-                        crownRadius * 0.08f,
-                        crownRadius * 0.12f,
-                        yaw),
-                    crownRadius * 0.68f,
-                    crownRadius * 0.85f);
-                AddOctahedron(
-                    canopy,
-                    crownCenter + Local(
-                        -crownRadius * 0.38f,
-                        -crownRadius * 0.05f,
-                        crownRadius * 0.3f,
-                        yaw),
-                    crownRadius * 0.62f,
-                    crownRadius * 0.82f);
+                AddBroadleafCards(canopy, crownCenter, crownRadius, height, yaw);
             }
             trunkBucket.AddOwner(
                 tree.Index,
@@ -325,6 +283,7 @@ namespace ClaudeOfTanks.Runtime
             if (bucket.Vertices.Count > ushort.MaxValue)
                 mesh.indexFormat = IndexFormat.UInt32;
             mesh.SetVertices(bucket.Vertices);
+            mesh.SetUVs(0, bucket.Uvs);
             mesh.SetTriangles(bucket.Triangles, 0);
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
@@ -360,6 +319,7 @@ namespace ClaudeOfTanks.Runtime
             }
             _fallenMesh.Clear();
             _fallenMesh.SetVertices(fallen.Vertices);
+            _fallenMesh.SetUVs(0, fallen.Uvs);
             _fallenMesh.SetTriangles(fallen.Triangles, 0);
             _fallenMesh.RecalculateNormals();
             _fallenMesh.RecalculateBounds();
@@ -396,11 +356,12 @@ namespace ClaudeOfTanks.Runtime
             int start = bucket.Vertices.Count;
             float halfHeight = height * 0.5f;
             bucket.Vertices.Add(center + Vector3.up * halfHeight);
-            bucket.Vertices.Add(center - Vector3.up * halfHeight);
-            bucket.Vertices.Add(center + Vector3.right * radius);
-            bucket.Vertices.Add(center - Vector3.right * radius);
-            bucket.Vertices.Add(center + Vector3.forward * radius);
-            bucket.Vertices.Add(center - Vector3.forward * radius);
+            bucket.Uvs.Add(new Vector2(0.5f, 1f));
+            AddVertex(bucket, center - Vector3.up * halfHeight, 0.5f, 0f);
+            AddVertex(bucket, center + Vector3.right * radius, 1f, 0.5f);
+            AddVertex(bucket, center - Vector3.right * radius, 0f, 0.5f);
+            AddVertex(bucket, center + Vector3.forward * radius, 0.5f, 0.85f);
+            AddVertex(bucket, center - Vector3.forward * radius, 0.5f, 0.15f);
             int[] triangles =
             {
                 0, 4, 2, 0, 3, 4, 0, 5, 3, 0, 2, 5,
@@ -419,15 +380,19 @@ namespace ClaudeOfTanks.Runtime
         {
             const int segments = 6;
             int start = bucket.Vertices.Count;
-            bucket.Vertices.Add(baseCenter + Vector3.up * height);
-            bucket.Vertices.Add(baseCenter);
+            AddVertex(bucket, baseCenter + Vector3.up * height, 0.5f, 1f);
+            AddVertex(bucket, baseCenter, 0.5f, 0f);
             for (int i = 0; i < segments; i++)
             {
                 float angle = yaw + i * MathUtil.Pi * 2f / segments;
-                bucket.Vertices.Add(baseCenter + new Vector3(
-                    MathF.Cos(angle) * radius,
-                    0f,
-                    MathF.Sin(angle) * radius));
+                AddVertex(
+                    bucket,
+                    baseCenter + new Vector3(
+                        MathF.Cos(angle) * radius,
+                        0f,
+                        MathF.Sin(angle) * radius),
+                    i / (float)segments,
+                    0f);
             }
             for (int i = 0; i < segments; i++)
             {
@@ -450,16 +415,13 @@ namespace ClaudeOfTanks.Runtime
             for (int frond = 0; frond < 7; frond++)
             {
                 float angle = yaw + frond * MathUtil.Pi * 2f / 7f;
-                Vector3 direction = new Vector3(
-                    MathF.Sin(angle),
-                    -0.16f,
-                    MathF.Cos(angle));
-                Vector3 frondCenter = center + direction * radius * 0.55f;
-                AddBox(
+                AddFoliageCard(
                     bucket,
-                    frondCenter,
-                    new Vector3(radius * 0.28f, 0.12f, radius * 1.25f),
-                    angle);
+                    center + Local(0f, -radius * 0.16f, radius * 0.62f, angle),
+                    radius * 0.72f,
+                    radius * 1.9f,
+                    angle,
+                    -0.25f);
             }
         }
 
@@ -470,17 +432,30 @@ namespace ClaudeOfTanks.Runtime
             float height,
             float yaw)
         {
-            AddOctahedron(bucket, center, radius * 0.82f, height * 0.38f);
-            AddOctahedron(
+            AddFoliageCardSet(
+                bucket,
+                center,
+                radius * 1.45f,
+                height * 0.5f,
+                yaw,
+                4,
+                0f);
+            AddFoliageCardSet(
                 bucket,
                 center + Local(radius * 0.42f, radius * 0.38f, radius * 0.18f, yaw),
-                radius * 0.48f,
-                height * 0.34f);
-            AddOctahedron(
+                radius * 0.82f,
+                height * 0.38f,
+                yaw + 0.4f,
+                1,
+                0f);
+            AddFoliageCardSet(
                 bucket,
                 center + Local(-radius * 0.34f, radius * 0.22f, radius * 0.28f, yaw),
-                radius * 0.42f,
-                height * 0.3f);
+                radius * 0.76f,
+                height * 0.34f,
+                yaw - 0.55f,
+                1,
+                0f);
             for (int branch = 0; branch < 4; branch++)
             {
                 float angle = yaw + branch * MathUtil.Pi * 0.5f;
@@ -493,6 +468,166 @@ namespace ClaudeOfTanks.Runtime
                     center + offset,
                     new Vector3(radius * 0.08f, height * 0.32f, radius * 0.08f),
                     angle);
+            }
+        }
+
+        private static void AddConiferCards(
+            MeshBucket bucket,
+            Vector3 center,
+            float radius,
+            float height,
+            float yaw)
+        {
+            for (int tier = 0; tier < 3; tier++)
+            {
+                float t = tier / 2f;
+                float y = Mathf.Lerp(-height * 0.22f, height * 0.26f, t);
+                float width = radius * Mathf.Lerp(1.75f, 0.72f, t);
+                float cardHeight = height * Mathf.Lerp(0.36f, 0.24f, t);
+                AddFoliageCard(
+                    bucket,
+                    center + Vector3.up * y,
+                    width,
+                    cardHeight,
+                    yaw + tier * 0.43f,
+                    0f);
+                AddFoliageCard(
+                    bucket,
+                    center + Vector3.up * (y + height * 0.04f),
+                    width * 0.82f,
+                    cardHeight * 0.9f,
+                    yaw + MathUtil.Pi * 0.5f + tier * 0.37f,
+                    0f);
+            }
+        }
+
+        private static void AddBroadleafCards(
+            MeshBucket bucket,
+            Vector3 center,
+            float radius,
+            float height,
+            float yaw)
+        {
+            AddFoliageCardSet(
+                bucket,
+                center,
+                radius * 1.55f,
+                height * 0.46f,
+                yaw,
+                5,
+                0f);
+            AddFoliageCardSet(
+                bucket,
+                center + Local(radius * 0.42f, radius * 0.12f, radius * 0.16f, yaw),
+                radius * 0.98f,
+                height * 0.32f,
+                yaw + 0.5f,
+                2,
+                0f);
+            AddFoliageCardSet(
+                bucket,
+                center + Local(-radius * 0.35f, -radius * 0.08f, radius * 0.28f, yaw),
+                radius * 0.9f,
+                height * 0.3f,
+                yaw - 0.45f,
+                1,
+                0f);
+        }
+
+        private static void AddNarrowBroadleafCards(
+            MeshBucket bucket,
+            Vector3 center,
+            float radius,
+            float height,
+            float yaw)
+        {
+            AddFoliageCardSet(
+                bucket,
+                center,
+                radius * 1.05f,
+                height * 0.58f,
+                yaw,
+                4,
+                0f);
+            AddFoliageCardSet(
+                bucket,
+                center + Vector3.up * radius * 0.45f,
+                radius * 0.72f,
+                height * 0.42f,
+                yaw + 0.35f,
+                1,
+                0f);
+        }
+
+        private static void AddFoliageCardSet(
+            MeshBucket bucket,
+            Vector3 center,
+            float width,
+            float height,
+            float yaw,
+            int count,
+            float bow)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                float angle = yaw + i * MathUtil.Pi / count;
+                float offset = (i % 2 == 0 ? 0.12f : -0.1f) * width;
+                AddFoliageCard(
+                    bucket,
+                    center + Local(offset, (i - count * 0.5f) * height * 0.035f, 0f, angle),
+                    width * (0.88f + (i % 3) * 0.08f),
+                    height * (0.82f + (i % 2) * 0.16f),
+                    angle,
+                    bow);
+            }
+        }
+
+        private static void AddFoliageCard(
+            MeshBucket bucket,
+            Vector3 center,
+            float width,
+            float height,
+            float yaw,
+            float bow)
+        {
+            float halfWidth = width * 0.5f;
+            float halfHeight = height * 0.5f;
+            Vector3 right = Local(1f, 0f, 0f, yaw);
+            Vector3 up = Vector3.up;
+            Vector3 forward = Local(0f, 0f, 1f, yaw);
+            int segments = Math.Abs(bow) > 0.001f ? 2 : 1;
+            int start = bucket.Vertices.Count;
+            for (int y = 0; y <= segments; y++)
+            {
+                float v = y / (float)segments;
+                float yOffset = Mathf.Lerp(-halfHeight, halfHeight, v);
+                float curve = bow * (0.25f - (v - 0.5f) * (v - 0.5f)) * width;
+                AddVertex(
+                    bucket,
+                    center - right * halfWidth + up * yOffset + forward * curve,
+                    0f,
+                    v);
+                AddVertex(
+                    bucket,
+                    center + right * halfWidth + up * yOffset + forward * curve,
+                    1f,
+                    v);
+            }
+            for (int y = 0; y < segments; y++)
+            {
+                int row = start + y * 2;
+                bucket.Triangles.Add(row);
+                bucket.Triangles.Add(row + 2);
+                bucket.Triangles.Add(row + 1);
+                bucket.Triangles.Add(row + 1);
+                bucket.Triangles.Add(row + 2);
+                bucket.Triangles.Add(row + 3);
+                bucket.Triangles.Add(row + 1);
+                bucket.Triangles.Add(row + 2);
+                bucket.Triangles.Add(row);
+                bucket.Triangles.Add(row + 3);
+                bucket.Triangles.Add(row + 2);
+                bucket.Triangles.Add(row + 1);
             }
         }
 
@@ -528,10 +663,14 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 0; i < corners.Length; i++)
             {
                 Vector3 value = corners[i];
-                bucket.Vertices.Add(center + new Vector3(
-                    value.x * cos + value.z * sin,
-                    value.y,
-                    -value.x * sin + value.z * cos));
+                AddVertex(
+                    bucket,
+                    center + new Vector3(
+                        value.x * cos + value.z * sin,
+                        value.y,
+                        -value.x * sin + value.z * cos),
+                    value.x / Mathf.Max(size.x, 0.001f) + 0.5f,
+                    value.y / Mathf.Max(size.y, 0.001f) + 0.5f);
             }
             int[] triangles =
             {
@@ -565,10 +704,14 @@ namespace ClaudeOfTanks.Runtime
                 {
                     for (int end = -1; end <= 1; end += 2)
                     {
-                        bucket.Vertices.Add(center + new Vector3(
-                            rightX * halfWidth * side + directionX * halfLength * end,
-                            halfWidth * y,
-                            rightZ * halfWidth * side + directionZ * halfLength * end));
+                        AddVertex(
+                            bucket,
+                            center + new Vector3(
+                                rightX * halfWidth * side + directionX * halfLength * end,
+                                halfWidth * y,
+                                rightZ * halfWidth * side + directionZ * halfLength * end),
+                            end > 0 ? 1f : 0f,
+                            y > 0 ? 1f : 0f);
                     }
                 }
             }
@@ -582,6 +725,16 @@ namespace ClaudeOfTanks.Runtime
                 bucket.Triangles.Add(start + triangles[i]);
         }
 
+        private static void AddVertex(
+            MeshBucket bucket,
+            Vector3 vertex,
+            float u,
+            float v)
+        {
+            bucket.Vertices.Add(vertex);
+            bucket.Uvs.Add(new Vector2(u, v));
+        }
+
         private static void DestroyObject(UnityEngine.Object value)
         {
             if (value == null) return;
@@ -592,6 +745,7 @@ namespace ClaudeOfTanks.Runtime
         private sealed class MeshBucket
         {
             public readonly List<Vector3> Vertices = new List<Vector3>();
+            public readonly List<Vector2> Uvs = new List<Vector2>();
             public readonly List<int> Triangles = new List<int>();
             public readonly List<TreeTriangleRange> Owners =
                 new List<TreeTriangleRange>();

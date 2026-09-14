@@ -32,15 +32,48 @@ namespace ClaudeOfTanks.Runtime
             MapMaterialRole role,
             string seed)
         {
-            Shader shader = Shader.Find("Standard");
+            bool foliageCard = IsFoliageCard(role);
+            Shader shader = Shader.Find(foliageCard
+                ? "Unlit/Transparent Cutout"
+                : "Standard");
+            if (shader == null) shader = Shader.Find("Standard");
+            Texture2D texture = Texture(color, role, seed);
             Material material = new Material(shader)
             {
-                color = color,
-                mainTexture = Texture(color, role, seed)
+                color = Color.white,
+                mainTexture = texture
             };
             material.mainTextureScale = TextureScale(role);
-            material.SetFloat("_Glossiness", Smoothness(role));
-            material.SetFloat("_Metallic", Metallic(role));
+            if (material.HasProperty("_Glossiness"))
+                material.SetFloat("_Glossiness", Smoothness(role));
+            if (material.HasProperty("_Metallic"))
+                material.SetFloat("_Metallic", Metallic(role));
+            if (foliageCard)
+            {
+                if (material.HasProperty("_Mode"))
+                    material.SetFloat("_Mode", 1f);
+                if (material.HasProperty("_Cutoff"))
+                    material.SetFloat("_Cutoff", role == MapMaterialRole.Palm ? 0.55f : 0.38f);
+                if (material.HasProperty("_SrcBlend"))
+                    material.SetInt("_SrcBlend", (int)UnityEngine.Rendering.BlendMode.One);
+                if (material.HasProperty("_DstBlend"))
+                    material.SetInt("_DstBlend", (int)UnityEngine.Rendering.BlendMode.Zero);
+                if (material.HasProperty("_ZWrite"))
+                    material.SetInt("_ZWrite", 1);
+                if (material.HasProperty("_Cull"))
+                    material.SetInt("_Cull", (int)UnityEngine.Rendering.CullMode.Off);
+                material.EnableKeyword("_ALPHATEST_ON");
+                material.DisableKeyword("_ALPHABLEND_ON");
+                material.DisableKeyword("_ALPHAPREMULTIPLY_ON");
+                if (material.HasProperty("_EmissionColor"))
+                {
+                    material.EnableKeyword("_EMISSION");
+                    material.SetColor(
+                        "_EmissionColor",
+                        color * (role == MapMaterialRole.Conifer ? 0.18f : 0.24f));
+                }
+                material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+            }
             return material;
         }
 
@@ -71,7 +104,9 @@ namespace ClaudeOfTanks.Runtime
                 true)
             {
                 name = "MapProcedural-" + role + "-" + seed,
-                wrapMode = TextureWrapMode.Repeat,
+                wrapMode = IsFoliageCard(role)
+                    ? TextureWrapMode.Clamp
+                    : TextureWrapMode.Repeat,
                 filterMode = FilterMode.Trilinear
             };
             Color[] pixels = new Color[size * size];
@@ -179,8 +214,80 @@ namespace ClaudeOfTanks.Runtime
                     break;
             }
             Color color = baseColor * Mathf.Clamp(value, 0.25f, 1.35f);
-            color.a = baseColor.a;
+            color.a = IsFoliageCard(role)
+                ? FoliageAlpha(role, u, v, noise, fine, seed)
+                : baseColor.a;
             return color;
+        }
+
+        private static bool IsFoliageCard(MapMaterialRole role)
+        {
+            return role == MapMaterialRole.Broadleaf ||
+                role == MapMaterialRole.Conifer ||
+                role == MapMaterialRole.Palm ||
+                role == MapMaterialRole.Birch;
+        }
+
+        private static float FoliageAlpha(
+            MapMaterialRole role,
+            float u,
+            float v,
+            float noise,
+            float fine,
+            int seed)
+        {
+            float x = u * 2f - 1f;
+            float y = v * 2f - 1f;
+            float alpha = 1f;
+            switch (role)
+            {
+                case MapMaterialRole.Broadleaf:
+                    {
+                        float radius = Mathf.Sqrt(x * x * 0.82f + y * y * 1.25f);
+                        if (radius > 0.98f) return 0f;
+                        float edge = Mathf.SmoothStep(0.98f, 0.52f, radius);
+                        float clumps = Mathf.Sin((u * 9f + noise * 0.7f) * Mathf.PI) *
+                            Mathf.Sin((v * 11f + fine * 0.5f) * Mathf.PI);
+                        alpha = edge * (0.62f + Mathf.Abs(clumps) * 0.42f);
+                        if (Noise(u * 2.2f, v * 2.2f, seed ^ 0x7499) > 0.58f &&
+                            radius > 0.35f)
+                        {
+                            alpha *= 0.25f;
+                        }
+                        break;
+                    }
+                case MapMaterialRole.Conifer:
+                    {
+                        float tier = Mathf.Abs(Mathf.Sin(v * Mathf.PI * 7f + noise));
+                        float width = Mathf.Lerp(0.06f, 0.76f, 1f - Mathf.Abs(y)) *
+                            (0.82f + tier * 0.28f);
+                        alpha = Mathf.SmoothStep(width, width * 0.55f, Mathf.Abs(x));
+                        alpha *= 0.72f + fine * 0.22f;
+                        break;
+                    }
+                case MapMaterialRole.Palm:
+                    {
+                        float spine = Mathf.Abs(x + Mathf.Sin(v * Mathf.PI) * 0.08f);
+                        float taper = 1f - Mathf.Abs(y);
+                        float width = 0.06f + taper * 0.54f;
+                        float ribs = Mathf.Abs(Mathf.Sin(v * Mathf.PI * 18f));
+                        alpha = Mathf.SmoothStep(width, width * 0.35f, spine) *
+                            (0.64f + ribs * 0.48f);
+                        break;
+                    }
+                case MapMaterialRole.Birch:
+                    {
+                        float crown = Mathf.SmoothStep(1f, 0.52f, Mathf.Sqrt(
+                            x * x * 0.72f + y * y * 1.12f));
+                        float twigA = 1f - Mathf.Abs(Mathf.Sin((u * 4.5f + v * 7f) * Mathf.PI));
+                        float twigB = 1f - Mathf.Abs(Mathf.Sin((u * 7.5f - v * 5f) * Mathf.PI));
+                        alpha = crown * Mathf.Max(twigA, twigB);
+                        alpha *= 0.95f + fine * 0.18f;
+                        if (alpha < 0.18f) alpha = 0f;
+                        break;
+                    }
+            }
+            return Mathf.Clamp01(alpha);
         }
 
         private static Vector2 TextureScale(

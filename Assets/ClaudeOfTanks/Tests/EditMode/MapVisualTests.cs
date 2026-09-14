@@ -36,6 +36,7 @@ namespace ClaudeOfTanks.Tests
                 new HashSet<string>();
             HashSet<string> materialRoles =
                 new HashSet<string>();
+            bool foundAlphaFoliage = false;
             bool foundRaisedTerrain = false;
             bool foundDepressedTerrain = false;
             for (int i = 0; i < catalog.Maps.Length; i++)
@@ -340,6 +341,7 @@ namespace ClaudeOfTanks.Tests
                     CollectProceduralMaterialRoles(
                         runtime.Root,
                         materialRoles,
+                        ref foundAlphaFoliage,
                         definition.id);
 
                     int objects = runtime.Root.GetComponentsInChildren<UnityEngine.Transform>().Length;
@@ -399,6 +401,7 @@ namespace ClaudeOfTanks.Tests
             AssertMaterialRole(materialRoles, "Conifer");
             AssertMaterialRole(materialRoles, "Palm");
             AssertMaterialRole(materialRoles, "Birch");
+            Assert.That(foundAlphaFoliage, Is.True);
         }
 
         private static void AssertSurfaceData(
@@ -481,6 +484,7 @@ namespace ClaudeOfTanks.Tests
         private static void CollectProceduralMaterialRoles(
             Transform root,
             HashSet<string> roles,
+            ref bool foundAlphaFoliage,
             string mapId)
         {
             MeshRenderer[] renderers =
@@ -500,7 +504,40 @@ namespace ClaudeOfTanks.Tests
                 string roleAndSeed = texture.name.Substring(prefix.Length);
                 int separator = roleAndSeed.IndexOf('-');
                 Assert.That(separator, Is.GreaterThan(0), texture.name);
-                roles.Add(roleAndSeed.Substring(0, separator));
+                string role = roleAndSeed.Substring(0, separator);
+                roles.Add(role);
+                if (role == "Broadleaf" ||
+                    role == "Conifer" ||
+                    role == "Palm" ||
+                    role == "Birch")
+                {
+                    MeshFilter filter = renderers[i].GetComponent<MeshFilter>();
+                    Assert.That(filter, Is.Not.Null, mapId + ":" + renderers[i].name);
+                    Assert.That(
+                        filter.sharedMesh.uv,
+                        Has.Length.EqualTo(filter.sharedMesh.vertexCount),
+                        mapId + ":" + renderers[i].name);
+                    Assert.That(
+                        material.renderQueue,
+                        Is.EqualTo((int)UnityEngine.Rendering.RenderQueue.AlphaTest),
+                        mapId + ":" + renderers[i].name);
+                    Assert.That(
+                        material.shader.name,
+                        Does.Contain("Cutout"),
+                        mapId + ":" + renderers[i].name);
+                    if (material.HasProperty("_Cull"))
+                    {
+                        Assert.That(
+                            material.GetInt("_Cull"),
+                            Is.EqualTo((int)UnityEngine.Rendering.CullMode.Off),
+                            mapId + ":" + renderers[i].name);
+                    }
+                    Assert.That(
+                        material.GetFloat("_Cutoff"),
+                        Is.GreaterThan(0.3f),
+                        mapId + ":" + renderers[i].name);
+                    foundAlphaFoliage = true;
+                }
             }
         }
 

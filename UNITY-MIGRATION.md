@@ -122,9 +122,9 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 - Source-configured vegetation manifests for all 20 maps with 4,579
   cluster/lone/rim/belt stands and 65,170 trees. Runtime expansion uses stable
   per-stand seeds, terrain grounding, TS-derived archetype proportions for all
-  13 catalog species, species-shaped low-poly crowns, sixteen distance-managed
-  chunks, and at most 97 merged vegetation meshes per map after palm and
-  birch/aspen material buckets.
+  13 catalog species, alpha-tested card foliage, species-shaped low-poly crowns,
+  sixteen distance-managed chunks, and at most 97 merged vegetation meshes per
+  map after palm and birch/aspen material buckets.
 - All 65,170 rendered trees share their exact placement with authoritative
   trunk collision. A fixed spatial grid bounds tank/shell queries; rammed or
   shot trees topple immediately, persist in replay/network destruction state,
@@ -914,8 +914,8 @@ These systems still use the TypeScript implementation as their specification:
   126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
   Challenger 2/3, Merkava, Korean, Japanese, French, and Italian identity
   suites plus the Swedish turreted, siege, and IFV lines;
-- high-end shader finish parity for map materials/vegetation, alpha-card
-  foliage and broader world streaming for all 20 maps;
+- high-end shader/wind finish parity for map materials/vegetation and broader
+  world streaming for all 20 maps;
 - remaining production UI polish;
 - installable build-target release artifacts and platform packaging;
 - per-family procedural vehicle geometry parity and generated technical assets.
