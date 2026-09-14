@@ -59,7 +59,8 @@ namespace ClaudeOfTanks.Tests
                         ProductionIds[i] == "t80bv" ||
                         ProductionIds[i] == "t80u" ||
                         ProductionIds[i] == "ua_t80bv" ||
-                        ProductionIds[i] == "ua_t80u_kursk")
+                        ProductionIds[i] == "ua_t80u_kursk" ||
+                        ProductionIds[i] == "t72m1_jaguar")
                     {
                         Assert.That(genericParts, Is.EqualTo(0));
                         if (ProductionIds[i] == "t90a_vladimir")

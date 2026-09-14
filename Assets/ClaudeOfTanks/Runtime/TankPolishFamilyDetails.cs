@@ -8,6 +8,7 @@ namespace ClaudeOfTanks.Runtime
         public static bool Supports(string id)
         {
             return id == "pt91m" ||
+                id == "t72m1_jaguar" ||
                 id == "pt91_twardy" ||
                 id == "pl01" ||
                 id == "pl01_105";
@@ -26,6 +27,8 @@ namespace ClaudeOfTanks.Runtime
             HideRenderer(turret.Find("Turret"));
             HideRenderer(turret.Find("Gun"));
             HideByPrefix(root, "Armor-");
+            HideByPrefix(root, "Soviet-");
+            HideByPrefix(root, "Painted-Soviet-");
 
             if (definition.id == "pl01" ||
                 definition.id == "pl01_105")
@@ -44,31 +47,48 @@ namespace ClaudeOfTanks.Runtime
             Color color)
         {
             bool pendekar = definition.id == "pt91m";
-            string prefix = pendekar ? "PT91M" : "PT91Twardy";
+            bool jaguar = definition.id == "t72m1_jaguar";
+            string prefix = pendekar
+                ? "PT91M"
+                : jaguar ? "T72M1Jaguar" : "PT91Twardy";
             Transform body = NewRoot(root, prefix + "-HullPresentationRoot");
             TankHullLoftShapeFactory.Build(
                 "Painted-" + prefix + "-HullLoft",
                 body,
+                jaguar
+                    ? Curve(
+                        -3.26f, 0.96f,
+                        -2.94f, 1.42f,
+                        -1.70f, 1.46f,
+                        0.60f, 1.44f,
+                        1.30f, 1.40f,
+                        2.10f, 1.19f,
+                        2.90f, 0.99f,
+                        3.66f, 0.87f)
+                    : Curve(
+                        -3.41f, 1.30f,
+                        -3.04f, 1.46f,
+                        -2.52f, pendekar ? 1.50f : 1.56f,
+                        -0.80f, 1.48f,
+                        1.40f, 1.47f,
+                        2.30f, 1.34f,
+                        3.10f, 1.22f,
+                        3.52f, 1.02f),
                 Curve(
-                    -3.41f, 1.30f,
-                    -3.04f, 1.46f,
-                    -2.52f, pendekar ? 1.50f : 1.56f,
-                    -0.80f, 1.48f,
-                    1.40f, 1.47f,
-                    2.30f, 1.34f,
-                    3.10f, 1.22f,
-                    3.52f, 1.02f),
-                Curve(
-                    -3.41f, 0.84f,
-                    -2.70f, 0.43f,
+                    jaguar ? -3.26f : -3.41f,
+                    jaguar ? 0.80f : 0.84f,
+                    -2.70f, jaguar ? 0.43f : 0.43f,
                     2.30f, 0.43f,
                     3.05f, 0.56f,
-                    3.52f, 0.78f),
+                    jaguar ? 3.66f : 3.52f,
+                    jaguar ? 0.80f : 0.78f),
                 Curve(
-                    -3.41f, 1.60f,
+                    jaguar ? -3.26f : -3.41f,
+                    1.60f,
                     2.60f, 1.60f,
                     3.18f, 1.30f,
-                    3.52f, 1.02f),
+                    jaguar ? 3.66f : 3.52f,
+                    jaguar ? 0.94f : 1.02f),
                 Curve(
                     -3.41f, 0.96f,
                     2.50f, 0.96f,
@@ -121,7 +141,7 @@ namespace ClaudeOfTanks.Runtime
                         V(0.050f, 0.38f, 0.62f),
                         panel < 3 ? color * 0.48f : Rubber());
                 }
-                int eraPanels = pendekar ? 4 : 3;
+            int eraPanels = pendekar ? 4 : prefix == "T72M1Jaguar" ? 7 : 3;
                 for (int panel = 0; panel < eraPanels; panel++)
                 {
                     Box(

@@ -840,13 +840,13 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   Burlington packs, Centurion/Vickers cast turret shells, L7/L11 gun
   assemblies, roof machine guns, optics, stowage, and tactical markings.
 - Polish production vehicles now have a native C# presentation owner covering
-  PT-91M, PT-91 Twardy, PL-01, and PL-01 105. PT-91 variants replace the
-  default Hull/Turret/Gun/SideArmor fallback with T-72-family hull lofts,
-  ERAWA glacis/skirt/turret cassettes, Polish flank bins, PCO/Drawa optics,
-  WKM-B roof weapons, rear drum stowage, and 2A46MS gun assemblies. PL-01
-  variants use faceted stealth hull and turret shells, full-height side skirt
-  facets, roof EO/smoke/antenna suites, low-observable RWS or 105 CROWS
-  fittings, and the dedicated PL-01 gun housing.
+  T-72M1 Jaguar, PT-91M, PT-91 Twardy, PL-01, and PL-01 105. T-72/PT-91
+  variants replace the default Hull/Turret/Gun/SideArmor/Soviet fallback with
+  T-72-family hull lofts, ERAWA glacis/skirt/turret cassettes, Polish flank
+  bins, PCO/Drawa optics, WKM-B roof weapons, rear drum stowage, and 2A46MS
+  gun assemblies. PL-01 variants use faceted stealth hull and turret shells,
+  full-height side skirt facets, roof EO/smoke/antenna suites, low-observable
+  RWS or 105 CROWS fittings, and the dedicated PL-01 gun housing.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

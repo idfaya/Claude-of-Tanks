@@ -8,6 +8,7 @@ namespace ClaudeOfTanks.Tests
 {
     public sealed class PolishFleetVisualTests
     {
+        [TestCase("t72m1_jaguar", "T72M1Jaguar")]
         [TestCase("pt91m", "PT91M")]
         [TestCase("pt91_twardy", "PT91Twardy")]
         [TestCase("pl01", "PL01")]
@@ -35,6 +36,7 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [TestCase("t72m1_jaguar", "T72M1Jaguar", 24, 14)]
         [TestCase("pt91m", "PT91M", 18, 8)]
         [TestCase("pt91_twardy", "PT91Twardy", 24, 6)]
         public void BuildsPt91ErawaAndPolishRoofSuite(
