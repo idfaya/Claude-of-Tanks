@@ -17,6 +17,8 @@ namespace ClaudeOfTanks.Runtime
         private readonly GameObject _root;
         private readonly List<Material> _materials = new List<Material>();
         private readonly List<Mesh> _meshes = new List<Mesh>();
+        private readonly List<MapChunkView> _terrainChunks =
+            new List<MapChunkView>();
         private IHeightField _heightField;
         private MapStructureRuntime _structures;
         private MapVegetationRuntime _vegetation;
@@ -61,6 +63,7 @@ namespace ClaudeOfTanks.Runtime
             _vegetation != null ? _vegetation.ChunkCount : 0;
         public int ActiveVegetationChunkCount =>
             _vegetation != null ? _vegetation.ActiveChunkCount : 0;
+        public int ActiveTerrainChunkCount { get; private set; }
         public int ToppledTreeCount =>
             _vegetation != null ? _vegetation.ToppledTreeCount : 0;
         public const int TerrainChunkCount =
@@ -87,7 +90,16 @@ namespace ClaudeOfTanks.Runtime
             Vector3 cameraPosition,
             float visibleDistanceM = MapVegetationRuntime.DefaultVisibleDistanceM)
         {
-            _vegetation?.UpdateVisibility(cameraPosition, visibleDistanceM);
+            UpdateWorldStreaming(cameraPosition, visibleDistanceM, visibleDistanceM);
+        }
+
+        public void UpdateWorldStreaming(
+            Vector3 cameraPosition,
+            float terrainVisibleDistanceM = MapVegetationRuntime.DefaultVisibleDistanceM,
+            float vegetationVisibleDistanceM = MapVegetationRuntime.DefaultVisibleDistanceM)
+        {
+            _vegetation?.UpdateVisibility(cameraPosition, vegetationVisibleDistanceM);
+            UpdateTerrainVisibility(cameraPosition, terrainVisibleDistanceM);
         }
 
         public void Dispose()
@@ -223,8 +235,38 @@ namespace ClaudeOfTanks.Runtime
                     chunk.transform.SetParent(root.transform, false);
                     chunk.AddComponent<MeshFilter>().sharedMesh = mesh;
                     chunk.AddComponent<MeshRenderer>().sharedMaterial = material;
+                    _terrainChunks.Add(new MapChunkView
+                    {
+                        Root = chunk,
+                        Center = new Vector3(
+                            originX + chunkSize * 0.5f,
+                            0f,
+                            originZ + chunkSize * 0.5f)
+                    });
                 }
             }
+            ActiveTerrainChunkCount = _terrainChunks.Count;
+        }
+
+        private void UpdateTerrainVisibility(
+            Vector3 cameraPosition,
+            float visibleDistanceM)
+        {
+            float distance = Mathf.Max(0f, visibleDistanceM);
+            float chunkSize = TerrainHalfExtentM * 2f / TerrainChunksPerAxis;
+            float reach = distance + chunkSize * 0.72f;
+            float reachSquared = reach * reach;
+            int active = 0;
+            for (int i = 0; i < _terrainChunks.Count; i++)
+            {
+                MapChunkView chunk = _terrainChunks[i];
+                float dx = cameraPosition.x - chunk.Center.x;
+                float dz = cameraPosition.z - chunk.Center.z;
+                bool visible = dx * dx + dz * dz <= reachSquared;
+                if (chunk.Root.activeSelf != visible) chunk.Root.SetActive(visible);
+                if (visible) active++;
+            }
+            ActiveTerrainChunkCount = active;
         }
 
         private void CreateGroundVariation(string mapId, MapSurface surface, Color groundColor)
@@ -692,6 +734,12 @@ namespace ClaudeOfTanks.Runtime
             if (id == "caldera" || id == "blackglass") return new Color(0.16f, 0.16f, 0.15f);
             if (id == "urban" || id == "foundry") return new Color(0.28f, 0.29f, 0.27f);
             return new Color(0.28f, 0.34f, 0.22f);
+        }
+
+        private sealed class MapChunkView
+        {
+            public GameObject Root;
+            public Vector3 Center;
         }
     }
 }

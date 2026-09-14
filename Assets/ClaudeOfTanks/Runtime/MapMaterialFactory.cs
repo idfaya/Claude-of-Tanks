@@ -34,9 +34,12 @@ namespace ClaudeOfTanks.Runtime
         {
             bool foliageCard = IsFoliageCard(role);
             Shader shader = Shader.Find(foliageCard
-                ? "Unlit/Transparent Cutout"
+                ? "ClaudeOfTanks/MapFoliageWindCutout"
                 : "Standard");
-            if (shader == null) shader = Shader.Find("Standard");
+            if (shader == null && foliageCard)
+                shader = Shader.Find("Unlit/Transparent Cutout");
+            if (shader == null)
+                shader = Shader.Find("Standard");
             Texture2D texture = Texture(color, role, seed);
             Material material = new Material(shader)
             {
@@ -44,6 +47,8 @@ namespace ClaudeOfTanks.Runtime
                 mainTexture = texture
             };
             material.mainTextureScale = TextureScale(role);
+            if (!foliageCard)
+                AssignNormalMap(material, role, seed);
             if (material.HasProperty("_Glossiness"))
                 material.SetFloat("_Glossiness", Smoothness(role));
             if (material.HasProperty("_Metallic"))
@@ -72,6 +77,14 @@ namespace ClaudeOfTanks.Runtime
                         "_EmissionColor",
                         color * (role == MapMaterialRole.Conifer ? 0.18f : 0.24f));
                 }
+                if (material.HasProperty("_WindStrength"))
+                    material.SetFloat("_WindStrength", WindStrength(role));
+                if (material.HasProperty("_WindSpeed"))
+                    material.SetFloat("_WindSpeed", WindSpeed(role));
+                if (material.HasProperty("_WindScale"))
+                    material.SetFloat("_WindScale", 0.045f);
+                if (material.HasProperty("_WindPhase"))
+                    material.SetFloat("_WindPhase", (StableHash(seed) & 1023) * 0.006135923f);
                 material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
             }
             return material;
@@ -88,7 +101,32 @@ namespace ClaudeOfTanks.Runtime
             {
                 DestroyObject(texture);
             }
+            if (material.HasProperty("_BumpMap"))
+            {
+                Texture normal = material.GetTexture("_BumpMap");
+                if (normal != null &&
+                    normal.name.StartsWith(
+                        "MapProceduralNormal-",
+                        System.StringComparison.Ordinal))
+                {
+                    DestroyObject(normal);
+                }
+            }
             DestroyObject(material);
+        }
+
+        private static void AssignNormalMap(
+            Material material,
+            MapMaterialRole role,
+            string seed)
+        {
+            if (!material.HasProperty("_BumpMap")) return;
+            if (!UsesNormalMap(role)) return;
+            Texture2D normal = NormalTexture(role, seed);
+            material.SetTexture("_BumpMap", normal);
+            material.EnableKeyword("_NORMALMAP");
+            if (material.HasProperty("_BumpScale"))
+                material.SetFloat("_BumpScale", NormalStrength(role));
         }
 
         private static Texture2D Texture(
@@ -128,6 +166,84 @@ namespace ClaudeOfTanks.Runtime
             texture.SetPixels(pixels);
             texture.Apply(true, true);
             return texture;
+        }
+
+        private static Texture2D NormalTexture(
+            MapMaterialRole role,
+            string seed)
+        {
+            const int size = 64;
+            Texture2D texture = new Texture2D(
+                size,
+                size,
+                TextureFormat.RGBA32,
+                true,
+                true)
+            {
+                name = "MapProceduralNormal-" + role + "-" + seed,
+                wrapMode = TextureWrapMode.Repeat,
+                filterMode = FilterMode.Trilinear
+            };
+            Color[] pixels = new Color[size * size];
+            int hash = StableHash("normal:" + role + ":" + seed);
+            float strength = NormalStrength(role);
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float u = x / (float)size;
+                    float v = y / (float)size;
+                    float hL = HeightSample(role, u - 1f / size, v, hash);
+                    float hR = HeightSample(role, u + 1f / size, v, hash);
+                    float hD = HeightSample(role, u, v - 1f / size, hash);
+                    float hU = HeightSample(role, u, v + 1f / size, hash);
+                    Vector3 n = new Vector3(
+                        (hL - hR) * strength,
+                        (hD - hU) * strength,
+                        1f).normalized;
+                    pixels[y * size + x] = new Color(
+                        n.x * 0.5f + 0.5f,
+                        n.y * 0.5f + 0.5f,
+                        n.z * 0.5f + 0.5f,
+                        1f);
+                }
+            }
+            texture.SetPixels(pixels);
+            texture.Apply(true, true);
+            return texture;
+        }
+
+        private static float HeightSample(
+            MapMaterialRole role,
+            float u,
+            float v,
+            int seed)
+        {
+            float ripple = Mathf.Sin((u * 23f + v * 7f) * Mathf.PI);
+            float cross = Mathf.Sin((u - v) * Mathf.PI * 11f);
+            float noise = Noise(u * 3.1f, v * 3.1f, seed);
+            float fine = Noise(u * 11.7f, v * 11.7f, seed ^ 0x45d9);
+            switch (role)
+            {
+                case MapMaterialRole.Water:
+                    return ripple * 0.45f + cross * 0.22f;
+                case MapMaterialRole.Ice:
+                    return cross * 0.55f + fine * 0.18f;
+                case MapMaterialRole.Road:
+                case MapMaterialRole.RoadCasing:
+                    return ripple * 0.18f + noise * 0.32f;
+                case MapMaterialRole.StructureBody:
+                case MapMaterialRole.StructureWall:
+                    return Mathf.Abs(ripple) * 0.22f + noise * 0.26f;
+                case MapMaterialRole.StructureRoof:
+                case MapMaterialRole.StructureCover:
+                    return Mathf.Abs(cross) * 0.28f + fine * 0.25f;
+                case MapMaterialRole.Bark:
+                    return Mathf.Abs(Mathf.Sin(u * Mathf.PI * 38f)) * 0.5f +
+                        noise * 0.22f;
+                default:
+                    return noise * 0.34f + fine * 0.16f;
+            }
         }
 
         private static Color Sample(
@@ -226,6 +342,12 @@ namespace ClaudeOfTanks.Runtime
                 role == MapMaterialRole.Conifer ||
                 role == MapMaterialRole.Palm ||
                 role == MapMaterialRole.Birch;
+        }
+
+        private static bool UsesNormalMap(MapMaterialRole role)
+        {
+            return role != MapMaterialRole.GroundVariation &&
+                role != MapMaterialRole.Crater;
         }
 
         private static float FoliageAlpha(
@@ -332,6 +454,48 @@ namespace ClaudeOfTanks.Runtime
                 role == MapMaterialRole.Ice
                     ? 0.08f
                     : 0f;
+        }
+
+        private static float NormalStrength(MapMaterialRole role)
+        {
+            switch (role)
+            {
+                case MapMaterialRole.Water: return 0.36f;
+                case MapMaterialRole.Ice: return 0.28f;
+                case MapMaterialRole.Road: return 0.18f;
+                case MapMaterialRole.StructureBody:
+                case MapMaterialRole.StructureWall:
+                    return 0.22f;
+                case MapMaterialRole.StructureRoof:
+                case MapMaterialRole.StructureCover:
+                    return 0.28f;
+                case MapMaterialRole.Bark:
+                    return 0.42f;
+                default:
+                    return 0.16f;
+            }
+        }
+
+        private static float WindStrength(MapMaterialRole role)
+        {
+            switch (role)
+            {
+                case MapMaterialRole.Palm: return 0.34f;
+                case MapMaterialRole.Conifer: return 0.18f;
+                case MapMaterialRole.Birch: return 0.26f;
+                default: return 0.24f;
+            }
+        }
+
+        private static float WindSpeed(MapMaterialRole role)
+        {
+            switch (role)
+            {
+                case MapMaterialRole.Palm: return 1.35f;
+                case MapMaterialRole.Conifer: return 1.05f;
+                case MapMaterialRole.Birch: return 1.75f;
+                default: return 1.55f;
+            }
         }
 
         private static float Noise(float x, float y, int seed)

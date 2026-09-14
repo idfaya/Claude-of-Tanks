@@ -136,6 +136,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   Each surface class is merged into a bounded presentation-only mesh and uses
   deterministic runtime-generated procedural textures for terrain, road, marsh,
   water, ice, crater, rock, structure, bark, leaf, palm, and birch roles.
+- Runtime map materials now include generated normal maps for terrain, roads,
+  water/ice, structures, rocks, and bark. Vegetation foliage uses a dedicated
+  alpha-cutout wind shader with per-vertex wind weights, while terrain and
+  vegetation chunks share camera-distance streaming gates.
 - Source-plan-driven structure presentation for all 20 maps: 601 road-aligned
   planned buildings, 60 exact tactical landmarks, 197 wall runs, 894 rubble
   piles, 361 sandbag lines, and 346 hedgehogs in five merged material buckets.
@@ -914,8 +918,6 @@ These systems still use the TypeScript implementation as their specification:
   126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
   Challenger 2/3, Merkava, Korean, Japanese, French, and Italian identity
   suites plus the Swedish turreted, siege, and IFV lines;
-- high-end shader/wind finish parity for map materials/vegetation and broader
-  world streaming for all 20 maps;
 - remaining production UI polish;
 - installable build-target release artifacts and platform packaging;
 - per-family procedural vehicle geometry parity and generated technical assets.

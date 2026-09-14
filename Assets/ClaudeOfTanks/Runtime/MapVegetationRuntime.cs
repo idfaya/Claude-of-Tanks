@@ -284,6 +284,7 @@ namespace ClaudeOfTanks.Runtime
                 mesh.indexFormat = IndexFormat.UInt32;
             mesh.SetVertices(bucket.Vertices);
             mesh.SetUVs(0, bucket.Uvs);
+            mesh.SetColors(bucket.Colors);
             mesh.SetTriangles(bucket.Triangles, 0);
             mesh.RecalculateNormals();
             mesh.RecalculateBounds();
@@ -320,6 +321,7 @@ namespace ClaudeOfTanks.Runtime
             _fallenMesh.Clear();
             _fallenMesh.SetVertices(fallen.Vertices);
             _fallenMesh.SetUVs(0, fallen.Uvs);
+            _fallenMesh.SetColors(fallen.Colors);
             _fallenMesh.SetTriangles(fallen.Triangles, 0);
             _fallenMesh.RecalculateNormals();
             _fallenMesh.RecalculateBounds();
@@ -357,6 +359,7 @@ namespace ClaudeOfTanks.Runtime
             float halfHeight = height * 0.5f;
             bucket.Vertices.Add(center + Vector3.up * halfHeight);
             bucket.Uvs.Add(new Vector2(0.5f, 1f));
+            bucket.Colors.Add(new Color(1f, 1f, 1f, 0f));
             AddVertex(bucket, center - Vector3.up * halfHeight, 0.5f, 0f);
             AddVertex(bucket, center + Vector3.right * radius, 1f, 0.5f);
             AddVertex(bucket, center - Vector3.right * radius, 0f, 0.5f);
@@ -380,7 +383,7 @@ namespace ClaudeOfTanks.Runtime
         {
             const int segments = 6;
             int start = bucket.Vertices.Count;
-            AddVertex(bucket, baseCenter + Vector3.up * height, 0.5f, 1f);
+            AddVertex(bucket, baseCenter + Vector3.up * height, 0.5f, 1f, 1f);
             AddVertex(bucket, baseCenter, 0.5f, 0f);
             for (int i = 0; i < segments; i++)
             {
@@ -392,7 +395,8 @@ namespace ClaudeOfTanks.Runtime
                         0f,
                         MathF.Sin(angle) * radius),
                     i / (float)segments,
-                    0f);
+                    0f,
+                    0.35f);
             }
             for (int i = 0; i < segments; i++)
             {
@@ -606,11 +610,13 @@ namespace ClaudeOfTanks.Runtime
                     bucket,
                     center - right * halfWidth + up * yOffset + forward * curve,
                     0f,
+                    v,
                     v);
                 AddVertex(
                     bucket,
                     center + right * halfWidth + up * yOffset + forward * curve,
                     1f,
+                    v,
                     v);
             }
             for (int y = 0; y < segments; y++)
@@ -731,8 +737,19 @@ namespace ClaudeOfTanks.Runtime
             float u,
             float v)
         {
+            AddVertex(bucket, vertex, u, v, 0f);
+        }
+
+        private static void AddVertex(
+            MeshBucket bucket,
+            Vector3 vertex,
+            float u,
+            float v,
+            float windWeight)
+        {
             bucket.Vertices.Add(vertex);
             bucket.Uvs.Add(new Vector2(u, v));
+            bucket.Colors.Add(new Color(1f, 1f, 1f, Mathf.Clamp01(windWeight)));
         }
 
         private static void DestroyObject(UnityEngine.Object value)
@@ -746,6 +763,7 @@ namespace ClaudeOfTanks.Runtime
         {
             public readonly List<Vector3> Vertices = new List<Vector3>();
             public readonly List<Vector2> Uvs = new List<Vector2>();
+            public readonly List<Color> Colors = new List<Color>();
             public readonly List<int> Triangles = new List<int>();
             public readonly List<TreeTriangleRange> Owners =
                 new List<TreeTriangleRange>();

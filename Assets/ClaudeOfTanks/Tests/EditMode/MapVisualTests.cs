@@ -36,7 +36,10 @@ namespace ClaudeOfTanks.Tests
                 new HashSet<string>();
             HashSet<string> materialRoles =
                 new HashSet<string>();
+            HashSet<string> normalMapRoles =
+                new HashSet<string>();
             bool foundAlphaFoliage = false;
+            bool foundWindWeightedFoliage = false;
             bool foundRaisedTerrain = false;
             bool foundDepressedTerrain = false;
             for (int i = 0; i < catalog.Maps.Length; i++)
@@ -133,6 +136,10 @@ namespace ClaudeOfTanks.Tests
                         battlefield.GetComponentsInChildren<Collider>(),
                         Is.Empty,
                         definition.id);
+                    Assert.That(
+                        runtime.ActiveTerrainChunkCount,
+                        Is.EqualTo(MapRuntime.TerrainChunkCount),
+                        definition.id);
                     for (int terrainIndex = 0; terrainIndex < terrainMeshes.Length; terrainIndex++)
                     {
                         Vector3[] vertices = terrainMeshes[terrainIndex].sharedMesh.vertices;
@@ -166,10 +173,15 @@ namespace ClaudeOfTanks.Tests
                         definition.id);
                     runtime.UpdateVegetationVisibility(new Vector3(5000f, 0f, 5000f), 0f);
                     Assert.That(runtime.ActiveVegetationChunkCount, Is.Zero, definition.id);
+                    Assert.That(runtime.ActiveTerrainChunkCount, Is.Zero, definition.id);
                     runtime.UpdateVegetationVisibility(Vector3.zero);
                     Assert.That(
                         runtime.ActiveVegetationChunkCount,
                         Is.EqualTo(runtime.VegetationChunkCount),
+                        definition.id);
+                    Assert.That(
+                        runtime.ActiveTerrainChunkCount,
+                        Is.EqualTo(MapRuntime.TerrainChunkCount),
                         definition.id);
                     Assert.That(runtime.Root.Find("Surface-RoadCasing"), Is.Not.Null, definition.id);
                     Transform roads = runtime.Root.Find("Surface-Roads");
@@ -341,7 +353,9 @@ namespace ClaudeOfTanks.Tests
                     CollectProceduralMaterialRoles(
                         runtime.Root,
                         materialRoles,
+                        normalMapRoles,
                         ref foundAlphaFoliage,
+                        ref foundWindWeightedFoliage,
                         definition.id);
 
                     int objects = runtime.Root.GetComponentsInChildren<UnityEngine.Transform>().Length;
@@ -402,6 +416,15 @@ namespace ClaudeOfTanks.Tests
             AssertMaterialRole(materialRoles, "Palm");
             AssertMaterialRole(materialRoles, "Birch");
             Assert.That(foundAlphaFoliage, Is.True);
+            Assert.That(foundWindWeightedFoliage, Is.True);
+            AssertMaterialRole(normalMapRoles, "Terrain");
+            AssertMaterialRole(normalMapRoles, "Road");
+            AssertMaterialRole(normalMapRoles, "RoadCasing");
+            AssertMaterialRole(normalMapRoles, "Water");
+            AssertMaterialRole(normalMapRoles, "Ice");
+            AssertMaterialRole(normalMapRoles, "StructureBody");
+            AssertMaterialRole(normalMapRoles, "StructureWall");
+            AssertMaterialRole(normalMapRoles, "Bark");
         }
 
         private static void AssertSurfaceData(
@@ -484,7 +507,9 @@ namespace ClaudeOfTanks.Tests
         private static void CollectProceduralMaterialRoles(
             Transform root,
             HashSet<string> roles,
+            HashSet<string> normalMapRoles,
             ref bool foundAlphaFoliage,
+            ref bool foundWindWeightedFoliage,
             string mapId)
         {
             MeshRenderer[] renderers =
@@ -506,6 +531,24 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(separator, Is.GreaterThan(0), texture.name);
                 string role = roleAndSeed.Substring(0, separator);
                 roles.Add(role);
+                if (material.HasProperty("_BumpMap"))
+                {
+                    Texture normal = material.GetTexture("_BumpMap");
+                    if (normal != null)
+                    {
+                        const string normalPrefix = "MapProceduralNormal-";
+                        Assert.That(
+                            normal.name,
+                            Does.StartWith(normalPrefix),
+                            mapId + ":" + renderers[i].name);
+                        string normalRoleAndSeed =
+                            normal.name.Substring(normalPrefix.Length);
+                        int normalSeparator = normalRoleAndSeed.IndexOf('-');
+                        Assert.That(normalSeparator, Is.GreaterThan(0), normal.name);
+                        normalMapRoles.Add(
+                            normalRoleAndSeed.Substring(0, normalSeparator));
+                    }
+                }
                 if (role == "Broadleaf" ||
                     role == "Conifer" ||
                     role == "Palm" ||
@@ -523,7 +566,7 @@ namespace ClaudeOfTanks.Tests
                         mapId + ":" + renderers[i].name);
                     Assert.That(
                         material.shader.name,
-                        Does.Contain("Cutout"),
+                        Is.EqualTo("ClaudeOfTanks/MapFoliageWindCutout"),
                         mapId + ":" + renderers[i].name);
                     if (material.HasProperty("_Cull"))
                     {
@@ -536,6 +579,25 @@ namespace ClaudeOfTanks.Tests
                         material.GetFloat("_Cutoff"),
                         Is.GreaterThan(0.3f),
                         mapId + ":" + renderers[i].name);
+                    Assert.That(
+                        material.GetFloat("_WindStrength"),
+                        Is.GreaterThan(0f),
+                        mapId + ":" + renderers[i].name);
+                    Color[] colors = filter.sharedMesh.colors;
+                    Assert.That(
+                        colors,
+                        Has.Length.EqualTo(filter.sharedMesh.vertexCount),
+                        mapId + ":" + renderers[i].name);
+                    for (int colorIndex = 0;
+                        colorIndex < colors.Length;
+                        colorIndex++)
+                    {
+                        if (colors[colorIndex].a > 0.01f)
+                        {
+                            foundWindWeightedFoliage = true;
+                            break;
+                        }
+                    }
                     foundAlphaFoliage = true;
                 }
             }
