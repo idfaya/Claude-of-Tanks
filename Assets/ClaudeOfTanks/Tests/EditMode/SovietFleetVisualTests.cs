@@ -53,7 +53,13 @@ namespace ClaudeOfTanks.Tests
                         ProductionIds[i] == "t90sm" ||
                         ProductionIds[i] == "t90ms" ||
                         ProductionIds[i] == "t90m" ||
-                        ProductionIds[i] == "t90m_proryv")
+                        ProductionIds[i] == "t90m_proryv" ||
+                        ProductionIds[i] == "t80" ||
+                        ProductionIds[i] == "t80b" ||
+                        ProductionIds[i] == "t80bv" ||
+                        ProductionIds[i] == "t80u" ||
+                        ProductionIds[i] == "ua_t80bv" ||
+                        ProductionIds[i] == "ua_t80u_kursk")
                     {
                         Assert.That(genericParts, Is.EqualTo(0));
                         if (ProductionIds[i] == "t90a_vladimir")
@@ -123,11 +129,21 @@ namespace ClaudeOfTanks.Tests
                     Count(
                         ukrainian,
                         "Soviet-TurbineGrille"),
-                    Is.EqualTo(2));
+                    Is.Zero);
+                Assert.That(
+                    Count(
+                        ukrainian,
+                        "T80U-TurbineDeckGrille"),
+                    Is.EqualTo(1));
                 Assert.That(
                     Count(
                         early,
                         "Soviet-SearchlightLens"),
+                    Is.Zero);
+                Assert.That(
+                    Count(
+                        early,
+                        "T80-LunaLens"),
                     Is.EqualTo(1));
                 Assert.That(
                     Count(
@@ -187,6 +203,16 @@ namespace ClaudeOfTanks.Tests
                     Count(
                         ukrainian,
                         "Painted-Soviet-UkrainianSnorkel"),
+                    Is.Zero);
+                Assert.That(
+                    Count(
+                        ukrainian,
+                        "Painted-T80U-UkrainianStowageBin"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        ukrainian,
+                        "T80U-UA-AntennaWhip"),
                     Is.EqualTo(1));
             }
             finally

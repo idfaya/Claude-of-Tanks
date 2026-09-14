@@ -823,6 +823,15 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   variant smoke layouts, BV Kontakt-1 cheek/flank cassettes, tactical
   markings, and a gun-local 2A46M-1 assembly. The generic Soviet turret
   smoke/searchlight/roof fallback no longer builds for T-80, T-80B, or T-80BV.
+- The extended T-80 line now has a C# owner for T-80U, Ukrainian T-80BV,
+  Ukrainian T-80U Kursk, T-84, and Ukrainian T-84 Oplot-M. T-80U variants
+  use a lowered turbine hull loft, dedicated deep skirts, K-5 glacis and
+  turret chevrons, rear bochki drums, turbine deck, Ukrainian stowage, and
+  the shared cast T-80/2A46M-1 rotating package. T-84/Oplot-M use a welded
+  turret presentation with Duplet cheek/flank cassettes, KBA-3 gun assembly,
+  bustle shell, roof optics, and Oplot-M fender tools. Default Hull/Turret/Gun
+  renderers plus generic SideArmor/MissilePod/Soviet fallback parts are
+  hidden for this five-vehicle extended line.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

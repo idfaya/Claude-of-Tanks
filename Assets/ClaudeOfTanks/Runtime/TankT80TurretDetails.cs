@@ -11,7 +11,9 @@ namespace ClaudeOfTanks.Runtime
             Color color)
         {
             string id = definition?.id;
-            if (!TankT80FamilyDetails.Supports(id)) return;
+            if (!TankT80FamilyDetails.Supports(id) &&
+                !TankT80ExtendedFamilyDetails.UsesT80CastTurret(id))
+                return;
 
             HideRenderer(turret.Find("Turret"));
 
@@ -657,6 +659,7 @@ namespace ClaudeOfTanks.Runtime
             VehicleDefinition definition)
         {
             string number = definition?.visual?.number;
+            number = NumericMarking(number);
             if (string.IsNullOrEmpty(number)) return;
             TankTacticalNumberFactory.BuildPair(
                 "T80",
@@ -667,6 +670,22 @@ namespace ClaudeOfTanks.Runtime
                 Quaternion.Euler(0f, 90f, 0f),
                 V(-1.48f, 0.26f, -0.30f),
                 Quaternion.Euler(0f, -90f, 0f));
+        }
+
+        private static string NumericMarking(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return null;
+            char[] digits = new char[value.Length];
+            int count = 0;
+            for (int index = 0; index < value.Length; index++)
+            {
+                char c = value[index];
+                if (c >= '0' && c <= '9')
+                    digits[count++] = c;
+            }
+            return count == 0
+                ? null
+                : new string(digits, 0, count);
         }
 
         private static Transform Box(
