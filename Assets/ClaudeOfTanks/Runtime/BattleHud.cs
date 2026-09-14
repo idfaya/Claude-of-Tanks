@@ -54,6 +54,7 @@ namespace ClaudeOfTanks.Runtime
         private bool _brakeHeld;
         private bool _touchAimActive;
         private bool _sniperToggleQueued;
+        private int _touchShellSlot = -1;
         private int _touchLayoutWidth;
         private int _touchLayoutHeight;
         private readonly bool[] _consumables = new bool[3];
@@ -124,6 +125,30 @@ namespace ClaudeOfTanks.Runtime
             return _hydropneumatic.Consume();
         }
 
+        public int ConsumeShellSlot(
+            int current,
+            int shellCount)
+        {
+            int requested = _touchShellSlot;
+            _touchShellSlot = -1;
+            if (shellCount > 0 &&
+                _settings.WasPressedThisFrame(
+                    GameInputAction.Shell1))
+                requested = 0;
+            else if (shellCount > 1 &&
+                _settings.WasPressedThisFrame(
+                    GameInputAction.Shell2))
+                requested = 1;
+            else if (shellCount > 2 &&
+                _settings.WasPressedThisFrame(
+                    GameInputAction.Shell3))
+                requested = 2;
+            return Mathf.Clamp(
+                requested >= 0 ? requested : current,
+                0,
+                Mathf.Max(0, shellCount - 1));
+        }
+
         public bool TryGetTouchAimPosition(out Vector2 position)
         {
             position = _touchAimPosition;
@@ -136,9 +161,15 @@ namespace ClaudeOfTanks.Runtime
         {
             if (player == null) return;
             _vehicle.text = player.Spec.DisplayName;
+            int shellSlot = Mathf.Clamp(
+                player.Combat.ShellSlot,
+                0,
+                player.Spec.Shells.Length - 1);
             _stats.text = string.Format(
                 "HP {0:0}/{1:0}    {2}    RELOAD {3:0.0}s",
-                player.Health, player.Spec.MaxHealth, player.Spec.Shell.Type,
+                player.Health,
+                player.Spec.MaxHealth,
+                player.Spec.Shells[shellSlot].Type,
                 player.ReloadRemainingS);
             _healthFill.fillAmount = Mathf.Clamp01(player.Health / player.Spec.MaxHealth);
             _healthFill.color =
@@ -371,6 +402,7 @@ namespace ClaudeOfTanks.Runtime
             _brakeHeld = false;
             _touchAimActive = false;
             _sniperToggleQueued = false;
+            _touchShellSlot = -1;
             _hydropneumatic.Clear();
         }
 

@@ -293,6 +293,9 @@ namespace ClaudeOfTanks.Runtime
                     distance,
                     NetworkProtocol.MinimumAimDistanceM,
                     NetworkProtocol.MaximumAimDistanceM),
+                ShellSlot = _hud.ConsumeShellSlot(
+                    _predictor.State.Combat.ShellSlot,
+                    _predictor.State.Spec.Shells.Length),
                 Actions = actions
             };
         }

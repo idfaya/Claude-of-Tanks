@@ -22,7 +22,7 @@ namespace ClaudeOfTanks.Network
         public bool Burning;
         public uint ModuleYellowMask;
         public uint ModuleRedMask;
-        public byte CrewAliveMask;
+        public ushort CrewAliveMask;
         public int ShellSlot;
         public int Kills;
         public bool Extrapolated;

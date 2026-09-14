@@ -25,8 +25,12 @@ namespace ClaudeOfTanks.Simulation
                 tank,
                 input,
                 steer);
-            float forwardLimit = tank.Spec.TopSpeedKmh / 3.6f;
-            float reverseLimit = tank.Spec.ReverseSpeedKmh / 3.6f;
+            float mobility = MobilityMultiplier(tank);
+            float steering = SteeringMultiplier(tank);
+            float forwardLimit =
+                tank.Spec.TopSpeedKmh / 3.6f * mobility;
+            float reverseLimit =
+                tank.Spec.ReverseSpeedKmh / 3.6f * mobility;
             float targetSpeed = throttle >= 0f ? throttle * forwardLimit : throttle * reverseLimit;
             float powerToWeight = tank.Spec.EnginePowerHp / MathF.Max(1f, tank.Spec.WeightTons);
             ITerrainSurface surface = heightField as ITerrainSurface;
@@ -40,7 +44,11 @@ namespace ClaudeOfTanks.Simulation
             float acceleration = MathUtil.Clamp(
                 powerToWeight * DriveAccelerationPerHpPerTon,
                 1.8f,
-                7.5f) * slopeTraction / MathF.Max(0.25f, tank.Spec.TerrainResistance * surfaceResistance);
+                7.5f) * mobility * slopeTraction /
+                MathF.Max(
+                    0.25f,
+                    tank.Spec.TerrainResistance *
+                    surfaceResistance);
 
             if (input.Brake)
             {
@@ -59,7 +67,8 @@ namespace ClaudeOfTanks.Simulation
             float pivotFactor = MathF.Abs(tank.SpeedMps) < 0.3f ? 0.72f : 1f - speedFraction * 0.35f;
             float direction = tank.SpeedMps < -0.05f ? -1f : 1f;
             tank.Yaw += steer * direction * tank.Spec.HullTraverseDegS *
-                tank.TraverseMultiplier * MathUtil.Deg2Rad * pivotFactor * dt;
+                tank.TraverseMultiplier * steering *
+                MathUtil.Deg2Rad * pivotFactor * dt;
 
             Float3 forward = Float3.Forward(tank.Yaw);
             Float3 next = tank.Position + forward * (tank.SpeedMps * dt);
@@ -81,7 +90,9 @@ namespace ClaudeOfTanks.Simulation
                 float desiredLocalYaw = MathUtil.DeltaAngle(tank.Yaw, desiredWorldYaw);
                 float delta = MathUtil.DeltaAngle(tank.TurretYaw, desiredLocalYaw);
                 float maxStep = tank.Spec.TurretTraverseDegS *
-                    tank.TurretMultiplier * MathUtil.Deg2Rad * dt;
+                    tank.TurretMultiplier *
+                    CrewAlive(tank, "gunner", 1f, 0.5f) *
+                    MathUtil.Deg2Rad * dt;
                 tank.TurretYaw += MathUtil.Clamp(delta, -maxStep, maxStep);
             }
 
@@ -119,6 +130,13 @@ namespace ClaudeOfTanks.Simulation
                 MathF.Abs(tank.TurretYawRateRadS) / MathUtil.Deg2Rad;
             float target = MathF.Sqrt(
                 1f + move * move + hull * hull + turret * turret);
+            DamageModuleState gun;
+            if (tank.Combat.Modules.TryGetValue("gun", out gun) &&
+                gun.Condition == DamageModuleCondition.Yellow)
+            {
+                target *= 2f;
+            }
+            target *= CrewAlive(tank, "gunner", 1f, 1.5f);
             float bloomMultiplier = MathF.Max(
                 0f,
                 tank.Combat.Equipment.Bloom);
@@ -134,6 +152,75 @@ namespace ClaudeOfTanks.Simulation
             float blend = 1f - MathF.Exp(-dt / tau);
             tank.AimBloom += (target - tank.AimBloom) * blend;
             if (tank.AimBloom < 1f) tank.AimBloom = 1f;
+        }
+
+        private static float MobilityMultiplier(TankState tank)
+        {
+            float value = ModuleMultiplier(
+                tank,
+                "engine",
+                0.65f,
+                0.25f);
+            value *= ModuleMultiplier(
+                tank,
+                "transmission",
+                0.75f,
+                0.4f);
+            value *= CrewAlive(tank, "driver", 1f, 0.55f);
+            bool leftRed = IsRed(tank, "trackL");
+            bool rightRed = IsRed(tank, "trackR");
+            if (leftRed && rightRed) return 0f;
+            if (leftRed || rightRed) value *= 0.25f;
+            return value;
+        }
+
+        private static float SteeringMultiplier(TankState tank)
+        {
+            bool leftRed = IsRed(tank, "trackL");
+            bool rightRed = IsRed(tank, "trackR");
+            if (leftRed && rightRed) return 0f;
+            float value = leftRed || rightRed ? 0.35f : 1f;
+            return value * CrewAlive(
+                tank,
+                "driver",
+                1f,
+                0.55f);
+        }
+
+        private static float ModuleMultiplier(
+            TankState tank,
+            string id,
+            float yellow,
+            float red)
+        {
+            DamageModuleState module;
+            if (!tank.Combat.Modules.TryGetValue(id, out module))
+                return 1f;
+            return module.Condition == DamageModuleCondition.Red
+                ? red
+                : module.Condition == DamageModuleCondition.Yellow
+                    ? yellow
+                    : 1f;
+        }
+
+        private static bool IsRed(TankState tank, string id)
+        {
+            DamageModuleState module;
+            return tank.Combat.Modules.TryGetValue(id, out module) &&
+                module.Condition == DamageModuleCondition.Red;
+        }
+
+        private static float CrewAlive(
+            TankState tank,
+            string id,
+            float alive,
+            float disabled)
+        {
+            bool present;
+            return !tank.Combat.Crew.TryGetValue(id, out present) ||
+                present
+                    ? alive
+                    : disabled;
         }
     }
 }

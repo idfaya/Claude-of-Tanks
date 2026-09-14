@@ -86,7 +86,8 @@ namespace ClaudeOfTanks.Tests
                         obstacle.Crushable
                             ? Is.EqualTo(
                                 StaticObstacleFlags.Movement |
-                                StaticObstacleFlags.Shells)
+                                StaticObstacleFlags.Shells |
+                                StaticObstacleFlags.Vision)
                             : Is.EqualTo(StaticObstacleFlags.All),
                         obstacle.Id);
                 }

@@ -5,7 +5,7 @@ namespace ClaudeOfTanks.Network
 {
     public static class NetworkDamageState
     {
-        public const byte AllCrewAliveMask = 0x0f;
+        public const ushort AllCrewAliveMask = 0x01ff;
         public const uint AllModuleMask = (1u << 14) - 1u;
 
         private static readonly string[] ModuleIds =
@@ -31,14 +31,19 @@ namespace ClaudeOfTanks.Network
             "commander",
             "gunner",
             "driver",
-            "loader"
+            "loader",
+            "assistantDriver",
+            "assistantLoader",
+            "radioOperator",
+            "weaponOperatorLeft",
+            "weaponOperatorRight"
         };
 
         public static void Capture(
             DamageCombatState state,
             out uint yellowMask,
             out uint redMask,
-            out byte crewAliveMask)
+            out ushort crewAliveMask)
         {
             if (state == null)
                 throw new ArgumentNullException(nameof(state));
@@ -61,7 +66,7 @@ namespace ClaudeOfTanks.Network
             {
                 bool alive;
                 if (!state.Crew.TryGetValue(CrewIds[i], out alive) || alive)
-                    crewAliveMask |= (byte)(1 << i);
+                    crewAliveMask |= (ushort)(1 << i);
             }
         }
 
@@ -82,7 +87,7 @@ namespace ClaudeOfTanks.Network
             DamageCombatState state,
             uint yellowMask,
             uint redMask,
-            byte crewAliveMask)
+            ushort crewAliveMask)
         {
             if (state == null)
                 throw new ArgumentNullException(nameof(state));
@@ -132,7 +137,7 @@ namespace ClaudeOfTanks.Network
         {
             uint yellowMask;
             uint redMask;
-            byte crewAliveMask;
+            ushort crewAliveMask;
             Capture(
                 source,
                 out yellowMask,

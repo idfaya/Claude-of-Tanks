@@ -41,6 +41,7 @@ namespace ClaudeOfTanks.WebRTC
         public SignalingPeer[] peers;
         public SignalingPlayer player;
         public string sessionId;
+        public string resumeToken;
         public string toPeerId;
         public string toSessionId;
         public string fromPeerId;
@@ -71,7 +72,8 @@ namespace ClaudeOfTanks.WebRTC
             string hostName,
             string mode,
             int maxPlayers,
-            SignalingPeer[] peers)
+            SignalingPeer[] peers,
+            string resumeToken)
         {
             RoomCode = roomCode;
             PeerId = peerId;
@@ -80,6 +82,7 @@ namespace ClaudeOfTanks.WebRTC
             Mode = mode ?? string.Empty;
             MaxPlayers = maxPlayers;
             Peers = peers ?? Array.Empty<SignalingPeer>();
+            ResumeToken = resumeToken ?? string.Empty;
         }
 
         public string RoomCode { get; }
@@ -89,6 +92,7 @@ namespace ClaudeOfTanks.WebRTC
         public string Mode { get; }
         public int MaxPlayers { get; }
         public SignalingPeer[] Peers { get; }
+        internal string ResumeToken { get; }
     }
 
     public sealed class RoomSignalingException : Exception
@@ -223,7 +227,11 @@ namespace ClaudeOfTanks.WebRTC
             if (string.IsNullOrEmpty(hostId) && !requireHost)
                 hostId = peerId;
             if (!IsSafeIdentifier(peerId, 1, 48) ||
-                !IsSafeIdentifier(hostId, 1, 48))
+                !IsSafeIdentifier(hostId, 1, 48) ||
+                !IsSafeIdentifier(
+                    payload.resumeToken,
+                    32,
+                    128))
             {
                 throw new RoomSignalingException(
                     "invalid_room_response",
@@ -241,7 +249,8 @@ namespace ClaudeOfTanks.WebRTC
                 payload.hostName,
                 payload.mode,
                 payload.maxPlayers,
-                peers);
+                peers,
+                payload.resumeToken);
         }
 
         public static void ValidateSignal(WebRtcSignal signal)

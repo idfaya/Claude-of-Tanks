@@ -162,8 +162,21 @@ namespace ClaudeOfTanks.Runtime
             out DamageReloadKind kind)
         {
             remainingS = Math.Max(0f, tank.ReloadRemainingS);
-            caliberMm = tank.Spec != null && tank.Spec.Shell != null
-                ? Math.Max(12f, tank.Spec.Shell.CaliberMm)
+            int shellSlot = tank.Spec != null &&
+                    tank.Spec.Shells != null &&
+                    tank.Spec.Shells.Length > 0
+                ? Math.Max(
+                    0,
+                    Math.Min(
+                        tank.Spec.Shells.Length - 1,
+                        tank.Combat.ShellSlot))
+                : 0;
+            caliberMm = tank.Spec != null &&
+                    tank.Spec.Shells != null &&
+                    tank.Spec.Shells.Length > 0
+                ? Math.Max(
+                    12f,
+                    tank.Spec.Shells[shellSlot].CaliberMm)
                 : 100f;
             DamageReloadState authoritative =
                 tank.Combat != null ? tank.Combat.Reload : null;

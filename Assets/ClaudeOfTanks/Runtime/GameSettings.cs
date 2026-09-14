@@ -17,6 +17,9 @@ namespace ClaudeOfTanks.Runtime
         Brake,
         Fire,
         Sniper,
+        Shell1,
+        Shell2,
+        Shell3,
         Repair,
         FirstAid,
         Extinguisher,
@@ -299,6 +302,9 @@ namespace ClaudeOfTanks.Runtime
             _bindings[GameInputAction.Brake] = KeyCode.LeftControl;
             _bindings[GameInputAction.Fire] = KeyCode.Space;
             _bindings[GameInputAction.Sniper] = KeyCode.LeftShift;
+            _bindings[GameInputAction.Shell1] = KeyCode.Alpha1;
+            _bindings[GameInputAction.Shell2] = KeyCode.Alpha2;
+            _bindings[GameInputAction.Shell3] = KeyCode.Alpha3;
             _bindings[GameInputAction.Repair] = KeyCode.Alpha4;
             _bindings[GameInputAction.FirstAid] = KeyCode.Alpha5;
             _bindings[GameInputAction.Extinguisher] = KeyCode.Alpha6;

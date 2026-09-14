@@ -310,6 +310,20 @@ namespace ClaudeOfTanks.Runtime
                 new Vector2(112f, 52f),
                 new Vector2(1f, 0f),
                 _touchRoot.transform);
+            for (int slot = 0; slot < 3; slot++)
+            {
+                int selected = slot;
+                CreateButton(
+                    "Shell" + (slot + 1),
+                    (slot + 1).ToString(),
+                    new Vector2(
+                        -316f + slot * 58f,
+                        160f),
+                    () => _touchShellSlot = selected,
+                    new Vector2(52f, 52f),
+                    new Vector2(1f, 0f),
+                    _touchRoot.transform);
+            }
             _touchRoot.SetActive(
                 Application.isMobilePlatform || Input.touchSupported);
         }

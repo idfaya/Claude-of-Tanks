@@ -63,6 +63,7 @@ namespace ClaudeOfTanks.Network
         private readonly RandomNumberGenerator _random = RandomNumberGenerator.Create();
         private readonly Func<string> _queueIdFactory;
         private readonly Func<string> _queueTokenFactory;
+        private readonly Func<string> _matchIdFactory;
         private int _matchSequence;
         private bool _disposed;
 
@@ -74,7 +75,8 @@ namespace ClaudeOfTanks.Network
             Func<string, bool> vehicleAllowed,
             Func<string> queueIdFactory = null,
             Func<string> queueTokenFactory = null,
-            Func<string, string, bool> equipmentAllowed = null)
+            Func<string, string, bool> equipmentAllowed = null,
+            Func<string> matchIdFactory = null)
         {
             _ratings = ratings ?? throw new ArgumentNullException(nameof(ratings));
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
@@ -89,6 +91,9 @@ namespace ClaudeOfTanks.Network
                 _mapRotation[i] = CleanContentId(_mapRotation[i], "map id");
             _queueIdFactory = queueIdFactory ?? (() => "q_" + Base64Url(RandomBytes(12)));
             _queueTokenFactory = queueTokenFactory ?? (() => Base64Url(RandomBytes(24)));
+            _matchIdFactory =
+                matchIdFactory ??
+                (() => "ranked_" + Base64Url(RandomBytes(12)));
         }
 
         public int QueuedPlayerCount
@@ -339,7 +344,7 @@ namespace ClaudeOfTanks.Network
             }
 
             int sequence = ++_matchSequence;
-            string matchId = "ranked_" + sequence.ToString("D8");
+            string matchId = AllocateMatchId();
             RoomMatchSeat[] seats = new RoomMatchSeat[group.Count];
             List<RatedPlayer> rated = new List<RatedPlayer>(group.Count);
             List<string> names = new List<string>(group.Count);
@@ -467,6 +472,22 @@ namespace ClaudeOfTanks.Network
                     return id;
             }
             throw new InvalidOperationException("Could not allocate a queue id.");
+        }
+
+        private string AllocateMatchId()
+        {
+            for (int attempt = 0; attempt < 64; attempt++)
+            {
+                string id = _matchIdFactory();
+                if (!IsSafeId(id, 8, 64)) continue;
+                if (!_matches.ContainsKey(id) &&
+                    _registry.Get(id) == null)
+                {
+                    return id;
+                }
+            }
+            throw new InvalidOperationException(
+                "Could not allocate a unique ranked match id.");
         }
 
         private string StrongQueueToken()

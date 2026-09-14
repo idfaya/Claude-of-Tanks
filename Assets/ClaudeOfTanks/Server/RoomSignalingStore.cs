@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace ClaudeOfTanks.Server
 {
@@ -25,7 +26,8 @@ namespace ClaudeOfTanks.Server
                     : payload.mode,
                 MaximumPlayers = Math.Max(2, Math.Min(14, payload.maxPlayers))
             };
-            Peer peer = PeerFrom(connection, payload);
+            string resumeToken;
+            Peer peer = PeerFrom(connection, payload, out resumeToken);
             lock (_gate)
             {
                 while (_rooms.ContainsKey(code))
@@ -37,7 +39,7 @@ namespace ClaudeOfTanks.Server
                 connection.Room = room;
                 return new RoomSignalingResult
                 {
-                    Response = RoomPayload(room, peer, false)
+                    Response = RoomPayload(room, peer, false, resumeToken)
                 };
             }
         }
@@ -59,20 +61,28 @@ namespace ClaudeOfTanks.Server
                     throw Error("room_full", "Room is full.");
                 if (resumed)
                 {
+                    RequireResumeToken(peer, payload.resumeToken);
+                    RoomSignalingConnection previous = peer.Connection;
+                    if (previous != null && previous != connection)
+                    {
+                        previous.Room = null;
+                        previous.Peer = null;
+                    }
                     peer.Name = payload.player.name;
                     peer.SessionId = CleanSessionId(payload.sessionId);
                     peer.Connection = connection;
                 }
                 else
                 {
-                    peer = PeerFrom(connection, payload);
+                    peer = PeerFrom(connection, payload, out _);
                     room.Peers.Add(peer.Id, peer);
                 }
+                string resumeToken = RotateResumeToken(peer);
                 connection.Peer = peer;
                 connection.Room = room;
                 RoomSignalingResult result = new RoomSignalingResult
                 {
-                    Response = RoomPayload(room, peer, true)
+                    Response = RoomPayload(room, peer, true, resumeToken)
                 };
                 foreach (Peer other in room.Peers.Values)
                 {
@@ -204,7 +214,8 @@ namespace ClaudeOfTanks.Server
         private static RoomSignalingWirePayload RoomPayload(
             Room room,
             Peer self,
-            bool excludeSelf)
+            bool excludeSelf,
+            string resumeToken)
         {
             List<RoomSignalingWirePeer> peers =
                 new List<RoomSignalingWirePeer>();
@@ -228,21 +239,68 @@ namespace ClaudeOfTanks.Server
                 hostName = room.HostName,
                 mode = room.Mode,
                 maxPlayers = room.MaximumPlayers,
+                resumeToken = resumeToken,
                 peers = peers.ToArray()
             };
         }
 
         private static Peer PeerFrom(
             RoomSignalingConnection connection,
-            RoomSignalingWirePayload payload)
+            RoomSignalingWirePayload payload,
+            out string resumeToken)
         {
-            return new Peer
+            Peer peer = new Peer
             {
                 Id = payload.player.id,
                 Name = payload.player.name,
                 SessionId = CleanSessionId(payload.sessionId),
                 Connection = connection
             };
+            resumeToken = RotateResumeToken(peer);
+            return peer;
+        }
+
+        private static string RotateResumeToken(Peer peer)
+        {
+            byte[] bytes = new byte[32];
+            using (RandomNumberGenerator random =
+                RandomNumberGenerator.Create())
+            {
+                random.GetBytes(bytes);
+            }
+            string token = Convert.ToBase64String(bytes)
+                .TrimEnd('=')
+                .Replace('+', '-')
+                .Replace('/', '_');
+            peer.ResumeTokenHash = Hash(token);
+            return token;
+        }
+
+        private static void RequireResumeToken(
+            Peer peer,
+            string resumeToken)
+        {
+            byte[] actual = Hash(resumeToken ?? string.Empty);
+            byte[] expected = peer.ResumeTokenHash;
+            int difference = expected == null
+                ? 1
+                : expected.Length ^ actual.Length;
+            int count = expected == null
+                ? 0
+                : Math.Min(expected.Length, actual.Length);
+            for (int i = 0; i < count; i++)
+                difference |= expected[i] ^ actual[i];
+            if (difference != 0)
+                throw Error(
+                    "invalid_resume",
+                    "Room resume token is invalid.");
+        }
+
+        private static byte[] Hash(string value)
+        {
+            using (SHA256 sha = SHA256.Create())
+                return sha.ComputeHash(
+                    System.Text.Encoding.UTF8.GetBytes(value));
         }
 
         private static RoomSignalingWirePlayer Player(Peer peer)
@@ -338,6 +396,7 @@ namespace ClaudeOfTanks.Server
         {
             if (connection.Room == null ||
                 connection.Peer == null ||
+                connection.Peer.Connection != connection ||
                 connection.Room.Code != NormalizeRoomCode(roomCode))
             {
                 throw Error("not_in_room", "Connection is not in this room.");
@@ -379,6 +438,7 @@ namespace ClaudeOfTanks.Server
             public string Id;
             public string Name;
             public string SessionId;
+            public byte[] ResumeTokenHash;
             public RoomSignalingConnection Connection;
             public readonly Queue<RoomSignalingEnvelope> Mailbox =
                 new Queue<RoomSignalingEnvelope>();

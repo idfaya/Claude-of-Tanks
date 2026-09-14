@@ -40,6 +40,7 @@ namespace ClaudeOfTanks.Tests
             NetworkInputCommand command = Command(9u, 12);
             command.ActionSequence = 4u;
             command.SnapshotAckTick = 9;
+            command.ShellSlot = 2;
             command.Actions = NetworkActionBits.Fire | NetworkActionBits.RepairKit;
 
             byte[] packet = InputWireCodec.Encode(command);
@@ -48,6 +49,7 @@ namespace ClaudeOfTanks.Tests
             Assert.That(decoded.PlayerId, Is.EqualTo("peer"));
             Assert.That(decoded.Sequence, Is.EqualTo(9u));
             Assert.That(decoded.SnapshotAckTick, Is.EqualTo(9));
+            Assert.That(decoded.ShellSlot, Is.EqualTo(2));
             Assert.That(decoded.Actions, Is.EqualTo(command.Actions));
             Assert.Throws<System.FormatException>(() =>
                 InputWireCodec.Decode(new byte[] { packet[0], packet[1] }));

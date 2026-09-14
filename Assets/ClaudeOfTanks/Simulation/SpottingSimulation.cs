@@ -139,6 +139,37 @@ namespace ClaudeOfTanks.Simulation
                 tank.Spec.ViewRangeM * multiplier);
         }
 
+        public bool CanSpotMuzzleFlash(
+            TankState spotter,
+            TankState shooter,
+            Func<Float3, Float3, bool> isOccluded)
+        {
+            if (spotter == null)
+                throw new ArgumentNullException(nameof(spotter));
+            if (shooter == null)
+                throw new ArgumentNullException(nameof(shooter));
+            if (spotter.Destroyed ||
+                shooter.Destroyed ||
+                spotter.Team == shooter.Team)
+            {
+                return false;
+            }
+            Float3 origin =
+                spotter.Position +
+                new Float3(0f, EyeHeightM, 0f);
+            Float3 destination =
+                shooter.Position +
+                new Float3(0f, TargetHeightM, 0f);
+            Float3 offset = destination - origin;
+            float range = MathF.Min(
+                _maximumSpotRangeM,
+                EffectiveViewRangeM(spotter));
+            return offset.SqrMagnitude <=
+                    range * range &&
+                (isOccluded == null ||
+                 !isOccluded(origin, destination));
+        }
+
         public static float EffectiveCamouflage(TankState tank)
         {
             if (tank == null) throw new ArgumentNullException(nameof(tank));

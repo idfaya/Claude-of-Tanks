@@ -571,6 +571,9 @@ namespace ClaudeOfTanks.Runtime
                          GameInputAction.HydropneumaticAim) ||
                      (_hud != null &&
                       _hud.ConsumeHydropneumaticToggle())),
+                ShellSlot = _hud.ConsumeShellSlot(
+                    _player.Combat.ShellSlot,
+                    _player.Spec.Shells.Length),
                 AimPoint = aimPoint
             };
         }

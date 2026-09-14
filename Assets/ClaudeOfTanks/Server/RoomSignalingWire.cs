@@ -32,6 +32,7 @@ namespace ClaudeOfTanks.Server
         public RoomSignalingWirePeer[] peers;
         public RoomSignalingWirePlayer player;
         public string sessionId;
+        public string resumeToken;
         public string toPeerId;
         public string toSessionId;
         public string fromPeerId;

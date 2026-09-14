@@ -14,7 +14,7 @@ namespace ClaudeOfTanks.Network
         public const int MaximumDestroyedStaticObstacles =
             BattleState.MaximumStaticObstacles;
         private const uint Magic = 0x4e544f43u;
-        private const ushort Version = 5;
+        private const ushort Version = 6;
         private const ushort MinimumSupportedVersion = 1;
 
         public static byte[] Encode(NetworkWorldSnapshot snapshot)
@@ -231,7 +231,13 @@ namespace ClaudeOfTanks.Network
             {
                 entity.ModuleYellowMask = reader.ReadUInt32();
                 entity.ModuleRedMask = reader.ReadUInt32();
-                entity.CrewAliveMask = reader.ReadByte();
+                entity.CrewAliveMask = version >= 6
+                    ? reader.ReadUInt16()
+                    : (ushort)(
+                        reader.ReadByte() |
+                        (NetworkDamageState
+                            .AllCrewAliveMask &
+                         ~0xff));
             }
             entity.ShellSlot = reader.ReadByte();
             entity.Kills = version >= 3 ? reader.ReadInt32() : 0;

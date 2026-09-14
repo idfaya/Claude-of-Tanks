@@ -77,7 +77,9 @@ namespace ClaudeOfTanks.Runtime
                     MathF.Max(0.16f, tree.TrunkRadius),
                     tree.TrunkHeight,
                     tree.Yaw,
-                    StaticObstacleFlags.Movement | StaticObstacleFlags.Shells,
+                    StaticObstacleFlags.Movement |
+                    StaticObstacleFlags.Shells |
+                    StaticObstacleFlags.Vision,
                     true,
                     true,
                     1f));

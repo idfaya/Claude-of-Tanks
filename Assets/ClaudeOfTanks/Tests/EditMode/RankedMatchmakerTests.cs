@@ -205,6 +205,59 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void FreshMatchmakersDoNotReuseMatchIds()
+        {
+            string first = CreateOneVsOneMatchId();
+            string second = CreateOneVsOneMatchId();
+
+            Assert.That(first, Does.StartWith("ranked_"));
+            Assert.That(second, Does.StartWith("ranked_"));
+            Assert.That(second, Is.Not.EqualTo(first));
+        }
+
+        private static string CreateOneVsOneMatchId()
+        {
+            using (RankedRatingStore ratings =
+                new RankedRatingStore())
+            using (DedicatedMatchRegistry registry =
+                new DedicatedMatchRegistry())
+            using (RankedMatchmaker matchmaker =
+                new RankedMatchmaker(
+                    ratings,
+                    registry,
+                    Host,
+                    new[] { "verdant" },
+                    id => id == "m1a1"))
+            {
+                RatingIdentity alpha =
+                    ratings.CreateIdentity("Alpha");
+                RatingIdentity bravo =
+                    ratings.CreateIdentity("Bravo");
+                RankedQueueJoin alphaQueue =
+                    matchmaker.Join(
+                        alpha.Profile.PlayerId,
+                        alpha.BearerToken,
+                        "m1a1",
+                        Array.Empty<string>(),
+                        "factory",
+                        1,
+                        1000);
+                matchmaker.Join(
+                    bravo.Profile.PlayerId,
+                    bravo.BearerToken,
+                    "m1a1",
+                    Array.Empty<string>(),
+                    "factory",
+                    1,
+                    1000);
+                return matchmaker.Poll(
+                    alphaQueue.QueueId,
+                    alphaQueue.QueueToken)
+                    .Assignment.MatchTicket.MatchId;
+            }
+        }
+
         private static int CountTeam(RoomMatchSeat[] roster, Team team)
         {
             int count = 0;

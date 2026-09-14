@@ -211,6 +211,66 @@ namespace ClaudeOfTanks.Tests
             Assert.That(restored.Crew["gunner"], Is.False);
         }
 
+        [Test]
+        public void TeamSpottingSharesAndLingersBeforeExpiry()
+        {
+            BattleState state =
+                new BattleState(
+                    new FlatHeightField(),
+                    98u);
+            TankState viewer = Tank(
+                "viewer",
+                Team.Alpha,
+                Float3.Zero,
+                MathUtil.Pi);
+            TankState scout = Tank(
+                "scout",
+                Team.Alpha,
+                new Float3(20f, 0f, 0f),
+                0f);
+            TankState target = Tank(
+                "target",
+                Team.Bravo,
+                new Float3(20f, 0f, 100f),
+                MathUtil.Pi);
+            state.Tanks.Add(viewer);
+            state.Tanks.Add(scout);
+            state.Tanks.Add(target);
+            AuthoritativeMatchHost host =
+                new AuthoritativeMatchHost(
+                    new BattleSimulation(state));
+            host.RegisterPlayer("viewer-peer", viewer.Id);
+            host.RegisterPlayer("scout-peer", scout.Id);
+            host.RegisterPlayer("target-peer", target.Id);
+
+            host.AdvanceTicks(1);
+            Assert.That(
+                ContainsEntity(
+                    host.CreateSnapshot(
+                        "viewer-peer"),
+                    target.Id),
+                Is.True);
+
+            target.Position =
+                new Float3(100f, 0f, 0f);
+            host.AdvanceTicks(1);
+            Assert.That(
+                ContainsEntity(
+                    host.CreateSnapshot(
+                        "viewer-peer"),
+                    target.Id),
+                Is.True);
+
+            for (int i = 0; i < 310; i++)
+                host.AdvanceTicks(1);
+            Assert.That(
+                ContainsEntity(
+                    host.CreateSnapshot(
+                        "viewer-peer"),
+                    target.Id),
+                Is.False);
+        }
+
         private static NetworkInputCommand Command(
             string playerId,
             uint sequence,

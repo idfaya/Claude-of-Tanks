@@ -20,6 +20,7 @@ namespace ClaudeOfTanks.Simulation
         public float Pen1000Mm = 145f;
         public float Pen2000Mm;
         public float ReloadS = 5.5f;
+        public int Count;
         public bool Guided;
         public float GravityScale = 1f;
         public float GuidanceTurnRateRadS = 2.4f;
@@ -59,6 +60,8 @@ namespace ClaudeOfTanks.Simulation
         public HydropneumaticAimSpec HydropneumaticAim;
         public bool FixedHydraulicGun;
         public ShellSpec Shell = new ShellSpec();
+        public ShellSpec[] Shells = Array.Empty<ShellSpec>();
+        public TankArmorModel Armor;
 
         public static TankSpec Medium()
         {
@@ -125,6 +128,7 @@ namespace ClaudeOfTanks.Simulation
         public bool UseFirstAidKit;
         public bool UseFireExtinguisher;
         public bool ToggleHydropneumaticAim;
+        public int ShellSlot;
         public Float3 AimPoint;
     }
 
@@ -166,8 +170,50 @@ namespace ClaudeOfTanks.Simulation
                 MaxHealth = spec.MaxHealth,
                 IsPostwar = spec.IsModern
             };
+            ShellSpec[] shells =
+                spec.Shells != null && spec.Shells.Length > 0
+                    ? spec.Shells
+                    : new[] { spec.Shell };
+            spec.Shells = shells;
+            spec.Shell = shells[0];
             DamageSpec.Gun.ReloadS = spec.Shell.ReloadS;
-            DamageSpec.Gun.Shells.Add(new DamageShellSpec { Type = spec.Shell.Type });
+            for (int i = 0; i < shells.Length; i++)
+            {
+                DamageSpec.Gun.Shells.Add(new DamageShellSpec
+                {
+                    Type = shells[i].Type,
+                    Count = shells[i].Count > 0
+                        ? (int?)shells[i].Count
+                        : null,
+                    ReloadS = shells[i].ReloadS > 0f
+                        ? (float?)shells[i].ReloadS
+                        : null,
+                    Guided = shells[i].Guided
+                });
+            }
+            if (spec.Armor != null)
+            {
+                DamageSpec.ModuleIds.Clear();
+                DamageSpec.CrewIds.Clear();
+                for (int i = 0; i < spec.Armor.Modules.Length; i++)
+                {
+                    string module = spec.Armor.Modules[i].Id;
+                    if (!string.IsNullOrEmpty(module) &&
+                        !DamageSpec.ModuleIds.Contains(module))
+                    {
+                        DamageSpec.ModuleIds.Add(module);
+                    }
+                }
+                for (int i = 0; i < spec.Armor.Crew.Length; i++)
+                {
+                    string crew = spec.Armor.Crew[i].Id;
+                    if (!string.IsNullOrEmpty(crew) &&
+                        !DamageSpec.CrewIds.Contains(crew))
+                    {
+                        DamageSpec.CrewIds.Add(crew);
+                    }
+                }
+            }
             if (spec.MagazineSize > 1)
             {
                 DamageSpec.Gun.Autoloader = new DamageAutoloaderSpec

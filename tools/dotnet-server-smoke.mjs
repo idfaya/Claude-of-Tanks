@@ -140,6 +140,9 @@ const openSocket = (url) => new Promise((resolve, reject) => {
 const nextMessage = (socket) => new Promise((resolve, reject) => {
   socket.once('message', (data) => resolve(data));
   socket.once('error', reject);
+  socket.once('close', () => reject(
+    new Error('WebSocket closed before the expected message'),
+  ));
 });
 
 const closeSocket = async (socket) => {
@@ -169,6 +172,44 @@ const writeString = (value) => {
   bytes.copy(result, 2);
   return result;
 };
+
+const writeByteString = (value) => {
+  const bytes = Buffer.from(value, 'utf8');
+  assert.ok(bytes.length > 0 && bytes.length <= 64);
+  return Buffer.concat([Buffer.from([bytes.length]), bytes]);
+};
+
+const encodeInput = ({
+  playerId,
+  sequence,
+  actionSequence = 0,
+  throttle = 0,
+  actions = 0,
+}) => {
+  const header = Buffer.allocUnsafe(64);
+  let offset = 0;
+  header.writeUInt32LE(0x49544f43, offset); offset += 4;
+  header.writeUInt16LE(3, offset); offset += 2;
+  const player = writeByteString(playerId);
+  header.writeUInt32LE(sequence, offset); offset += 4;
+  header.writeUInt32LE(actionSequence, offset); offset += 4;
+  header.writeBigInt64LE(BigInt(sequence), offset); offset += 8;
+  header.writeBigInt64LE(-1n, offset); offset += 8;
+  header.writeFloatLE(throttle, offset); offset += 4;
+  header.writeFloatLE(0, offset); offset += 4;
+  header.writeUInt8(0, offset); offset += 1;
+  header.writeFloatLE(0, offset); offset += 4;
+  header.writeFloatLE(0, offset); offset += 4;
+  header.writeFloatLE(100, offset); offset += 4;
+  header.writeUInt8(0, offset); offset += 1;
+  header.writeUInt8(actions, offset); offset += 1;
+  return Buffer.concat([header.subarray(0, 6), player, header.subarray(6, offset)]);
+};
+
+const encodeLane = (lane, payload) => Buffer.concat([
+  Buffer.from([0x43, 0x4f, 0x54, 1, lane]),
+  payload,
+]);
 
 const encodeTicket = (ticket) => {
   const header = Buffer.allocUnsafe(7);
@@ -210,6 +251,29 @@ const decodeAdmission = (data) => {
   return response;
 };
 
+const decodeSnapshotFrame = (data) => {
+  const laneFrame = Buffer.from(data);
+  assert.deepEqual(
+    [...laneFrame.subarray(0, 5)],
+    [0x43, 0x4f, 0x54, 1, 2],
+  );
+  const buffer = laneFrame.subarray(5);
+  let offset = 0;
+  assert.equal(buffer.readUInt32LE(offset), 0x44544f43); offset += 4;
+  assert.equal(buffer.readUInt16LE(offset), 3); offset += 2;
+  const baseTick = Number(buffer.readBigInt64LE(offset)); offset += 8;
+  const removed = buffer.readUInt16LE(offset); offset += 2;
+  for (let i = 0; i < removed; i += 1) {
+    const length = buffer.readUInt8(offset); offset += 1 + length;
+  }
+  const payloadLength = buffer.readInt32LE(offset); offset += 4;
+  assert.equal(payloadLength, buffer.length - offset);
+  assert.equal(buffer.readUInt32LE(offset), 0x4e544f43); offset += 4;
+  assert.equal(buffer.readUInt16LE(offset), 6); offset += 2;
+  const tick = Number(buffer.readBigInt64LE(offset));
+  return { baseTick, tick };
+};
+
 const verifySignaling = async (port) => {
   const socket = await openSocket(`ws://127.0.0.1:${port}/signal`);
   socket.send(JSON.stringify({
@@ -226,6 +290,7 @@ const verifySignaling = async (port) => {
   assert.equal(response.type, 'room_created');
   assert.equal(response.requestId, 'dotnet-smoke');
   assert.match(response.payload.roomCode, /^[A-Z0-9]{6}$/);
+  assert.ok(response.payload.resumeToken.length >= 32);
   await closeSocket(socket);
 };
 
@@ -245,7 +310,7 @@ const child = spawn(dotnet, [
   `--cot-signal-port=${signalPort}`,
   `--cot-origins=${origin}`,
   `--cot-rating-file=${path.join(scratch, 'ratings.bin')}`,
-  '--cot-run-for-ms=5000',
+  '--cot-run-for-ms=15000',
 ], {
   cwd: root,
   env: { ...process.env, DOTNET_CLI_TELEMETRY_OPTOUT: '1' },
@@ -278,13 +343,41 @@ try {
   assert.equal(bravoMatch.status, 'matched');
   assert.equal(alphaMatch.match.matchId, bravoMatch.match.matchId);
 
-  const matchSocket = await openSocket(`ws://127.0.0.1:${matchPort}/match`);
-  matchSocket.send(encodeTicket(alphaMatch.match));
-  const admission = decodeAdmission(await nextMessage(matchSocket));
+  const [alphaSocket, bravoSocket] = await Promise.all([
+    openSocket(`ws://127.0.0.1:${matchPort}/match`),
+    openSocket(`ws://127.0.0.1:${matchPort}/match`),
+  ]);
+  alphaSocket.send(encodeTicket(alphaMatch.match));
+  bravoSocket.send(encodeTicket(bravoMatch.match));
+  const [admission, bravoAdmission] = await Promise.all([
+    nextMessage(alphaSocket).then(decodeAdmission),
+    nextMessage(bravoSocket).then(decodeAdmission),
+  ]);
   assert.equal(admission.matchId, alphaMatch.match.matchId);
   assert.equal(admission.playerId, alpha.playerId);
+  assert.equal(bravoAdmission.playerId, bravo.playerId);
   assert.ok(admission.connectionGeneration >= 1);
-  await closeSocket(matchSocket);
+
+  alphaSocket.send(encodeLane(1, encodeInput({
+    playerId: alpha.playerId,
+    sequence: 1,
+    throttle: 1,
+  })));
+  bravoSocket.send(encodeLane(1, encodeInput({
+    playerId: bravo.playerId,
+    sequence: 1,
+  })));
+  const [alphaFrame, bravoFrame] = await Promise.all([
+    nextMessage(alphaSocket).then(decodeSnapshotFrame),
+    nextMessage(bravoSocket).then(decodeSnapshotFrame),
+  ]);
+  assert.ok(alphaFrame.tick > 0);
+  assert.equal(bravoFrame.tick, alphaFrame.tick);
+  assert.equal(alphaFrame.baseTick, -1);
+  await Promise.all([
+    closeSocket(alphaSocket),
+    closeSocket(bravoSocket),
+  ]);
 
   await verifySignaling(signalPort);
   console.log(JSON.stringify({
@@ -292,6 +385,7 @@ try {
     health,
     matchId: admission.matchId,
     playerId: admission.playerId,
+    authorityTick: alphaFrame.tick,
     signaling: true,
   }, null, 2));
 } catch (error) {

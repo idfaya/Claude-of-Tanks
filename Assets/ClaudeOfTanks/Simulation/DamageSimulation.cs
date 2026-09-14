@@ -111,6 +111,8 @@ namespace ClaudeOfTanks.Simulation
             new Dictionary<string, DamageModuleState>(StringComparer.Ordinal);
         public readonly Dictionary<string, bool> Crew =
             new Dictionary<string, bool>(StringComparer.Ordinal);
+        public readonly HashSet<string> EraSpent =
+            new HashSet<string>(StringComparer.Ordinal);
         public readonly FireState Fire = new FireState();
         public readonly DamageEquipmentModifiers Equipment = new DamageEquipmentModifiers();
         public DamageReloadState Reload;
@@ -283,6 +285,62 @@ namespace ClaudeOfTanks.Simulation
             }
 
             return state;
+        }
+
+        public static void ResetCombatState(
+            DamageCombatState state,
+            DamageTankSpec spec)
+        {
+            RequireState(state);
+            RequireSpec(spec);
+            DamageCombatState fresh =
+                CreateCombatState(spec);
+            foreach (KeyValuePair<string, DamageModuleState> entry
+                in fresh.Modules)
+            {
+                DamageModuleState existing;
+                if (!state.Modules.TryGetValue(
+                        entry.Key,
+                        out existing))
+                {
+                    continue;
+                }
+                entry.Value.MaxHealth =
+                    existing.MaxHealth;
+                entry.Value.Health =
+                    existing.MaxHealth;
+            }
+            state.Health = fresh.Health;
+            state.MaxHealth = fresh.MaxHealth;
+            state.Destroyed = false;
+            state.Modules.Clear();
+            foreach (KeyValuePair<string, DamageModuleState> entry
+                in fresh.Modules)
+            {
+                state.Modules.Add(
+                    entry.Key,
+                    entry.Value);
+            }
+            state.Crew.Clear();
+            foreach (KeyValuePair<string, bool> entry
+                in fresh.Crew)
+            {
+                state.Crew.Add(
+                    entry.Key,
+                    entry.Value);
+            }
+            state.Fire.Burning = false;
+            state.Fire.TickTimerS = 0f;
+            state.Fire.TicksLeft = 0;
+            state.Reload = fresh.Reload;
+            state.GunReload = fresh.GunReload;
+            state.ReloadChannels =
+                fresh.ReloadChannels;
+            state.Magazine = fresh.Magazine;
+            state.ShellSlot = fresh.ShellSlot;
+            state.Ammo = fresh.Ammo;
+            state.AmmoCapacity = fresh.AmmoCapacity;
+            state.EraSpent.Clear();
         }
 
         public static ModuleDamageResult DamageModule(

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace ClaudeOfTanks.Simulation
 {
@@ -41,10 +42,19 @@ namespace ClaudeOfTanks.Simulation
         private const float FlagRadius = 8f;
         private const float ZoneRadius = 30f;
         private const float BallRadius = 4f;
+        private const float FlagReturnSeconds = 18f;
         private readonly BattleState _battle;
         private readonly MatchModeState _state;
+        private readonly Dictionary<string, SpawnState> _spawns =
+            new Dictionary<string, SpawnState>(
+                StringComparer.Ordinal);
+        private readonly Dictionary<string, float> _respawnAt =
+            new Dictionary<string, float>(
+                StringComparer.Ordinal);
         private Float3 _alphaBase;
         private Float3 _bravoBase;
+        private float _alphaFlagReturnAt;
+        private float _bravoFlagReturnAt;
         private bool _initialized;
 
         public MatchModeSimulation(BattleState battle, GameModeId mode)
@@ -59,6 +69,12 @@ namespace ClaudeOfTanks.Simulation
         {
             if (!_initialized) Initialize();
             if (_state.Winner.HasValue || _state.Draw || dt <= 0f) return;
+            if (_state.Id == GameModeId.CaptureTheFlag ||
+                _state.Id == GameModeId.ZoneControl ||
+                _state.Id == GameModeId.TurboBall)
+            {
+                StepRespawns();
+            }
             switch (_state.Id)
             {
                 case GameModeId.Standard: StepStandard(); break;
@@ -82,6 +98,15 @@ namespace ClaudeOfTanks.Simulation
             _state.Zones[1] = middle;
             _state.Zones[2] = middle + side * 105f;
             _state.BallPosition = middle + new Float3(0f, 2.2f, 0f);
+            for (int i = 0; i < _battle.Tanks.Count; i++)
+            {
+                TankState tank = _battle.Tanks[i];
+                _spawns[tank.Id] = new SpawnState
+                {
+                    Position = tank.Position,
+                    Yaw = tank.Yaw
+                };
+            }
             _initialized = true;
         }
 
@@ -96,26 +121,65 @@ namespace ClaudeOfTanks.Simulation
 
         private void StepFlags()
         {
-            UpdateFlag(Team.Alpha, ref _state.AlphaFlagCarrier, ref _state.AlphaFlag);
-            UpdateFlag(Team.Bravo, ref _state.BravoFlagCarrier, ref _state.BravoFlag);
+            UpdateFlag(
+                Team.Alpha,
+                ref _state.AlphaFlagCarrier,
+                ref _state.AlphaFlag,
+                ref _alphaFlagReturnAt);
+            UpdateFlag(
+                Team.Bravo,
+                ref _state.BravoFlagCarrier,
+                ref _state.BravoFlag,
+                ref _bravoFlagReturnAt);
             if (_state.AlphaScore >= 3f) _state.Winner = Team.Alpha;
             if (_state.BravoScore >= 3f) _state.Winner = Team.Bravo;
         }
 
-        private void UpdateFlag(Team owner, ref string carrierId, ref Float3 position)
+        private void UpdateFlag(
+            Team owner,
+            ref string carrierId,
+            ref Float3 position,
+            ref float returnAt)
         {
             Float3 home = owner == Team.Alpha ? _alphaBase : _bravoBase;
             if (carrierId == null)
             {
                 TankState thief = ClosestEnemy(owner, position, FlagRadius);
-                if (thief != null) carrierId = thief.Id;
-                else position = home;
+                if (thief != null)
+                {
+                    carrierId = thief.Id;
+                    returnAt = 0f;
+                    return;
+                }
+                if (returnAt > 0f)
+                {
+                    TankState defender =
+                        ClosestFriendly(
+                            owner,
+                            position,
+                            FlagRadius);
+                    if (defender != null ||
+                        _battle.TimeS >= returnAt)
+                    {
+                        position = home;
+                        returnAt = 0f;
+                    }
+                }
+                else
+                {
+                    position = home;
+                }
                 return;
             }
             TankState carrier = FindTank(carrierId);
             if (carrier == null || carrier.Destroyed)
             {
+                if (carrier != null)
+                    position = carrier.Position;
                 carrierId = null;
+                returnAt =
+                    _battle.TimeS +
+                    FlagReturnSeconds;
                 return;
             }
             position = carrier.Position;
@@ -126,7 +190,56 @@ namespace ClaudeOfTanks.Simulation
                 else _state.BravoScore++;
                 carrierId = null;
                 position = home;
+                returnAt = 0f;
             }
+        }
+
+        private void StepRespawns()
+        {
+            for (int i = 0; i < _battle.Tanks.Count; i++)
+            {
+                TankState tank = _battle.Tanks[i];
+                if (!tank.Destroyed)
+                {
+                    _respawnAt.Remove(tank.Id);
+                    continue;
+                }
+                float due;
+                if (!_respawnAt.TryGetValue(
+                        tank.Id,
+                        out due))
+                {
+                    _respawnAt[tank.Id] =
+                        _battle.TimeS +
+                        RespawnSeconds;
+                    continue;
+                }
+                if (_battle.TimeS < due) continue;
+                Respawn(tank);
+                _respawnAt.Remove(tank.Id);
+            }
+        }
+
+        private void Respawn(TankState tank)
+        {
+            SpawnState spawn = _spawns[tank.Id];
+            DamageSimulation.ResetCombatState(
+                tank.Combat,
+                tank.DamageSpec);
+            tank.Position = spawn.Position;
+            tank.Yaw = spawn.Yaw;
+            tank.SpeedMps = 0f;
+            tank.TurretYaw = 0f;
+            tank.HullPitchRad = 0f;
+            tank.HydropneumaticAimActive = false;
+            tank.AimBloom = 1f;
+            tank.Health = tank.Combat.Health;
+            tank.ReloadRemainingS = 0f;
+            tank.Destroyed = false;
+            Array.Clear(
+                tank.ConsumableReadyAt,
+                0,
+                tank.ConsumableReadyAt.Length);
         }
 
         private void StepZones(float dt)
@@ -186,8 +299,9 @@ namespace ClaudeOfTanks.Simulation
             {
                 TankState tank = _battle.Tanks[i];
                 if (tank.Team != Team.Bravo) continue;
-                tank.Combat.Destroyed = false;
-                tank.Combat.Health = tank.Combat.MaxHealth;
+                DamageSimulation.ResetCombatState(
+                    tank.Combat,
+                    tank.DamageSpec);
                 tank.Health = tank.Combat.Health;
                 tank.Destroyed = false;
             }
@@ -232,6 +346,31 @@ namespace ClaudeOfTanks.Simulation
             return best;
         }
 
+        private TankState ClosestFriendly(
+            Team owner,
+            Float3 point,
+            float radius)
+        {
+            TankState best = null;
+            float bestDistance = radius * radius;
+            for (int i = 0; i < _battle.Tanks.Count; i++)
+            {
+                TankState tank = _battle.Tanks[i];
+                float distance =
+                    HorizontalDistanceSq(
+                        tank.Position,
+                        point);
+                if (!tank.Destroyed &&
+                    tank.Team == owner &&
+                    distance <= bestDistance)
+                {
+                    best = tank;
+                    bestDistance = distance;
+                }
+            }
+            return best;
+        }
+
         private TankState ClosestTank(Float3 point, float radius)
         {
             TankState best = null;
@@ -257,6 +396,12 @@ namespace ClaudeOfTanks.Simulation
             float x = a.X - b.X;
             float z = a.Z - b.Z;
             return x * x + z * z;
+        }
+
+        private struct SpawnState
+        {
+            public Float3 Position;
+            public float Yaw;
         }
     }
 }

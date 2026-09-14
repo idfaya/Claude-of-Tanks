@@ -15,7 +15,8 @@ namespace ClaudeOfTanks.Simulation
         private const uint Magic = 0x52544f43u;
         private const uint LoadoutMetadataMagic = 0x4c544f43u;
         private const uint SimulationMetadataMagic = 0x534d4f43u;
-        private const ushort Version = 6;
+        private const ushort Version = 7;
+        private const ushort HydropneumaticVersion = 6;
         private const ushort SimulationMetadataVersion = 5;
         private const ushort LoadoutMetadataVersion = 4;
         private const ushort CrushableObstacleVersion = 3;
@@ -80,6 +81,9 @@ namespace ClaudeOfTanks.Simulation
                 }
                 WriteLoadoutMetadata(writer, recording);
                 WriteSimulationMetadata(writer, recording);
+                ReplayCombatMetadataCodec.Write(
+                    writer,
+                    recording);
                 writer.Flush();
                 if (stream.Length > MaximumEncodedBytes)
                     throw new InvalidDataException("Replay exceeds its encoded size limit.");
@@ -104,7 +108,8 @@ namespace ClaudeOfTanks.Simulation
                         version != CrushableObstacleVersion &&
                         version != StaticObstacleVersion &&
                         version != PreviousVersion &&
-                        version != SimulationMetadataVersion)
+                        version != SimulationMetadataVersion &&
+                        version != HydropneumaticVersion)
                         throw new FormatException("Replay version is unsupported.");
                     uint seed = reader.ReadUInt32();
                     float worldExtent = ReadFinite(reader, "world extent");
@@ -168,6 +173,10 @@ namespace ClaudeOfTanks.Simulation
                             reader,
                             recording,
                             version);
+                    if (version >= Version)
+                        ReplayCombatMetadataCodec.Read(
+                            reader,
+                            recording);
                     if (stream.Position != stream.Length)
                         throw new FormatException("Replay has trailing data.");
                     return recording;
@@ -512,7 +521,7 @@ namespace ClaudeOfTanks.Simulation
                     ReadFinite(reader, "magazine reload");
                 spec.IntraClipS =
                     ReadFinite(reader, "intra-clip");
-                if (version >= Version &&
+                if (version >= HydropneumaticVersion &&
                     reader.ReadBoolean())
                 {
                     spec.HydropneumaticAim =
@@ -535,7 +544,7 @@ namespace ClaudeOfTanks.Simulation
                                 "hydropneumatic droop")
                         };
                 }
-                if (version >= Version)
+                if (version >= HydropneumaticVersion)
                 {
                     spec.FixedHydraulicGun =
                         reader.ReadBoolean();
@@ -596,7 +605,17 @@ namespace ClaudeOfTanks.Simulation
             WriteFinite(writer, spec.ArmorSideMm, "side armor");
             WriteFinite(writer, spec.ArmorRearMm, "rear armor");
             WriteFinite(writer, spec.CollisionRadiusM, "collision radius");
-            ShellSpec shell = spec.Shell;
+            WriteShell(writer, spec.Shell, false);
+        }
+
+        private static void WriteShell(
+            BinaryWriter writer,
+            ShellSpec shell,
+            bool includeCount)
+        {
+            if (shell == null)
+                throw new InvalidDataException(
+                    "Replay shell spec is missing.");
             WriteString(writer, shell.Name, 64);
             WriteString(writer, shell.Type, 32);
             WriteFinite(writer, shell.CaliberMm, "caliber");
@@ -606,6 +625,7 @@ namespace ClaudeOfTanks.Simulation
             WriteFinite(writer, shell.Pen1000Mm, "penetration 1000");
             WriteFinite(writer, shell.Pen2000Mm, "penetration 2000");
             WriteFinite(writer, shell.ReloadS, "reload");
+            if (includeCount) writer.Write(shell.Count);
             writer.Write(shell.Guided);
             WriteFinite(writer, shell.GravityScale, "gravity");
             WriteFinite(writer, shell.GuidanceTurnRateRadS, "guidance rate");
@@ -633,21 +653,9 @@ namespace ClaudeOfTanks.Simulation
                 ArmorRearMm = ReadFinite(reader, "rear armor"),
                 CollisionRadiusM = ReadFinite(reader, "collision radius")
             };
-            spec.Shell = new ShellSpec
-            {
-                Name = ReadString(reader, 64),
-                Type = ReadString(reader, 32),
-                CaliberMm = ReadFinite(reader, "caliber"),
-                VelocityMps = ReadFinite(reader, "velocity"),
-                Damage = ReadFinite(reader, "damage"),
-                Pen100Mm = ReadFinite(reader, "penetration 100"),
-                Pen1000Mm = ReadFinite(reader, "penetration 1000"),
-                Pen2000Mm = ReadFinite(reader, "penetration 2000"),
-                ReloadS = ReadFinite(reader, "reload"),
-                Guided = reader.ReadBoolean(),
-                GravityScale = ReadFinite(reader, "gravity"),
-                GuidanceTurnRateRadS = ReadFinite(reader, "guidance rate")
-            };
+            spec.Shell = ReadShell(reader, false);
+            spec.Shells =
+                new[] { spec.Shell };
             if (spec.MaxHealth <= 0f || spec.WeightTons <= 0f ||
                 spec.CollisionRadiusM <= 0f || spec.Shell.ReloadS <= 0f)
                 throw new FormatException("Replay tank spec has invalid bounds.");
@@ -668,6 +676,30 @@ namespace ClaudeOfTanks.Simulation
             return spec;
         }
 
+        private static ShellSpec ReadShell(
+            BinaryReader reader,
+            bool includeCount)
+        {
+            return new ShellSpec
+            {
+                Name = ReadString(reader, 64),
+                Type = ReadString(reader, 32),
+                CaliberMm = ReadFinite(reader, "caliber"),
+                VelocityMps = ReadFinite(reader, "velocity"),
+                Damage = ReadFinite(reader, "damage"),
+                Pen100Mm = ReadFinite(reader, "penetration 100"),
+                Pen1000Mm = ReadFinite(reader, "penetration 1000"),
+                Pen2000Mm = ReadFinite(reader, "penetration 2000"),
+                ReloadS = ReadFinite(reader, "reload"),
+                Count = includeCount
+                    ? reader.ReadInt32()
+                    : 0,
+                Guided = reader.ReadBoolean(),
+                GravityScale = ReadFinite(reader, "gravity"),
+                GuidanceTurnRateRadS = ReadFinite(reader, "guidance rate")
+            };
+        }
+
         private static void WriteInput(BinaryWriter writer, TankInput input)
         {
             WriteFinite(writer, input.Throttle, "throttle");
@@ -680,6 +712,9 @@ namespace ClaudeOfTanks.Simulation
             if (input.UseFireExtinguisher) flags |= 16;
             if (input.ToggleHydropneumaticAim) flags |= 32;
             writer.Write(flags);
+            writer.Write((byte)Math.Max(
+                0,
+                Math.Min(15, input.ShellSlot)));
             WriteFloat3(writer, input.AimPoint);
         }
 
@@ -693,7 +728,7 @@ namespace ClaudeOfTanks.Simulation
                 throw new FormatException("Replay input axis is invalid.");
             byte flags = reader.ReadByte();
             byte knownFlags =
-                version >= Version
+                version >= HydropneumaticVersion
                     ? (byte)63
                     : (byte)31;
             if ((flags & ~knownFlags) != 0)
@@ -709,8 +744,11 @@ namespace ClaudeOfTanks.Simulation
                 UseFirstAidKit = (flags & 8) != 0,
                 UseFireExtinguisher = (flags & 16) != 0,
                 ToggleHydropneumaticAim =
-                    version >= Version &&
+                    version >= HydropneumaticVersion &&
                     (flags & 32) != 0,
+                ShellSlot = version >= Version
+                    ? reader.ReadByte()
+                    : 0,
                 AimPoint = ReadFloat3(reader)
             };
         }

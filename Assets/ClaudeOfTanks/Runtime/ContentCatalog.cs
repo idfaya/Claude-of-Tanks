@@ -276,88 +276,7 @@ namespace ClaudeOfTanks.Runtime
 
         public TankSpec ToTankSpec()
         {
-            VehicleShell source = gun != null && gun.shells != null && gun.shells.Length > 0
-                ? gun.shells[0] : new VehicleShell();
-            float width = dims != null && dims.widthM > 0f ? dims.widthM : 3.4f;
-            VehicleGunBloom bloom =
-                gun != null && gun.bloom != null
-                    ? gun.bloom
-                    : new VehicleGunBloom();
-            return new TankSpec
-            {
-                Id = id,
-                DisplayName = name,
-                Role = string.IsNullOrEmpty(role) ? "medium" : role,
-                IsModern = IsModern,
-                MaxHealth = hp,
-                EnginePowerHp = enginePowerHp,
-                WeightTons = weightTons,
-                TopSpeedKmh = topSpeedKmh,
-                ReverseSpeedKmh = reverseSpeedKmh,
-                HullTraverseDegS = hullTraverseDegS,
-                TurretTraverseDegS = turretTraverseDegS,
-                CollisionRadiusM = width * 0.62f,
-                AimTimeS = gun != null && gun.aimTimeS > 0f
-                    ? gun.aimTimeS
-                    : 2f,
-                BaseAccuracyMAt100 =
-                    gun != null && gun.baseAccuracy > 0f
-                        ? gun.baseAccuracy
-                        : 0.36f,
-                AimBloomMove = bloom.move,
-                AimBloomHullRotation = bloom.hullRot,
-                AimBloomTurretRotation = bloom.turret,
-                AimBloomAfterShot = bloom.afterShot,
-                ViewRangeM =
-                    SpottingSimulation.BaseViewRangeM(id, role),
-                CamouflageStill =
-                    SpottingSimulation.BaseCamouflage(
-                        id,
-                        role,
-                        false),
-                CamouflageMoving =
-                    SpottingSimulation.BaseCamouflage(
-                        id,
-                        role,
-                        true),
-                MagazineSize =
-                    gun != null &&
-                    gun.autoloader != null &&
-                    gun.autoloader.magazineSize > 1
-                        ? gun.autoloader.magazineSize
-                        : 1,
-                MagazineReloadS =
-                    gun != null && gun.autoloader != null
-                        ? gun.autoloader.fullReloadS
-                        : 0f,
-                IntraClipS =
-                    gun != null && gun.autoloader != null
-                        ? gun.autoloader.intraClipS
-                        : 0f,
-                HydropneumaticAim =
-                    hydropneumaticAim != null &&
-                    hydropneumaticAim.IsValid
-                        ? hydropneumaticAim.ToSpec()
-                        : null,
-                FixedHydraulicGun =
-                    armor != null &&
-                    armor.turretless &&
-                    hydropneumaticAim != null &&
-                    hydropneumaticAim.IsValid,
-                Shell = new ShellSpec
-                {
-                    Name = source.name,
-                    Type = source.type,
-                    CaliberMm = source.caliberMm,
-                    VelocityMps = source.velocityMps,
-                    Damage = source.dmg,
-                    Pen100Mm = source.pen100Mm,
-                    Pen1000Mm = source.pen1000Mm,
-                    Pen2000Mm = source.pen2000Mm,
-                    ReloadS = gun != null ? gun.reloadS : 5.5f,
-                    Guided = source.guided
-                }
-            };
+            return VehicleCombatSpecBuilder.Build(this);
         }
     }
 
@@ -439,6 +358,8 @@ namespace ClaudeOfTanks.Runtime
         public float pen100Mm = 180f;
         public float pen1000Mm = 145f;
         public float pen2000Mm;
+        public float reloadS;
+        public int count;
         public bool guided;
     }
 
@@ -469,6 +390,8 @@ namespace ClaudeOfTanks.Runtime
         public ArmorPlateDefinition[] hullPlates;
         public ArmorPlateDefinition[] turretPlates;
         public ArmorModuleDefinition[] modules;
+        public ArmorCrewDefinition[] crew;
+        public float boundingRadiusM;
     }
 
     [Serializable] public sealed class VehicleGunBarrel
@@ -481,8 +404,33 @@ namespace ClaudeOfTanks.Runtime
     {
         public string module;
         public bool turretLocal;
+        public bool external;
         public string visualForm;
+        public float[] min;
+        public float[] max;
+        public ArmorVolumeShapeDefinition[] shapes;
         public ArmorModulePartDefinition[] parts;
+    }
+
+    [Serializable] public sealed class ArmorCrewDefinition
+    {
+        public string crew;
+        public bool turretLocal;
+        public float[] min;
+        public float[] max;
+        public ArmorVolumeShapeDefinition[] shapes;
+    }
+
+    [Serializable] public sealed class ArmorVolumeShapeDefinition
+    {
+        public string kind;
+        public float[] center;
+        public float[] radii;
+        public float[] a;
+        public float[] b;
+        public float radius;
+        public int axis;
+        public float halfLength;
     }
 
     [Serializable] public sealed class ArmorModulePartDefinition

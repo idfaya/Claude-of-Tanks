@@ -20,7 +20,8 @@ namespace ClaudeOfTanks.Network
         public bool Burning;
         public uint ModuleYellowMask;
         public uint ModuleRedMask;
-        public byte CrewAliveMask = NetworkDamageState.AllCrewAliveMask;
+        public ushort CrewAliveMask =
+            NetworkDamageState.AllCrewAliveMask;
         public int ShellSlot;
         public int Kills;
     }

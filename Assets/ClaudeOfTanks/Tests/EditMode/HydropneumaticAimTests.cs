@@ -297,7 +297,11 @@ namespace ClaudeOfTanks.Tests
                     GameModeId.Standard);
             byte[] packet = ReplayWireCodec.Encode(
                 recorder.Recording);
-            Array.Resize(ref packet, packet.Length - 2);
+            int combatMetadata =
+                FindMagic(packet, 0x434d4f43u);
+            Array.Resize(
+                ref packet,
+                combatMetadata - 2);
             packet[4] = 5;
             packet[5] = 0;
 
@@ -309,6 +313,26 @@ namespace ClaudeOfTanks.Tests
                     .State.Tanks[0]
                     .Spec.HydropneumaticAim,
                 Is.Null);
+        }
+
+        private static int FindMagic(
+            byte[] packet,
+            uint magic)
+        {
+            for (int i = packet.Length - 4;
+                i >= 0;
+                i--)
+            {
+                if (BitConverter.ToUInt32(
+                        packet,
+                        i) == magic)
+                {
+                    return i;
+                }
+            }
+            Assert.Fail(
+                "Replay metadata magic was not found.");
+            return -1;
         }
 
         [Test]

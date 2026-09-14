@@ -20,6 +20,8 @@
              Link="Server/%(Filename)%(Extension)" />
     <Compile Include="../../../Assets/ClaudeOfTanks/Runtime/ContentCatalog.cs"
              Link="Content/ContentCatalog.cs" />
+    <Compile Include="../../../Assets/ClaudeOfTanks/Runtime/VehicleCombatSpecBuilder.cs"
+             Link="Content/VehicleCombatSpecBuilder.cs" />
     <Compile Include="../../../Assets/ClaudeOfTanks/Runtime/MapSimulationAdapter.cs"
              Link="Content/MapSimulationAdapter.cs" />
     <Compile Include="../../../Assets/ClaudeOfTanks/Runtime/MapVegetationLayout.cs"

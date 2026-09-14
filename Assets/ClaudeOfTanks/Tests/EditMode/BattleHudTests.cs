@@ -181,6 +181,15 @@ namespace ClaudeOfTanks.Tests
                 scope.GetComponent<Button>().onClick.Invoke();
                 Assert.That(hud.ConsumeSniperToggle(), Is.True);
                 Assert.That(hud.ConsumeSniperToggle(), Is.False);
+                root.Find("Shell2")
+                    .GetComponent<Button>()
+                    .onClick.Invoke();
+                Assert.That(
+                    hud.ConsumeShellSlot(0, 3),
+                    Is.EqualTo(1));
+                Assert.That(
+                    hud.ConsumeShellSlot(0, 3),
+                    Is.EqualTo(0));
 
                 TouchAimControl aimControl = aim.GetComponent<TouchAimControl>();
                 PointerEventData pointer = new PointerEventData(EventSystem.current)

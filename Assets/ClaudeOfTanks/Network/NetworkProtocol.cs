@@ -27,6 +27,7 @@ namespace ClaudeOfTanks.Network
         public float AimYawRad;
         public float AimPitchRad;
         public float AimDistanceM;
+        public int ShellSlot;
         public NetworkActionBits Actions;
     }
 
@@ -42,7 +43,7 @@ namespace ClaudeOfTanks.Network
 
     public static class NetworkProtocol
     {
-        public const int Version = 2;
+        public const int Version = 3;
         public const int TickRate = 60;
         public const int SnapshotRate = 20;
         public const int MaximumFutureTicks = 120;
@@ -67,6 +68,8 @@ namespace ClaudeOfTanks.Network
                 command.Steer <= 1f &&
                 command.AimPitchRad >= -MaximumAimPitchRad &&
                 command.AimPitchRad <= MaximumAimPitchRad &&
+                command.ShellSlot >= 0 &&
+                command.ShellSlot <= 15 &&
                 command.SnapshotAckTick >= -1 &&
                 (command.Actions & ~(NetworkActionBits.Fire |
                     NetworkActionBits.RepairKit |
@@ -102,6 +105,7 @@ namespace ClaudeOfTanks.Network
                 ToggleHydropneumaticAim =
                     (command.Actions &
                      NetworkActionBits.HydropneumaticAim) != 0,
+                ShellSlot = command.ShellSlot,
                 AimPoint = tank.Position + new Float3(0f, 1.65f, 0f) +
                     direction * command.AimDistanceM
             };

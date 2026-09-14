@@ -18,6 +18,7 @@ namespace ClaudeOfTanks.WebRTC
             new SignalingSignalQueue();
         private readonly SignalingChannelOwner _transport;
         private SignalingPlayer _player;
+        private string _resumeToken;
         private bool _roomAuthenticated;
         private bool _manualClose;
         private bool _disposed;
@@ -254,6 +255,7 @@ namespace ClaudeOfTanks.WebRTC
                 PeerId = room.PeerId;
                 HostId = room.HostId;
                 _player = player;
+                _resumeToken = room.ResumeToken;
                 _roomAuthenticated = true;
             }
             _recovery.ResetAttempts();
@@ -441,7 +443,8 @@ namespace ClaudeOfTanks.WebRTC
             {
                 roomCode = roomCode,
                 player = player,
-                sessionId = SessionId
+                sessionId = SessionId,
+                resumeToken = _resumeToken
             };
         }
 
@@ -451,6 +454,7 @@ namespace ClaudeOfTanks.WebRTC
             PeerId = null;
             HostId = null;
             _player = null;
+            _resumeToken = null;
             _roomAuthenticated = false;
         }
 

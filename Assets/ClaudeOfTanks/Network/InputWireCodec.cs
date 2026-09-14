@@ -29,6 +29,7 @@ namespace ClaudeOfTanks.Network
                 writer.Write(command.AimYawRad);
                 writer.Write(command.AimPitchRad);
                 writer.Write(command.AimDistanceM);
+                writer.Write((byte)command.ShellSlot);
                 writer.Write((byte)command.Actions);
                 writer.Flush();
                 return stream.ToArray();
@@ -61,6 +62,7 @@ namespace ClaudeOfTanks.Network
                         AimYawRad = reader.ReadSingle(),
                         AimPitchRad = reader.ReadSingle(),
                         AimDistanceM = reader.ReadSingle(),
+                        ShellSlot = reader.ReadByte(),
                         Actions = (NetworkActionBits)reader.ReadByte()
                     };
                     if (stream.Position != stream.Length ||

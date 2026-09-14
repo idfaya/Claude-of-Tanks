@@ -54,6 +54,80 @@ namespace ClaudeOfTanks.Tests
             Assert.That(simulation.MatchMode.AlphaScore, Is.EqualTo(1f));
         }
 
+        [TestCase(GameModeId.CaptureTheFlag)]
+        [TestCase(GameModeId.ZoneControl)]
+        [TestCase(GameModeId.TurboBall)]
+        public void ObjectiveModesRespawnDestroyedTanks(
+            GameModeId mode)
+        {
+            BattleState state = State();
+            BattleSimulation simulation =
+                new BattleSimulation(state, mode);
+            simulation.Step(
+                null,
+                BattleState.FixedDeltaTime);
+            Float3 spawn = state.Tanks[0].Position;
+            state.Tanks[0].Position =
+                new Float3(50f, 0f, 50f);
+            Destroy(state.Tanks[0]);
+
+            for (int i = 0;
+                i < 370;
+                i++)
+            {
+                simulation.Step(
+                    null,
+                    BattleState.FixedDeltaTime);
+            }
+
+            Assert.That(
+                state.Tanks[0].Destroyed,
+                Is.False);
+            Assert.That(
+                state.Tanks[0].Position,
+                Is.EqualTo(spawn));
+            Assert.That(
+                state.Tanks[0].Combat.Ammo[0],
+                Is.EqualTo(
+                    state.Tanks[0].Combat
+                        .AmmoCapacity[0]));
+        }
+
+        [Test]
+        public void DroppedFlagPersistsBeforeReturnTimeout()
+        {
+            BattleState state = State();
+            BattleSimulation simulation =
+                new BattleSimulation(
+                    state,
+                    GameModeId.CaptureTheFlag);
+            simulation.Step(
+                null,
+                BattleState.FixedDeltaTime);
+            state.Tanks[0].Position =
+                state.Tanks[1].Position;
+            simulation.Step(
+                null,
+                BattleState.FixedDeltaTime);
+            state.Tanks[0].Position =
+                Float3.Zero;
+            Destroy(state.Tanks[0]);
+            simulation.Step(
+                null,
+                BattleState.FixedDeltaTime);
+            simulation.Step(
+                null,
+                BattleState.FixedDeltaTime);
+
+            Assert.That(
+                simulation.MatchMode.BravoFlag,
+                Is.EqualTo(Float3.Zero));
+            Assert.That(
+                simulation.MatchMode
+                    .BravoFlagCarrier,
+                Is.Null);
+        }
+
         [Test]
         public void HordeRevivesEnemiesAndAdvancesWave()
         {

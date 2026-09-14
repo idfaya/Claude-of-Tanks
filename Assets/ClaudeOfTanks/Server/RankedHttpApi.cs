@@ -164,6 +164,7 @@ namespace ClaudeOfTanks.Server
         {
             if (_disposed) return;
             _matchmaker.Pump(nowMs);
+            _registry.Sweep(nowMs);
             List<string> expired = null;
             foreach (KeyValuePair<string, RateWindow> pair in _rateWindows)
             {

@@ -166,6 +166,82 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [UnityTest]
+        public IEnumerator ExistingPeerCannotBeClaimedWithoutResumeToken()
+        {
+            int port = SignalingServerTestHarness.ReservePort();
+            RoomSignalingWebSocketService server =
+                SignalingServerTestHarness.StartServer(port);
+            RoomSignalingClient host = null;
+            RoomSignalingClient guest = null;
+            RoomSignalingClient attacker = null;
+            try
+            {
+                yield return SignalingServerTestHarness.WaitForServer(
+                    server,
+                    port,
+                    TimeSpan.FromSeconds(5));
+                Uri endpoint = new Uri(
+                    "ws://127.0.0.1:" + port + "/signal");
+                host = SignalingServerTestHarness.CreateClient(
+                    endpoint,
+                    "host-secure-session");
+                guest = SignalingServerTestHarness.CreateClient(
+                    endpoint,
+                    "guest-secure-session");
+                attacker = SignalingServerTestHarness.CreateClient(
+                    endpoint,
+                    "attacker-session");
+
+                Task<SignalingRoomInfo> create = host.CreateRoomAsync(
+                    "secure-host",
+                    "Secure Host",
+                    4);
+                yield return SignalingServerTestHarness.WaitForTask(
+                    create,
+                    TimeSpan.FromSeconds(8));
+                string roomCode =
+                    create.GetAwaiter().GetResult().RoomCode;
+
+                Task<SignalingRoomInfo> join = guest.JoinRoomAsync(
+                    roomCode,
+                    "secure-guest",
+                    "Secure Guest");
+                yield return SignalingServerTestHarness.WaitForTask(
+                    join,
+                    TimeSpan.FromSeconds(8));
+                Assert.That(join.IsCompletedSuccessfully, Is.True);
+
+                Task<SignalingRoomInfo> takeover = attacker.JoinRoomAsync(
+                    roomCode,
+                    "secure-guest",
+                    "Attacker");
+                DateTime deadline =
+                    DateTime.UtcNow.AddSeconds(8);
+                while (!takeover.IsCompleted &&
+                    DateTime.UtcNow < deadline)
+                {
+                    yield return null;
+                }
+                Assert.That(takeover.IsCompleted, Is.True);
+                Assert.That(takeover.IsFaulted, Is.True);
+                Assert.That(
+                    takeover.Exception?.GetBaseException(),
+                    Is.TypeOf<RoomSignalingException>());
+                Assert.That(
+                    ((RoomSignalingException)takeover.Exception
+                        .GetBaseException()).Code,
+                    Is.EqualTo("invalid_resume"));
+            }
+            finally
+            {
+                host?.Dispose();
+                guest?.Dispose();
+                attacker?.Dispose();
+                SignalingServerTestHarness.StopServer(server);
+            }
+        }
+
         private static IEnumerator PumpUntil(
             RoomSignalingClient client,
             List<SignalingEnvelope> events,

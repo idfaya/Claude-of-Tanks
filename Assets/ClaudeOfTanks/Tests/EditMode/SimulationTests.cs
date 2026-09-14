@@ -269,6 +269,10 @@ namespace ClaudeOfTanks.Tests
             Assert.That(spec.MaxHealth, Is.EqualTo(2600f));
             Assert.That(spec.Shell.Type, Is.EqualTo("APFSDS"));
             Assert.That(spec.Shell.Pen2000Mm, Is.EqualTo(750f));
+            Assert.That(spec.Shells, Has.Length.EqualTo(3));
+            Assert.That(
+                spec.Shells[1].Type,
+                Is.EqualTo("HEAT"));
             Assert.That(spec.TopSpeedKmh, Is.EqualTo(67f));
             Assert.That(spec.IsModern, Is.True);
             Assert.That(spec.Role, Is.EqualTo("mbt"));
@@ -279,6 +283,17 @@ namespace ClaudeOfTanks.Tests
             Assert.That(abrams.armor.hullPlates, Has.Length.GreaterThan(10));
             Assert.That(abrams.armor.turretPlates, Has.Length.GreaterThan(10));
             Assert.That(abrams.armor.hullPlates[0].verts, Has.Length.GreaterThanOrEqualTo(3));
+            Assert.That(spec.Armor, Is.Not.Null);
+            Assert.That(
+                spec.Armor.HullPlates,
+                Has.Length.EqualTo(
+                    abrams.armor.hullPlates.Length));
+            Assert.That(
+                spec.Armor.Modules,
+                Has.Length.GreaterThan(0));
+            Assert.That(
+                spec.Armor.Crew,
+                Has.Length.GreaterThan(0));
         }
 
         [Test]
@@ -295,6 +310,20 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(spec.WeightTons, Is.GreaterThan(0f), ids[i]);
                 Assert.That(spec.Shell.VelocityMps, Is.GreaterThan(0f), ids[i]);
                 Assert.That(spec.Shell.Damage, Is.GreaterThan(0f), ids[i]);
+                Assert.That(
+                    spec.Shells,
+                    Has.Length.EqualTo(
+                        catalog.GetVehicle(ids[i]).gun.shells.Length),
+                    ids[i]);
+                Assert.That(spec.Armor, Is.Not.Null, ids[i]);
+                Assert.That(
+                    spec.Armor.Modules,
+                    Has.Length.GreaterThan(0),
+                    ids[i]);
+                Assert.That(
+                    spec.Armor.Crew,
+                    Has.Length.GreaterThan(0),
+                    ids[i]);
                 Assert.That(spec.AimTimeS, Is.GreaterThan(0f), ids[i]);
                 Assert.That(spec.BaseAccuracyMAt100, Is.GreaterThan(0f), ids[i]);
                 Assert.That(spec.ViewRangeM, Is.GreaterThanOrEqualTo(340f), ids[i]);

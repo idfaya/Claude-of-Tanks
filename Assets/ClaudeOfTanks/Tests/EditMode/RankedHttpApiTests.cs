@@ -193,6 +193,112 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void ProductionPumpReclaimsFinishedMatches()
+        {
+            using (RankedRatingStore ratings =
+                new RankedRatingStore())
+            using (DedicatedMatchRegistry registry =
+                new DedicatedMatchRegistry())
+            using (RankedMatchmaker matchmaker =
+                new RankedMatchmaker(
+                    ratings,
+                    registry,
+                    Host,
+                    new[] { "verdant" },
+                    id => id == "m1a1"))
+            using (RankedHttpApi api =
+                new RankedHttpApi(
+                    ratings,
+                    matchmaker,
+                    registry,
+                    () => 1000))
+            {
+                RatingIdentity alpha =
+                    ratings.CreateIdentity("Alpha");
+                RatingIdentity bravo =
+                    ratings.CreateIdentity("Bravo");
+                RankedQueueJoin alphaQueue =
+                    matchmaker.Join(
+                        alpha.Profile.PlayerId,
+                        alpha.BearerToken,
+                        "m1a1",
+                        Array.Empty<string>(),
+                        "factory",
+                        1,
+                        1000);
+                matchmaker.Join(
+                    bravo.Profile.PlayerId,
+                    bravo.BearerToken,
+                    "m1a1",
+                    Array.Empty<string>(),
+                    "factory",
+                    1,
+                    1000);
+                RankedQueueView view = matchmaker.Poll(
+                    alphaQueue.QueueId,
+                    alphaQueue.QueueToken);
+                string matchId =
+                    view.Assignment.MatchTicket.MatchId;
+                DedicatedMatchRecord match =
+                    registry.Get(matchId);
+                NetworkWorldSnapshot snapshot =
+                    match.Host.CreateSnapshot(
+                        alpha.Profile.PlayerId);
+                TankState defeated = null;
+                for (int i = 0;
+                    i < snapshot.Entities.Length;
+                    i++)
+                {
+                    if (snapshot.Entities[i].Team ==
+                        Team.Bravo)
+                    {
+                        defeated = FindTank(
+                            match.Host,
+                            snapshot.Entities[i].EntityId);
+                        break;
+                    }
+                }
+                Assert.That(defeated, Is.Not.Null);
+                defeated.Health = 0f;
+                defeated.Combat.Health = 0f;
+                defeated.Destroyed = true;
+                defeated.Combat.Destroyed = true;
+                match.Host.AdvanceTicks(1);
+                api.Pump(1001);
+                Assert.That(
+                    registry.Get(matchId).FinishedAtMs,
+                    Is.Not.Null);
+
+                api.Pump(
+                    1001 +
+                    DedicatedMatchRegistry
+                        .DefaultFinishedRetentionMs +
+                    1);
+
+                Assert.That(
+                    registry.Get(matchId),
+                    Is.Null);
+            }
+        }
+
+        private static TankState FindTank(
+            AuthoritativeMatchHost host,
+            string entityId)
+        {
+            var field = typeof(AuthoritativeMatchHost)
+                .GetField(
+                    "_simulation",
+                    System.Reflection.BindingFlags
+                        .Instance |
+                    System.Reflection.BindingFlags
+                        .NonPublic);
+            BattleSimulation simulation =
+                (BattleSimulation)field.GetValue(host);
+            return simulation.State.Tanks.Find(
+                tank => tank.Id == entityId);
+        }
+
         private static IdentityDto Identity(int port, string name)
         {
             HttpResponse response = Send(

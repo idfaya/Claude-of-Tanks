@@ -17,6 +17,11 @@ namespace ClaudeOfTanks.Network
         private readonly Dictionary<string, TankInput> _inputs =
             new Dictionary<string, TankInput>(StringComparer.Ordinal);
         private readonly BotController _bots;
+        private readonly Dictionary<string, float> _alphaSpottedUntil =
+            new Dictionary<string, float>(StringComparer.Ordinal);
+        private readonly Dictionary<string, float> _bravoSpottedUntil =
+            new Dictionary<string, float>(StringComparer.Ordinal);
+        private const float SpotLingerSeconds = 5f;
 
         public AuthoritativeMatchHost(
             BattleSimulation simulation,
@@ -110,6 +115,7 @@ namespace ClaudeOfTanks.Network
             {
                 BuildInputs();
                 _simulation.Step(_inputs, BattleState.FixedDeltaTime);
+                UpdateTeamIntelligence();
                 Tick++;
             }
             return count;
@@ -217,7 +223,11 @@ namespace ClaudeOfTanks.Network
                 if (viewer == null ||
                     tank.Id == viewer.Id ||
                     tank.Team == viewer.Team ||
-                    _spotting.CanSpot(viewer, tank, _isOccluded))
+                    IsSpottedFor(viewer.Team, tank.Id) ||
+                    _spotting.CanSpot(
+                        viewer,
+                        tank,
+                        _isOccluded))
                 {
                     result.Add(tank.Id);
                 }
@@ -228,15 +238,110 @@ namespace ClaudeOfTanks.Network
         private bool IsViewerSpotted(TankState viewer)
         {
             if (viewer == null || viewer.Destroyed) return false;
+            Team enemyTeam = viewer.Team == Team.Alpha
+                ? Team.Bravo
+                : Team.Alpha;
+            if (IsSpottedFor(enemyTeam, viewer.Id))
+                return true;
             List<TankState> tanks = _simulation.State.Tanks;
             for (int i = 0; i < tanks.Count; i++)
             {
                 TankState enemy = tanks[i];
-                if (enemy.Team == viewer.Team || enemy.Destroyed) continue;
-                if (_spotting.CanSpot(enemy, viewer, _isOccluded))
+                if (enemy.Team != viewer.Team &&
+                    !enemy.Destroyed &&
+                    _spotting.CanSpot(
+                        enemy,
+                        viewer,
+                        _isOccluded))
+                {
                     return true;
+                }
             }
             return false;
+        }
+
+        private void UpdateTeamIntelligence()
+        {
+            List<TankState> tanks = _simulation.State.Tanks;
+            float until =
+                _simulation.State.TimeS + SpotLingerSeconds;
+            for (int spotterIndex = 0;
+                spotterIndex < tanks.Count;
+                spotterIndex++)
+            {
+                TankState spotter = tanks[spotterIndex];
+                if (spotter.Destroyed) continue;
+                Dictionary<string, float> intel =
+                    IntelFor(spotter.Team);
+                for (int targetIndex = 0;
+                    targetIndex < tanks.Count;
+                    targetIndex++)
+                {
+                    TankState target = tanks[targetIndex];
+                    if (target.Team == spotter.Team ||
+                        target.Destroyed)
+                    {
+                        continue;
+                    }
+                    if (_spotting.CanSpot(
+                            spotter,
+                            target,
+                            _isOccluded))
+                    {
+                        intel[target.Id] = until;
+                    }
+                }
+            }
+            for (int i = 0;
+                i < _simulation.State.Events.Count;
+                i++)
+            {
+                BattleEvent battleEvent =
+                    _simulation.State.Events[i];
+                if (battleEvent.Type !=
+                    BattleEventType.ShellFired)
+                {
+                    continue;
+                }
+                TankState shooter =
+                    FindTank(battleEvent.SourceId);
+                if (shooter == null) continue;
+                for (int observerIndex = 0;
+                    observerIndex < tanks.Count;
+                    observerIndex++)
+                {
+                    TankState observer =
+                        tanks[observerIndex];
+                    if (_spotting.CanSpotMuzzleFlash(
+                            observer,
+                            shooter,
+                            _isOccluded))
+                    {
+                        IntelFor(observer.Team)[shooter.Id] =
+                            until;
+                    }
+                }
+            }
+        }
+
+        private bool IsSpottedFor(
+            Team viewerTeam,
+            string targetId)
+        {
+            float expires;
+            return IntelFor(viewerTeam).TryGetValue(
+                    targetId,
+                    out expires) &&
+                expires + 0.000001f >=
+                    _simulation.State.TimeS;
+        }
+
+        private Dictionary<string, float> IntelFor(
+            Team team)
+        {
+            return team == Team.Alpha
+                ? _alphaSpottedUntil
+                : _bravoSpottedUntil;
         }
 
         private static bool CanSeeShell(

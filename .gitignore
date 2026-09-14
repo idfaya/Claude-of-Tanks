@@ -63,3 +63,4 @@ docs/critique/*
 .stryker-tmp/
 .quality-reports/
 coverage/
+*.profraw
