@@ -19,6 +19,7 @@ namespace ClaudeOfTanks.Tests
             "leo2a6",
             "leo2a6m",
             "leo2_revolution",
+            "leo2a7",
             "leo2a7v",
             "leo2a6_ua"
         };
@@ -180,6 +181,9 @@ namespace ClaudeOfTanks.Tests
             TankView revolution = Create(
                 catalog,
                 "leo2_revolution");
+            TankView a7 = Create(
+                catalog,
+                "leo2a7");
             TankView a7v = Create(
                 catalog,
                 "leo2a7v");
@@ -282,6 +286,21 @@ namespace ClaudeOfTanks.Tests
                     Is.EqualTo(1));
                 Assert.That(
                     Count(
+                        a7,
+                        "Painted-Leopard-A7V-APU"),
+                    Is.EqualTo(2));
+                Assert.That(
+                    Count(
+                        a7,
+                        "Leopard-A7V-ADSSensor"),
+                    Is.EqualTo(4));
+                Assert.That(
+                    Count(
+                        a7,
+                        "Leopard-A7V-RearSlat"),
+                    Is.EqualTo(4));
+                Assert.That(
+                    Count(
                         a7v,
                         "Painted-Leopard-A7V-APU"),
                     Is.EqualTo(2));
@@ -309,6 +328,7 @@ namespace ClaudeOfTanks.Tests
                 a6m.Destroy();
                 ua.Destroy();
                 revolution.Destroy();
+                a7.Destroy();
                 a7v.Destroy();
             }
         }

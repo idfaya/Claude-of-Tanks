@@ -8,6 +8,7 @@ namespace ClaudeOfTanks.Tests
 {
     public sealed class M1A2FleetVisualTests
     {
+        [TestCase("m1a2_legacy", 22, 0)]
         [TestCase("m1a2", 32, 0)]
         [TestCase("m1a2_tusk", 133, 101)]
         [TestCase("m1a2_sepv2", 129, 97)]
@@ -78,6 +79,7 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [TestCase("m1a2_legacy")]
         [TestCase("m1a2")]
         [TestCase("m1a2_tusk")]
         [TestCase("m1a2_sepv2")]

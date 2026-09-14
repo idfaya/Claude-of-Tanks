@@ -6,7 +6,8 @@ namespace ClaudeOfTanks.Runtime
     {
         public static bool Supports(string id)
         {
-            return id == "m1a2" ||
+            return id == "m1a2_legacy" ||
+                id == "m1a2" ||
                 id == "m1a2_tusk" ||
                 id == "m1a2_sepv2" ||
                 id == "m1a2_sepv3";

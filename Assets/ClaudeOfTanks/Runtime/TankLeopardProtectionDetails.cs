@@ -44,6 +44,7 @@ namespace ClaudeOfTanks.Runtime
                         width,
                         length);
                     break;
+                case "leo2a7":
                 case "leo2a7v":
                     AddA7VRearSlat(
                         turret,

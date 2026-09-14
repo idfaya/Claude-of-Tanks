@@ -19,6 +19,7 @@ namespace ClaudeOfTanks.Runtime
                 case "leo2a6":
                 case "leo2a6m":
                 case "leo2_revolution":
+                case "leo2a7":
                 case "leo2a7v":
                 case "leo2a6_ua":
                     return true;

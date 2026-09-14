@@ -853,6 +853,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   transom drum, AKM prop, and numeric UA markings; `ua_m1a1` extends the M1A1HA
   presentation with a turret-mounted anti-drone cage, rear field stowage, and
   jammer box while keeping the dedicated Abrams M256 gun and heavy armor shell.
+- The M1A2 legacy and Leopard 2A7 catalog IDs now route through their existing
+  family owners. M1A2 legacy uses the clean M1A2 loadout and no longer exposes
+  generic SideArmor or default shell renderers; Leopard 2A7 shares the A7V
+  APU/ADS/rear-slat branch in the existing Leopard 2 presentation path.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

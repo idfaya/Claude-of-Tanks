@@ -12,6 +12,7 @@ namespace ClaudeOfTanks.Runtime
             AddCommonDeckDetails(root, color);
             switch (definition.id)
             {
+                case "m1a2_legacy":
                 case "m1a2":
                     AddCleanLoadout(root, color);
                     break;

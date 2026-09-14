@@ -42,6 +42,7 @@ namespace ClaudeOfTanks.Runtime
                         definition,
                         color);
                     break;
+                case "leo2a7":
                 case "leo2a7v":
                     AddA7V(
                         root,
