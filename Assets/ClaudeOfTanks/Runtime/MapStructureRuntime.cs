@@ -56,7 +56,8 @@ namespace ClaudeOfTanks.Runtime
 
         public void Dispose()
         {
-            for (int i = 0; i < _materials.Count; i++) DestroyObject(_materials[i]);
+            for (int i = 0; i < _materials.Count; i++)
+                MapMaterialFactory.Destroy(_materials[i]);
             for (int i = 0; i < _meshes.Count; i++) DestroyObject(_meshes[i]);
             DestroyObject(_root);
         }
@@ -132,12 +133,34 @@ namespace ClaudeOfTanks.Runtime
             Color roof = Color.Lerp(building, new Color(0.15f, 0.16f, 0.16f), 0.58f);
             Color dark = new Color(0.12f, 0.14f, 0.14f);
             _debrisMaterial = CreateMaterial(
-                Color.Lerp(building, new Color(0.15f, 0.12f, 0.1f), 0.72f));
-            CreateMesh("Structures-Bodies", bodies, building);
-            CreateMesh("Structures-Roofs", roofs, roof);
-            CreateMesh("Structures-Details", details, dark);
-            CreateMesh("Structures-Walls", wallMesh, Color.Lerp(building, Color.gray, 0.3f));
-            CreateMesh("Structures-Cover", cover, Color.Lerp(building, new Color(0.2f, 0.17f, 0.13f), 0.55f));
+                Color.Lerp(building, new Color(0.15f, 0.12f, 0.1f), 0.72f),
+                MapMaterialRole.StructureCover,
+                "structures-destroyed");
+            CreateMesh(
+                "Structures-Bodies",
+                bodies,
+                building,
+                MapMaterialRole.StructureBody);
+            CreateMesh(
+                "Structures-Roofs",
+                roofs,
+                roof,
+                MapMaterialRole.StructureRoof);
+            CreateMesh(
+                "Structures-Details",
+                details,
+                dark,
+                MapMaterialRole.StructureDetail);
+            CreateMesh(
+                "Structures-Walls",
+                wallMesh,
+                Color.Lerp(building, Color.gray, 0.3f),
+                MapMaterialRole.StructureWall);
+            CreateMesh(
+                "Structures-Cover",
+                cover,
+                Color.Lerp(building, new Color(0.2f, 0.17f, 0.13f), 0.55f),
+                MapMaterialRole.StructureCover);
         }
 
         public void SyncDestroyedStructures(BattleState state)
@@ -377,7 +400,11 @@ namespace ClaudeOfTanks.Runtime
             return center;
         }
 
-        private void CreateMesh(string name, MeshBucket bucket, Color color)
+        private void CreateMesh(
+            string name,
+            MeshBucket bucket,
+            Color color,
+            MapMaterialRole role)
         {
             if (bucket.Vertices.Count == 0) return;
             Mesh mesh = new Mesh { name = name + "-Mesh" };
@@ -389,17 +416,19 @@ namespace ClaudeOfTanks.Runtime
             _meshes.Add(mesh);
             bucket.Mesh = mesh;
             if (bucket.OwnedRanges.Count > 0) _ownedBuckets.Add(bucket);
-            Material material = CreateMaterial(color);
+            Material material = CreateMaterial(color, role, name);
             GameObject node = new GameObject(name);
             node.transform.SetParent(_root.transform, false);
             node.AddComponent<MeshFilter>().sharedMesh = mesh;
             node.AddComponent<MeshRenderer>().sharedMaterial = material;
         }
 
-        private Material CreateMaterial(Color color)
+        private Material CreateMaterial(
+            Color color,
+            MapMaterialRole role,
+            string seed)
         {
-            Material material = new Material(Shader.Find("Standard")) { color = color };
-            material.SetFloat("_Glossiness", 0.08f);
+            Material material = MapMaterialFactory.Create(color, role, seed);
             _materials.Add(material);
             return material;
         }

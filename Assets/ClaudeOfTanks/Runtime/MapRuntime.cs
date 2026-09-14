@@ -94,7 +94,8 @@ namespace ClaudeOfTanks.Runtime
         {
             _structures?.Dispose();
             _vegetation?.Dispose();
-            for (int i = 0; i < _materials.Count; i++) DestroyObject(_materials[i]);
+            for (int i = 0; i < _materials.Count; i++)
+                MapMaterialFactory.Destroy(_materials[i]);
             for (int i = 0; i < _meshes.Count; i++) DestroyObject(_meshes[i]);
             DestroyObject(_root);
         }
@@ -150,7 +151,10 @@ namespace ClaudeOfTanks.Runtime
         {
             GameObject root = new GameObject("Battlefield");
             root.transform.SetParent(_root.transform, false);
-            Material material = CreateMaterial(color);
+            Material material = CreateMaterial(
+                color,
+                MapMaterialRole.Terrain,
+                "terrain");
             float chunkSize = TerrainHalfExtentM * 2f / TerrainChunksPerAxis;
             float step = chunkSize / TerrainQuadsPerChunk;
             ITerrainSurface terrainSurface = _heightField as ITerrainSurface;
@@ -245,7 +249,13 @@ namespace ClaudeOfTanks.Runtime
                     DiscSegments,
                     GroundSurfaceY);
             }
-            CreateSurfaceMesh("Surface-GroundVariation", vertices, triangles, variation);
+            CreateSurfaceMesh(
+                "Surface-GroundVariation",
+                vertices,
+                triangles,
+                variation,
+                MapMaterialRole.GroundVariation,
+                mapId + "-ground");
         }
 
         private void CreateWetGround(MapSurface surface)
@@ -265,6 +275,8 @@ namespace ClaudeOfTanks.Runtime
                     marshes,
                     GroundSurfaceY + 0.012f,
                     marshColor,
+                    MapMaterialRole.Marsh,
+                    "marsh",
                     true);
             }
 
@@ -277,7 +289,10 @@ namespace ClaudeOfTanks.Runtime
                 {
                     waterColor = Color.Lerp(waterColor, new Color(0.72f, 0.84f, 0.88f), 0.58f);
                 }
-                Material material = CreateMaterial(waterColor);
+                MapMaterialRole role = surface.frozenWater
+                    ? MapMaterialRole.Ice
+                    : MapMaterialRole.Water;
+                Material material = CreateMaterial(waterColor, role, role.ToString());
                 material.SetFloat("_Metallic", surface.frozenWater ? 0.08f : 0.18f);
                 material.SetFloat("_Glossiness", surface.frozenWater ? 0.72f : 0.86f);
                 CreateDiscSurface(
@@ -301,13 +316,15 @@ namespace ClaudeOfTanks.Runtime
                 roads,
                 11.5f,
                 GroundSurfaceY + 0.032f,
-                surface.roadCasingColor.ToColor());
+                surface.roadCasingColor.ToColor(),
+                MapMaterialRole.RoadCasing);
             CreateRoadSurface(
                 "Surface-Roads",
                 roads,
                 7.5f,
                 GroundSurfaceY + 0.044f,
-                surface.roadColor.ToColor());
+                surface.roadColor.ToColor(),
+                MapMaterialRole.Road);
         }
 
         private void CreateRoadSurface(
@@ -315,7 +332,8 @@ namespace ClaudeOfTanks.Runtime
             MapPolyline[] roads,
             float width,
             float height,
-            Color color)
+            Color color,
+            MapMaterialRole role)
         {
             List<Vector3> vertices = new List<Vector3>();
             List<int> triangles = new List<int>();
@@ -358,7 +376,7 @@ namespace ClaudeOfTanks.Runtime
                     triangles.Add(current + 3);
                 }
             }
-            CreateSurfaceMesh(name, vertices, triangles, color);
+            CreateSurfaceMesh(name, vertices, triangles, color, role, name);
         }
 
         private void CreateDiscSurface(
@@ -366,13 +384,15 @@ namespace ClaudeOfTanks.Runtime
             MapDisc[] discs,
             float baseHeight,
             Color color,
+            MapMaterialRole role,
+            string seed,
             bool conformToTerrain)
         {
             CreateDiscSurface(
                 name,
                 discs,
                 baseHeight,
-                CreateMaterial(color),
+                CreateMaterial(color, role, seed),
                 conformToTerrain);
         }
 
@@ -461,7 +481,13 @@ namespace ClaudeOfTanks.Runtime
                 }
             }
             Color craterColor = Color.Lerp(groundColor, new Color(0.12f, 0.1f, 0.08f), 0.58f);
-            CreateSurfaceMesh("Surface-Craters", vertices, triangles, craterColor);
+            CreateSurfaceMesh(
+                "Surface-Craters",
+                vertices,
+                triangles,
+                craterColor,
+                MapMaterialRole.Crater,
+                mapId + "-craters");
         }
 
         private static void ConnectRings(
@@ -546,7 +572,28 @@ namespace ClaudeOfTanks.Runtime
             List<int> triangles,
             Color color)
         {
-            return CreateSurfaceMesh(name, vertices, triangles, CreateMaterial(color));
+            return CreateSurfaceMesh(
+                name,
+                vertices,
+                triangles,
+                color,
+                MapMaterialRole.Terrain,
+                name);
+        }
+
+        private GameObject CreateSurfaceMesh(
+            string name,
+            List<Vector3> vertices,
+            List<int> triangles,
+            Color color,
+            MapMaterialRole role,
+            string seed)
+        {
+            return CreateSurfaceMesh(
+                name,
+                vertices,
+                triangles,
+                CreateMaterial(color, role, seed));
         }
 
         private GameObject CreateSurfaceMesh(
@@ -571,10 +618,12 @@ namespace ClaudeOfTanks.Runtime
             return result;
         }
 
-        private Material CreateMaterial(Color color)
+        private Material CreateMaterial(
+            Color color,
+            MapMaterialRole role,
+            string seed)
         {
-            Material material = new Material(Shader.Find("Standard")) { color = color };
-            material.SetFloat("_Glossiness", 0.08f);
+            Material material = MapMaterialFactory.Create(color, role, seed);
             _materials.Add(material);
             return material;
         }
@@ -601,7 +650,10 @@ namespace ClaudeOfTanks.Runtime
             result.transform.SetParent(parent ?? _root.transform, true);
             result.transform.position = position;
             result.transform.localScale = scale;
-            result.GetComponent<Renderer>().sharedMaterial = CreateMaterial(color);
+            result.GetComponent<Renderer>().sharedMaterial = CreateMaterial(
+                color,
+                MapMaterialRole.Rock,
+                name);
             return result;
         }
 

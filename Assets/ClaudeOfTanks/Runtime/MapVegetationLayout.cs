@@ -13,6 +13,7 @@ namespace ClaudeOfTanks.Runtime
         public readonly float Yaw;
         public readonly float Scale;
         public readonly float Height;
+        public readonly float CanopyCenterHeight;
         public readonly float TrunkHeight;
         public readonly float TrunkRadius;
         public readonly float CrownRadius;
@@ -25,27 +26,53 @@ namespace ClaudeOfTanks.Runtime
             float yaw,
             float scale)
         {
-            bool conifer = MapVegetationPlacementBuilder.IsConifer(species);
-            bool palm = string.Equals(species, "palm", StringComparison.Ordinal);
-            bool narrow = conifer ||
-                string.Equals(species, "poplar", StringComparison.Ordinal) ||
-                string.Equals(species, "cypress", StringComparison.Ordinal);
+            TreeArchetype archetype =
+                MapVegetationPlacementBuilder.Archetype(species);
             Index = index;
             Species = species;
             X = x;
             Z = z;
             Yaw = yaw;
             Scale = scale;
-            Height = (palm ? 12f : narrow ? 11f : 8.5f) * scale;
-            CrownRadius = (palm ? 3.4f : narrow ? 2.25f : 3.2f) * scale;
-            TrunkHeight = Height * (palm ? 0.78f : 0.48f);
-            TrunkRadius = 0.21f * scale;
+            Height = archetype.FallHeightM * scale;
+            CanopyCenterHeight = archetype.CanopyCenterM * scale;
+            CrownRadius = archetype.CanopyRadiusM * scale;
+            TrunkHeight = archetype.TrunkHeightM * scale;
+            TrunkRadius = archetype.TrunkRadiusM * scale;
+        }
+    }
+
+    public readonly struct TreeArchetype
+    {
+        public readonly string Family;
+        public readonly float TrunkRadiusM;
+        public readonly float TrunkHeightM;
+        public readonly float CanopyCenterM;
+        public readonly float CanopyRadiusM;
+        public readonly float FallHeightM;
+
+        public TreeArchetype(
+            string family,
+            float trunkRadiusM,
+            float trunkHeightM,
+            float canopyCenterM,
+            float canopyRadiusM,
+            float fallHeightM)
+        {
+            Family = family;
+            TrunkRadiusM = trunkRadiusM;
+            TrunkHeightM = trunkHeightM;
+            CanopyCenterM = canopyCenterM;
+            CanopyRadiusM = canopyRadiusM;
+            FallHeightM = fallHeightM;
         }
     }
 
     public static class MapVegetationPlacementBuilder
     {
         public const float WorldHalfExtentM = 500f;
+        private static readonly TreeArchetype DefaultArchetype =
+            new TreeArchetype("broadleaf", 0.32f, 3.2f, 4.35f, 3.0f, 6.8f);
 
         public static VegetationTreePlacement[] Expand(MapDefinition map)
         {
@@ -93,6 +120,46 @@ namespace ClaudeOfTanks.Runtime
                 species == "fir" ||
                 species == "cedar" ||
                 species == "cypress";
+        }
+
+        public static bool IsBirchFamily(string species)
+        {
+            return species == "birch" || species == "aspen";
+        }
+
+        public static TreeArchetype Archetype(string species)
+        {
+            switch (species)
+            {
+                case "pine":
+                    return new TreeArchetype("conifer", 0.24f, 3.2f, 4.5f, 2.5f, 6.8f);
+                case "spruce":
+                    return new TreeArchetype("conifer", 0.22f, 3.8f, 5.6f, 2.1f, 8.1f);
+                case "fir":
+                    return new TreeArchetype("conifer", 0.28f, 3.4f, 4.8f, 2.7f, 7.0f);
+                case "cedar":
+                    return new TreeArchetype("conifer", 0.30f, 3.0f, 4.2f, 3.0f, 6.4f);
+                case "cypress":
+                    return new TreeArchetype("conifer", 0.18f, 4.1f, 5.4f, 1.35f, 7.8f);
+                case "oak":
+                    return DefaultArchetype;
+                case "poplar":
+                    return new TreeArchetype("broadleaf", 0.23f, 4.2f, 5.6f, 1.8f, 8.0f);
+                case "willow":
+                    return new TreeArchetype("broadleaf", 0.38f, 2.5f, 3.55f, 3.7f, 6.2f);
+                case "acacia":
+                    return new TreeArchetype("broadleaf", 0.30f, 3.4f, 4.25f, 3.6f, 6.4f);
+                case "eucalyptus":
+                    return new TreeArchetype("broadleaf", 0.25f, 4.8f, 6.1f, 2.0f, 8.8f);
+                case "palm":
+                    return new TreeArchetype("palm", 0.26f, 5.2f, 6.1f, 3.1f, 7.4f);
+                case "birch":
+                    return new TreeArchetype("birch", 0.18f, 4.0f, 4.8f, 2.4f, 6.8f);
+                case "aspen":
+                    return new TreeArchetype("birch", 0.16f, 4.6f, 5.5f, 1.9f, 7.6f);
+                default:
+                    return DefaultArchetype;
+            }
         }
     }
 }

@@ -9,7 +9,7 @@ namespace ClaudeOfTanks.Runtime
     public sealed class MapVegetationRuntime : IDisposable
     {
         public const int ChunksPerAxis = 4;
-        public const int MaximumMeshCount = ChunksPerAxis * ChunksPerAxis * 3 + 1;
+        public const int MaximumMeshCount = ChunksPerAxis * ChunksPerAxis * 6 + 1;
         public const float DefaultVisibleDistanceM = 620f;
 
         private const float WorldHalfExtentM = 500f;
@@ -130,7 +130,8 @@ namespace ClaudeOfTanks.Runtime
 
         public void Dispose()
         {
-            for (int i = 0; i < _materials.Count; i++) DestroyObject(_materials[i]);
+            for (int i = 0; i < _materials.Count; i++)
+                MapMaterialFactory.Destroy(_materials[i]);
             for (int i = 0; i < _meshes.Count; i++) DestroyObject(_meshes[i]);
             DestroyObject(_root);
         }
@@ -149,12 +150,31 @@ namespace ClaudeOfTanks.Runtime
 
             Color ground = map.unitySurface?.groundColor?.ToColor() ??
                 new Color(0.28f, 0.34f, 0.22f);
+            string seed = map.id ?? "map";
             Material trunk = Material(
-                Color.Lerp(new Color(0.24f, 0.15f, 0.08f), ground, 0.18f));
+                Color.Lerp(new Color(0.24f, 0.15f, 0.08f), ground, 0.18f),
+                MapMaterialRole.Bark,
+                seed + "-bark");
+            Material birchTrunk = Material(
+                Color.Lerp(new Color(0.82f, 0.79f, 0.69f), ground, 0.08f),
+                MapMaterialRole.Birch,
+                seed + "-birch-bark");
             Material broadleaf = Material(
-                Color.Lerp(new Color(0.16f, 0.34f, 0.12f), ground, 0.2f));
+                Color.Lerp(new Color(0.16f, 0.34f, 0.12f), ground, 0.2f),
+                MapMaterialRole.Broadleaf,
+                seed + "-broadleaf");
             Material conifer = Material(
-                Color.Lerp(new Color(0.09f, 0.24f, 0.13f), ground, 0.16f));
+                Color.Lerp(new Color(0.09f, 0.24f, 0.13f), ground, 0.16f),
+                MapMaterialRole.Conifer,
+                seed + "-conifer");
+            Material palm = Material(
+                Color.Lerp(new Color(0.18f, 0.38f, 0.15f), ground, 0.12f),
+                MapMaterialRole.Palm,
+                seed + "-palm");
+            Material birch = Material(
+                Color.Lerp(new Color(0.36f, 0.40f, 0.28f), ground, 0.34f),
+                MapMaterialRole.Birch,
+                seed + "-birch-crown");
             CreateFallenMesh(trunk);
             float chunkSize = WorldHalfExtentM * 2f / ChunksPerAxis;
             for (int z = 0; z < ChunksPerAxis; z++)
@@ -166,8 +186,11 @@ namespace ClaudeOfTanks.Runtime
                     GameObject chunk = new GameObject("Vegetation-" + x + "-" + z);
                     chunk.transform.SetParent(_root.transform, false);
                     CreateMesh(chunk.transform, "Trunks", bucket.Trunks, trunk);
+                    CreateMesh(chunk.transform, "Birch-Trunks", bucket.BirchTrunks, birchTrunk);
                     CreateMesh(chunk.transform, "Broadleaf", bucket.Broadleaf, broadleaf);
                     CreateMesh(chunk.transform, "Conifers", bucket.Conifers, conifer);
+                    CreateMesh(chunk.transform, "Palms", bucket.Palms, palm);
+                    CreateMesh(chunk.transform, "Birch-Crowns", bucket.BirchCrowns, birch);
                     _chunks.Add(new ChunkView
                     {
                         Root = chunk,
@@ -192,26 +215,39 @@ namespace ClaudeOfTanks.Runtime
             float scale = tree.Scale;
             bool conifer = MapVegetationPlacementBuilder.IsConifer(species);
             bool palm = string.Equals(species, "palm", StringComparison.Ordinal);
+            bool birch = MapVegetationPlacementBuilder.IsBirchFamily(species);
             bool narrow = conifer ||
                 string.Equals(species, "poplar", StringComparison.Ordinal) ||
-                string.Equals(species, "cypress", StringComparison.Ordinal);
+                string.Equals(species, "cypress", StringComparison.Ordinal) ||
+                string.Equals(species, "eucalyptus", StringComparison.Ordinal);
             float height = tree.Height;
             float crownRadius = tree.CrownRadius;
             float trunkHeight = tree.TrunkHeight;
             float ground = _heightField.HeightAt(x, z);
-            int trunkStart = bucket.Trunks.Triangles.Count;
+            MeshBucket trunkBucket = birch ? bucket.BirchTrunks : bucket.Trunks;
+            int trunkStart = trunkBucket.Triangles.Count;
             AddBox(
-                bucket.Trunks,
+                trunkBucket,
                 new Vector3(x, ground + trunkHeight * 0.5f, z),
-                new Vector3(0.42f * scale, trunkHeight, 0.42f * scale),
+                new Vector3(tree.TrunkRadius * 2f, trunkHeight, tree.TrunkRadius * 2f),
                 yaw);
-            MeshBucket canopy = conifer ? bucket.Conifers : bucket.Broadleaf;
+            MeshBucket canopy = palm
+                ? bucket.Palms
+                : birch
+                    ? bucket.BirchCrowns
+                    : conifer
+                        ? bucket.Conifers
+                        : bucket.Broadleaf;
             int canopyStart = canopy.Triangles.Count;
             Vector3 crownCenter =
-                new Vector3(x, ground + trunkHeight + crownRadius * 0.55f, z);
+                new Vector3(x, ground + tree.CanopyCenterHeight, z);
             if (palm)
             {
                 AddPalmCrown(canopy, crownCenter, crownRadius, yaw);
+            }
+            else if (birch)
+            {
+                AddBirchCrown(canopy, crownCenter, crownRadius, height, yaw);
             }
             else if (conifer)
             {
@@ -267,10 +303,10 @@ namespace ClaudeOfTanks.Runtime
                     crownRadius * 0.62f,
                     crownRadius * 0.82f);
             }
-            bucket.Trunks.AddOwner(
+            trunkBucket.AddOwner(
                 tree.Index,
                 trunkStart,
-                bucket.Trunks.Triangles.Count - trunkStart);
+                trunkBucket.Triangles.Count - trunkStart);
             canopy.AddOwner(
                 tree.Index,
                 canopyStart,
@@ -329,10 +365,12 @@ namespace ClaudeOfTanks.Runtime
             _fallenMesh.RecalculateBounds();
         }
 
-        private Material Material(Color color)
+        private Material Material(
+            Color color,
+            MapMaterialRole role,
+            string seed)
         {
-            Material material = new Material(Shader.Find("Standard")) { color = color };
-            material.SetFloat("_Glossiness", 0.02f);
+            Material material = MapMaterialFactory.Create(color, role, seed);
             _materials.Add(material);
             return material;
         }
@@ -421,6 +459,39 @@ namespace ClaudeOfTanks.Runtime
                     bucket,
                     frondCenter,
                     new Vector3(radius * 0.28f, 0.12f, radius * 1.25f),
+                    angle);
+            }
+        }
+
+        private static void AddBirchCrown(
+            MeshBucket bucket,
+            Vector3 center,
+            float radius,
+            float height,
+            float yaw)
+        {
+            AddOctahedron(bucket, center, radius * 0.82f, height * 0.38f);
+            AddOctahedron(
+                bucket,
+                center + Local(radius * 0.42f, radius * 0.38f, radius * 0.18f, yaw),
+                radius * 0.48f,
+                height * 0.34f);
+            AddOctahedron(
+                bucket,
+                center + Local(-radius * 0.34f, radius * 0.22f, radius * 0.28f, yaw),
+                radius * 0.42f,
+                height * 0.3f);
+            for (int branch = 0; branch < 4; branch++)
+            {
+                float angle = yaw + branch * MathUtil.Pi * 0.5f;
+                Vector3 offset = new Vector3(
+                    MathF.Sin(angle) * radius * 0.38f,
+                    radius * 0.2f,
+                    MathF.Cos(angle) * radius * 0.38f);
+                AddBox(
+                    bucket,
+                    center + offset,
+                    new Vector3(radius * 0.08f, height * 0.32f, radius * 0.08f),
                     angle);
             }
         }
@@ -579,8 +650,11 @@ namespace ClaudeOfTanks.Runtime
         private sealed class ChunkBucket
         {
             public readonly MeshBucket Trunks = new MeshBucket();
+            public readonly MeshBucket BirchTrunks = new MeshBucket();
             public readonly MeshBucket Broadleaf = new MeshBucket();
             public readonly MeshBucket Conifers = new MeshBucket();
+            public readonly MeshBucket Palms = new MeshBucket();
+            public readonly MeshBucket BirchCrowns = new MeshBucket();
             public int TreeCount;
         }
 

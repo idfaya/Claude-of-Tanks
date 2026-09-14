@@ -32,6 +32,10 @@ namespace ClaudeOfTanks.Tests
                 new HashSet<string>();
             HashSet<int> recipeSignatures =
                 new HashSet<int>();
+            HashSet<string> vegetationSpecies =
+                new HashSet<string>();
+            HashSet<string> materialRoles =
+                new HashSet<string>();
             bool foundRaisedTerrain = false;
             bool foundDepressedTerrain = false;
             for (int i = 0; i < catalog.Maps.Length; i++)
@@ -61,6 +65,7 @@ namespace ClaudeOfTanks.Tests
                             .Or.EqualTo("belt"),
                         definition.id);
                     Assert.That(stand.species, Is.Not.Empty, definition.id);
+                    vegetationSpecies.Add(stand.species);
                     Assert.That(stand.count, Is.GreaterThan(0), definition.id);
                     Assert.That(Mathf.Abs(stand.x), Is.LessThan(500f), definition.id);
                     Assert.That(Mathf.Abs(stand.z), Is.LessThan(500f), definition.id);
@@ -332,6 +337,10 @@ namespace ClaudeOfTanks.Tests
                         fallenTrees.GetComponent<MeshFilter>().sharedMesh.triangles,
                         Is.Not.Empty,
                         definition.id);
+                    CollectProceduralMaterialRoles(
+                        runtime.Root,
+                        materialRoles,
+                        definition.id);
 
                     int objects = runtime.Root.GetComponentsInChildren<UnityEngine.Transform>().Length;
                     Assert.That(objects, Is.GreaterThan(8), definition.id);
@@ -370,6 +379,26 @@ namespace ClaudeOfTanks.Tests
             Assert.That(
                 recipeSignatures,
                 Has.Count.EqualTo(buildingKinds.Count));
+            Assert.That(vegetationSpecies, Has.Count.EqualTo(13));
+            AssertMaterialRole(materialRoles, "Terrain");
+            AssertMaterialRole(materialRoles, "GroundVariation");
+            AssertMaterialRole(materialRoles, "RoadCasing");
+            AssertMaterialRole(materialRoles, "Road");
+            AssertMaterialRole(materialRoles, "Marsh");
+            AssertMaterialRole(materialRoles, "Water");
+            AssertMaterialRole(materialRoles, "Ice");
+            AssertMaterialRole(materialRoles, "Crater");
+            AssertMaterialRole(materialRoles, "StructureBody");
+            AssertMaterialRole(materialRoles, "StructureRoof");
+            AssertMaterialRole(materialRoles, "StructureDetail");
+            AssertMaterialRole(materialRoles, "StructureWall");
+            AssertMaterialRole(materialRoles, "StructureCover");
+            AssertMaterialRole(materialRoles, "Rock");
+            AssertMaterialRole(materialRoles, "Bark");
+            AssertMaterialRole(materialRoles, "Broadleaf");
+            AssertMaterialRole(materialRoles, "Conifer");
+            AssertMaterialRole(materialRoles, "Palm");
+            AssertMaterialRole(materialRoles, "Birch");
         }
 
         private static void AssertSurfaceData(
@@ -447,6 +476,39 @@ namespace ClaudeOfTanks.Tests
             Assert.That(color.r, Is.InRange(0f, 1f), message);
             Assert.That(color.g, Is.InRange(0f, 1f), message);
             Assert.That(color.b, Is.InRange(0f, 1f), message);
+        }
+
+        private static void CollectProceduralMaterialRoles(
+            Transform root,
+            HashSet<string> roles,
+            string mapId)
+        {
+            MeshRenderer[] renderers =
+                root.GetComponentsInChildren<MeshRenderer>(true);
+            Assert.That(renderers, Is.Not.Empty, mapId);
+            const string prefix = "MapProcedural-";
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                Material material = renderers[i].sharedMaterial;
+                Assert.That(material, Is.Not.Null, mapId + ":" + renderers[i].name);
+                Texture texture = material.mainTexture;
+                Assert.That(texture, Is.Not.Null, mapId + ":" + renderers[i].name);
+                Assert.That(
+                    texture.name,
+                    Does.StartWith(prefix),
+                    mapId + ":" + renderers[i].name);
+                string roleAndSeed = texture.name.Substring(prefix.Length);
+                int separator = roleAndSeed.IndexOf('-');
+                Assert.That(separator, Is.GreaterThan(0), texture.name);
+                roles.Add(roleAndSeed.Substring(0, separator));
+            }
+        }
+
+        private static void AssertMaterialRole(
+            HashSet<string> roles,
+            string role)
+        {
+            Assert.That(roles.Contains(role), Is.True, role);
         }
     }
 }

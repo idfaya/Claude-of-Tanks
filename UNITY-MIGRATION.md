@@ -121,8 +121,10 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   horizontal water levels.
 - Source-configured vegetation manifests for all 20 maps with 4,579
   cluster/lone/rim/belt stands and 65,170 trees. Runtime expansion uses stable
-  per-stand seeds, terrain grounding, species-shaped low-poly crowns, sixteen
-  distance-managed chunks, and at most 49 merged vegetation meshes per map.
+  per-stand seeds, terrain grounding, TS-derived archetype proportions for all
+  13 catalog species, species-shaped low-poly crowns, sixteen distance-managed
+  chunks, and at most 97 merged vegetation meshes per map after palm and
+  birch/aspen material buckets.
 - All 65,170 rendered trees share their exact placement with authoritative
   trunk collision. A fixed spatial grid bounds tank/shell queries; rammed or
   shot trees topple immediately, persist in replay/network destruction state,
@@ -131,7 +133,9 @@ composition code. Generated TS meshes are not a runtime or repository asset.
 - Source-layout-driven surface presentation for all 20 maps: country/grid/path
   road networks with casings, lake and frozen-water sheets, marsh/soft-ground
   discs, map palettes, ground variation, and all 1,420 configured craters.
-  Each surface class is merged into a bounded presentation-only mesh.
+  Each surface class is merged into a bounded presentation-only mesh and uses
+  deterministic runtime-generated procedural textures for terrain, road, marsh,
+  water, ice, crater, rock, structure, bark, leaf, palm, and birch roles.
 - Source-plan-driven structure presentation for all 20 maps: 601 road-aligned
   planned buildings, 60 exact tactical landmarks, 197 wall runs, 894 rubble
   piles, 361 sandbag lines, and 346 hedgehogs in five merged material buckets.
@@ -910,8 +914,8 @@ These systems still use the TypeScript implementation as their specification:
   126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
   Challenger 2/3, Merkava, Korean, Japanese, French, and Italian identity
   suites plus the Swedish turreted, siege, and IFV lines;
-- source texture/material finish parity, complete vegetation recipes, and
-  broader world streaming for all 20 maps;
+- high-end shader finish parity for map materials/vegetation, alpha-card
+  foliage and broader world streaming for all 20 maps;
 - remaining production UI polish;
 - installable build-target release artifacts and platform packaging;
 - per-family procedural vehicle geometry parity and generated technical assets.
