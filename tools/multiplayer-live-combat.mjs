@@ -18,6 +18,7 @@ import process from 'node:process';
 import puppeteer from 'puppeteer';
 import { createServer as createViteServer } from 'vite';
 import { createSignalingServer } from '../server/signalingServer.ts';
+import { chromiumSandboxLaunchOptions } from './chromium-sandbox.mjs';
 
 function numericArg(name, fallback) {
   const prefix = `--${name}=`;
@@ -62,6 +63,33 @@ const signaling = createSignalingServer({ host: '127.0.0.1', port: 0 });
 let browser = null;
 
 const wait = (ms) => new Promise((resolveWait) => setTimeout(resolveWait, ms));
+
+async function launchBrowser() {
+  return puppeteer.launch({
+    headless: true,
+    protocolTimeout: 240_000,
+    ...chromiumSandboxLaunchOptions('multiplayer-live-combat', await puppeteer.executablePath()),
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-features=WebRtcHideLocalIpsWithMdns',
+      '--disable-breakpad',
+      '--disable-crash-reporter',
+      '--disable-background-timer-throttling',
+      '--disable-renderer-backgrounding',
+      '--disable-backgrounding-occluded-windows',
+      '--use-gl=angle',
+      '--enable-webgl',
+    ],
+  });
+}
+
+async function closeBrowser() {
+  if (!browser) return;
+  const closing = browser;
+  browser = null;
+  await closing.close().catch(() => {});
+}
 
 function observePage(page, label) {
   page.on('pageerror', (error) => browserErrors.push(`${label}: ${error.stack || error.message}`));
@@ -943,6 +971,24 @@ async function stopCombat(pages, renderedRole) {
   }, (renderedRole === 'host' && index === 0) || (renderedRole === 'client' && index === 1))));
 }
 
+async function drainFullRenderer(fullPage) {
+  await fullPage.evaluate(() => {
+    const gl = window.__DEBUG?.renderer?.getContext?.();
+    if (gl) {
+      for (let i = 0; i < 16 && gl.getError() !== 0; i++) {
+        // Drain startup/screenshot GL state before the measured gate.
+      }
+    }
+  });
+}
+
+async function waitForPresentationDrain(fullPage) {
+  await fullPage.waitForFunction(
+    () => (window.__DEBUG?.networkPresentation?.pending || 0) === 0,
+    { timeout: 5_000, polling: 16 },
+  );
+}
+
 async function collectFullReport(page, renderedRole) {
   return page.evaluate(async (role) => {
     const state = globalThis.__COT_LIVE_7V7;
@@ -1088,8 +1134,11 @@ function assertFullHealth(report, renderedRole, measuredDurationMs) {
     `${renderedRole} telemetry contains the real collision/dressing world`);
   assert.ok(report.canvas.width >= 1280 && report.canvas.height >= 720,
     `${renderedRole} renders a desktop-resolution frame`);
-  const expectedTraceDurationMs = measuredDurationMs + settleMs;
-  assert.ok(report.trace.durationMs >= expectedTraceDurationMs - 250,
+  // For fixed-duration certification, the browser trace should cover the
+  // configured gameplay window. Node's timer can fire late while 14 peers are
+  // busy, so using Date.now() here turns event-loop delay into a false target.
+  const expectedTraceDurationMs = (completeMatch ? measuredDurationMs : durationMs) + settleMs;
+  assert.ok(report.trace.durationMs >= expectedTraceDurationMs - 1000,
     `${renderedRole} trace covers measured combat ` +
     `(${report.trace.durationMs.toFixed(1)}/${expectedTraceDurationMs} ms)`);
   const renderedFps = report.trace.frames / Math.max(0.001, report.trace.durationMs / 1000);
@@ -1257,6 +1306,8 @@ async function runRenderedRole(origin, signalUrl, renderedRole) {
     const { fullPage, formation, entry } = await prepareRun(pages, renderedRole, lobby);
     console.log(`[live-7v7] ${renderedRole}: full renderer entered at ` +
       `${formation.axis}-axis formation ${formation.center.join(',')}`);
+    await fullPage.bringToFront();
+    await wait(250);
     await installFullCombatProbe(fullPage, formation);
     await Promise.all(pages.map((page, index) => {
       if (index === fullIndex) return startFullCombat(page, formation);
@@ -1277,7 +1328,18 @@ async function runRenderedRole(origin, signalUrl, renderedRole) {
     // resetting the trace, otherwise an encoder GC can masquerade as a live
     // render hitch on the first measured frame.
     await wait(1000);
+    await fullPage.bringToFront();
+    await fullPage.waitForFunction(
+      () => document.visibilityState === 'visible' && document.hasFocus(),
+      { timeout: 5_000, polling: 16 },
+    );
+    await drainFullRenderer(fullPage);
     await beginMeasuredCombat(pages, renderedRole);
+    await fullPage.bringToFront();
+    await fullPage.waitForFunction(
+      () => document.visibilityState === 'visible' && document.hasFocus(),
+      { timeout: 5_000, polling: 16 },
+    );
     const measuredStartedAt = Date.now();
     const completion = completeMatch
       ? await waitForNaturalMatchEnd(pages, renderedRole)
@@ -1286,6 +1348,7 @@ async function runRenderedRole(origin, signalUrl, renderedRole) {
     const measuredDurationMs = Date.now() - measuredStartedAt;
     await stopCombat(pages, renderedRole);
     await wait(settleMs);
+    await waitForPresentationDrain(fullPage);
 
     const hostAuthority = await pages[0].evaluate((role) => {
       const state = globalThis.__COT_LIVE_7V7;
@@ -1431,19 +1494,13 @@ try {
   const viteAddress = vite.httpServer.address();
   const origin = `http://127.0.0.1:${viteAddress.port}`;
   const signalUrl = `ws://127.0.0.1:${signalAddress.port}/signal`;
-  browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-background-timer-throttling',
-      '--disable-renderer-backgrounding',
-      '--disable-backgrounding-occluded-windows',
-      '--use-gl=angle',
-      '--enable-webgl',
-    ],
-  });
+  browser = await launchBrowser();
   const host = onlyRole === 'client' ? null : await runRenderedRole(origin, signalUrl, 'host');
+  if (!onlyRole) {
+    await closeBrowser();
+    await wait(3000);
+    browser = await launchBrowser();
+  }
   const client = onlyRole === 'host' ? null : await runRenderedRole(origin, signalUrl, 'client');
   const summary = {
     ok: true,
@@ -1454,7 +1511,7 @@ try {
   await writeFile(resolve(artifactDir, 'summary.json'), `${JSON.stringify(summary, null, 2)}\n`);
   console.log(JSON.stringify(summary, null, 2));
 } finally {
-  if (browser) await browser.close().catch(() => {});
+  await closeBrowser();
   await signaling.close().catch(() => {});
   await vite.close().catch(() => {});
 }

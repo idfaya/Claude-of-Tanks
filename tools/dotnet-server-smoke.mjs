@@ -142,6 +142,25 @@ const nextMessage = (socket) => new Promise((resolve, reject) => {
   socket.once('error', reject);
 });
 
+const closeSocket = async (socket) => {
+  if (
+    socket.readyState === WebSocket.CLOSED ||
+    socket.readyState === WebSocket.CLOSING
+  ) {
+    return;
+  }
+  const closed = new Promise((resolve) => {
+    socket.once('close', resolve);
+    socket.once('error', resolve);
+  });
+  socket.close();
+  await Promise.race([closed, delay(1_000)]);
+  if (socket.readyState !== WebSocket.CLOSED) {
+    socket.terminate();
+    await Promise.race([closed, delay(1_000)]);
+  }
+};
+
 const writeString = (value) => {
   const bytes = Buffer.from(value, 'utf8');
   assert.ok(bytes.length > 0 && bytes.length <= 256);
@@ -207,7 +226,7 @@ const verifySignaling = async (port) => {
   assert.equal(response.type, 'room_created');
   assert.equal(response.requestId, 'dotnet-smoke');
   assert.match(response.payload.roomCode, /^[A-Z0-9]{6}$/);
-  socket.terminate();
+  await closeSocket(socket);
 };
 
 await execFileAsync(dotnet, [
@@ -265,7 +284,7 @@ try {
   assert.equal(admission.matchId, alphaMatch.match.matchId);
   assert.equal(admission.playerId, alpha.playerId);
   assert.ok(admission.connectionGeneration >= 1);
-  matchSocket.terminate();
+  await closeSocket(matchSocket);
 
   await verifySignaling(signalPort);
   console.log(JSON.stringify({
