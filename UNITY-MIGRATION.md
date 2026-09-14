@@ -847,6 +847,12 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   gun assemblies. PL-01 variants use faceted stealth hull and turret shells,
   full-height side skirt facets, roof EO/smoke/antenna suites, low-observable
   RWS or 105 CROWS fittings, and the dedicated PL-01 gun housing.
+- Ukrainian field variants now route through their matching C# family owners:
+  `ua_t64bv` extends the T-64BV1 presentation with Donbas K-1 glacis, side,
+  and turret horseshoe cassettes plus field stowage, antennas, snorkel rack,
+  transom drum, AKM prop, and numeric UA markings; `ua_m1a1` extends the M1A1HA
+  presentation with a turret-mounted anti-drone cage, rear field stowage, and
+  jammer box while keeping the dedicated Abrams M256 gun and heavy armor shell.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived
