@@ -49,7 +49,7 @@ namespace ClaudeOfTanks.Tests
         [TestCase("t80")]
         [TestCase("t80b")]
         [TestCase("t80bv")]
-        public void ReplacesGenericHullAndRearButKeepsPendingTurretFallback(
+        public void ReplacesGenericHullTurretAndRearFallbacks(
             string id)
         {
             TankView view = Create(id);
@@ -77,7 +77,24 @@ namespace ClaudeOfTanks.Tests
                     Is.Zero);
                 Assert.That(
                     Count(view, "Painted-Soviet-SmokeLauncher"),
-                    Is.GreaterThan(0));
+                    Is.Zero);
+                Assert.That(
+                    Find(view, "Turret")
+                        .GetComponent<Renderer>().enabled,
+                    Is.False);
+                Assert.That(
+                    Find(view, "Gun")
+                        .GetComponent<Renderer>().enabled,
+                    Is.False);
+                Assert.That(
+                    Count(view, "T80-TurretPresentationRoot"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "Painted-T80-CastDome"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(view, "T80-2A46M1Assembly"),
+                    Is.EqualTo(1));
             }
             finally
             {
@@ -232,6 +249,67 @@ namespace ClaudeOfTanks.Tests
                         .Where(IsGenericGear)
                         .All(item => !item.enabled),
                     Is.True);
+            }
+            finally
+            {
+                view.Destroy();
+            }
+        }
+
+        [TestCase("t80", 9, 0, 0)]
+        [TestCase("t80b", 8, 0, 0)]
+        [TestCase("t80bv", 12, 12, 12)]
+        public void BuildsDedicatedCastTurretGunAndVariantArmor(
+            string id,
+            int smokeLaunchers,
+            int chevronTiles,
+            int flankCassettes)
+        {
+            TankView view = Create(id);
+            try
+            {
+                Mesh dome = Find(view, "Painted-T80-CastDome")
+                    .GetComponent<MeshFilter>()
+                    .sharedMesh;
+                Assert.That(dome.vertexCount, Is.GreaterThan(350));
+                Assert.That(
+                    dome.bounds.min.x,
+                    Is.EqualTo(-1.465f).Within(0.0001f));
+                Assert.That(
+                    dome.bounds.max.x,
+                    Is.EqualTo(1.465f).Within(0.0001f));
+                Assert.That(
+                    dome.bounds.min.y,
+                    Is.EqualTo(0.06f).Within(0.0001f));
+                Assert.That(
+                    dome.bounds.max.y,
+                    Is.EqualTo(0.6675f).Within(0.0001f));
+                Assert.That(dome.bounds.min.z, Is.LessThan(-1.28f));
+                Assert.That(dome.bounds.max.z, Is.GreaterThan(1.28f));
+                Assert.That(Count(view, "Painted-T80-CommanderCupolaCollar"),
+                    Is.EqualTo(1));
+                Assert.That(Count(view, "Painted-T80-LoaderCupolaCollar"),
+                    Is.EqualTo(1));
+                Assert.That(Count(view, "T80-RoofPeriscopeLens"),
+                    Is.EqualTo(6));
+                Assert.That(Count(view, "T80-NSVTStation"),
+                    Is.EqualTo(1));
+                Assert.That(Count(view, "T80-Detail-SmokeLauncher"),
+                    Is.EqualTo(smokeLaunchers));
+                Assert.That(Count(view, "Painted-T80BV-K1ChevronTile"),
+                    Is.EqualTo(chevronTiles));
+                Assert.That(Count(view, "Painted-T80BV-K1FlankCassette"),
+                    Is.EqualTo(flankCassettes));
+                Assert.That(Count(view, "Painted-T80-2A46M1ThermalSleeve"),
+                    Is.EqualTo(2));
+                Assert.That(Count(view, "Painted-T80-2A46M1ForwardTube"),
+                    Is.EqualTo(1));
+                Assert.That(Count(view, "T80-2A46M1MuzzleBore"),
+                    Is.EqualTo(1));
+                Assert.That(Count(view, "VehicleMarking-T80-Right"),
+                    Is.EqualTo(1));
+                Assert.That(Count(view, "VehicleMarking-T80-Left"),
+                    Is.EqualTo(1));
             }
             finally
             {

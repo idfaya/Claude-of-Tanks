@@ -21,7 +21,11 @@ namespace ClaudeOfTanks.Runtime
             if (TankT72BUFamilyDetails.Supports(id)) return;
             if (TankT72B3MFamilyDetails.Supports(id)) return;
             if (TankT80FamilyDetails.Supports(id))
+            {
                 TankT80FamilyDetails.BuildHull(root, color, id);
+                TankT80TurretDetails.Build(turret, definition, color);
+                return;
+            }
 
             if (TankT90AVladimirFamilyDetails.Supports(id))
             {

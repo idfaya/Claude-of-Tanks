@@ -818,7 +818,11 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   grille, tilted fuel drums, strapped unditching log, bow cable and each
   variant's exact four-link carrier/deck-cable seat. Generic Soviet rear and
   turbine fallback geometry is no longer built for these three vehicles.
-  Cast turret, variant armor, gun, materials and markings remain.
+  Their shared T-80 cast turret now uses the TS nine-ring dome profile with
+  the BV curved-normal path, dedicated mantlet/cheek/bustle/roof equipment,
+  variant smoke layouts, BV Kontakt-1 cheek/flank cassettes, tactical
+  markings, and a gun-local 2A46M-1 assembly. The generic Soviet turret
+  smoke/searchlight/roof fallback no longer builds for T-80, T-80B, or T-80BV.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived
