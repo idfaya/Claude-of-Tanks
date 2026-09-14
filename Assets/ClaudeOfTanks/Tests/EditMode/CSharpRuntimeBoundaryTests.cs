@@ -182,6 +182,7 @@ namespace ClaudeOfTanks.Tests
                     "TankT80TurretDetails.cs",
                     "TankT80ExtendedFamilyDetails.cs",
                     "TankBritishLegacyFamilyDetails.cs",
+                    "TankPolishFamilyDetails.cs",
                     "TankT90AVladimirFamilyDetails.cs",
                     "TankT90AVladimirHullEquipmentDetails.cs",
                     "TankT90AVladimirTurretDetails.cs",

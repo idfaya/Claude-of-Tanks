@@ -22,6 +22,7 @@ namespace ClaudeOfTanks.Runtime
                 TankItalianFamilyDetails.Supports(id) ||
                 TankSwedishFamilyDetails.Supports(id) ||
                 TankChineseFamilyDetails.Supports(id) ||
+                TankPolishFamilyDetails.Supports(id) ||
                 TankPattonFamilyDetails.Supports(id) ||
                 TankSheridanFamilyDetails.Supports(id) ||
                 TankKf51FamilyDetails.Supports(id) ||
@@ -250,6 +251,11 @@ namespace ClaudeOfTanks.Runtime
                 width,
                 height,
                 length);
+            TankPolishFamilyDetails.Build(
+                root,
+                turret,
+                definition,
+                color);
             TankPattonFamilyDetails.Build(
                 root,
                 turret,
