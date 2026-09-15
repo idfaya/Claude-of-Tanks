@@ -9,6 +9,7 @@ namespace ClaudeOfTanks.Simulation
         Movement = 1,
         Shells = 2,
         Vision = 4,
+        Concealment = 8,
         All = Movement | Shells | Vision
     }
 
@@ -51,7 +52,10 @@ namespace ClaudeOfTanks.Simulation
             if (halfWidthM <= 0f || halfLengthM <= 0f || heightM <= 0f)
                 throw new ArgumentOutOfRangeException(nameof(halfWidthM));
             if (flags == StaticObstacleFlags.None ||
-                (flags & ~StaticObstacleFlags.All) != 0)
+                (flags &
+                 ~(StaticObstacleFlags.All |
+                   StaticObstacleFlags
+                       .Concealment)) != 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(flags));
             }
@@ -96,7 +100,10 @@ namespace ClaudeOfTanks.Simulation
             CrushSpeedRetention <= 1f &&
             (!Crushable || Destructible) &&
             Flags != StaticObstacleFlags.None &&
-            (Flags & ~StaticObstacleFlags.All) == 0;
+            (Flags &
+             ~(StaticObstacleFlags.All |
+               StaticObstacleFlags.Concealment)) ==
+                0;
 
         private static bool IsFinite(float value)
         {

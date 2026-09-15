@@ -103,7 +103,8 @@ namespace ClaudeOfTanks.Tests
                             ? Is.EqualTo(
                                 StaticObstacleFlags.Movement |
                                 StaticObstacleFlags.Shells |
-                                StaticObstacleFlags.Vision)
+                                StaticObstacleFlags
+                                    .Concealment)
                             : Is.EqualTo(StaticObstacleFlags.All),
                         obstacle.Id);
                 }

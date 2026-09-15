@@ -20,6 +20,10 @@ namespace ClaudeOfTanks.Simulation
 
         public BattleState State => _state;
         public MatchModeState MatchMode => _matchMode.State;
+        public Float3? BotTarget(TankState tank)
+        {
+            return _matchMode.BotTarget(tank);
+        }
 
         public void Step(IReadOnlyDictionary<string, TankInput> inputs, float dt)
         {
@@ -28,6 +32,8 @@ namespace ClaudeOfTanks.Simulation
             for (int i = 0; i < _state.Tanks.Count; i++)
             {
                 TankState tank = _state.Tanks[i];
+                if (!tank.ModeActive)
+                    continue;
                 TankInput input;
                 if (inputs == null || !inputs.TryGetValue(tank.Id, out input))
                 {
@@ -36,6 +42,15 @@ namespace ClaudeOfTanks.Simulation
                 }
 
                 Float3 previous = tank.Position;
+                if (input.SpecialAction &&
+                    SpecialActionSimulation.KindFor(
+                        tank.Spec) ==
+                    SpecialActionKind
+                        .HydropneumaticAim)
+                {
+                    input.ToggleHydropneumaticAim =
+                        true;
+                }
                 TankMovement.Step(tank, input, _state.HeightField, dt);
                 DamageSimulation.TickReload(tank.Combat, dt);
                 tank.ReloadRemainingS = tank.Combat.Reload.RemainingS;
@@ -45,6 +60,15 @@ namespace ClaudeOfTanks.Simulation
                 ResolveTankContacts(tank, previous);
                 TryUseConsumables(tank, input);
                 SelectShell(tank, input.ShellSlot);
+                if (input.SpecialAction &&
+                    SpecialActionSimulation.KindFor(
+                        tank.Spec) !=
+                    SpecialActionKind
+                        .HydropneumaticAim)
+                {
+                    SpecialActionSimulation.Activate(
+                        tank);
+                }
                 if (tank.Combat.Fire.Burning)
                 {
                     DamageSimulation.AdvanceFire(
@@ -97,6 +121,11 @@ namespace ClaudeOfTanks.Simulation
                     slot,
                     tank.DamageSpec);
             }
+            if (!tank.Spec.Shells[slot].Guided)
+            {
+                tank.PreviousConventionalShellSlot =
+                    slot;
+            }
         }
 
         private void TryFire(
@@ -117,13 +146,27 @@ namespace ClaudeOfTanks.Simulation
             ShellSpec shellSpec =
                 tank.Spec.Shells[tank.Combat.ShellSlot];
 
-            float gunYaw = tank.Yaw + tank.TurretYaw;
-            Float3 muzzle = tank.Position + new Float3(0f, 1.65f, 0f) + Float3.Forward(gunYaw) * 3.6f;
-            Float3 direction = (aimPoint - muzzle).Normalized;
-            if (direction.SqrMagnitude < 0.5f)
-            {
-                direction = Float3.Forward(gunYaw);
-            }
+            Float3 gunPivot =
+                tank.Spec.Armor != null
+                    ? tank.Spec.Armor.GunPivot
+                    : new Float3(
+                        0f,
+                        1.65f,
+                        0f);
+            Float3 direction =
+                TankPoseMath.GunDirection(tank);
+            float barrelLength =
+                tank.Spec.Armor != null &&
+                tank.Spec.Armor
+                    .GunBarrelLengthM > 0f
+                    ? tank.Spec.Armor
+                        .GunBarrelLengthM
+                    : 3.6f;
+            Float3 muzzle =
+                TankPoseMath.HullPointToWorld(
+                    tank,
+                    gunPivot) +
+                direction * barrelLength;
 
             direction = BallisticsSimulation.ApplyDispersion(
                 direction,
@@ -141,6 +184,12 @@ namespace ClaudeOfTanks.Simulation
                 Velocity = direction * shellSpec.VelocityMps
             };
             _state.Shells.Add(shell);
+            tank.LastFiredAtS =
+                _state.TimeS;
+            tank.FireCamouflageLoss =
+                SpottingSimulation
+                    .FireCamouflageLossFor(
+                        shellSpec.CaliberMm);
             TankMovement.ApplyPostShotBloom(tank);
             DamageSimulation.StartPostShotReload(tank.Combat, tank.DamageSpec);
             tank.ReloadRemainingS = tank.Combat.Reload.RemainingS;
@@ -161,6 +210,11 @@ namespace ClaudeOfTanks.Simulation
             {
                 ShellState shell = _state.Shells[i];
                 BallisticsSimulation.Step(shell, dt);
+                if (_matchMode.TryHitBall(shell))
+                {
+                    _state.Shells.RemoveAt(i);
+                    continue;
+                }
 
                 float targetFraction;
                 TankState target = FindShellTarget(
@@ -249,7 +303,12 @@ namespace ClaudeOfTanks.Simulation
             for (int i = 0; i < _state.Tanks.Count; i++)
             {
                 TankState tank = _state.Tanks[i];
-                if (tank.Destroyed || tank.Team == shell.ShooterTeam || tank.Id == shell.ShooterId)
+                if (!tank.ModeActive ||
+                    tank.Destroyed ||
+                    tank.Team ==
+                        shell.ShooterTeam ||
+                    tank.Id ==
+                        shell.ShooterId)
                 {
                     continue;
                 }
@@ -292,7 +351,9 @@ namespace ClaudeOfTanks.Simulation
             for (int i = 0; i < _state.Tanks.Count; i++)
             {
                 TankState other = _state.Tanks[i];
-                if (ReferenceEquals(tank, other) || other.Destroyed)
+                if (ReferenceEquals(tank, other) ||
+                    !other.ModeActive ||
+                    other.Destroyed)
                 {
                     continue;
                 }

@@ -12,8 +12,14 @@ namespace ClaudeOfTanks.Network
         public Float3 Position;
         public float Yaw;
         public float TurretYaw;
+        public float GunPitchRad;
         public bool HydropneumaticAimActive;
         public float HullPitchRad;
+        public float TerrainPitchRad;
+        public float HullRollRad;
+        public float VerticalSpeedMps;
+        public bool Grounded;
+        public bool Overturned;
         public float SpeedMps;
         public float Health;
         public float MaxHealth;
@@ -160,9 +166,17 @@ namespace ClaudeOfTanks.Network
                 Position = source.Position,
                 Yaw = source.Yaw,
                 TurretYaw = source.TurretYaw,
+                GunPitchRad = source.GunPitchRad,
                 HydropneumaticAimActive =
                     source.HydropneumaticAimActive,
                 HullPitchRad = source.HullPitchRad,
+                TerrainPitchRad =
+                    source.TerrainPitchRad,
+                HullRollRad = source.HullRollRad,
+                VerticalSpeedMps =
+                    source.VerticalSpeedMps,
+                Grounded = source.Grounded,
+                Overturned = source.Overturned,
                 SpeedMps = source.SpeedMps,
                 Health = source.Health,
                 MaxHealth = source.MaxHealth,
@@ -187,9 +201,25 @@ namespace ClaudeOfTanks.Network
             result.Yaw = older.Yaw + MathUtil.DeltaAngle(older.Yaw, newer.Yaw) * t;
             result.TurretYaw = older.TurretYaw +
                 MathUtil.DeltaAngle(older.TurretYaw, newer.TurretYaw) * t;
+            result.GunPitchRad = Lerp(
+                older.GunPitchRad,
+                newer.GunPitchRad,
+                t);
             result.HullPitchRad = Lerp(
                 older.HullPitchRad,
                 newer.HullPitchRad,
+                t);
+            result.TerrainPitchRad = Lerp(
+                older.TerrainPitchRad,
+                newer.TerrainPitchRad,
+                t);
+            result.HullRollRad = Lerp(
+                older.HullRollRad,
+                newer.HullRollRad,
+                t);
+            result.VerticalSpeedMps = Lerp(
+                older.VerticalSpeedMps,
+                newer.VerticalSpeedMps,
                 t);
             result.SpeedMps = Lerp(older.SpeedMps, newer.SpeedMps, t);
             result.Health = Lerp(older.Health, newer.Health, t);

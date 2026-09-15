@@ -15,7 +15,9 @@ namespace ClaudeOfTanks.Simulation
         private const uint Magic = 0x52544f43u;
         private const uint LoadoutMetadataMagic = 0x4c544f43u;
         private const uint SimulationMetadataMagic = 0x534d4f43u;
-        private const ushort Version = 7;
+        private const ushort Version = 8;
+        private const ushort CombatMetadataVersion = 7;
+        private const ushort CombatParityVersion = 8;
         private const ushort HydropneumaticVersion = 6;
         private const ushort SimulationMetadataVersion = 5;
         private const ushort LoadoutMetadataVersion = 4;
@@ -104,6 +106,7 @@ namespace ClaudeOfTanks.Simulation
                         throw new FormatException("Replay magic is invalid.");
                     ushort version = reader.ReadUInt16();
                     if (version != Version &&
+                        version != CombatMetadataVersion &&
                         version != LoadoutMetadataVersion &&
                         version != CrushableObstacleVersion &&
                         version != StaticObstacleVersion &&
@@ -173,10 +176,12 @@ namespace ClaudeOfTanks.Simulation
                             reader,
                             recording,
                             version);
-                    if (version >= Version)
+                    if (version >= CombatMetadataVersion)
                         ReplayCombatMetadataCodec.Read(
                             reader,
-                            recording);
+                            recording,
+                            version >=
+                                CombatParityVersion);
                     if (stream.Position != stream.Length)
                         throw new FormatException("Replay has trailing data.");
                     return recording;
@@ -303,7 +308,10 @@ namespace ClaudeOfTanks.Simulation
                 if (halfWidth <= 0f || halfLength <= 0f || height <= 0f ||
                     crushSpeedRetention < 0f || crushSpeedRetention > 1f ||
                     flags == StaticObstacleFlags.None ||
-                    (flags & ~StaticObstacleFlags.All) != 0)
+                    (flags &
+                     ~(StaticObstacleFlags.All |
+                       StaticObstacleFlags
+                           .Concealment)) != 0)
                 {
                     throw new FormatException("Replay static obstacle bounds are invalid.");
                 }
@@ -561,6 +569,11 @@ namespace ClaudeOfTanks.Simulation
                     spec.CamouflageStill > 1f ||
                     spec.CamouflageMoving < 0f ||
                     spec.CamouflageMoving > 1f ||
+                    spec.GunPitchDegS <= 0f ||
+                    spec.GunElevationDeg <= 0f ||
+                    spec.GunDepressionDeg < 0f ||
+                    spec.GunArcDeg <= 0f ||
+                    spec.GunArcDeg > 180f ||
                     spec.MagazineSize < 1 ||
                     spec.MagazineSize > 64 ||
                     spec.MagazineReloadS < 0f ||
@@ -710,7 +723,11 @@ namespace ClaudeOfTanks.Simulation
             if (input.UseRepairKit) flags |= 4;
             if (input.UseFirstAidKit) flags |= 8;
             if (input.UseFireExtinguisher) flags |= 16;
-            if (input.ToggleHydropneumaticAim) flags |= 32;
+            if (input.SpecialAction ||
+                input.ToggleHydropneumaticAim)
+            {
+                flags |= 32;
+            }
             writer.Write(flags);
             writer.Write((byte)Math.Max(
                 0,
@@ -743,8 +760,14 @@ namespace ClaudeOfTanks.Simulation
                 UseRepairKit = (flags & 4) != 0,
                 UseFirstAidKit = (flags & 8) != 0,
                 UseFireExtinguisher = (flags & 16) != 0,
+                SpecialAction =
+                    version >= CombatParityVersion &&
+                    (flags & 32) != 0,
                 ToggleHydropneumaticAim =
-                    version >= HydropneumaticVersion &&
+                    version >=
+                        HydropneumaticVersion &&
+                    version <
+                        CombatParityVersion &&
                     (flags & 32) != 0,
                 ShellSlot = version >= Version
                     ? reader.ReadByte()

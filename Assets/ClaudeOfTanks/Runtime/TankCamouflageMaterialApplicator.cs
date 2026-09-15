@@ -33,9 +33,13 @@ namespace ClaudeOfTanks.Runtime
             Apply(
                 renderers,
                 texture,
-                TankCamouflage.ResolveScale(
-                    vehicle,
-                    camouflage),
+                resolved == "custom"
+                    ? CustomCamouflageStore
+                        .Load()
+                        .scale
+                    : TankCamouflage.ResolveScale(
+                        vehicle,
+                        camouflage),
                 baseColor);
             if (vehicle.id == "t90" ||
                 vehicle.id == "t90a" ||

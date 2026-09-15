@@ -161,6 +161,8 @@ namespace ClaudeOfTanks.Runtime
 
         private string SanitizeCamouflage(string value)
         {
+            if (value == "custom")
+                return value;
             return !string.IsNullOrEmpty(value) &&
                 _catalog.ContainsCamouflage(value)
                     ? value

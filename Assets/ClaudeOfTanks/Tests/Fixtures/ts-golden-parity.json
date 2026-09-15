@@ -1,0 +1,203 @@
+{
+  "version": 1,
+  "generatedBy": "tools/generate-unity-parity-vectors.mjs",
+  "spotting": {
+    "viewRange": [
+      {
+        "id": "m1a2",
+        "role": "mbt",
+        "expected": 445
+      },
+      {
+        "id": "tiger1",
+        "role": "heavy",
+        "expected": 370
+      },
+      {
+        "id": "unknown_light",
+        "role": "light",
+        "expected": 390
+      },
+      {
+        "id": "unknown_medium",
+        "role": "medium",
+        "expected": 370
+      },
+      {
+        "id": "unknown_td",
+        "role": "td",
+        "expected": 370
+      }
+    ],
+    "baseCamo": [
+      {
+        "id": "m1a2",
+        "role": "mbt",
+        "moving": false,
+        "expected": 0.17
+      },
+      {
+        "id": "m1a2",
+        "role": "mbt",
+        "moving": true,
+        "expected": 0.12
+      },
+      {
+        "id": "tiger1",
+        "role": "heavy",
+        "moving": false,
+        "expected": 0.11
+      },
+      {
+        "id": "tiger1",
+        "role": "heavy",
+        "moving": true,
+        "expected": 0.07
+      },
+      {
+        "id": "unknown_light",
+        "role": "light",
+        "moving": false,
+        "expected": 0.34
+      },
+      {
+        "id": "unknown_light",
+        "role": "light",
+        "moving": true,
+        "expected": 0.34
+      },
+      {
+        "id": "unknown_medium",
+        "role": "medium",
+        "moving": false,
+        "expected": 0.23
+      },
+      {
+        "id": "unknown_medium",
+        "role": "medium",
+        "moving": true,
+        "expected": 0.17
+      },
+      {
+        "id": "unknown_td",
+        "role": "td",
+        "moving": false,
+        "expected": 0.3
+      },
+      {
+        "id": "unknown_td",
+        "role": "td",
+        "moving": true,
+        "expected": 0.18
+      }
+    ],
+    "checkInterval": [
+      {
+        "distanceM": 40,
+        "expected": 0.5
+      },
+      {
+        "distanceM": 119.99,
+        "expected": 0.5
+      },
+      {
+        "distanceM": 120,
+        "expected": 1
+      },
+      {
+        "distanceM": 279.99,
+        "expected": 1
+      },
+      {
+        "distanceM": 280,
+        "expected": 2
+      },
+      {
+        "distanceM": 445,
+        "expected": 2
+      }
+    ],
+    "spotRange": [
+      {
+        "viewRangeM": 445,
+        "targetCamo": 0,
+        "expected": 445
+      },
+      {
+        "viewRangeM": 445,
+        "targetCamo": 0.35,
+        "expected": 306.75
+      },
+      {
+        "viewRangeM": 370,
+        "targetCamo": 0.95,
+        "expected": 66
+      },
+      {
+        "viewRangeM": 40,
+        "targetCamo": 0.5,
+        "expected": 50
+      }
+    ],
+    "effectiveCamo": [
+      {
+        "id": "still_open",
+        "base": 0.23,
+        "paint": 0.035,
+        "equip": 0.14,
+        "firedAtS": 0,
+        "timeS": 100,
+        "bush": 0,
+        "fireLoss": 0.82,
+        "bloom": 0,
+        "expected": 0.405
+      },
+      {
+        "id": "fresh_shot_tree",
+        "base": 0.17,
+        "paint": 0.035,
+        "equip": 0.02,
+        "firedAtS": 0,
+        "timeS": 0,
+        "bush": 0.08,
+        "fireLoss": 0.795,
+        "bloom": 1,
+        "expected": 0.126125
+      },
+      {
+        "id": "decayed_double_bush",
+        "base": 0.3,
+        "paint": 0,
+        "equip": 0.12,
+        "firedAtS": 0,
+        "timeS": 1.7,
+        "bush": 0.5,
+        "fireLoss": 0.9,
+        "bloom": 0.367879,
+        "expected": 0.780942
+      }
+    ]
+  },
+  "specialActions": [
+    {
+      "id": "none",
+      "expected": "none"
+    },
+    {
+      "id": "hydropneumatic",
+      "expected": "hydropneumatic_aim"
+    },
+    {
+      "id": "guided_choice",
+      "expected": "guided_missile"
+    },
+    {
+      "id": "guided_only",
+      "expected": "none"
+    },
+    {
+      "id": "magazine",
+      "expected": "magazine_reload"
+    }
+  ]
+}

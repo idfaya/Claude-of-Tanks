@@ -5,6 +5,10 @@ namespace ClaudeOfTanks.Simulation
     public sealed class TankArmorModel
     {
         public Float3 TurretPivot;
+        public Float3 GunPivot;
+        public float GunBarrelLengthM;
+        public float GunBarrelRadiusM;
+        public bool Turretless;
         public float BoundingRadiusM;
         public ArmorPlateModel[] HullPlates = Array.Empty<ArmorPlateModel>();
         public ArmorPlateModel[] TurretPlates = Array.Empty<ArmorPlateModel>();
@@ -19,6 +23,10 @@ namespace ClaudeOfTanks.Simulation
         public float PhysicalMm;
         public float KeMm;
         public float CeMm;
+        public float EraKeReduction;
+        public float EraCeFlatMm;
+        public string ModuleLink;
+        public bool GunFollow;
         public Float3[] Vertices = Array.Empty<Float3>();
     }
 
@@ -113,8 +121,16 @@ namespace ClaudeOfTanks.Simulation
             for (int i = 0; i < volumes.Length && count < output.Length; i++)
             {
                 ArmorVolumeModel volume = volumes[i];
-                Float3 localStart = ToLocal(start, tank, volume.TurretLocal);
-                Float3 localEnd = ToLocal(end, tank, volume.TurretLocal);
+                Float3 localStart = ToLocal(
+                    start,
+                    tank,
+                    volume.TurretLocal,
+                    false);
+                Float3 localEnd = ToLocal(
+                    end,
+                    tank,
+                    volume.TurretLocal,
+                    false);
                 float enter;
                 float exit;
                 if (!ArmorVolumeIntersection.TryIntersect(
@@ -146,9 +162,6 @@ namespace ClaudeOfTanks.Simulation
             ArmorPlateTrace[] output,
             int count)
         {
-            Float3 localStart = ToLocal(start, tank, turretLocal);
-            Float3 localEnd = ToLocal(end, tank, turretLocal);
-            Float3 direction = localEnd - localStart;
             for (int i = 0; i < plates.Length && count < output.Length; i++)
             {
                 ArmorPlateModel plate = plates[i];
@@ -167,6 +180,19 @@ namespace ClaudeOfTanks.Simulation
                 {
                     continue;
                 }
+                Float3 localStart = ToLocal(
+                    start,
+                    tank,
+                    turretLocal,
+                    plate.GunFollow);
+                Float3 localEnd = ToLocal(
+                    end,
+                    tank,
+                    turretLocal,
+                    plate.GunFollow);
+                Float3 direction =
+                    localEnd -
+                    localStart;
                 float fraction;
                 Float3 localNormal;
                 if (!IntersectPolygon(
@@ -181,7 +207,8 @@ namespace ClaudeOfTanks.Simulation
                 Float3 worldNormal = ToWorldDirection(
                     localNormal,
                     tank,
-                    turretLocal);
+                    turretLocal,
+                    plate.GunFollow);
                 output[count++] = new ArmorPlateTrace
                 {
                     Fraction = fraction,
@@ -274,46 +301,65 @@ namespace ClaudeOfTanks.Simulation
         private static Float3 ToLocal(
             Float3 point,
             TankState tank,
-            bool turretLocal)
+            bool turretLocal,
+            bool gunFollow)
         {
             Float3 value = point - tank.Position;
-            value = RotateYaw(value, -tank.Yaw);
-            value = RotatePitch(value, tank.HullPitchRad);
+            value = TankPoseMath.RotateYaw(
+                value,
+                -tank.Yaw);
+            value = TankPoseMath.RotatePitch(
+                value,
+                TankPoseMath.VisualPitchRad(
+                    tank));
+            value = TankPoseMath.RotateRoll(
+                value,
+                -tank.HullRollRad);
             if (!turretLocal) return value;
             value -= tank.Spec.Armor.TurretPivot;
-            return RotateYaw(value, -tank.TurretYaw);
+            value = TankPoseMath.RotateYaw(
+                value,
+                -tank.TurretYaw);
+            if (gunFollow)
+            {
+                value -= tank.Spec.Armor.GunPivot;
+                value = TankPoseMath.RotatePitch(
+                    value,
+                    tank.GunPitchRad);
+                value += tank.Spec.Armor.GunPivot;
+            }
+            return value;
         }
 
         private static Float3 ToWorldDirection(
             Float3 direction,
             TankState tank,
-            bool turretLocal)
+            bool turretLocal,
+            bool gunFollow)
         {
-            Float3 value = turretLocal
-                ? RotateYaw(direction, tank.TurretYaw)
-                : direction;
-            value = RotatePitch(value, -tank.HullPitchRad);
-            return RotateYaw(value, tank.Yaw).Normalized;
-        }
-
-        private static Float3 RotateYaw(Float3 value, float angle)
-        {
-            float cosine = MathF.Cos(angle);
-            float sine = MathF.Sin(angle);
-            return new Float3(
-                value.X * cosine + value.Z * sine,
-                value.Y,
-                -value.X * sine + value.Z * cosine);
-        }
-
-        private static Float3 RotatePitch(Float3 value, float angle)
-        {
-            float cosine = MathF.Cos(angle);
-            float sine = MathF.Sin(angle);
-            return new Float3(
-                value.X,
-                value.Y * cosine - value.Z * sine,
-                value.Y * sine + value.Z * cosine);
+            Float3 value = direction;
+            if (gunFollow)
+            {
+                value = TankPoseMath.RotatePitch(
+                    value,
+                    -tank.GunPitchRad);
+            }
+            if (turretLocal)
+            {
+                value = TankPoseMath.RotateYaw(
+                    value,
+                    tank.TurretYaw);
+            }
+            value = TankPoseMath.RotateRoll(
+                value,
+                tank.HullRollRad);
+            value = TankPoseMath.RotatePitch(
+                value,
+                -TankPoseMath.VisualPitchRad(
+                    tank));
+            return TankPoseMath.RotateYaw(
+                value,
+                tank.Yaw).Normalized;
         }
 
         private static void InsertionSort(

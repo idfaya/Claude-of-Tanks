@@ -129,15 +129,38 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
-        public void HordeRevivesEnemiesAndAdvancesWave()
+        public void HordeUsesIntermissionPickupAndScaledNextWave()
         {
             BattleState state = State();
-            Destroy(state.Tanks[1]);
             BattleSimulation simulation = new BattleSimulation(state, GameModeId.EndlessHorde);
             simulation.Step(new Dictionary<string, TankInput>(), BattleState.FixedDeltaTime);
+            Destroy(state.Tanks[1]);
+            simulation.Step(
+                new Dictionary<string, TankInput>(),
+                BattleState.FixedDeltaTime);
+            Assert.That(simulation.MatchMode.HordeWave, Is.EqualTo(1));
+            Assert.That(state.Tanks[1].Destroyed, Is.True);
+            Assert.That(
+                simulation.MatchMode.HordeNextWaveInS,
+                Is.GreaterThan(5.9f));
+            Assert.That(
+                simulation.MatchMode.Pickups,
+                Has.Count.EqualTo(1));
+
+            for (int i = 0; i < 365; i++)
+            {
+                simulation.Step(
+                    new Dictionary<string, TankInput>(),
+                    BattleState.FixedDeltaTime);
+            }
             Assert.That(simulation.MatchMode.HordeWave, Is.EqualTo(2));
             Assert.That(state.Tanks[1].Destroyed, Is.False);
-            Assert.That(state.Tanks[1].Health, Is.EqualTo(state.Tanks[1].Spec.MaxHealth));
+            Assert.That(
+                state.Tanks[1].Health,
+                Is.EqualTo(
+                    state.Tanks[1].Spec.MaxHealth *
+                    1.16f)
+                    .Within(0.001f));
         }
 
         private static BattleState State()

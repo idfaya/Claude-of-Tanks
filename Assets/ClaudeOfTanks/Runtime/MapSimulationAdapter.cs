@@ -79,7 +79,8 @@ namespace ClaudeOfTanks.Runtime
                     tree.Yaw,
                     StaticObstacleFlags.Movement |
                     StaticObstacleFlags.Shells |
-                    StaticObstacleFlags.Vision,
+                    StaticObstacleFlags
+                        .Concealment,
                     true,
                     true,
                     1f));

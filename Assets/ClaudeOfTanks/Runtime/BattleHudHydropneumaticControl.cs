@@ -25,14 +25,15 @@ namespace ClaudeOfTanks.Runtime
         public void SetState(TankState tank)
         {
             bool available =
-                tank.Spec.HydropneumaticAim != null;
+                SpecialActionSimulation.KindFor(
+                    tank.Spec) !=
+                SpecialActionKind.None;
             _button.gameObject.SetActive(available);
             if (available)
             {
                 _label.text =
-                    tank.HydropneumaticAimActive
-                        ? "E ON"
-                        : "E";
+                    SpecialActionSimulation
+                        .ShortLabel(tank);
             }
         }
 

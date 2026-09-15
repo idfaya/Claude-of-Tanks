@@ -144,7 +144,7 @@ namespace ClaudeOfTanks.Simulation
             if (armorResult.Penetrated)
             {
                 float damage = shell.Spec.Damage *
-                    _state.Random.Range(0.9f, 1.1f);
+                    _state.Random.Range(0.75f, 1.25f);
                 DamageSimulation.DamageHealth(
                     target.Combat,
                     damage);
@@ -200,17 +200,29 @@ namespace ClaudeOfTanks.Simulation
                         shellType,
                         shell.Spec.CaliberMm,
                         plate.PhysicalMm,
-                        angle);
-                float effectiveAngle = angle;
-                float effective = ricochet
-                    ? 0f
-                    : ArmorSimulation.EffectiveThicknessMm(
-                        shellType,
-                        shell.Spec.CaliberMm,
-                        plate,
                         angle,
-                        out effectiveAngle);
-                cumulative += effective;
+                        shell.Spec
+                            .EffectiveOvermatchCaliberMm);
+                if (ricochet)
+                {
+                    return new ArmorHitResult
+                    {
+                        Direction =
+                            ArmorSimulation.DirectionFromHit(
+                                shell.Velocity,
+                                targetForward),
+                        ImpactAngleDeg = angle,
+                        EffectiveAngleDeg = angle,
+                        EffectiveThicknessMm = cumulative,
+                        PenetrationRollMm = penetration,
+                        Ricocheted = true,
+                        Penetrated = false
+                    };
+                }
+                ResolveLinkedModuleDamage(
+                    shell,
+                    target,
+                    hit.Plate.ModuleLink);
                 if (string.Equals(
                         hit.Plate.Kind,
                         "era",
@@ -219,7 +231,42 @@ namespace ClaudeOfTanks.Simulation
                     target.Combat.EraSpent.Add(
                         hit.Plate.Name ??
                         string.Empty);
+                    penetration =
+                        ArmorSimulation
+                            .ApplyEraPenetration(
+                                shellType,
+                                penetration,
+                                hit.Plate
+                                    .EraKeReduction,
+                                hit.Plate
+                                    .EraCeFlatMm,
+                                shell.Spec.Tandem);
+                    result = new ArmorHitResult
+                    {
+                        Direction =
+                            ArmorSimulation.DirectionFromHit(
+                                shell.Velocity,
+                                targetForward),
+                        ImpactAngleDeg = angle,
+                        EffectiveAngleDeg = angle,
+                        EffectiveThicknessMm = cumulative,
+                        PenetrationRollMm = penetration,
+                        Ricocheted = false,
+                        Penetrated = false
+                    };
+                    if (penetration <= 0f)
+                        return result;
+                    continue;
                 }
+                float effectiveAngle = angle;
+                float effective =
+                    ArmorSimulation.EffectiveThicknessMm(
+                        shellType,
+                        shell.Spec.CaliberMm,
+                        plate,
+                        angle,
+                        out effectiveAngle);
+                cumulative += effective;
                 result = new ArmorHitResult
                 {
                     Direction =
@@ -230,12 +277,11 @@ namespace ClaudeOfTanks.Simulation
                     EffectiveAngleDeg = effectiveAngle,
                     EffectiveThicknessMm = cumulative,
                     PenetrationRollMm = penetration,
-                    Ricocheted = ricochet,
-                    Penetrated = !ricochet &&
+                    Ricocheted = false,
+                    Penetrated =
                         penetration >= cumulative
                 };
-                if (ricochet ||
-                    penetration < cumulative ||
+                if (penetration < cumulative ||
                     string.Equals(
                         hit.Plate.Kind,
                         "main",
@@ -297,9 +343,12 @@ namespace ClaudeOfTanks.Simulation
             for (int i = 0; i < moduleCount; i++)
             {
                 ArmorVolumeTrace hit = _moduleHits[i];
+                float chance =
+                    DamageSimulation.ModuleHitChance(
+                        hit.Volume.Id);
                 if (hit.ExitFraction + 0.0001f <
                         armorFraction ||
-                    _state.Random.NextFloat() >= 0.45f ||
+                    _state.Random.NextFloat() >= chance ||
                     !target.Combat.Modules.ContainsKey(
                         hit.Volume.Id))
                 {
@@ -308,10 +357,12 @@ namespace ClaudeOfTanks.Simulation
                 DamageSimulation.DamageModule(
                     target.Combat,
                     hit.Volume.Id,
-                    shell.Spec.Damage *
+                    MathF.Max(
+                        shell.Spec.ModuleDamage,
+                        shell.Spec.CaliberMm) *
                         _state.Random.Range(
-                            0.25f,
-                            0.5f),
+                            0.75f,
+                            1.25f),
                     _nextRandom);
             }
             int crewCount = TankArmorTrace.TraceVolumes(
@@ -341,6 +392,29 @@ namespace ClaudeOfTanks.Simulation
             for (int i = 0; i < tanks.Count; i++)
                 if (tanks[i].Id == id) return tanks[i];
             return null;
+        }
+
+        private void ResolveLinkedModuleDamage(
+            ShellState shell,
+            TankState target,
+            string moduleId)
+        {
+            if (string.IsNullOrEmpty(moduleId) ||
+                !target.Combat.Modules.ContainsKey(moduleId) ||
+                _state.Random.NextFloat() >=
+                    DamageSimulation.ModuleHitChance(
+                        moduleId))
+            {
+                return;
+            }
+            DamageSimulation.DamageModule(
+                target.Combat,
+                moduleId,
+                MathF.Max(
+                    shell.Spec.ModuleDamage,
+                    shell.Spec.CaliberMm) *
+                    _state.Random.Range(0.75f, 1.25f),
+                _nextRandom);
         }
 
         private static bool SegmentSphere(

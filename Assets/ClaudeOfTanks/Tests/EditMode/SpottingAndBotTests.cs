@@ -149,6 +149,67 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void FoliageConcealsUntilNearbyFiringMakesItTransparent()
+        {
+            BattleState state = new BattleState(
+                new FlatHeightField(),
+                18u,
+                500f,
+                new[]
+                {
+                    Tree("tree-a", 265f),
+                    Tree("tree-b", 270f),
+                    Tree("tree-c", 275f)
+                });
+            TankState spotter = Tank(
+                "spotter",
+                Team.Alpha,
+                Float3.Zero,
+                0f);
+            TankState target = Tank(
+                "target",
+                Team.Bravo,
+                new Float3(0f, 0f, 280f),
+                MathUtil.Pi);
+            SpottingSimulation spotting =
+                new SpottingSimulation();
+            float bush =
+                state.ConcealmentBonusBetween(
+                    spotter.Position,
+                    target.Position,
+                    false);
+
+            Assert.That(bush, Is.GreaterThan(0.2f));
+            Assert.That(
+                spotting.CanSpot(
+                    spotter,
+                    target,
+                    state.IsVisionOccluded,
+                    10f,
+                    bush),
+                Is.False);
+
+            target.LastFiredAtS = 10f;
+            target.FireCamouflageLoss =
+                SpottingSimulation
+                    .FireCamouflageLossFor(120f);
+            float firingBush =
+                state.ConcealmentBonusBetween(
+                    spotter.Position,
+                    target.Position,
+                    true);
+            Assert.That(firingBush, Is.Zero);
+            Assert.That(
+                spotting.CanSpot(
+                    spotter,
+                    target,
+                    state.IsVisionOccluded,
+                    10f,
+                    firingBush),
+                Is.True);
+        }
+
+        [Test]
         public void BotSelectsNearestVisibleEnemyWithStableTieBreak()
         {
             TankState bot = Tank("bot", Team.Alpha, Float3.Zero, 0f);
@@ -224,6 +285,74 @@ namespace ClaudeOfTanks.Tests
             Assert.That(second.Brake, Is.EqualTo(first.Brake));
             Assert.That(second.Fire, Is.EqualTo(first.Fire));
             Assert.That(second.AimPoint, Is.EqualTo(first.AimPoint));
+        }
+
+        [Test]
+        public void BotRoutesAroundBlockingObstacleTowardObjective()
+        {
+            BattleState state = new BattleState(
+                new FlatHeightField(),
+                19u,
+                500f,
+                new[]
+                {
+                    new StaticObstacle(
+                        "block",
+                        new Float3(0f, 0f, 30f),
+                        5f,
+                        5f,
+                        5f,
+                        0f,
+                        StaticObstacleFlags.All)
+                });
+            TankState bot = Tank(
+                "bot",
+                Team.Alpha,
+                Float3.Zero,
+                0f);
+            BotController controller =
+                new BotController(
+                    new SpottingSimulation(),
+                    state.IsVisionOccluded,
+                    state,
+                    ignored =>
+                        new Float3(
+                            0f,
+                            0f,
+                            100f));
+
+            TankInput input =
+                controller.Decide(
+                    bot,
+                    new List<TankState>
+                    {
+                        bot
+                    });
+
+            Assert.That(input.Throttle, Is.GreaterThan(0f));
+            Assert.That(
+                System.Math.Abs(input.Steer),
+                Is.GreaterThan(0.1f));
+        }
+
+        private static StaticObstacle Tree(
+            string id,
+            float z)
+        {
+            return new StaticObstacle(
+                id,
+                new Float3(0f, 0f, z),
+                0.25f,
+                0.25f,
+                7f,
+                0f,
+                StaticObstacleFlags.Movement |
+                StaticObstacleFlags.Shells |
+                StaticObstacleFlags
+                    .Concealment,
+                true,
+                true,
+                1f);
         }
 
         private static TankState Tank(

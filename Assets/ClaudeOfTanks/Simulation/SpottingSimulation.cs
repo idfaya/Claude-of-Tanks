@@ -8,10 +8,19 @@ namespace ClaudeOfTanks.Simulation
         public const float DefaultFieldOfViewDeg = 120f;
         public const float ProximitySpotRangeM = 50f;
         public const float MovingSpeedMps = 0.4f;
+        public const float SignalRangeM = 600f;
+        public const float SpotLingerSeconds = 5f;
+        public const float SixthSenseDelaySeconds = 3f;
+        public const float SixthSenseShowSeconds = 8f;
 
         private const float EyeHeightM = 1.65f;
         private const float TargetHeightM = 1.25f;
         private const float DamagedOpticsViewFactor = 0.5f;
+        private const float DamagedRadioRangeFactor = 0.5f;
+        private const float FireBloomTauS = 1.7f;
+        private const float FireBloomEpsilon = 0.03f;
+        private const float MuzzleFlashBloomMinimum = 0.45f;
+        private const float MuzzleFlashBushMaximum = 0.2f;
         private readonly float _maximumSpotRangeM;
         private readonly float _viewCosine;
 
@@ -49,7 +58,9 @@ namespace ClaudeOfTanks.Simulation
         public bool CanSpot(
             TankState spotter,
             TankState target,
-            Func<Float3, Float3, bool> isOccluded)
+            Func<Float3, Float3, bool> isOccluded,
+            float timeS = 0f,
+            float bushBonus = 0f)
         {
             if (spotter == null)
             {
@@ -81,7 +92,13 @@ namespace ClaudeOfTanks.Simulation
             }
 
             float viewRange = EffectiveViewRangeM(spotter);
-            float targetCamouflage = EffectiveCamouflage(target);
+            float bloom =
+                FireBloomAt(target, timeS);
+            float targetCamouflage =
+                EffectiveCamouflage(
+                    target,
+                    timeS,
+                    bushBonus);
             float spotRange = MathUtil.Clamp(
                 viewRange -
                     (viewRange - ProximitySpotRangeM) *
@@ -90,7 +107,15 @@ namespace ClaudeOfTanks.Simulation
                 _maximumSpotRangeM);
             if (distanceSquared > spotRange * spotRange)
             {
-                return false;
+                if (bloom <
+                        MuzzleFlashBloomMinimum ||
+                    bushBonus >=
+                        MuzzleFlashBushMaximum ||
+                    distanceSquared >
+                        viewRange * viewRange)
+                {
+                    return false;
+                }
             }
 
             float horizontalSquared = offset.X * offset.X + offset.Z * offset.Z;
@@ -164,7 +189,13 @@ namespace ClaudeOfTanks.Simulation
             float range = MathF.Min(
                 _maximumSpotRangeM,
                 EffectiveViewRangeM(spotter));
-            return offset.SqrMagnitude <=
+            float bush = 0f;
+            return FireBloomAt(
+                    shooter,
+                    shooter.LastFiredAtS) >=
+                    MuzzleFlashBloomMinimum &&
+                bush < MuzzleFlashBushMaximum &&
+                offset.SqrMagnitude <=
                     range * range &&
                 (isOccluded == null ||
                  !isOccluded(origin, destination));
@@ -172,18 +203,122 @@ namespace ClaudeOfTanks.Simulation
 
         public static float EffectiveCamouflage(TankState tank)
         {
+            return EffectiveCamouflage(
+                tank,
+                0f,
+                0f);
+        }
+
+        public static float EffectiveCamouflage(
+            TankState tank,
+            float timeS,
+            float bushBonus)
+        {
             if (tank == null) throw new ArgumentNullException(nameof(tank));
             bool moving = MathF.Abs(tank.SpeedMps) > MovingSpeedMps;
             float camouflage = moving
                 ? tank.Spec.CamouflageMoving
                 : tank.Spec.CamouflageStill;
+            camouflage +=
+                tank.CamouflagePaintBonus;
             camouflage += tank.Combat.Equipment.Camouflage;
             if (!moving)
             {
                 camouflage +=
                     tank.Combat.Equipment.StationaryCamouflage;
             }
-            return MathUtil.Clamp(camouflage, 0f, 0.95f);
+            float bloom = FireBloomAt(
+                tank,
+                timeS);
+            camouflage *=
+                1f -
+                tank.FireCamouflageLoss *
+                bloom;
+            return MathUtil.Clamp(
+                camouflage +
+                MathF.Max(0f, bushBonus),
+                0f,
+                0.95f);
+        }
+
+        public static float FireCamouflageLossFor(
+            float caliberMm)
+        {
+            if (caliberMm <= 0f) return 0.82f;
+            return 0.55f +
+                0.35f *
+                MathUtil.Clamp01(
+                    (caliberMm - 50f) /
+                    100f);
+        }
+
+        public static float FireBloomAt(
+            TankState tank,
+            float timeS)
+        {
+            if (tank == null)
+                throw new ArgumentNullException(
+                    nameof(tank));
+            float elapsed =
+                timeS - tank.LastFiredAtS;
+            if (elapsed < 0f ||
+                elapsed > 10f)
+            {
+                return 0f;
+            }
+            float bloom =
+                MathF.Exp(
+                    -elapsed /
+                    FireBloomTauS);
+            return bloom >= FireBloomEpsilon
+                ? bloom
+                : 0f;
+        }
+
+        public static float SpotRangeM(
+            float viewRangeM,
+            float targetCamouflage)
+        {
+            float camouflage =
+                MathUtil.Clamp(
+                    targetCamouflage,
+                    0f,
+                    1f);
+            return MathUtil.Clamp(
+                viewRangeM -
+                    (viewRangeM - ProximitySpotRangeM) *
+                    camouflage,
+                ProximitySpotRangeM,
+                DefaultViewRangeM);
+        }
+
+        public static float CheckIntervalSeconds(
+            float distanceM)
+        {
+            return distanceM < 120f
+                ? 0.5f
+                : distanceM < 280f
+                    ? 1f
+                    : 2f;
+        }
+
+        public static float SignalRangeFor(
+            TankState tank)
+        {
+            if (tank == null)
+                throw new ArgumentNullException(
+                    nameof(tank));
+            DamageModuleState radio;
+            bool damaged =
+                tank.Combat.Modules.TryGetValue(
+                    "radio",
+                    out radio) &&
+                radio.Condition !=
+                    DamageModuleCondition.Ok;
+            return SignalRangeM *
+                (damaged
+                    ? DamagedRadioRangeFactor
+                    : 1f);
         }
 
         public static float BaseViewRangeM(string id, string role)

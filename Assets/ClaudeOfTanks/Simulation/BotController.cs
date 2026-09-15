@@ -13,13 +13,25 @@ namespace ClaudeOfTanks.Simulation
         private const float AimHeightM = 1.25f;
         private readonly SpottingSimulation _spotting;
         private readonly Func<Float3, Float3, bool> _isOccluded;
+        private readonly BattleState _battle;
+        private readonly Func<TankState, Float3?>
+            _objectiveTarget;
+        private readonly BotNavigationPlanner _navigation;
 
         public BotController(
             SpottingSimulation spotting,
-            Func<Float3, Float3, bool> isOccluded = null)
+            Func<Float3, Float3, bool> isOccluded = null,
+            BattleState battle = null,
+            Func<TankState, Float3?>
+                objectiveTarget = null)
         {
             _spotting = spotting ?? throw new ArgumentNullException(nameof(spotting));
             _isOccluded = isOccluded;
+            _battle = battle;
+            _objectiveTarget = objectiveTarget;
+            _navigation = battle != null
+                ? new BotNavigationPlanner(battle)
+                : null;
         }
 
         public TankInput Decide(TankState bot, IReadOnlyList<TankState> tanks)
@@ -37,21 +49,54 @@ namespace ClaudeOfTanks.Simulation
             }
 
             TankState target = SelectTarget(bot, tanks);
-            if (target == null)
+            Float3? objective =
+                _objectiveTarget?.Invoke(bot);
+            if (target == null &&
+                !objective.HasValue)
             {
                 return input;
             }
 
-            Float3 offset = target.Position - bot.Position;
+            Float3 combatTarget =
+                target != null
+                    ? target.Position
+                    : objective.Value;
+            Float3 moveTarget =
+                objective ??
+                combatTarget;
+            if (_navigation != null)
+            {
+                moveTarget =
+                    _navigation.NextWaypoint(
+                        bot,
+                        moveTarget);
+            }
+            Float3 offset =
+                moveTarget - bot.Position;
             float distance = offset.Magnitude;
             float desiredYaw = MathF.Atan2(offset.X, offset.Z);
             float hullDelta = MathUtil.DeltaAngle(bot.Yaw, desiredYaw);
-            float gunDelta = MathUtil.DeltaAngle(bot.Yaw + bot.TurretYaw, desiredYaw);
+            Float3 aimOffset =
+                combatTarget - bot.Position;
+            float combatDistance =
+                aimOffset.Magnitude;
+            float aimYaw = MathF.Atan2(
+                aimOffset.X,
+                aimOffset.Z);
+            float gunDelta = MathUtil.DeltaAngle(
+                bot.Yaw + bot.TurretYaw,
+                aimYaw);
 
-            input.AimPoint = target.Position + new Float3(0f, AimHeightM, 0f);
+            input.AimPoint = combatTarget +
+                new Float3(
+                    0f,
+                    AimHeightM,
+                    0f);
             input.Steer = MathUtil.Clamp(hullDelta * 2.2f, -1f, 1f);
 
-            if (distance > PreferredMaximumRangeM)
+            if (target == null ||
+                distance >
+                    PreferredMaximumRangeM)
             {
                 input.Throttle = MathF.Abs(hullDelta) > 1.2f ? 0.3f : 1f;
             }
@@ -65,7 +110,8 @@ namespace ClaudeOfTanks.Simulation
             }
 
             input.Fire =
-                distance <= FireRangeM &&
+                target != null &&
+                combatDistance <= FireRangeM &&
                 MathF.Abs(gunDelta) <= FireAlignmentRad &&
                 bot.ReloadRemainingS <= 0f &&
                 !_isOccludedOrFalse(bot, target);
@@ -90,7 +136,22 @@ namespace ClaudeOfTanks.Simulation
             {
                 TankState candidate = tanks[i];
                 if (candidate == null || candidate.Destroyed || candidate.Team == bot.Team ||
-                    !_spotting.CanSpot(bot, candidate, _isOccluded))
+                    !_spotting.CanSpot(
+                        bot,
+                        candidate,
+                        _isOccluded,
+                        _battle?.TimeS ?? 0f,
+                        _battle != null
+                            ? _battle
+                                .ConcealmentBonusBetween(
+                                    bot.Position,
+                                    candidate.Position,
+                                    SpottingSimulation
+                                        .FireBloomAt(
+                                            candidate,
+                                            _battle.TimeS) >
+                                        0f)
+                            : 0f))
                 {
                     continue;
                 }

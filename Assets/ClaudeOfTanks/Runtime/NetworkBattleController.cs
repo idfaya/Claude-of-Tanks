@@ -261,13 +261,12 @@ namespace ClaudeOfTanks.Runtime
                 _hud.ConsumeConsumable(2))
                 actions |= NetworkActionBits.FireExtinguisher;
             if (allowHydropneumaticAction &&
-                _predictor.State.Spec.HydropneumaticAim != null &&
                 (gamepad.HydropneumaticAimPressed ||
                  settings.WasPressedThisFrame(
                      GameInputAction.HydropneumaticAim) ||
                  _hud.ConsumeHydropneumaticToggle()))
             {
-                actions |= NetworkActionBits.HydropneumaticAim;
+                actions |= NetworkActionBits.SpecialAction;
             }
 
             Float3 origin = _predictor.State.Position +

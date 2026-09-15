@@ -253,6 +253,12 @@ namespace ClaudeOfTanks.Runtime
         public float reverseSpeedKmh;
         public float hullTraverseDegS;
         public float turretTraverseDegS;
+        public float gunPitchDegS;
+        public float gunElevationDeg;
+        public float gunDepressionDeg;
+        public float gunArcDeg;
+        public float terrainResistance = 1f;
+        public float trackTraction = 1f;
         public VehicleDimensions dims;
         public VehicleGun gun;
         public VehicleVisual visual;
@@ -328,6 +334,7 @@ namespace ClaudeOfTanks.Runtime
         public float reloadS;
         public float aimTimeS;
         public float baseAccuracy;
+        public bool primaryGuided;
         public VehicleGunBloom bloom;
         public VehicleAutoloader autoloader;
         public VehicleShell[] shells;
@@ -361,6 +368,12 @@ namespace ClaudeOfTanks.Runtime
         public float reloadS;
         public int count;
         public bool guided;
+        public float gravityScale = 1f;
+        public float guidanceTurnRateRadS = 2.4f;
+        public float moduleDmg;
+        public float effectiveOvermatchCaliberMm;
+        public bool tandem;
+        public string soundProfile;
     }
 
     [Serializable] public sealed class VehicleVisual
@@ -456,7 +469,16 @@ namespace ClaudeOfTanks.Runtime
         public float physicalMm;
         public float keMm;
         public float ceMm;
+        public ArmorEraDefinition era;
+        public string moduleLink;
+        public bool gunFollow;
         public CatalogPoint[] verts;
+    }
+
+    [Serializable] public sealed class ArmorEraDefinition
+    {
+        public float keReduction;
+        public float ceFlatMm;
     }
 
     [Serializable] public sealed class MapDefinition

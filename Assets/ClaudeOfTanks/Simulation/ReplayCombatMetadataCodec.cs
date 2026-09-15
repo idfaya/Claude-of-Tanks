@@ -25,6 +25,24 @@ namespace ClaudeOfTanks.Simulation
                     spec.Shells.Length > 0
                         ? spec.Shells
                         : new[] { spec.Shell };
+                WriteFinite(
+                    writer,
+                    spec.GunPitchDegS);
+                WriteFinite(
+                    writer,
+                    spec.GunElevationDeg);
+                WriteFinite(
+                    writer,
+                    spec.GunDepressionDeg);
+                WriteFinite(
+                    writer,
+                    spec.GunArcDeg);
+                WriteFinite(
+                    writer,
+                    spec.HullLengthM);
+                WriteFinite(
+                    writer,
+                    spec.HullWidthM);
                 RequireCount(
                     shells.Length,
                     1,
@@ -43,7 +61,8 @@ namespace ClaudeOfTanks.Simulation
 
         public static void Read(
             BinaryReader reader,
-            ReplayRecording recording)
+            ReplayRecording recording,
+            bool includeParityFields)
         {
             if (reader.ReadUInt32() != Magic)
                 throw new FormatException(
@@ -56,6 +75,21 @@ namespace ClaudeOfTanks.Simulation
             {
                 TankSpec spec =
                     recording.Tanks[i].Spec;
+                if (includeParityFields)
+                {
+                    spec.GunPitchDegS =
+                        ReadFinite(reader);
+                    spec.GunElevationDeg =
+                        ReadFinite(reader);
+                    spec.GunDepressionDeg =
+                        ReadFinite(reader);
+                    spec.GunArcDeg =
+                        ReadFinite(reader);
+                    spec.HullLengthM =
+                        ReadFinite(reader);
+                    spec.HullWidthM =
+                        ReadFinite(reader);
+                }
                 int shellCount = reader.ReadByte();
                 RequireCount(
                     shellCount,
@@ -69,10 +103,14 @@ namespace ClaudeOfTanks.Simulation
                     shell++)
                 {
                     spec.Shells[shell] =
-                        ReadShell(reader);
+                        ReadShell(
+                            reader,
+                            includeParityFields);
                 }
                 spec.Shell = spec.Shells[0];
-                spec.Armor = ReadArmor(reader);
+                spec.Armor = ReadArmor(
+                    reader,
+                    includeParityFields);
             }
         }
 
@@ -98,12 +136,22 @@ namespace ClaudeOfTanks.Simulation
             WriteFinite(
                 writer,
                 shell.GuidanceTurnRateRadS);
+            WriteFinite(writer, shell.ModuleDamage);
+            WriteFinite(
+                writer,
+                shell.EffectiveOvermatchCaliberMm);
+            writer.Write(shell.Tandem);
+            WriteOptionalString(
+                writer,
+                shell.SoundProfile,
+                64);
         }
 
         private static ShellSpec ReadShell(
-            BinaryReader reader)
+            BinaryReader reader,
+            bool includeParityFields)
         {
-            return new ShellSpec
+            ShellSpec shell = new ShellSpec
             {
                 Name = ReadString(reader, 64),
                 Type = ReadString(reader, 32),
@@ -120,6 +168,23 @@ namespace ClaudeOfTanks.Simulation
                 GuidanceTurnRateRadS =
                     ReadFinite(reader)
             };
+            if (includeParityFields)
+            {
+                shell.ModuleDamage =
+                    ReadFinite(reader);
+                shell.EffectiveOvermatchCaliberMm =
+                    ReadFinite(reader);
+                shell.Tandem =
+                    reader.ReadBoolean();
+                shell.SoundProfile =
+                    ReadOptionalString(reader, 64);
+            }
+            else
+            {
+                shell.ModuleDamage =
+                    shell.CaliberMm;
+            }
+            return shell;
         }
 
         private static void WriteArmor(
@@ -129,6 +194,14 @@ namespace ClaudeOfTanks.Simulation
             writer.Write(armor != null);
             if (armor == null) return;
             WriteFloat3(writer, armor.TurretPivot);
+            WriteFloat3(writer, armor.GunPivot);
+            WriteFinite(
+                writer,
+                armor.GunBarrelLengthM);
+            WriteFinite(
+                writer,
+                armor.GunBarrelRadiusM);
+            writer.Write(armor.Turretless);
             WriteFinite(writer, armor.BoundingRadiusM);
             WritePlates(writer, armor.HullPlates);
             WritePlates(writer, armor.TurretPlates);
@@ -137,17 +210,36 @@ namespace ClaudeOfTanks.Simulation
         }
 
         private static TankArmorModel ReadArmor(
-            BinaryReader reader)
+            BinaryReader reader,
+            bool includeParityFields)
         {
             if (!reader.ReadBoolean()) return null;
             TankArmorModel armor =
                 new TankArmorModel
                 {
                     TurretPivot = ReadFloat3(reader),
+                    GunPivot = includeParityFields
+                        ? ReadFloat3(reader)
+                        : Float3.Zero,
+                    GunBarrelLengthM =
+                        includeParityFields
+                            ? ReadFinite(reader)
+                            : 0f,
+                    GunBarrelRadiusM =
+                        includeParityFields
+                            ? ReadFinite(reader)
+                            : 0f,
+                    Turretless =
+                        includeParityFields &&
+                        reader.ReadBoolean(),
                     BoundingRadiusM =
                         ReadFinite(reader),
-                    HullPlates = ReadPlates(reader),
-                    TurretPlates = ReadPlates(reader),
+                    HullPlates = ReadPlates(
+                        reader,
+                        includeParityFields),
+                    TurretPlates = ReadPlates(
+                        reader,
+                        includeParityFields),
                     Modules = ReadVolumes(reader),
                     Crew = ReadVolumes(reader)
                 };
@@ -188,6 +280,17 @@ namespace ClaudeOfTanks.Simulation
                 WriteFinite(writer, plate.PhysicalMm);
                 WriteFinite(writer, plate.KeMm);
                 WriteFinite(writer, plate.CeMm);
+                WriteFinite(
+                    writer,
+                    plate.EraKeReduction);
+                WriteFinite(
+                    writer,
+                    plate.EraCeFlatMm);
+                WriteOptionalString(
+                    writer,
+                    plate.ModuleLink,
+                    64);
+                writer.Write(plate.GunFollow);
                 Float3[] vertices =
                     plate.Vertices ??
                     Array.Empty<Float3>();
@@ -209,7 +312,8 @@ namespace ClaudeOfTanks.Simulation
         }
 
         private static ArmorPlateModel[] ReadPlates(
-            BinaryReader reader)
+            BinaryReader reader,
+            bool includeParityFields)
         {
             int count = reader.ReadUInt16();
             RequireCount(
@@ -231,7 +335,24 @@ namespace ClaudeOfTanks.Simulation
                         PhysicalMm =
                             ReadFinite(reader),
                         KeMm = ReadFinite(reader),
-                        CeMm = ReadFinite(reader)
+                        CeMm = ReadFinite(reader),
+                        EraKeReduction =
+                            includeParityFields
+                                ? ReadFinite(reader)
+                                : 0f,
+                        EraCeFlatMm =
+                            includeParityFields
+                                ? ReadFinite(reader)
+                                : 0f,
+                        ModuleLink =
+                            includeParityFields
+                                ? ReadOptionalString(
+                                    reader,
+                                    64)
+                                : null,
+                        GunFollow =
+                            includeParityFields &&
+                            reader.ReadBoolean()
                     };
                 int vertices = reader.ReadByte();
                 RequireCount(
@@ -409,6 +530,18 @@ namespace ClaudeOfTanks.Simulation
             writer.Write(bytes);
         }
 
+        private static void WriteOptionalString(
+            BinaryWriter writer,
+            string value,
+            int maximum)
+        {
+            bool hasValue =
+                !string.IsNullOrEmpty(value);
+            writer.Write(hasValue);
+            if (hasValue)
+                WriteString(writer, value, maximum);
+        }
+
         private static string ReadString(
             BinaryReader reader,
             int maximum)
@@ -422,6 +555,15 @@ namespace ClaudeOfTanks.Simulation
             if (bytes.Length != length)
                 throw new EndOfStreamException();
             return Encoding.UTF8.GetString(bytes);
+        }
+
+        private static string ReadOptionalString(
+            BinaryReader reader,
+            int maximum)
+        {
+            return reader.ReadBoolean()
+                ? ReadString(reader, maximum)
+                : null;
         }
 
         private static void WriteFloat3(

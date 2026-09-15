@@ -13,6 +13,7 @@ namespace ClaudeOfTanks.Runtime
         private readonly BattleState _state;
         private readonly MatchModeState _matchMode;
         private readonly MapRuntime _map;
+        private readonly MatchModeWorldView _modeWorldView;
         private readonly string _mapId;
         private readonly BattleEffects _effects;
         private readonly BattleAudio _audio;
@@ -69,6 +70,7 @@ namespace ClaudeOfTanks.Runtime
             }
             _map = MapRuntime.Create(map);
             _map.Root.SetParent(parent, false);
+            _modeWorldView = MatchModeWorldView.Create(parent);
             _effects = BattleEffects.Create();
             _effects.transform.SetParent(parent, false);
             _audio = BattleAudio.Create();
@@ -194,6 +196,7 @@ namespace ClaudeOfTanks.Runtime
             _tanks.Clear();
             _camouflageIds.Clear();
             _shells.Clear();
+            _modeWorldView.Dispose();
             _map.Dispose();
             Release(_effects.gameObject);
             Release(_audio.gameObject);
@@ -240,9 +243,17 @@ namespace ClaudeOfTanks.Runtime
             tank.Position = sample.Position;
             tank.Yaw = sample.Yaw;
             tank.TurretYaw = sample.TurretYaw;
+            tank.GunPitchRad = sample.GunPitchRad;
             tank.HydropneumaticAimActive =
                 sample.HydropneumaticAimActive;
             tank.HullPitchRad = sample.HullPitchRad;
+            tank.TerrainPitchRad =
+                sample.TerrainPitchRad;
+            tank.HullRollRad = sample.HullRollRad;
+            tank.VerticalSpeedMps =
+                sample.VerticalSpeedMps;
+            tank.Grounded = sample.Grounded;
+            tank.Overturned = sample.Overturned;
             tank.SpeedMps = sample.SpeedMps;
             tank.Health = sample.Health;
             tank.ReloadRemainingS = sample.ReloadRemainingS;
@@ -271,9 +282,17 @@ namespace ClaudeOfTanks.Runtime
             target.Position = predictor.PresentedPosition;
             target.Yaw = predictor.PresentedYaw;
             target.TurretYaw = source.TurretYaw;
+            target.GunPitchRad = source.GunPitchRad;
             target.HydropneumaticAimActive =
                 source.HydropneumaticAimActive;
             target.HullPitchRad = source.HullPitchRad;
+            target.TerrainPitchRad =
+                source.TerrainPitchRad;
+            target.HullRollRad = source.HullRollRad;
+            target.VerticalSpeedMps =
+                source.VerticalSpeedMps;
+            target.Grounded = source.Grounded;
+            target.Overturned = source.Overturned;
             target.SpeedMps = source.SpeedMps;
             target.Health = source.Health;
             target.ReloadRemainingS = source.ReloadRemainingS;
@@ -303,6 +322,28 @@ namespace ClaudeOfTanks.Runtime
             _matchMode.BallPosition = source.BallPosition;
             _matchMode.BallVelocity = source.BallVelocity;
             _matchMode.HordeWave = source.HordeWave;
+            _matchMode.HordeAlive = source.HordeAlive;
+            _matchMode.HordeTotal = source.HordeTotal;
+            _matchMode.HordeNextWaveInS =
+                source.HordeNextWaveInS;
+            _matchMode.Pickups.Clear();
+            NetworkModePickupSnapshot[] pickups =
+                source.Pickups ??
+                Array.Empty<NetworkModePickupSnapshot>();
+            for (int i = 0; i < pickups.Length; i++)
+            {
+                NetworkModePickupSnapshot pickup = pickups[i];
+                _matchMode.Pickups.Add(
+                    new ModePickup
+                    {
+                        Id = pickup.Id,
+                        Kind = pickup.Kind,
+                        Position = pickup.Position,
+                        Active = true,
+                        SpawnedWave = pickup.SpawnedWave
+                    });
+            }
+            _modeWorldView.Sync(_matchMode);
         }
 
         private void ApplyStaticState(NetworkWorldSnapshot snapshot)
@@ -411,9 +452,17 @@ namespace ClaudeOfTanks.Runtime
                 Position = source.Position,
                 Yaw = source.Yaw,
                 TurretYaw = source.TurretYaw,
+                GunPitchRad = source.GunPitchRad,
                 HydropneumaticAimActive =
                     source.HydropneumaticAimActive,
                 HullPitchRad = source.HullPitchRad,
+                TerrainPitchRad =
+                    source.TerrainPitchRad,
+                HullRollRad = source.HullRollRad,
+                VerticalSpeedMps =
+                    source.VerticalSpeedMps,
+                Grounded = source.Grounded,
+                Overturned = source.Overturned,
                 SpeedMps = source.SpeedMps,
                 Health = source.Health,
                 MaxHealth = source.MaxHealth,

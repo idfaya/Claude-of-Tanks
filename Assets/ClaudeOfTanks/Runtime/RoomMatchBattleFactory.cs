@@ -51,7 +51,9 @@ namespace ClaudeOfTanks.Runtime
                     seat.VehicleSpecId,
                     position,
                     seat.Team == Team.Alpha ? 0f : MathUtil.Pi,
-                    seat.Equipment ?? Array.Empty<string>());
+                    seat.Equipment ?? Array.Empty<string>(),
+                    map.id,
+                    seat.CamoId);
             }
             int teamSize = plan.TeamSize > 0
                 ? Math.Min(
@@ -105,7 +107,9 @@ namespace ClaudeOfTanks.Runtime
                     vehicles[vehicleIndex],
                     Spawn(map, heightField, team, index),
                     team == Team.Alpha ? 0f : MathUtil.Pi,
-                    Array.Empty<string>());
+                    Array.Empty<string>(),
+                    map.id,
+                    "auto");
             }
         }
 
@@ -117,7 +121,9 @@ namespace ClaudeOfTanks.Runtime
             string vehicleId,
             Float3 position,
             float yaw,
-            string[] equipment)
+            string[] equipment,
+            string mapId,
+            string camouflageId)
         {
             TankState tank = new TankState(
                 entityId,
@@ -126,6 +132,10 @@ namespace ClaudeOfTanks.Runtime
                 position,
                 yaw);
             LoadoutSimulation.ApplyEquipment(tank, equipment);
+            tank.CamouflagePaintBonus =
+                CamouflageSpottingPolicy.Bonus(
+                    camouflageId,
+                    mapId);
             state.Tanks.Add(tank);
         }
 

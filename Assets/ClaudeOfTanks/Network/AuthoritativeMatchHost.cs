@@ -17,11 +17,8 @@ namespace ClaudeOfTanks.Network
         private readonly Dictionary<string, TankInput> _inputs =
             new Dictionary<string, TankInput>(StringComparer.Ordinal);
         private readonly BotController _bots;
-        private readonly Dictionary<string, float> _alphaSpottedUntil =
-            new Dictionary<string, float>(StringComparer.Ordinal);
-        private readonly Dictionary<string, float> _bravoSpottedUntil =
-            new Dictionary<string, float>(StringComparer.Ordinal);
-        private const float SpotLingerSeconds = 5f;
+        private readonly TeamSpottingTracker
+            _teamSpotting;
 
         public AuthoritativeMatchHost(
             BattleSimulation simulation,
@@ -30,7 +27,16 @@ namespace ClaudeOfTanks.Network
             _simulation = simulation ?? throw new ArgumentNullException(nameof(simulation));
             _spotting = spotting ?? new SpottingSimulation();
             _isOccluded = _simulation.State.IsVisionOccluded;
-            _bots = new BotController(_spotting, _isOccluded);
+            _bots = new BotController(
+                _spotting,
+                _isOccluded,
+                _simulation.State,
+                _simulation.BotTarget);
+            _teamSpotting =
+                new TeamSpottingTracker(
+                    _simulation.State,
+                    _spotting,
+                    _isOccluded);
         }
 
         public long Tick { get; private set; }
@@ -115,7 +121,7 @@ namespace ClaudeOfTanks.Network
             {
                 BuildInputs();
                 _simulation.Step(_inputs, BattleState.FixedDeltaTime);
-                UpdateTeamIntelligence();
+                _teamSpotting.Update();
                 Tick++;
             }
             return count;
@@ -194,7 +200,11 @@ namespace ClaudeOfTanks.Network
             for (int i = 0; i < tanks.Count; i++)
             {
                 TankState tank = tanks[i];
-                if (tank.Destroyed) continue;
+                if (tank.Destroyed ||
+                    !tank.ModeActive)
+                {
+                    continue;
+                }
                 string playerId;
                 if (_ownersByEntity.TryGetValue(tank.Id, out playerId))
                 {
@@ -220,14 +230,14 @@ namespace ClaudeOfTanks.Network
             for (int i = 0; i < tanks.Count; i++)
             {
                 TankState tank = tanks[i];
+                if (!tank.ModeActive)
+                    continue;
                 if (viewer == null ||
                     tank.Id == viewer.Id ||
                     tank.Team == viewer.Team ||
-                    IsSpottedFor(viewer.Team, tank.Id) ||
-                    _spotting.CanSpot(
+                    _teamSpotting.IsVisibleFor(
                         viewer,
-                        tank,
-                        _isOccluded))
+                        tank))
                 {
                     result.Add(tank.Id);
                 }
@@ -238,110 +248,8 @@ namespace ClaudeOfTanks.Network
         private bool IsViewerSpotted(TankState viewer)
         {
             if (viewer == null || viewer.Destroyed) return false;
-            Team enemyTeam = viewer.Team == Team.Alpha
-                ? Team.Bravo
-                : Team.Alpha;
-            if (IsSpottedFor(enemyTeam, viewer.Id))
-                return true;
-            List<TankState> tanks = _simulation.State.Tanks;
-            for (int i = 0; i < tanks.Count; i++)
-            {
-                TankState enemy = tanks[i];
-                if (enemy.Team != viewer.Team &&
-                    !enemy.Destroyed &&
-                    _spotting.CanSpot(
-                        enemy,
-                        viewer,
-                        _isOccluded))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private void UpdateTeamIntelligence()
-        {
-            List<TankState> tanks = _simulation.State.Tanks;
-            float until =
-                _simulation.State.TimeS + SpotLingerSeconds;
-            for (int spotterIndex = 0;
-                spotterIndex < tanks.Count;
-                spotterIndex++)
-            {
-                TankState spotter = tanks[spotterIndex];
-                if (spotter.Destroyed) continue;
-                Dictionary<string, float> intel =
-                    IntelFor(spotter.Team);
-                for (int targetIndex = 0;
-                    targetIndex < tanks.Count;
-                    targetIndex++)
-                {
-                    TankState target = tanks[targetIndex];
-                    if (target.Team == spotter.Team ||
-                        target.Destroyed)
-                    {
-                        continue;
-                    }
-                    if (_spotting.CanSpot(
-                            spotter,
-                            target,
-                            _isOccluded))
-                    {
-                        intel[target.Id] = until;
-                    }
-                }
-            }
-            for (int i = 0;
-                i < _simulation.State.Events.Count;
-                i++)
-            {
-                BattleEvent battleEvent =
-                    _simulation.State.Events[i];
-                if (battleEvent.Type !=
-                    BattleEventType.ShellFired)
-                {
-                    continue;
-                }
-                TankState shooter =
-                    FindTank(battleEvent.SourceId);
-                if (shooter == null) continue;
-                for (int observerIndex = 0;
-                    observerIndex < tanks.Count;
-                    observerIndex++)
-                {
-                    TankState observer =
-                        tanks[observerIndex];
-                    if (_spotting.CanSpotMuzzleFlash(
-                            observer,
-                            shooter,
-                            _isOccluded))
-                    {
-                        IntelFor(observer.Team)[shooter.Id] =
-                            until;
-                    }
-                }
-            }
-        }
-
-        private bool IsSpottedFor(
-            Team viewerTeam,
-            string targetId)
-        {
-            float expires;
-            return IntelFor(viewerTeam).TryGetValue(
-                    targetId,
-                    out expires) &&
-                expires + 0.000001f >=
-                    _simulation.State.TimeS;
-        }
-
-        private Dictionary<string, float> IntelFor(
-            Team team)
-        {
-            return team == Team.Alpha
-                ? _alphaSpottedUntil
-                : _bravoSpottedUntil;
+            return _teamSpotting
+                .IsSixthSenseVisible(viewer);
         }
 
         private static bool CanSeeShell(
@@ -375,9 +283,17 @@ namespace ClaudeOfTanks.Network
                 Position = tank.Position,
                 Yaw = tank.Yaw,
                 TurretYaw = tank.TurretYaw,
+                GunPitchRad = tank.GunPitchRad,
                 HydropneumaticAimActive =
                     tank.HydropneumaticAimActive,
                 HullPitchRad = tank.HullPitchRad,
+                TerrainPitchRad =
+                    tank.TerrainPitchRad,
+                HullRollRad = tank.HullRollRad,
+                VerticalSpeedMps =
+                    tank.VerticalSpeedMps,
+                Grounded = tank.Grounded,
+                Overturned = tank.Overturned,
                 SpeedMps = tank.SpeedMps,
                 Health = tank.Health,
                 MaxHealth = tank.Spec.MaxHealth,
@@ -393,6 +309,25 @@ namespace ClaudeOfTanks.Network
 
         private static NetworkMatchModeSnapshot Capture(MatchModeState mode)
         {
+            List<NetworkModePickupSnapshot> pickups =
+                new List<NetworkModePickupSnapshot>();
+            for (int i = 0;
+                i < mode.Pickups.Count;
+                i++)
+            {
+                ModePickup pickup =
+                    mode.Pickups[i];
+                if (!pickup.Active) continue;
+                pickups.Add(
+                    new NetworkModePickupSnapshot
+                    {
+                        Id = pickup.Id,
+                        Kind = pickup.Kind,
+                        Position = pickup.Position,
+                        SpawnedWave =
+                            pickup.SpawnedWave
+                    });
+            }
             return new NetworkMatchModeSnapshot
             {
                 AlphaScore = mode.AlphaScore,
@@ -406,7 +341,12 @@ namespace ClaudeOfTanks.Network
                 BravoFlagCarrier = mode.BravoFlagCarrier,
                 BallPosition = mode.BallPosition,
                 BallVelocity = mode.BallVelocity,
-                HordeWave = mode.HordeWave
+                HordeWave = mode.HordeWave,
+                HordeAlive = mode.HordeAlive,
+                HordeTotal = mode.HordeTotal,
+                HordeNextWaveInS =
+                    mode.HordeNextWaveInS,
+                Pickups = pickups.ToArray()
             };
         }
 
@@ -436,6 +376,9 @@ namespace ClaudeOfTanks.Network
             input.UseFirstAidKit = (actions & NetworkActionBits.FirstAidKit) != 0;
             input.UseFireExtinguisher =
                 (actions & NetworkActionBits.FireExtinguisher) != 0;
+            input.SpecialAction =
+                (actions &
+                 NetworkActionBits.SpecialAction) != 0;
             input.ToggleHydropneumaticAim =
                 (actions &
                  NetworkActionBits.HydropneumaticAim) != 0;

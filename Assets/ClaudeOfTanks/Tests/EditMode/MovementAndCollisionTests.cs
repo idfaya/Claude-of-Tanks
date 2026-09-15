@@ -18,6 +18,123 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void GunPitchChasesAimAndHonorsMechanicalLimits()
+        {
+            TankSpec spec = TankSpec.Medium();
+            spec.GunPitchDegS = 90f;
+            spec.GunElevationDeg = 20f;
+            spec.GunDepressionDeg = 8f;
+            TankState tank = new TankState(
+                "tank",
+                Team.Alpha,
+                spec,
+                Float3.Zero,
+                0f);
+
+            TankMovement.Step(
+                tank,
+                new TankInput
+                {
+                    AimPoint =
+                        new Float3(
+                            0f,
+                            100f,
+                            100f)
+                },
+                new FlatHeightField(),
+                1f);
+            Assert.That(
+                tank.GunPitchRad,
+                Is.EqualTo(
+                    20f *
+                    MathUtil.Deg2Rad)
+                    .Within(0.0001f));
+            Assert.That(tank.AtGunLimit, Is.True);
+
+            TankMovement.Step(
+                tank,
+                new TankInput
+                {
+                    AimPoint =
+                        new Float3(
+                            0f,
+                            -100f,
+                            100f)
+                },
+                new FlatHeightField(),
+                1f);
+            Assert.That(
+                tank.GunPitchRad,
+                Is.EqualTo(
+                    -8f *
+                    MathUtil.Deg2Rad)
+                    .Within(0.0001f));
+        }
+
+        [Test]
+        public void TerrainAttitudeAndLedgeFallAreAuthoritative()
+        {
+            TankState slopeTank =
+                new TankState(
+                    "slope",
+                    Team.Alpha,
+                    TankSpec.Medium(),
+                    Float3.Zero,
+                    0f);
+            for (int i = 0; i < 60; i++)
+            {
+                TankMovement.Step(
+                    slopeTank,
+                    new TankInput
+                    {
+                        AimPoint =
+                            new Float3(
+                                0f,
+                                1f,
+                                100f)
+                    },
+                    new SlopedSurface(),
+                    BattleState.FixedDeltaTime);
+            }
+            Assert.That(
+                slopeTank.TerrainPitchRad,
+                Is.GreaterThan(0.4f));
+
+            TankState ledgeTank =
+                new TankState(
+                    "ledge",
+                    Team.Alpha,
+                    TankSpec.Medium(),
+                    new Float3(0f, 5f, 0.9f),
+                    0f)
+                {
+                    SpeedMps = 10f
+                };
+            TankMovement.Step(
+                ledgeTank,
+                new TankInput
+                {
+                    Throttle = 1f,
+                    AimPoint =
+                        new Float3(
+                            0f,
+                            5f,
+                            100f)
+                },
+                new LedgeSurface(),
+                0.1f);
+            Assert.That(
+                ledgeTank.Grounded,
+                Is.False);
+            Assert.That(
+                ledgeTank.VerticalSpeedMps,
+                Is.LessThan(0f));
+            Assert.That(
+                ledgeTank.Position.Y,
+                Is.LessThan(5f));
+        }
+
+        [Test]
         public void HeavyTankDealsMoreRamDamageToLightTank()
         {
             RamDamageResult result = CollisionSimulation.RamDamage(65f, 20f, 12f);
@@ -260,6 +377,39 @@ namespace ClaudeOfTanks.Tests
             public float HeightAt(float x, float z) { return 0f; }
             public Float3 NormalAt(float x, float z) { return new Float3(0f, 1f, 0f); }
             public float ResistanceAt(float x, float z) { return _resistance; }
+        }
+
+        private sealed class SlopedSurface :
+            ITerrainSurface
+        {
+            public float HeightAt(float x, float z)
+            {
+                return z * 0.5f;
+            }
+
+            public Float3 NormalAt(float x, float z)
+            {
+                return new Float3(
+                    0f,
+                    0.8944272f,
+                    -0.4472136f);
+            }
+
+            public float ResistanceAt(
+                float x,
+                float z)
+            {
+                return 1f;
+            }
+        }
+
+        private sealed class LedgeSurface :
+            IHeightField
+        {
+            public float HeightAt(float x, float z)
+            {
+                return z < 1f ? 5f : 0f;
+            }
         }
     }
 }

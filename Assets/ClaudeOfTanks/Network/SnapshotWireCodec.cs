@@ -14,7 +14,7 @@ namespace ClaudeOfTanks.Network
         public const int MaximumDestroyedStaticObstacles =
             BattleState.MaximumStaticObstacles;
         private const uint Magic = 0x4e544f43u;
-        private const ushort Version = 6;
+        private const ushort Version = 7;
         private const ushort MinimumSupportedVersion = 1;
 
         public static byte[] Encode(NetworkWorldSnapshot snapshot)
@@ -88,7 +88,9 @@ namespace ClaudeOfTanks.Network
                     snapshot.ViewerSpotted =
                         version >= 4 && reader.ReadBoolean();
                     snapshot.MatchMode = version >= 3
-                        ? ReadMatchMode(reader)
+                        ? ReadMatchMode(
+                            reader,
+                            version)
                         : new NetworkMatchModeSnapshot();
                     if (version >= 2)
                     {
@@ -143,6 +145,12 @@ namespace ClaudeOfTanks.Network
             writer.Write(entity.TurretYaw);
             writer.Write(entity.HydropneumaticAimActive);
             writer.Write(entity.HullPitchRad);
+            writer.Write(entity.GunPitchRad);
+            writer.Write(entity.TerrainPitchRad);
+            writer.Write(entity.HullRollRad);
+            writer.Write(entity.VerticalSpeedMps);
+            writer.Write(entity.Grounded);
+            writer.Write(entity.Overturned);
             writer.Write(entity.SpeedMps);
             writer.Write(entity.Health);
             writer.Write(entity.MaxHealth);
@@ -177,10 +185,35 @@ namespace ClaudeOfTanks.Network
             WriteFloat3(writer, mode.BallPosition);
             WriteFloat3(writer, mode.BallVelocity);
             writer.Write(mode.HordeWave);
+            writer.Write(mode.HordeAlive);
+            writer.Write(mode.HordeTotal);
+            writer.Write(mode.HordeNextWaveInS);
+            NetworkModePickupSnapshot[] pickups =
+                mode.Pickups ??
+                Array.Empty<
+                    NetworkModePickupSnapshot>();
+            writer.Write((byte)pickups.Length);
+            for (int i = 0;
+                i < pickups.Length;
+                i++)
+            {
+                WriteString(
+                    writer,
+                    pickups[i].Id);
+                WriteString(
+                    writer,
+                    pickups[i].Kind);
+                WriteFloat3(
+                    writer,
+                    pickups[i].Position);
+                writer.Write(
+                    pickups[i].SpawnedWave);
+            }
         }
 
         private static NetworkMatchModeSnapshot ReadMatchMode(
-            BinaryReader reader)
+            BinaryReader reader,
+            ushort version)
         {
             NetworkMatchModeSnapshot mode = new NetworkMatchModeSnapshot
             {
@@ -201,6 +234,42 @@ namespace ClaudeOfTanks.Network
             mode.BallPosition = ReadFloat3(reader);
             mode.BallVelocity = ReadFloat3(reader);
             mode.HordeWave = reader.ReadInt32();
+            if (version >= 7)
+            {
+                mode.HordeAlive =
+                    reader.ReadInt32();
+                mode.HordeTotal =
+                    reader.ReadInt32();
+                mode.HordeNextWaveInS =
+                    reader.ReadSingle();
+                int pickupCount =
+                    reader.ReadByte();
+                if (pickupCount > 8)
+                {
+                    throw new FormatException(
+                        "Snapshot pickup count exceeds limit.");
+                }
+                mode.Pickups =
+                    new NetworkModePickupSnapshot[
+                        pickupCount];
+                for (int i = 0;
+                    i < pickupCount;
+                    i++)
+                {
+                    mode.Pickups[i] =
+                        new NetworkModePickupSnapshot
+                        {
+                            Id =
+                                ReadString(reader),
+                            Kind =
+                                ReadString(reader),
+                            Position =
+                                ReadFloat3(reader),
+                            SpawnedWave =
+                                reader.ReadInt32()
+                        };
+                }
+            }
             return mode;
         }
 
@@ -220,6 +289,28 @@ namespace ClaudeOfTanks.Network
                     version >= 5 && reader.ReadBoolean(),
                 HullPitchRad =
                     version >= 5 ? reader.ReadSingle() : 0f,
+                GunPitchRad =
+                    version >= 7
+                        ? reader.ReadSingle()
+                        : 0f,
+                TerrainPitchRad =
+                    version >= 7
+                        ? reader.ReadSingle()
+                        : 0f,
+                HullRollRad =
+                    version >= 7
+                        ? reader.ReadSingle()
+                        : 0f,
+                VerticalSpeedMps =
+                    version >= 7
+                        ? reader.ReadSingle()
+                        : 0f,
+                Grounded =
+                    version < 7 ||
+                    reader.ReadBoolean(),
+                Overturned =
+                    version >= 7 &&
+                    reader.ReadBoolean(),
                 SpeedMps = reader.ReadSingle()
             };
             entity.Health = reader.ReadSingle();
@@ -381,8 +472,18 @@ namespace ClaudeOfTanks.Network
                     !IsFinite(entity.Yaw) ||
                     !IsFinite(entity.TurretYaw) ||
                     !IsFinite(entity.HullPitchRad) ||
+                    !IsFinite(entity.GunPitchRad) ||
+                    !IsFinite(entity.TerrainPitchRad) ||
+                    !IsFinite(entity.HullRollRad) ||
+                    !IsFinite(entity.VerticalSpeedMps) ||
                     Math.Abs(entity.HullPitchRad) >
                         NetworkProtocol.MaximumAimPitchRad ||
+                    Math.Abs(entity.GunPitchRad) >
+                        NetworkProtocol.MaximumAimPitchRad ||
+                    Math.Abs(entity.TerrainPitchRad) >
+                        NetworkProtocol.MaximumAimPitchRad ||
+                    Math.Abs(entity.HullRollRad) >
+                        Math.PI ||
                     !IsFinite(entity.SpeedMps) ||
                     !IsFinite(entity.Health) ||
                     !IsFinite(entity.MaxHealth) ||
@@ -439,6 +540,14 @@ namespace ClaudeOfTanks.Network
                 !IsFinite(mode.BravoFlag) ||
                 !IsFinite(mode.BallPosition) ||
                 !IsFinite(mode.BallVelocity) ||
+                !IsFinite(
+                    mode.HordeNextWaveInS) ||
+                mode.HordeAlive < 0 ||
+                mode.HordeTotal < 0 ||
+                mode.HordeAlive >
+                    mode.HordeTotal ||
+                mode.Pickups == null ||
+                mode.Pickups.Length > 8 ||
                 mode.HordeWave < 1)
             {
                 return false;
@@ -451,6 +560,24 @@ namespace ClaudeOfTanks.Network
                     mode.ZoneControl[i] > 1f ||
                     (mode.ZoneOwners[i].HasValue &&
                      !Enum.IsDefined(typeof(Team), mode.ZoneOwners[i].Value)))
+                {
+                    return false;
+                }
+            }
+            for (int i = 0;
+                i < mode.Pickups.Length;
+                i++)
+            {
+                NetworkModePickupSnapshot pickup =
+                    mode.Pickups[i];
+                if (pickup == null ||
+                    string.IsNullOrEmpty(
+                        pickup.Id) ||
+                    string.IsNullOrEmpty(
+                        pickup.Kind) ||
+                    !IsFinite(
+                        pickup.Position) ||
+                    pickup.SpawnedWave < 1)
                 {
                     return false;
                 }

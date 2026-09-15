@@ -126,6 +126,35 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void EraCutsKineticAndChemicalPenetrationUnlessTandem()
+        {
+            Assert.That(
+                ArmorSimulation.ApplyEraPenetration(
+                    ArmorShellType.APFSDS,
+                    700f,
+                    0.2f,
+                    450f,
+                    false),
+                Is.EqualTo(560f).Within(Tolerance));
+            Assert.That(
+                ArmorSimulation.ApplyEraPenetration(
+                    ArmorShellType.HEAT,
+                    700f,
+                    0.2f,
+                    450f,
+                    false),
+                Is.EqualTo(250f).Within(Tolerance));
+            Assert.That(
+                ArmorSimulation.ApplyEraPenetration(
+                    ArmorShellType.HEAT,
+                    700f,
+                    0.2f,
+                    450f,
+                    true),
+                Is.EqualTo(700f).Within(Tolerance));
+        }
+
+        [Test]
         public void PenetrationRollIsRepeatableAndWithinTwentyFivePercent()
         {
             ShellSpec shell = FixedPenetrationShell(200f);

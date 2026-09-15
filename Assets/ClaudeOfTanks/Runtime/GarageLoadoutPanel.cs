@@ -11,11 +11,14 @@ namespace ClaudeOfTanks.Runtime
     {
         private readonly List<ToggleBinding> _equipment =
             new List<ToggleBinding>();
+        private readonly List<string> _camouflageIds =
+            new List<string>();
         private ContentCatalog _catalog;
         private GarageLoadoutController _controller;
         private GameObject _surface;
         private Dropdown _camouflage;
         private Text _selection;
+        private CustomCamouflagePanel _customPanel;
         private bool _refreshing;
         private bool _subscribed;
 
@@ -181,7 +184,13 @@ namespace ClaudeOfTanks.Runtime
                 font);
             List<string> camouflageNames = new List<string>();
             for (int i = 0; i < _catalog.Camouflage.Length; i++)
+            {
                 camouflageNames.Add(_catalog.Camouflage[i].name);
+                _camouflageIds.Add(
+                    _catalog.Camouflage[i].id);
+            }
+            camouflageNames.Add("Custom");
+            _camouflageIds.Add("custom");
             _camouflage.AddOptions(camouflageNames);
             Place(
                 _camouflage.GetComponent<RectTransform>(),
@@ -191,6 +200,26 @@ namespace ClaudeOfTanks.Runtime
                 -434f);
             _camouflage.onValueChanged.AddListener(
                 OnCamouflageChanged);
+            Button customize = Button(
+                "Customize",
+                rail.transform,
+                font,
+                "EDIT CUSTOM");
+            Place(
+                customize.GetComponent<
+                    RectTransform>(),
+                300f,
+                472f,
+                -526f,
+                -486f);
+            _customPanel =
+                CustomCamouflagePanel.Create(
+                    transform);
+            customize.onClick.AddListener(
+                () => _customPanel.Open(
+                    () => _controller
+                        .SetCamouflage(
+                            "custom")));
 
             _selection = Label(
                 "Selection",
@@ -238,12 +267,12 @@ namespace ClaudeOfTanks.Runtime
         {
             if (_refreshing ||
                 index < 0 ||
-                index >= _catalog.Camouflage.Length)
+                index >= _camouflageIds.Count)
             {
                 return;
             }
             if (!_controller.SetCamouflage(
-                    _catalog.Camouflage[index].id))
+                    _camouflageIds[index]))
             {
                 Refresh();
             }
@@ -261,9 +290,9 @@ namespace ClaudeOfTanks.Runtime
                 binding.Toggle.SetIsOnWithoutNotify(
                     _controller.IsEquipped(binding.Id));
             }
-            int camouflageIndex = Array.FindIndex(
-                _catalog.Camouflage,
-                item => item.id == _controller.CamouflageId);
+            int camouflageIndex =
+                _camouflageIds.IndexOf(
+                    _controller.CamouflageId);
             _camouflage.SetValueWithoutNotify(
                 Mathf.Max(0, camouflageIndex));
             _selection.text = SelectionTextFor(
@@ -321,9 +350,12 @@ namespace ClaudeOfTanks.Runtime
                 _catalog.Camouflage,
                 item => item.id == camouflageId);
             text.Append("PAINT  ");
-            text.Append(index >= 0
-                ? _catalog.Camouflage[index].name.ToUpperInvariant()
-                : "FACTORY");
+            text.Append(camouflageId == "custom"
+                ? "CUSTOM"
+                : index >= 0
+                    ? _catalog.Camouflage[index]
+                        .name.ToUpperInvariant()
+                    : "FACTORY");
             return text.ToString();
         }
 

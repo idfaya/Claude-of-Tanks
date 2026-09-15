@@ -28,8 +28,13 @@ namespace ClaudeOfTanks.Runtime
                     ? catalog.GetCamouflage(resolved)
                     : null;
             CamouflageRecipe recipe =
-                definition?.RecipeFor(vehicle.nation) ??
-                FallbackRecipe(vehicle);
+                resolved == "custom"
+                    ? CustomCamouflageStore
+                        .Load()
+                        .ToRecipe()
+                    : definition?.RecipeFor(
+                        vehicle.nation) ??
+                      FallbackRecipe(vehicle);
             Color authored = vehicle.visual != null
                 ? vehicle.visual.Color
                 : new Color(0.28f, 0.32f, 0.24f);

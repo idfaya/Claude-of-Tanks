@@ -56,6 +56,9 @@ namespace ClaudeOfTanks.Tests
             AuthoritativeMatchHost host =
                 new AuthoritativeMatchHost(new BattleSimulation(state));
             host.RegisterPlayer("peer-viewer", viewer.Id);
+            host.RegisterPlayer(
+                "peer-hidden",
+                hidden.Id);
             host.RegisterSpectator("observer");
 
             NetworkWorldSnapshot filtered = host.CreateSnapshot("peer-viewer");
@@ -70,8 +73,13 @@ namespace ClaudeOfTanks.Tests
 
             hidden.Position = new Float3(0f, 0f, 100f);
             hidden.Yaw = MathUtil.Pi;
+            host.AdvanceTicks(1);
             filtered = host.CreateSnapshot("peer-viewer");
             Assert.That(ContainsEntity(filtered, hidden.Id), Is.True);
+            Assert.That(filtered.ViewerSpotted, Is.False);
+            for (int i = 0; i < 190; i++)
+                host.AdvanceTicks(1);
+            filtered = host.CreateSnapshot("peer-viewer");
             Assert.That(filtered.ViewerSpotted, Is.True);
         }
 

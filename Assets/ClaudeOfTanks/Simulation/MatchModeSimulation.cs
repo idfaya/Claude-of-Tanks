@@ -29,6 +29,12 @@ namespace ClaudeOfTanks.Simulation
         public Float3 BallPosition;
         public Float3 BallVelocity;
         public int HordeWave = 1;
+        public int HordeAlive;
+        public int HordeTotal;
+        public float HordeNextWaveInS;
+        public readonly List<ModePickup>
+            Pickups =
+                new List<ModePickup>();
 
         public MatchModeState(GameModeId id)
         {
@@ -36,12 +42,22 @@ namespace ClaudeOfTanks.Simulation
         }
     }
 
-    public sealed class MatchModeSimulation
+    public sealed class ModePickup
+    {
+        public string Id;
+        public string Kind;
+        public Float3 Position;
+        public bool Active;
+        public int SpawnedWave;
+    }
+
+    public sealed partial class MatchModeSimulation
     {
         public const float RespawnSeconds = 6f;
         private const float FlagRadius = 8f;
         private const float ZoneRadius = 30f;
-        private const float BallRadius = 4f;
+        private const float BallRadius = 2.2f;
+        private const float TurboSpeedMultiplier = 1.85f;
         private const float FlagReturnSeconds = 18f;
         private readonly BattleState _battle;
         private readonly MatchModeState _state;
@@ -101,6 +117,11 @@ namespace ClaudeOfTanks.Simulation
             for (int i = 0; i < _battle.Tanks.Count; i++)
             {
                 TankState tank = _battle.Tanks[i];
+                tank.ModeSpeedMultiplier =
+                    _state.Id ==
+                        GameModeId.TurboBall
+                        ? TurboSpeedMultiplier
+                        : 1f;
                 _spawns[tank.Id] = new SpawnState
                 {
                     Position = tank.Position,
@@ -230,8 +251,16 @@ namespace ClaudeOfTanks.Simulation
             tank.Yaw = spawn.Yaw;
             tank.SpeedMps = 0f;
             tank.TurretYaw = 0f;
+            tank.GunPitchRad = 0f;
             tank.HullPitchRad = 0f;
+            tank.TerrainPitchRad = 0f;
+            tank.HullRollRad = 0f;
+            tank.VerticalSpeedMps = 0f;
+            tank.Grounded = true;
+            tank.Overturned = false;
+            tank.RolloverTimerS = 0f;
             tank.HydropneumaticAimActive = false;
+            tank.ModeActive = true;
             tank.AimBloom = 1f;
             tank.Health = tank.Combat.Health;
             tank.ReloadRemainingS = 0f;
@@ -260,53 +289,6 @@ namespace ClaudeOfTanks.Simulation
             if (_state.BravoScore >= 1000f) _state.Winner = Team.Bravo;
         }
 
-        private void StepBall(float dt)
-        {
-            TankState touch = ClosestTank(_state.BallPosition, BallRadius);
-            if (touch != null)
-            {
-                Float3 forward = Float3.Forward(touch.Yaw);
-                _state.BallVelocity += forward * (MathF.Abs(touch.SpeedMps) + 8f);
-            }
-            _state.BallVelocity *= MathF.Pow(0.992f, dt * 60f);
-            _state.BallPosition += _state.BallVelocity * dt;
-            if (HorizontalDistanceSq(_state.BallPosition, _alphaBase) <= 18f * 18f)
-                ScoreBall(Team.Bravo);
-            else if (HorizontalDistanceSq(_state.BallPosition, _bravoBase) <= 18f * 18f)
-                ScoreBall(Team.Alpha);
-        }
-
-        private void ScoreBall(Team team)
-        {
-            if (team == Team.Alpha) _state.AlphaScore++;
-            else _state.BravoScore++;
-            _state.BallPosition = (_alphaBase + _bravoBase) * 0.5f + new Float3(0f, 2.2f, 0f);
-            _state.BallVelocity = Float3.Zero;
-            if (_state.AlphaScore >= 5f) _state.Winner = Team.Alpha;
-            if (_state.BravoScore >= 5f) _state.Winner = Team.Bravo;
-        }
-
-        private void StepHorde()
-        {
-            if (!HasAlive(Team.Alpha))
-            {
-                _state.Winner = Team.Bravo;
-                return;
-            }
-            if (HasAlive(Team.Bravo)) return;
-            _state.HordeWave++;
-            for (int i = 0; i < _battle.Tanks.Count; i++)
-            {
-                TankState tank = _battle.Tanks[i];
-                if (tank.Team != Team.Bravo) continue;
-                DamageSimulation.ResetCombatState(
-                    tank.Combat,
-                    tank.DamageSpec);
-                tank.Health = tank.Combat.Health;
-                tank.Destroyed = false;
-            }
-        }
-
         private Float3 TeamCenter(Team team, Float3 fallback)
         {
             Float3 sum = Float3.Zero;
@@ -319,7 +301,12 @@ namespace ClaudeOfTanks.Simulation
         private bool HasAlive(Team team)
         {
             for (int i = 0; i < _battle.Tanks.Count; i++)
-                if (_battle.Tanks[i].Team == team && !_battle.Tanks[i].Destroyed) return true;
+                if (_battle.Tanks[i].Team == team &&
+                    _battle.Tanks[i].ModeActive &&
+                    !_battle.Tanks[i].Destroyed)
+                {
+                    return true;
+                }
             return false;
         }
 

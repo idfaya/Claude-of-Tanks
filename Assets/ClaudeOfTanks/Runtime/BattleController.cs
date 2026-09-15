@@ -31,6 +31,7 @@ namespace ClaudeOfTanks.Runtime
         private Camera _camera;
         private ContentCatalog _catalog;
         private MapRuntime _mapRuntime;
+        private MatchModeWorldView _modeWorldView;
         private BattleHud _hud;
         private BattleEffects _effects;
         private BattleAudio _audio;
@@ -244,6 +245,8 @@ namespace ClaudeOfTanks.Runtime
             _effects?.ResetAll();
             _audio?.ResetAll();
             _audio?.BeginBattle();
+            _modeWorldView?.Dispose();
+            _modeWorldView = null;
             foreach (TankView view in _tankViews.Values)
             {
                 view.Destroy();
@@ -286,13 +289,16 @@ namespace ClaudeOfTanks.Runtime
                     "auto");
             }
             _simulation = new BattleSimulation(state, gameMode);
+            _modeWorldView = MatchModeWorldView.Create(transform);
             _replayRecorder = new BattleReplayRecorder(
                 state,
                 gameMode,
                 _camouflageIds);
             _botController = new BotController(
                 new SpottingSimulation(),
-                state.IsVisionOccluded);
+                state.IsVisionOccluded,
+                state,
+                _simulation.BotTarget);
             _player = state.Tanks[0];
             _cameraRig.Reset();
             _cameraAimPoint = _player.Position.ToUnity() +
@@ -342,6 +348,7 @@ namespace ClaudeOfTanks.Runtime
             _audio?.ResetAll();
             _audio?.BeginBattle(false);
             ClearShellViews();
+            _modeWorldView?.Sync(_simulation.MatchMode);
             SyncViews();
             _hud.SetReplayState(
                 true,
@@ -369,6 +376,7 @@ namespace ClaudeOfTanks.Runtime
             _audio?.ResetAll();
             _audio?.BeginBattle(false);
             ClearShellViews();
+            _modeWorldView?.Sync(_simulation.MatchMode);
             SyncViews();
             _hud.SetReplayState(false, false, 0f, 0f, false);
         }
@@ -411,6 +419,8 @@ namespace ClaudeOfTanks.Runtime
             _accumulator = 0f;
             _cameraRig.Reset();
             _cameraAimPoint = _player.Position.ToUnity() + new Vector3(0f, 1.6f, 100f);
+            if (_modeWorldView == null)
+                _modeWorldView = MatchModeWorldView.Create(transform);
             for (int i = 0; i < _simulation.State.Tanks.Count; i++)
             {
                 TankState tank = _simulation.State.Tanks[i];
@@ -484,6 +494,7 @@ namespace ClaudeOfTanks.Runtime
         private void OnDestroy()
         {
             _mapRuntime?.Dispose();
+            _modeWorldView?.Dispose();
             foreach (TankView view in _tankViews.Values) view.Destroy();
             foreach (GameObject shell in _shellViews.Values) DestroyShellView(shell);
         }
@@ -508,6 +519,10 @@ namespace ClaudeOfTanks.Runtime
             LoadoutSimulation.ApplyEquipment(
                 tank,
                 equipment ?? Array.Empty<string>());
+            tank.CamouflagePaintBonus =
+                CamouflageSpottingPolicy.Bonus(
+                    camouflageId,
+                    mapId);
             state.Tanks.Add(tank);
             _vehicleDefinitions[entityId] = definition;
             _camouflageIds[entityId] =
@@ -564,13 +579,15 @@ namespace ClaudeOfTanks.Runtime
                 UseFireExtinguisher = gamepad.ExtinguisherPressed ||
                     settings.WasPressedThisFrame(GameInputAction.Extinguisher) ||
                     (_hud != null && _hud.ConsumeConsumable(2)),
-                ToggleHydropneumaticAim =
-                    _player.Spec.HydropneumaticAim != null &&
-                    (gamepad.HydropneumaticAimPressed ||
-                     settings.WasPressedThisFrame(
-                         GameInputAction.HydropneumaticAim) ||
-                     (_hud != null &&
-                      _hud.ConsumeHydropneumaticToggle())),
+                SpecialAction =
+                    gamepad
+                        .HydropneumaticAimPressed ||
+                    settings.WasPressedThisFrame(
+                        GameInputAction
+                            .HydropneumaticAim) ||
+                    (_hud != null &&
+                     _hud
+                         .ConsumeHydropneumaticToggle()),
                 ShellSlot = _hud.ConsumeShellSlot(
                     _player.Combat.ShellSlot,
                     _player.Spec.Shells.Length),
@@ -671,7 +688,8 @@ namespace ClaudeOfTanks.Runtime
             for (int i = 1; i < tanks.Count; i++)
             {
                 TankState bot = tanks[i];
-                if (bot.Destroyed)
+                if (bot.Destroyed ||
+                    !bot.ModeActive)
                 {
                     continue;
                 }
@@ -747,6 +765,7 @@ namespace ClaudeOfTanks.Runtime
         private void SyncViews()
         {
             _mapRuntime?.SyncDestroyedStructures(_simulation.State);
+            _modeWorldView?.Sync(_simulation.MatchMode);
             List<TankState> tanks = _simulation.State.Tanks;
             for (int i = 0; i < tanks.Count; i++)
             {

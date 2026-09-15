@@ -34,6 +34,30 @@ namespace ClaudeOfTanks.Runtime
                 ReverseSpeedKmh = definition.reverseSpeedKmh,
                 HullTraverseDegS = definition.hullTraverseDegS,
                 TurretTraverseDegS = definition.turretTraverseDegS,
+                GunPitchDegS = definition.gunPitchDegS > 0f
+                    ? definition.gunPitchDegS
+                    : 12f,
+                GunElevationDeg = definition.gunElevationDeg > 0f
+                    ? definition.gunElevationDeg
+                    : 20f,
+                GunDepressionDeg = definition.gunDepressionDeg > 0f
+                    ? definition.gunDepressionDeg
+                    : 8f,
+                GunArcDeg = definition.gunArcDeg > 0f
+                    ? definition.gunArcDeg
+                    : 180f,
+                HullLengthM =
+                    definition.dims != null &&
+                    definition.dims.hullLengthM > 0f
+                        ? definition.dims.hullLengthM
+                        : 5.4f,
+                HullWidthM = width,
+                TerrainResistance = definition.terrainResistance > 0f
+                    ? definition.terrainResistance
+                    : 1f,
+                TrackTraction = definition.trackTraction > 0f
+                    ? definition.trackTraction
+                    : 1f,
                 CollisionRadiusM = width * 0.62f,
                 AimTimeS = gun.aimTimeS > 0f
                     ? gun.aimTimeS
@@ -111,7 +135,21 @@ namespace ClaudeOfTanks.Runtime
                             ? gun.reloadS
                             : 5.5f,
                     Count = shell.count,
-                    Guided = shell.guided
+                    Guided = shell.guided,
+                    GravityScale = shell.gravityScale >= 0f
+                        ? shell.gravityScale
+                        : 1f,
+                    GuidanceTurnRateRadS =
+                        shell.guidanceTurnRateRadS > 0f
+                            ? shell.guidanceTurnRateRadS
+                            : 2.4f,
+                    ModuleDamage = shell.moduleDmg > 0f
+                        ? shell.moduleDmg
+                        : shell.caliberMm,
+                    EffectiveOvermatchCaliberMm =
+                        shell.effectiveOvermatchCaliberMm,
+                    Tandem = shell.tandem,
+                    SoundProfile = shell.soundProfile
                 };
             }
             return result;
@@ -124,6 +162,12 @@ namespace ClaudeOfTanks.Runtime
             return new TankArmorModel
             {
                 TurretPivot = Point(source.turretPivot),
+                GunPivot = Point(source.gunPivot),
+                GunBarrelLengthM =
+                    source.gunBarrel?.lengthM ?? 0f,
+                GunBarrelRadiusM =
+                    source.gunBarrel?.radiusM ?? 0f,
+                Turretless = source.turretless,
                 BoundingRadiusM = source.boundingRadiusM,
                 HullPlates = Plates(source.hullPlates),
                 TurretPlates = Plates(source.turretPlates),
@@ -155,6 +199,12 @@ namespace ClaudeOfTanks.Runtime
                     PhysicalMm = plate?.physicalMm ?? 0f,
                     KeMm = plate?.keMm ?? 0f,
                     CeMm = plate?.ceMm ?? 0f,
+                    EraKeReduction =
+                        plate?.era?.keReduction ?? 0f,
+                    EraCeFlatMm =
+                        plate?.era?.ceFlatMm ?? 0f,
+                    ModuleLink = plate?.moduleLink,
+                    GunFollow = plate?.gunFollow ?? false,
                     Vertices = points
                 };
             }

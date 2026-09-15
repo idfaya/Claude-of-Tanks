@@ -200,7 +200,14 @@ namespace ClaudeOfTanks.Network
                 BravoFlagCarrier = source.BravoFlagCarrier,
                 BallPosition = source.BallPosition,
                 BallVelocity = source.BallVelocity,
-                HordeWave = source.HordeWave
+                HordeWave = source.HordeWave,
+                HordeAlive = source.HordeAlive,
+                HordeTotal = source.HordeTotal,
+                HordeNextWaveInS =
+                    source.HordeNextWaveInS,
+                Pickups =
+                    (NetworkModePickupSnapshot[])
+                    source.Pickups.Clone()
             };
         }
 
@@ -305,6 +312,14 @@ namespace ClaudeOfTanks.Network
                 a.HydropneumaticAimActive ==
                     b.HydropneumaticAimActive &&
                 a.HullPitchRad == b.HullPitchRad &&
+                a.GunPitchRad == b.GunPitchRad &&
+                a.TerrainPitchRad ==
+                    b.TerrainPitchRad &&
+                a.HullRollRad == b.HullRollRad &&
+                a.VerticalSpeedMps ==
+                    b.VerticalSpeedMps &&
+                a.Grounded == b.Grounded &&
+                a.Overturned == b.Overturned &&
                 a.SpeedMps == b.SpeedMps &&
                 a.Health == b.Health &&
                 a.MaxHealth == b.MaxHealth &&

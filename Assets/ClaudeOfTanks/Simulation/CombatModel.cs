@@ -24,6 +24,10 @@ namespace ClaudeOfTanks.Simulation
         public bool Guided;
         public float GravityScale = 1f;
         public float GuidanceTurnRateRadS = 2.4f;
+        public float ModuleDamage;
+        public float EffectiveOvermatchCaliberMm;
+        public bool Tandem;
+        public string SoundProfile;
     }
 
     public sealed class TankSpec
@@ -39,6 +43,12 @@ namespace ClaudeOfTanks.Simulation
         public float ReverseSpeedKmh = 18f;
         public float HullTraverseDegS = 38f;
         public float TurretTraverseDegS = 32f;
+        public float GunPitchDegS = 12f;
+        public float GunElevationDeg = 20f;
+        public float GunDepressionDeg = 8f;
+        public float GunArcDeg = 180f;
+        public float HullLengthM = 5.4f;
+        public float HullWidthM = 3.4f;
         public float TerrainResistance = 1f;
         public float TrackTraction = 1f;
         public float ArmorFrontMm = 150f;
@@ -127,6 +137,7 @@ namespace ClaudeOfTanks.Simulation
         public bool UseRepairKit;
         public bool UseFirstAidKit;
         public bool UseFireExtinguisher;
+        public bool SpecialAction;
         public bool ToggleHydropneumaticAim;
         public int ShellSlot;
         public Float3 AimPoint;
@@ -141,15 +152,29 @@ namespace ClaudeOfTanks.Simulation
         public float Yaw;
         public float SpeedMps;
         public float TurretYaw;
+        public float GunPitchRad;
+        public bool AtGunLimit;
         public bool HydropneumaticAimActive;
         public float HullPitchRad;
+        public float TerrainPitchRad;
+        public float HullRollRad;
+        public float VerticalSpeedMps;
+        public bool Grounded = true;
+        public bool Overturned;
+        public float RolloverTimerS;
         public float HullYawRateRadS;
         public float TurretYawRateRadS;
         public float AimBloom = 1f;
         public float Health;
         public float ReloadRemainingS;
         public bool Destroyed;
+        public bool ModeActive = true;
+        public float ModeSpeedMultiplier = 1f;
         public int Kills;
+        public int PreviousConventionalShellSlot;
+        public float LastFiredAtS = -1000000000f;
+        public float FireCamouflageLoss = 0.82f;
+        public float CamouflagePaintBonus;
         public float TraverseMultiplier = 1f;
         public float TurretMultiplier = 1f;
         public string[] Equipment = Array.Empty<string>();
@@ -188,7 +213,10 @@ namespace ClaudeOfTanks.Simulation
                     ReloadS = shells[i].ReloadS > 0f
                         ? (float?)shells[i].ReloadS
                         : null,
-                    Guided = shells[i].Guided
+                    Guided = shells[i].Guided,
+                    ModuleDamage = shells[i].ModuleDamage > 0f
+                        ? shells[i].ModuleDamage
+                        : shells[i].CaliberMm
                 });
             }
             if (spec.Armor != null)
@@ -299,7 +327,7 @@ namespace ClaudeOfTanks.Simulation
         }
     }
 
-    public sealed class BattleState
+    public sealed partial class BattleState
     {
         public const float FixedDeltaTime = 1f / 60f;
         public const int MaximumStaticObstacles = 8192;

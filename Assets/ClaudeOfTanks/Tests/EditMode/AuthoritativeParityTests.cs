@@ -201,6 +201,62 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void CatalogPreservesTsCombatControlAndReactiveArmorData()
+        {
+            ContentCatalog catalog = ContentCatalog.Load();
+            TankSpec t72 =
+                catalog.GetVehicle("t72b3")
+                    .ToTankSpec();
+            ArmorPlateModel era = null;
+            for (int i = 0;
+                i < t72.Armor.HullPlates.Length;
+                i++)
+            {
+                if (t72.Armor.HullPlates[i].Kind ==
+                    "era")
+                {
+                    era =
+                        t72.Armor.HullPlates[i];
+                    break;
+                }
+            }
+            Assert.That(era, Is.Not.Null);
+            Assert.That(
+                era.EraKeReduction,
+                Is.EqualTo(0.2f).Within(0.00001f));
+            Assert.That(
+                era.EraCeFlatMm,
+                Is.EqualTo(450f)
+                    .Within(0.00001f));
+            Assert.That(
+                t72.GunPitchDegS,
+                Is.EqualTo(24f));
+
+            TankSpec mbt70 =
+                catalog.GetVehicle("mbt70")
+                    .ToTankSpec();
+            ShellSpec guided = null;
+            for (int i = 0;
+                i < mbt70.Shells.Length;
+                i++)
+            {
+                if (mbt70.Shells[i].Guided)
+                {
+                    guided = mbt70.Shells[i];
+                    break;
+                }
+            }
+            Assert.That(guided, Is.Not.Null);
+            Assert.That(
+                guided.GuidanceTurnRateRadS,
+                Is.EqualTo(0.72f)
+                    .Within(0.00001f));
+            Assert.That(
+                guided.ModuleDamage,
+                Is.EqualTo(152f));
+        }
+
+        [Test]
         public void ReplayRoundTripsCompleteCombatSpecification()
         {
             VehicleDefinition definition =
@@ -249,6 +305,16 @@ namespace ClaudeOfTanks.Tests
             Assert.That(
                 restored.Shells[1].Type,
                 Is.EqualTo("HEAT"));
+            Assert.That(
+                restored.Shells[1].ModuleDamage,
+                Is.EqualTo(
+                    state.Tanks[0].Spec
+                        .Shells[1].ModuleDamage));
+            Assert.That(
+                restored.GunPitchDegS,
+                Is.EqualTo(
+                    state.Tanks[0].Spec
+                        .GunPitchDegS));
             Assert.That(
                 restored.Armor.HullPlates,
                 Has.Length.EqualTo(

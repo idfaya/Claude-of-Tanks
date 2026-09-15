@@ -242,20 +242,18 @@ namespace ClaudeOfTanks.Tests
                     view.Assignment.MatchTicket.MatchId;
                 DedicatedMatchRecord match =
                     registry.Get(matchId);
-                NetworkWorldSnapshot snapshot =
-                    match.Host.CreateSnapshot(
-                        alpha.Profile.PlayerId);
                 TankState defeated = null;
+                BattleSimulation simulation =
+                    SimulationOf(match.Host);
                 for (int i = 0;
-                    i < snapshot.Entities.Length;
+                    i < simulation.State.Tanks.Count;
                     i++)
                 {
-                    if (snapshot.Entities[i].Team ==
+                    if (simulation.State.Tanks[i].Team ==
                         Team.Bravo)
                     {
-                        defeated = FindTank(
-                            match.Host,
-                            snapshot.Entities[i].EntityId);
+                        defeated =
+                            simulation.State.Tanks[i];
                         break;
                     }
                 }
@@ -286,6 +284,13 @@ namespace ClaudeOfTanks.Tests
             AuthoritativeMatchHost host,
             string entityId)
         {
+            return SimulationOf(host).State.Tanks.Find(
+                tank => tank.Id == entityId);
+        }
+
+        private static BattleSimulation SimulationOf(
+            AuthoritativeMatchHost host)
+        {
             var field = typeof(AuthoritativeMatchHost)
                 .GetField(
                     "_simulation",
@@ -295,8 +300,7 @@ namespace ClaudeOfTanks.Tests
                         .NonPublic);
             BattleSimulation simulation =
                 (BattleSimulation)field.GetValue(host);
-            return simulation.State.Tanks.Find(
-                tank => tank.Id == entityId);
+            return simulation;
         }
 
         private static IdentityDto Identity(int port, string name)

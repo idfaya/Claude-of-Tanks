@@ -11,7 +11,8 @@ namespace ClaudeOfTanks.Network
         RepairKit = 2,
         FirstAidKit = 4,
         FireExtinguisher = 8,
-        HydropneumaticAim = 16
+        SpecialAction = 16,
+        HydropneumaticAim = SpecialAction
     }
 
     public struct NetworkInputCommand
@@ -102,6 +103,9 @@ namespace ClaudeOfTanks.Network
                 UseFirstAidKit = (command.Actions & NetworkActionBits.FirstAidKit) != 0,
                 UseFireExtinguisher =
                     (command.Actions & NetworkActionBits.FireExtinguisher) != 0,
+                SpecialAction =
+                    (command.Actions &
+                     NetworkActionBits.SpecialAction) != 0,
                 ToggleHydropneumaticAim =
                     (command.Actions &
                      NetworkActionBits.HydropneumaticAim) != 0,

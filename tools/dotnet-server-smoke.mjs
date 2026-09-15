@@ -269,7 +269,7 @@ const decodeSnapshotFrame = (data) => {
   const payloadLength = buffer.readInt32LE(offset); offset += 4;
   assert.equal(payloadLength, buffer.length - offset);
   assert.equal(buffer.readUInt32LE(offset), 0x4e544f43); offset += 4;
-  assert.equal(buffer.readUInt16LE(offset), 6); offset += 2;
+  assert.equal(buffer.readUInt16LE(offset), 7); offset += 2;
   const tick = Number(buffer.readBigInt64LE(offset));
   return { baseTick, tick };
 };

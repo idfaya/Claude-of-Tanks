@@ -170,39 +170,23 @@ namespace ClaudeOfTanks.Tests
                         definition.id))
                     {
                         Assert.That(
-                            view.Root
-                                .GetComponentsInChildren<Transform>(true)
-                                .Count(item =>
-                                    item.name ==
-                                    "Painted-Primary-" +
-                                    definition.id +
-                                    "-HullLoft"),
-                            Is.EqualTo(1),
+                            renderers.Count(item =>
+                                item.enabled &&
+                                item.name.StartsWith(
+                                    "Armor-")),
+                            Is.GreaterThanOrEqualTo(
+                                definition.armor
+                                    .hullPlates.Length +
+                                definition.armor
+                                    .turretPlates.Length),
                             definition.id);
-                        if (definition.id == "kv2" ||
-                            definition.id == "q_heavy")
-                        {
-                            Assert.That(
-                                view.Root
-                                    .GetComponentsInChildren<Transform>(true)
-                                    .Count(item =>
-                                        item.name ==
-                                        "Painted-Primary-" +
-                                        definition.id +
-                                        "-BoxTurretShell"),
-                                Is.EqualTo(1),
-                                definition.id);
-                            Assert.That(
-                                view.Root
-                                    .GetComponentsInChildren<Transform>(true)
-                                    .Count(item =>
-                                        item.name ==
-                                        "Painted-Primary-" +
-                                        definition.id +
-                                        "-RearTurretWall"),
-                                Is.EqualTo(1),
-                                definition.id);
-                        }
+                        Assert.That(
+                            renderers.Count(item =>
+                                item.enabled &&
+                                item.name.StartsWith(
+                                    "Painted-Primary-")),
+                            Is.Zero,
+                            definition.id);
                     }
                 }
                 finally

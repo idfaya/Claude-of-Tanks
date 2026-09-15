@@ -19,6 +19,17 @@ namespace ClaudeOfTanks.Runtime
             string resolved = ResolveId(
                 camouflageId,
                 mapId);
+            if (resolved == "custom")
+            {
+                Color custom;
+                return ColorUtility.TryParseHtmlString(
+                    CustomCamouflageStore
+                        .Load()
+                        .baseColor,
+                    out custom)
+                        ? custom
+                        : authored;
+            }
             if (resolved == "factory" ||
                 resolved.StartsWith(
                     "signature",

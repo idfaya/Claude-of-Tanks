@@ -21,6 +21,8 @@ Command-line verification:
 tools/uloop.sh compile
 tools/uloop.sh run-tests --test-mode EditMode
 tools/uloop.sh run-tests --test-mode PlayMode
+npm run unity:combat:check
+npm run unity:parity:check
 tools/uloop.sh control-play-mode --action Play
 tools/uloop.sh screenshot --window-name Game --capture-mode GameView
 ```
@@ -91,6 +93,9 @@ Unity content asset; C# owns its schema, loading, and validation. TypeScript
 remains only as the reference implementation while vehicle presentation
 builders are translated into shared C# shape factories and per-vehicle
 composition code. Generated TS meshes are not a runtime or repository asset.
+`tools/generate-unity-parity-vectors.mjs --check` and
+`TsGoldenParityTests` keep selected TS spotting and special-action formulas
+locked to the C# port.
 
 ## Implemented
 
@@ -102,10 +107,15 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   dependency from returning.
 - Pure C# deterministic simulation assembly
 - Acceleration, braking, reverse, pivot steering, terrain traction and turret traverse
-- Swept projectiles, gravity, deterministic dispersion, guidance and 2 km penetration
-- Plate slope, normalization, overmatch, ricochet and directional armor
-- Health, modules, crew, fire, repair, ammunition and autoloader reload channels
-- Proximity/FOV/occlusion spotting and deterministic AI input
+- Swept projectiles, shell gravity, deterministic dispersion, ATGM guidance,
+  authored module damage, and 2 km penetration
+- Plate slope, normalization, authored overmatch, ricochet, ERA reduction,
+  linked module hits, gun-follow plates, and directional armor
+- Health, modules, crew, fire, repair, ammunition, autoloader reload channels,
+  manual magazine reload, and context-sensitive special actions
+- Proximity/FOV/occlusion spotting, foliage concealment, firing bloom, radio
+  sharing, delayed sixth sense, camouflage paint bonuses, and deterministic AI
+  input with objective routing
 - Programmatic battlefield, first-party primitive tank rigs, shell visuals
 - Chase camera, mouse aim, HUD, battle result, restart
 - EditMode simulation tests
@@ -156,7 +166,8 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   destroyed obstacles stop blocking movement, shells, and vision; replay seek
   restores their state; merged structure meshes remove only the affected
   geometry and replace it with one shared deterministic debris mesh.
-- Standard, Capture the Flag, Zone Control, Turbo Ball, and Endless Horde modes
+- Standard, Capture the Flag, Zone Control, Turbo Ball, and Endless Horde modes,
+  including world-space flags, zone markers, the Turbo Ball, and Horde pickups
 - Equipment, consumables, deterministic replay recording, responsive HUD,
   keyboard, gamepad, and touch input
 - Bounded layered battle feedback with 24 pooled muzzle/penetration/ricochet/
@@ -193,6 +204,12 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   server-authoritative network module/crew/spotted-state replication
 - Garage-first lifecycle with all 126 production vehicles, 20 maps, and five
   modes selectable before deployment, plus complete return-to-garage cleanup
+- Unity Scene Studio entry from the Garage with multi-actor composition,
+  vehicle/map/camouflage selection, hull/turret/gun posing, camera controls,
+  scene JSON round-trip, and high-resolution TGA capture
+- Custom camouflage editor and PlayerPrefs-backed profile used by Garage,
+  Studio, solo battle, and local replay presentation; network/ranked handoff
+  safely falls back to factory camouflage IDs
 - Production Garage presentation with an enclosed steel workshop, hazard-rim
   turntable, roof trusses, three warm high-bay fixtures, canonical hero
   staging, restrained tactical selection/command rails, and a live

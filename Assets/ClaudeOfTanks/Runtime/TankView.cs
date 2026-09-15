@@ -7,6 +7,7 @@ namespace ClaudeOfTanks.Runtime
     {
         private readonly Transform _root;
         private readonly Transform _turret;
+        private readonly TankGunPitchRig _gunPitchRig;
         private readonly Renderer[] _renderers;
         private readonly Mesh[] _meshes;
         private readonly Material[] _materials;
@@ -15,21 +16,25 @@ namespace ClaudeOfTanks.Runtime
         private TankView(
             Transform root,
             Transform turret,
+            TankGunPitchRig gunPitchRig,
             Renderer[] renderers,
             Color aliveColor,
             Texture2D camouflageTexture)
         {
             _root = root;
             _turret = turret;
+            _gunPitchRig = gunPitchRig;
             _renderers = renderers;
             MeshFilter[] filters = root.GetComponentsInChildren<MeshFilter>();
             int generatedCount = 0;
             for (int i = 0; i < filters.Length; i++)
-                if (IsGeneratedMesh(filters[i])) generatedCount++;
+                if (TankViewPose.IsGeneratedMesh(filters[i]))
+                    generatedCount++;
             _meshes = new Mesh[generatedCount];
             int generatedIndex = 0;
             for (int i = 0; i < filters.Length; i++)
-                if (IsGeneratedMesh(filters[i]))
+                if (TankViewPose.IsGeneratedMesh(
+                        filters[i]))
                     _meshes[generatedIndex++] = filters[i].sharedMesh;
             _materials = new Material[renderers.Length];
             for (int i = 0; i < renderers.Length; i++) _materials[i] = renderers[i].sharedMaterial;
@@ -38,14 +43,6 @@ namespace ClaudeOfTanks.Runtime
         }
 
         public Transform Root => _root;
-
-        private static bool IsGeneratedMesh(MeshFilter filter)
-        {
-            return filter.name.StartsWith("Armor-") ||
-                filter.name.StartsWith("TrackLinks-") ||
-                (filter.sharedMesh != null &&
-                 filter.sharedMesh.name == filter.name + "Mesh");
-        }
 
         public static TankView Create(TankState tank)
         {
@@ -162,6 +159,10 @@ namespace ClaudeOfTanks.Runtime
                 width,
                 height,
                 length);
+            TankGunPitchRig gunPitchRig =
+                TankGunPitchRig.Build(
+                    turretRoot.transform,
+                    definition);
 
             Renderer[] renderers = root.GetComponentsInChildren<Renderer>();
             Texture2D camouflageTexture =
@@ -176,6 +177,7 @@ namespace ClaudeOfTanks.Runtime
             TankView view = new TankView(
                 root.transform,
                 turretRoot.transform,
+                gunPitchRig,
                 renderers,
                 camouflageTexture == null
                     ? teamColor
@@ -425,13 +427,11 @@ namespace ClaudeOfTanks.Runtime
 
         public void Sync(TankState tank)
         {
-            _root.position = tank.Position.ToUnity();
-            _root.rotation = Quaternion.Euler(
-                -tank.HullPitchRad * Mathf.Rad2Deg,
-                tank.Yaw * Mathf.Rad2Deg,
-                0f);
-            _turret.localRotation = Quaternion.Euler(0f, tank.TurretYaw * Mathf.Rad2Deg, 0f);
-
+            TankViewPose.Apply(
+                _root,
+                _turret,
+                _gunPitchRig,
+                tank);
             Color color = tank.Destroyed ? new Color(0.08f, 0.08f, 0.075f) : _aliveColor;
             for (int i = 0; i < _renderers.Length; i++)
             {

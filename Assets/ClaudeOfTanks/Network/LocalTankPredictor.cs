@@ -137,10 +137,21 @@ namespace ClaudeOfTanks.Network
             _state.Position = authority.Position;
             _state.Yaw = authority.Yaw;
             _state.TurretYaw = authority.TurretYaw;
+            _state.GunPitchRad =
+                authority.GunPitchRad;
             _state.HydropneumaticAimActive =
                 authority.HydropneumaticAimActive;
             _state.HullPitchRad =
                 authority.HullPitchRad;
+            _state.TerrainPitchRad =
+                authority.TerrainPitchRad;
+            _state.HullRollRad =
+                authority.HullRollRad;
+            _state.VerticalSpeedMps =
+                authority.VerticalSpeedMps;
+            _state.Grounded = authority.Grounded;
+            _state.Overturned =
+                authority.Overturned;
             _state.SpeedMps = authority.SpeedMps;
             _state.Health = authority.Health;
             _state.ReloadRemainingS = authority.ReloadRemainingS;

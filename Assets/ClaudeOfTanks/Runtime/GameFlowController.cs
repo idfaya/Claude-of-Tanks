@@ -76,6 +76,7 @@ namespace ClaudeOfTanks.Runtime
 
         private void ShowGarage()
         {
+            DisposeStudio();
             if (_battle != null) ReleaseObject(_battle.gameObject);
             _battle = null;
             DestroyGarage();
@@ -295,6 +296,11 @@ namespace ClaudeOfTanks.Runtime
                     "Replays",
                     "REPLAYS");
             replays.onClick.AddListener(() => _replayBrowser.Open());
+            Button studio =
+                _garagePresentation.CreateActionButton(
+                    "Studio",
+                    "STUDIO");
+            studio.onClick.AddListener(OpenStudio);
             _settingsPanel = GameSettingsPanel.Create(
                 _garagePresentation.ModalRoot,
                 GameSettings.Current);
@@ -456,6 +462,7 @@ namespace ClaudeOfTanks.Runtime
 
         private void OnDestroy()
         {
+            DisposeStudio();
             if (_privateRoom != null)
             {
                 _privateRoom.MatchHandoffReady -= StartNetworkBattle;

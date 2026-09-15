@@ -10,8 +10,14 @@ namespace ClaudeOfTanks.Network
         public Float3 Position;
         public float Yaw;
         public float TurretYaw;
+        public float GunPitchRad;
         public bool HydropneumaticAimActive;
         public float HullPitchRad;
+        public float TerrainPitchRad;
+        public float HullRollRad;
+        public float VerticalSpeedMps;
+        public bool Grounded = true;
+        public bool Overturned;
         public float SpeedMps;
         public float Health;
         public float MaxHealth;
@@ -48,6 +54,21 @@ namespace ClaudeOfTanks.Network
         public Float3 BallPosition;
         public Float3 BallVelocity;
         public int HordeWave = 1;
+        public int HordeAlive;
+        public int HordeTotal;
+        public float HordeNextWaveInS;
+        public NetworkModePickupSnapshot[]
+            Pickups =
+                System.Array.Empty<
+                    NetworkModePickupSnapshot>();
+    }
+
+    public sealed class NetworkModePickupSnapshot
+    {
+        public string Id;
+        public string Kind;
+        public Float3 Position;
+        public int SpawnedWave;
     }
 
     public sealed class NetworkWorldSnapshot

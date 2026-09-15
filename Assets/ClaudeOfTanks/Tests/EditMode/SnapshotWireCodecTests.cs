@@ -42,7 +42,20 @@ namespace ClaudeOfTanks.Tests
                     AlphaFlagCarrier = "entity-a",
                     BallPosition = new Float3(4f, 2f, 8f),
                     BallVelocity = new Float3(1f, 0f, 2f),
-                    HordeWave = 4
+                    HordeWave = 4,
+                    HordeAlive = 5,
+                    HordeTotal = 8,
+                    HordeNextWaveInS = 3.5f,
+                    Pickups = new[]
+                    {
+                        new NetworkModePickupSnapshot
+                        {
+                            Id = "pickup-1",
+                            Kind = "ammo",
+                            Position = new Float3(9f, 0f, 11f),
+                            SpawnedWave = 4
+                        }
+                    }
                 },
                 StaticObstacleRevision = 2u,
                 DestroyedStaticObstacleIndices = new ushort[] { 3, 8 },
@@ -56,6 +69,12 @@ namespace ClaudeOfTanks.Tests
                         Position = new Float3(1.25f, 2f, -3.5f),
                         Yaw = 0.7f,
                         TurretYaw = -0.2f,
+                        GunPitchRad = 0.12f,
+                        TerrainPitchRad = 0.08f,
+                        HullRollRad = -0.04f,
+                        VerticalSpeedMps = -2.5f,
+                        Grounded = false,
+                        Overturned = true,
                         SpeedMps = 8f,
                         Health = 1750f,
                         MaxHealth = 2600f,
@@ -111,11 +130,30 @@ namespace ClaudeOfTanks.Tests
             Assert.That(decoded.MatchMode.ZoneOwners[2], Is.EqualTo(Team.Alpha));
             Assert.That(decoded.MatchMode.AlphaFlagCarrier, Is.EqualTo("entity-a"));
             Assert.That(decoded.MatchMode.HordeWave, Is.EqualTo(4));
+            Assert.That(decoded.MatchMode.HordeAlive, Is.EqualTo(5));
+            Assert.That(decoded.MatchMode.HordeTotal, Is.EqualTo(8));
+            Assert.That(decoded.MatchMode.HordeNextWaveInS, Is.EqualTo(3.5f));
+            Assert.That(decoded.MatchMode.Pickups.Length, Is.EqualTo(1));
+            Assert.That(decoded.MatchMode.Pickups[0].Kind, Is.EqualTo("ammo"));
             Assert.That(decoded.StaticObstacleRevision, Is.EqualTo(2u));
             Assert.That(decoded.DestroyedStaticObstacleIndices, Is.EqualTo(new ushort[] { 3, 8 }));
             Assert.That(decoded.Entities[0].EntityId, Is.EqualTo("entity-a"));
             Assert.That(decoded.Entities[0].VehicleSpecId, Is.EqualTo("m1a2"));
             Assert.That(decoded.Entities[0].Position, Is.EqualTo(source.Entities[0].Position));
+            Assert.That(
+                decoded.Entities[0].GunPitchRad,
+                Is.EqualTo(0.12f));
+            Assert.That(
+                decoded.Entities[0].TerrainPitchRad,
+                Is.EqualTo(0.08f));
+            Assert.That(
+                decoded.Entities[0].HullRollRad,
+                Is.EqualTo(-0.04f));
+            Assert.That(
+                decoded.Entities[0].VerticalSpeedMps,
+                Is.EqualTo(-2.5f));
+            Assert.That(decoded.Entities[0].Grounded, Is.False);
+            Assert.That(decoded.Entities[0].Overturned, Is.True);
             Assert.That(decoded.Entities[0].ModuleYellowMask, Is.EqualTo(0x00000008u));
             Assert.That(decoded.Entities[0].ModuleRedMask, Is.EqualTo(0x00000101u));
             Assert.That(decoded.Entities[0].CrewAliveMask, Is.EqualTo(0x0bu));

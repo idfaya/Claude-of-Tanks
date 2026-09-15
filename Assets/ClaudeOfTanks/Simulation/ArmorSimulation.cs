@@ -143,6 +143,37 @@ namespace ClaudeOfTanks.Simulation
             return shellType == ArmorShellType.APFSDS ? caliberMm * 0.6f : caliberMm;
         }
 
+        public static float ApplyEraPenetration(
+            ArmorShellType shellType,
+            float penetrationMm,
+            float kineticReduction,
+            float chemicalFlatReductionMm,
+            bool tandem)
+        {
+            if (penetrationMm <= 0f || tandem)
+                return MathF.Max(0f, penetrationMm);
+            ShellBehavior behavior = GetBehavior(shellType);
+            if (behavior.Class == ShellClass.Chemical)
+            {
+                return MathF.Max(
+                    0f,
+                    penetrationMm -
+                    MathF.Max(
+                        0f,
+                        chemicalFlatReductionMm));
+            }
+            if (behavior.Class == ShellClass.Kinetic)
+            {
+                return penetrationMm *
+                    (1f -
+                     MathUtil.Clamp(
+                         kineticReduction,
+                         0f,
+                         1f));
+            }
+            return penetrationMm;
+        }
+
         public static float NormalizationDegrees(
             ArmorShellType shellType,
             float caliberMm,

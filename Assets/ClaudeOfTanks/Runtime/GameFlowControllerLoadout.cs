@@ -16,6 +16,10 @@ namespace ClaudeOfTanks.Runtime
             _loadout?.Equipment ?? System.Array.Empty<string>();
         public string SelectedCamouflageId =>
             _loadout?.CamouflageId ?? "factory";
+        private string SelectedNetworkCamouflageId =>
+            SelectedCamouflageId == "custom"
+                ? "factory"
+                : SelectedCamouflageId;
 
         private void InitializeLoadout()
         {
@@ -52,7 +56,7 @@ namespace ClaudeOfTanks.Runtime
                 () => SelectedMapId,
                 () => SelectedMode,
                 () => SelectedEquipment,
-                () => SelectedCamouflageId);
+                () => SelectedNetworkCamouflageId);
             privateRoom.onClick.AddListener(
                 _privateRoomPanel.Open);
 
@@ -65,7 +69,7 @@ namespace ClaudeOfTanks.Runtime
                 _ranked,
                 () => SelectedVehicleId,
                 () => SelectedEquipment,
-                () => SelectedCamouflageId);
+                () => SelectedNetworkCamouflageId);
             ranked.onClick.AddListener(
                 _rankedPanel.Open);
             BuildLoadoutUi(parent);
@@ -103,7 +107,7 @@ namespace ClaudeOfTanks.Runtime
             _privateRoom.SelectEquipment(
                 _loadout.Equipment);
             _privateRoom.SelectCamo(
-                _loadout.CamouflageId);
+                SelectedNetworkCamouflageId);
         }
 
         private void ApplyRoomLoadout(RoomPlayerSnapshot local)

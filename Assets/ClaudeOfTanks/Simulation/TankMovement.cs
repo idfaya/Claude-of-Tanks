@@ -9,6 +9,14 @@ namespace ClaudeOfTanks.Simulation
         private const float BrakeDecelerationMps2 = 9f;
         private const float BloomGrowTimeS = 0.05f;
         private const float AimSettledRatio = 6f;
+        private const float GravityMps2 = 9.81f;
+        private const float GroundSnapDistanceM = 0.35f;
+        private const float AttitudeResponseS = 0.12f;
+        private const float RolloverAngleRad =
+            75f * MathUtil.Deg2Rad;
+        private const float RolloverDelayS = 1f;
+        private const float CasemateSteerRampRad =
+            8f * MathUtil.Deg2Rad;
 
         public static void Step(TankState tank, TankInput input, IHeightField heightField, float dt)
         {
@@ -25,12 +33,24 @@ namespace ClaudeOfTanks.Simulation
                 tank,
                 input,
                 steer);
+            steer = ResolveCasemateSteer(
+                tank,
+                input.AimPoint,
+                steer);
             float mobility = MobilityMultiplier(tank);
             float steering = SteeringMultiplier(tank);
             float forwardLimit =
-                tank.Spec.TopSpeedKmh / 3.6f * mobility;
+                tank.Spec.TopSpeedKmh /
+                3.6f * mobility *
+                MathF.Max(
+                    0f,
+                    tank.ModeSpeedMultiplier);
             float reverseLimit =
-                tank.Spec.ReverseSpeedKmh / 3.6f * mobility;
+                tank.Spec.ReverseSpeedKmh /
+                3.6f * mobility *
+                MathF.Max(
+                    0f,
+                    tank.ModeSpeedMultiplier);
             float targetSpeed = throttle >= 0f ? throttle * forwardLimit : throttle * reverseLimit;
             float powerToWeight = tank.Spec.EnginePowerHp / MathF.Max(1f, tank.Spec.WeightTons);
             ITerrainSurface surface = heightField as ITerrainSurface;
@@ -72,7 +92,11 @@ namespace ClaudeOfTanks.Simulation
 
             Float3 forward = Float3.Forward(tank.Yaw);
             Float3 next = tank.Position + forward * (tank.SpeedMps * dt);
-            next.Y = heightField.HeightAt(next.X, next.Z);
+            UpdateVerticalAndAttitude(
+                tank,
+                heightField,
+                ref next,
+                dt);
             tank.Position = next;
             HydropneumaticAimSimulation.Step(
                 tank,
@@ -83,24 +107,270 @@ namespace ClaudeOfTanks.Simulation
             if (tank.Spec.FixedHydraulicGun)
             {
                 tank.TurretYaw = 0f;
+                tank.GunPitchRad = 0f;
             }
             else if (toAim.X * toAim.X + toAim.Z * toAim.Z > 0.001f)
             {
                 float desiredWorldYaw = MathF.Atan2(toAim.X, toAim.Z);
                 float desiredLocalYaw = MathUtil.DeltaAngle(tank.Yaw, desiredWorldYaw);
+                float gunArc =
+                    tank.Spec.GunArcDeg *
+                    MathUtil.Deg2Rad;
+                bool limitedArc =
+                    tank.Spec.Armor?.Turretless ==
+                        true ||
+                    gunArc < MathUtil.Pi -
+                        0.0001f;
+                if (limitedArc)
+                {
+                    desiredLocalYaw =
+                        MathUtil.Clamp(
+                            desiredLocalYaw,
+                            -gunArc,
+                            gunArc);
+                }
                 float delta = MathUtil.DeltaAngle(tank.TurretYaw, desiredLocalYaw);
                 float maxStep = tank.Spec.TurretTraverseDegS *
                     tank.TurretMultiplier *
                     CrewAlive(tank, "gunner", 1f, 0.5f) *
                     MathUtil.Deg2Rad * dt;
                 tank.TurretYaw += MathUtil.Clamp(delta, -maxStep, maxStep);
+                if (limitedArc)
+                {
+                    tank.TurretYaw =
+                        MathUtil.Clamp(
+                            tank.TurretYaw,
+                            -gunArc,
+                            gunArc);
+                }
             }
+            UpdateGunPitch(tank, input.AimPoint, dt);
 
             tank.HullYawRateRadS =
                 MathUtil.DeltaAngle(previousYaw, tank.Yaw) / dt;
             tank.TurretYawRateRadS =
                 MathUtil.DeltaAngle(previousTurretYaw, tank.TurretYaw) / dt;
             UpdateAimBloom(tank, dt);
+        }
+
+        private static void UpdateVerticalAndAttitude(
+            TankState tank,
+            IHeightField heightField,
+            ref Float3 next,
+            float dt)
+        {
+            float groundY =
+                heightField.HeightAt(next.X, next.Z);
+            float drop =
+                tank.Position.Y - groundY;
+            if (tank.Grounded &&
+                drop <= GroundSnapDistanceM)
+            {
+                next.Y = groundY;
+                tank.VerticalSpeedMps = 0f;
+            }
+            else
+            {
+                tank.Grounded = false;
+                tank.VerticalSpeedMps -=
+                    GravityMps2 * dt;
+                next.Y = tank.Position.Y +
+                    tank.VerticalSpeedMps * dt;
+                if (next.Y <= groundY)
+                {
+                    next.Y = groundY;
+                    tank.VerticalSpeedMps = 0f;
+                    tank.Grounded = true;
+                }
+            }
+            if (groundY >
+                tank.Position.Y +
+                GroundSnapDistanceM)
+            {
+                next.Y = groundY;
+                tank.VerticalSpeedMps = 0f;
+                tank.Grounded = true;
+            }
+
+            Float3 normal = TerrainNormal(
+                heightField,
+                next.X,
+                next.Z);
+            Float3 forward =
+                Float3.Forward(tank.Yaw);
+            Float3 right = new Float3(
+                MathF.Cos(tank.Yaw),
+                0f,
+                -MathF.Sin(tank.Yaw));
+            float targetPitch = tank.Grounded
+                ? MathF.Atan2(
+                    -Float3.Dot(normal, forward),
+                    MathF.Max(0.0001f, normal.Y))
+                : 0f;
+            float targetRoll = tank.Grounded
+                ? MathF.Atan2(
+                    Float3.Dot(normal, right),
+                    MathF.Max(0.0001f, normal.Y))
+                : 0f;
+            float blend =
+                1f -
+                MathF.Exp(
+                    -dt /
+                    AttitudeResponseS);
+            tank.TerrainPitchRad +=
+                (targetPitch -
+                 tank.TerrainPitchRad) *
+                blend;
+            tank.HullRollRad +=
+                (targetRoll -
+                 tank.HullRollRad) *
+                blend;
+
+            bool unstable =
+                MathF.Abs(tank.HullRollRad) >=
+                    RolloverAngleRad ||
+                MathF.Abs(
+                    tank.TerrainPitchRad +
+                    tank.HullPitchRad) >=
+                    RolloverAngleRad;
+            tank.RolloverTimerS = unstable
+                ? tank.RolloverTimerS + dt
+                : 0f;
+            if (tank.RolloverTimerS >=
+                RolloverDelayS)
+            {
+                tank.Overturned = true;
+                tank.SpeedMps = 0f;
+            }
+        }
+
+        private static Float3 TerrainNormal(
+            IHeightField heightField,
+            float x,
+            float z)
+        {
+            ITerrainSurface surface =
+                heightField as ITerrainSurface;
+            if (surface != null)
+                return surface.NormalAt(x, z)
+                    .Normalized;
+            const float sample = 0.5f;
+            float dx =
+                heightField.HeightAt(
+                    x - sample,
+                    z) -
+                heightField.HeightAt(
+                    x + sample,
+                    z);
+            float dz =
+                heightField.HeightAt(
+                    x,
+                    z - sample) -
+                heightField.HeightAt(
+                    x,
+                    z + sample);
+            return new Float3(
+                dx,
+                sample * 2f,
+                dz).Normalized;
+        }
+
+        private static float ResolveCasemateSteer(
+            TankState tank,
+            Float3 aimPoint,
+            float steer)
+        {
+            if (tank.Spec.FixedHydraulicGun ||
+                tank.Spec.Armor?.Turretless !=
+                    true)
+            {
+                return steer;
+            }
+            Float3 toAim =
+                aimPoint - tank.Position;
+            if (toAim.X * toAim.X +
+                    toAim.Z * toAim.Z <=
+                0.001f)
+            {
+                return steer;
+            }
+            float desiredYaw =
+                MathF.Atan2(
+                    toAim.X,
+                    toAim.Z);
+            float local = MathUtil.DeltaAngle(
+                tank.Yaw,
+                desiredYaw);
+            float arc =
+                tank.Spec.GunArcDeg *
+                MathUtil.Deg2Rad;
+            float excess =
+                MathF.Abs(local) - arc;
+            if (excess <= 0f) return steer;
+            float automatic =
+                MathF.Sign(local) *
+                MathUtil.Clamp01(
+                    excess /
+                    CasemateSteerRampRad);
+            return MathF.Abs(steer) >
+                MathF.Abs(automatic)
+                    ? steer
+                    : automatic;
+        }
+
+        private static void UpdateGunPitch(
+            TankState tank,
+            Float3 aimPoint,
+            float dt)
+        {
+            if (tank.Spec.FixedHydraulicGun)
+                return;
+            Float3 gunPivot =
+                tank.Spec.Armor != null
+                    ? tank.Spec.Armor.GunPivot
+                    : new Float3(
+                        0f,
+                        1.5f,
+                        0f);
+            Float3 toAim =
+                aimPoint -
+                (tank.Position + gunPivot);
+            float horizontal =
+                MathF.Sqrt(
+                    toAim.X * toAim.X +
+                    toAim.Z * toAim.Z);
+            if (horizontal <= 0.001f)
+                return;
+            float desiredWorld =
+                MathF.Atan2(
+                    toAim.Y,
+                    horizontal);
+            float desiredLocal =
+                desiredWorld -
+                tank.TerrainPitchRad -
+                tank.HullPitchRad;
+            float low =
+                -tank.Spec.GunDepressionDeg *
+                MathUtil.Deg2Rad;
+            float high =
+                tank.Spec.GunElevationDeg *
+                MathUtil.Deg2Rad;
+            tank.AtGunLimit =
+                desiredLocal < low ||
+                desiredLocal > high;
+            float target =
+                MathUtil.Clamp(
+                    desiredLocal,
+                    low,
+                    high);
+            float step =
+                tank.Spec.GunPitchDegS *
+                MathUtil.Deg2Rad * dt;
+            tank.GunPitchRad =
+                MathUtil.MoveTowards(
+                    tank.GunPitchRad,
+                    target,
+                    step);
         }
 
         public static float DispersionSigmaRad(TankState tank)

@@ -32,6 +32,7 @@ namespace ClaudeOfTanks.Simulation
         public int? Count;
         public float? ReloadS;
         public bool Guided;
+        public float ModuleDamage;
     }
 
     public sealed class DamageAutoloaderSpec
@@ -188,6 +189,25 @@ namespace ClaudeOfTanks.Simulation
                 ["optics"] = 80f,
                 ["trackL"] = 100f,
                 ["trackR"] = 100f
+            };
+
+        private static readonly Dictionary<string, float> ModuleDamageChance =
+            new Dictionary<string, float>(StringComparer.Ordinal)
+            {
+                ["gun"] = 0.33f,
+                ["turretRing"] = 0.45f,
+                ["gunMount"] = 0.45f,
+                ["autoloader"] = 0.36f,
+                ["feedSystem"] = 0.38f,
+                ["missileRack"] = 0.30f,
+                ["engine"] = 0.45f,
+                ["transmission"] = 0.45f,
+                ["fuelTank"] = 0.45f,
+                ["ammoRack"] = 0.27f,
+                ["radio"] = 0.45f,
+                ["optics"] = 0.45f,
+                ["trackL"] = 1f,
+                ["trackR"] = 1f
             };
 
         private static readonly Dictionary<string, int> DefaultAmmunition =
@@ -393,6 +413,15 @@ namespace ClaudeOfTanks.Simulation
             RequireState(state);
             state.Health = Math.Max(0f, state.Health - Math.Max(0f, damage));
             FinalizeState(state, false);
+        }
+
+        public static float ModuleHitChance(string moduleId)
+        {
+            float chance;
+            return moduleId != null &&
+                ModuleDamageChance.TryGetValue(moduleId, out chance)
+                    ? chance
+                    : 0.45f;
         }
 
         public static HeSplashResult ApplyHeSplash(
