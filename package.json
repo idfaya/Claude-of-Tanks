@@ -10,6 +10,8 @@
     "server:dotnet:test": "node tools/dotnet-server-smoke.mjs",
     "unity:combat:update": "node tools/sync-unity-combat-data.mjs",
     "unity:combat:check": "node tools/sync-unity-combat-data.mjs --check",
+    "unity:geometry:update": "node tools/generate-unity-vehicle-geometry.mjs --all",
+    "unity:geometry:check": "node tools/generate-unity-vehicle-geometry.mjs --all --check",
     "unity:parity:update": "node tools/generate-unity-parity-vectors.mjs",
     "unity:parity:check": "node tools/generate-unity-parity-vectors.mjs --check",
     "fx:textures:bake": "node tools/bake-fx-textures.mjs",

@@ -240,7 +240,11 @@ namespace ClaudeOfTanks.Tests
             for (int i = 0; i < renderers.Length; i++)
             {
                 Renderer renderer = renderers[i];
-                if (renderer.gameObject.name != "Hull" ||
+                string name =
+                    renderer.gameObject.name;
+                if ((name != "Hull" &&
+                     !name.StartsWith(
+                         "Painted-Recipe-Armor-")) ||
                     !renderer.gameObject.activeInHierarchy)
                 {
                     continue;

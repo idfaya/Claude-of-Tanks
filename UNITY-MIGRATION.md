@@ -22,6 +22,7 @@ tools/uloop.sh compile
 tools/uloop.sh run-tests --test-mode EditMode
 tools/uloop.sh run-tests --test-mode PlayMode
 npm run unity:combat:check
+npm run unity:geometry:check
 npm run unity:parity:check
 tools/uloop.sh control-play-mode --action Play
 tools/uloop.sh screenshot --window-name Game --capture-mode GameView
@@ -222,15 +223,20 @@ locked to the C# port.
   catalog recipes, including national Factory and per-vehicle Signature
   resolution, vehicle-scale tiling, projected armor UVs, and shared rendering
   across Garage, solo, network battle, Killcam, and archived replay surfaces
-- Shared production-fleet running gear with closed discrete-link track meshes,
-  road-wheel hubs, sprockets, idlers, return rollers, and inboard suspension
-  arms/joints derived from each vehicle's dimensions and track width
-- Authored Unity rig alignment for all 126 production vehicles: exact turret
-  and gun pivots, measured barrel length/radius, complete armor-plate meshes,
-  and catalog-derived visible optics/module parts now drive Garage, solo, and
-  network presentation. The eight-vehicle Abrams production family adds its
-  bustle/rack, smoke banks, roof hatches, turbine deck grilles, antennas, and
-  generation-specific commander stations with camouflage-aware surfaces
+- Deterministic compressed geometry recipes generated from the authoritative
+  TypeScript first-party procedural builders for all 165 catalog vehicles.
+  Unity reconstructs the authored LOD0 hull, turret, gun, running gear,
+  fittings, and exterior decoration geometry under native articulation rigs;
+  Garage, solo, network, replay, and Studio all consume this same runtime path
+- Combat armor plates and internal module volumes remain simulation data and
+  are not rendered as exterior bodywork. Legacy C# builders remain available
+  only as an EditMode migration oracle while recipe-backed Play Mode omits
+  their meshes entirely
+- `VehicleGeometryRecipeTests` checks every catalog vehicle against the
+  generated TypeScript geometry manifest, including exact expanded vertex
+  counts, complete recipe coverage, clean diagnostic-layer separation,
+  independent turret/gun articulation, a three-percent per-axis envelope
+  ceiling, and an eight-centimeter center tolerance
 - Soviet T-72/T-80/T-90 production-family identity fittings, including
   authored-armor-safe smoke banks, rear drums/logs, T-80 turbine decks,
   searchlight and Shtora distinctions, modern panoramic sights and stowage,
@@ -1004,13 +1010,9 @@ locked to the C# port.
 The original release is substantially larger than this first playable port.
 These systems still use the TypeScript implementation as their specification:
 
-- complete remaining per-variant exterior fitting parity across the
-  126-vehicle production fleet beyond the landed Abrams, Soviet, Leopard 2,
-  Challenger 2/3, Merkava, Korean, Japanese, French, and Italian identity
-  suites plus the Swedish turreted, siege, and IFV lines;
 - remaining production UI polish;
 - installable build-target release artifacts and platform packaging;
-- per-family procedural vehicle geometry parity and generated technical assets.
+- generated Unity technical assets derived from the shared geometry recipes.
 
 Migrate these by extending the simulation contracts rather than moving
 authority into MonoBehaviours or PhysX. The TypeScript project should remain

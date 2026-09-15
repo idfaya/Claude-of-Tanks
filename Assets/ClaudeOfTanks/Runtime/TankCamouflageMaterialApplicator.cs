@@ -145,19 +145,23 @@ namespace ClaudeOfTanks.Runtime
                     1.2f);
                 Bounds bounds = renderer.bounds;
                 material.mainTexture = texture;
-                material.mainTextureScale = new Vector2(
-                    Mathf.Max(
-                        0.5f,
-                        Mathf.Max(
-                            bounds.size.x,
-                            bounds.size.z) *
-                        repeatsPerMeter),
-                    Mathf.Max(
-                        0.5f,
-                        Mathf.Max(
-                            bounds.size.y,
-                            bounds.size.z) *
-                        repeatsPerMeter));
+                material.mainTextureScale =
+                    renderer.gameObject.name.StartsWith(
+                        "Painted-Recipe-")
+                        ? Vector2.one
+                        : new Vector2(
+                            Mathf.Max(
+                                0.5f,
+                                Mathf.Max(
+                                    bounds.size.x,
+                                    bounds.size.z) *
+                                repeatsPerMeter),
+                            Mathf.Max(
+                                0.5f,
+                                Mathf.Max(
+                                    bounds.size.y,
+                                    bounds.size.z) *
+                                repeatsPerMeter));
                 material.color = new Color(
                     brightness,
                     brightness,

@@ -8,6 +8,7 @@ export const SELFTEST_SUITES = Object.freeze({
     'src/sim/ammunition.selftest.mjs',
     'src/sim/ammunitionFlow.selftest.mjs',
     'src/sim/autoloader.selftest.mjs',
+    'tools/unity-geometry.selftest.mjs',
     'tools/unity-parity.selftest.mjs',
     'src/game/studioTimeline.selftest.mjs',
     'src/vehicles/wheelQuality.selftest.mjs',
