@@ -347,14 +347,14 @@ namespace ClaudeOfTanks.Runtime
         {
             float roof = TankDetailGeometry.TurretRoofY(definition);
             Transform shell = TankShapeFactory.BoxPart(
-                "Painted-Primary-kv2-BoxTurretShell",
+                "Painted-Primary-" + definition.id + "-BoxTurretShell",
                 turret,
                 new Vector3(2.75f, Mathf.Max(1.55f, roof), 2.45f),
                 color * 0.62f);
             shell.localPosition =
                 new Vector3(0f, roof * 0.48f, -0.28f);
             Transform rear = TankShapeFactory.BoxPart(
-                "Painted-Primary-kv2-RearTurretWall",
+                "Painted-Primary-" + definition.id + "-RearTurretWall",
                 turret,
                 new Vector3(2.60f, roof * 0.76f, 0.42f),
                 color * 0.56f);

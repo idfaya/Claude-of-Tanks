@@ -179,6 +179,30 @@ namespace ClaudeOfTanks.Tests
                                     "-HullLoft"),
                             Is.EqualTo(1),
                             definition.id);
+                        if (definition.id == "kv2" ||
+                            definition.id == "q_heavy")
+                        {
+                            Assert.That(
+                                view.Root
+                                    .GetComponentsInChildren<Transform>(true)
+                                    .Count(item =>
+                                        item.name ==
+                                        "Painted-Primary-" +
+                                        definition.id +
+                                        "-BoxTurretShell"),
+                                Is.EqualTo(1),
+                                definition.id);
+                            Assert.That(
+                                view.Root
+                                    .GetComponentsInChildren<Transform>(true)
+                                    .Count(item =>
+                                        item.name ==
+                                        "Painted-Primary-" +
+                                        definition.id +
+                                        "-RearTurretWall"),
+                                Is.EqualTo(1),
+                                definition.id);
+                        }
                     }
                 }
                 finally
