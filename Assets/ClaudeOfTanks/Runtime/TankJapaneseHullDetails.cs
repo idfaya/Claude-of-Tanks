@@ -12,6 +12,13 @@ namespace ClaudeOfTanks.Runtime
             float height,
             float length)
         {
+            TankJapanesePrimaryDetails.BuildHull(
+                root,
+                definition.id,
+                color,
+                width,
+                height,
+                length);
             float roof =
                 TankDetailGeometry.HullRoofY(
                     definition,

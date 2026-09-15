@@ -117,7 +117,8 @@ namespace ClaudeOfTanks.Runtime
                     definition?.visual?.number);
                 return;
             }
-            else if (!TankT80FamilyDetails.Supports(id))
+            else if (!TankT80FamilyDetails.Supports(id) &&
+                id != "bmpt_t90")
             {
                 AddRearGear(
                     root,
@@ -169,6 +170,41 @@ namespace ClaudeOfTanks.Runtime
                 definition,
                 color,
                 width);
+            RenameLegacyFittings(root, id);
+        }
+
+        private static void RenameLegacyFittings(
+            Transform root,
+            string id)
+        {
+            string prefix = id == "t72b_1987"
+                ? "T72B1987-"
+                : id == "t72b3"
+                    ? "T72B3-"
+                    : null;
+            if (prefix == null) return;
+            Transform[] parts =
+                root.GetComponentsInChildren<Transform>(true);
+            for (int index = 0; index < parts.Length; index++)
+            {
+                string name = parts[index].name;
+                if (name.StartsWith(
+                    "Painted-Soviet-",
+                    StringComparison.Ordinal))
+                {
+                    parts[index].name =
+                        "Painted-" + prefix +
+                        name.Substring("Painted-Soviet-".Length);
+                }
+                else if (name.StartsWith(
+                    "Soviet-",
+                    StringComparison.Ordinal))
+                {
+                    parts[index].name =
+                        prefix +
+                        name.Substring("Soviet-".Length);
+                }
+            }
         }
 
         private static bool IsFamily(string id)

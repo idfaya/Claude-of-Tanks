@@ -8,6 +8,7 @@ namespace ClaudeOfTanks.Runtime
             string id)
         {
             return
+                TankPrimaryPresentationFactory.Supports(id) ||
                 TankAbramsXFamilyDetails.Supports(id) ||
                 TankM1A3FamilyDetails.Supports(id) ||
                 TankM1A2FamilyDetails.Supports(id) ||
@@ -29,6 +30,7 @@ namespace ClaudeOfTanks.Runtime
                 TankLeopard1A5FamilyDetails.Supports(id) ||
                 TankMbt70FamilyDetails.Supports(id) ||
                 TankT14FamilyDetails.Supports(id) ||
+                TankT90AVladimirFamilyDetails.Supports(id) ||
                 TankT90AFamilyDetails.Supports(id) ||
                 TankT90FamilyDetails.Supports(id) ||
                 TankT90ABurlakFamilyDetails.Supports(id) ||
@@ -38,6 +40,7 @@ namespace ClaudeOfTanks.Runtime
                 TankT80ExtendedFamilyDetails.Supports(id) ||
                 TankT72BUFamilyDetails.Supports(id) ||
                 TankT72B3MFamilyDetails.Supports(id) ||
+                id == "bmpt_t90" ||
                 TankPumaFamilyDetails.Supports(id) ||
                 TankBradleyFamilyDetails.Supports(id) ||
                 TankMarder1A3FamilyDetails.Supports(id) ||
@@ -81,6 +84,11 @@ namespace ClaudeOfTanks.Runtime
             float height,
             float length)
         {
+            TankPrimaryPresentationFactory.Build(
+                root,
+                turret,
+                definition,
+                color);
             TankAbramsXFamilyDetails.Build(
                 root,
                 turret,

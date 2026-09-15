@@ -857,6 +857,41 @@ composition code. Generated TS meshes are not a runtime or repository asset.
   family owners. M1A2 legacy uses the clean M1A2 loadout and no longer exposes
   generic SideArmor or default shell renderers; Leopard 2A7 shares the A7V
   APU/ADS/rear-slat branch in the existing Leopard 2 presentation path.
+- BMPT T-90 now hides the default Hull/UpperHull/Turret/Gun shell, skips
+  generic Soviet rear gear and SideArmor, and uses dedicated `BmptT90-*`
+  station, cannon, missile, smoke, sensor, and grenade-pod names.
+- Swedish Strv 81, UDES 03, Strv 103A/B, CV90, and CV90 Mk IV now replace
+  default Hull/UpperHull/Turret/Gun renderers with native C# primary shells.
+  The siege line uses TS-derived wedge loft stations and hull-mounted fixed
+  guns; Strv 81 adds a Centurion-derived hull/cast turret/20-pdr plant; both
+  CV90 variants add independent monocoque cells, polygon mission turrets, and
+  authored 40/50 mm gun tubes while retaining their existing Swedish fittings.
+- Japanese STB-1, Type 74, Type 90/90A, and Type 10/10B now replace default
+  Hull/UpperHull/Turret/Gun renderers with catalog-scaled C# hull lofts,
+  cast-generation or polygon-wedge turret shells, and articulated authored
+  main-gun tubes while retaining their existing national equipment packages.
+- Korean K1A1 and K2/K2B now replace default Hull/UpperHull/Turret/Gun
+  renderers with catalog-scaled hull lofts, polygon turret shells, and
+  articulated main-gun tubes while retaining their K1/K2 optics, APS,
+  stowage, smoke, and field-protection packages.
+- Italian Carro 45 t and Ariete/C1/C2 now replace default
+  Hull/UpperHull/Turret/Gun renderers with catalog-scaled hull lofts,
+  polygon turret shells, and articulated main-gun tubes while retaining
+  their national optics, Galix, basket, stowage, and protection packages.
+- French AMX-30/B2, AMX-40, Leclerc/XLR, and AMX-56 now replace default
+  Hull/UpperHull/Turret/Gun renderers with catalog-scaled hull lofts,
+  cast AMX-30 or angular AMX-40/Leclerc turret shells, and articulated
+  main-gun tubes while retaining their existing national equipment.
+- Chinese Type 59, ZTZ-85-III, Type 99A, ZTZ-99A2, and VT-4A1 now replace
+  default Hull/UpperHull/Turret/Gun renderers with catalog-scaled hull lofts,
+  cast or angular turret shells, and articulated main-gun tubes while
+  retaining their existing roof, protection, basket, and sensor packages.
+- The remaining production and legacy catalog vehicles now route through a
+  bounded primary-presentation factory when their family owner supplies only
+  fittings. Exact-ID routing adds catalog-scaled hull lofts, cast/angular/box
+  turret shells, or hull-owned casemates and fixed guns; all 165 catalog
+  vehicles now suppress generic Hull/UpperHull/Turret/Gun/SideArmor/MissilePod
+  renderers while retaining their existing family-specific detail owners.
 - `TankLinkedTrackShapeFactory` now follows the TS end-wheel centers,
   tangent departure/approach angles, ground termination and segmented
   catenary support spans instead of constructing wraps around ground-derived

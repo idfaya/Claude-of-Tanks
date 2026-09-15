@@ -44,7 +44,7 @@ namespace ClaudeOfTanks.Runtime
             {
                 Transform drum =
                     TankDetailGeometry.Part(
-                        "Painted-Soviet-FuelDrum",
+                        "Painted-Bmpt2-FuelDrum",
                         PrimitiveType.Cylinder,
                         root,
                         new Vector3(side * 0.66f, 1.44f, -3.1f),
@@ -55,7 +55,7 @@ namespace ClaudeOfTanks.Runtime
             }
             Transform log =
                 TankDetailGeometry.Part(
-                    "Soviet-UnditchingLog",
+                    "Bmpt2-UnditchingLog",
                     PrimitiveType.Cylinder,
                     root,
                     new Vector3(0f, 1.26f, -2.87f),

@@ -13,6 +13,12 @@ namespace ClaudeOfTanks.Runtime
             float roof =
                 TankDetailGeometry.TurretRoofY(
                     definition);
+            TankJapanesePrimaryDetails.BuildTurretAndGun(
+                turret,
+                definition,
+                color,
+                width,
+                roof);
             switch (definition.id)
             {
                 case "stb1":

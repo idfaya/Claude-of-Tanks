@@ -13,6 +13,12 @@ namespace ClaudeOfTanks.Runtime
             float roof =
                 TankDetailGeometry.TurretRoofY(
                     definition);
+            AddPrimaryTurretAndGun(
+                turret,
+                definition,
+                color,
+                width,
+                roof);
             if (definition.id == "amx30" ||
                 definition.id == "amx30b2")
             {
@@ -39,6 +45,138 @@ namespace ClaudeOfTanks.Runtime
                 color,
                 width,
                 roof);
+        }
+
+        private static void AddPrimaryTurretAndGun(
+            Transform turret,
+            VehicleDefinition definition,
+            Color color,
+            float width,
+            float roof)
+        {
+            string id = definition.id;
+            bool amx30 = id == "amx30" || id == "amx30b2";
+            bool amx40 = id == "amx40";
+            string prefix = amx30
+                ? "French-AMX30"
+                : amx40
+                    ? "French-AMX40"
+                    : "French-Leclerc";
+            if (amx30)
+            {
+                TankShapeFactory.LathePart(
+                    "Painted-" + prefix + "-CastTurretShell",
+                    turret,
+                    new[]
+                    {
+                        width * 0.28f,
+                        width * 0.35f,
+                        width * 0.38f,
+                        width * 0.34f,
+                        width * 0.22f,
+                        width * 0.08f
+                    },
+                    new[]
+                    {
+                        -0.14f,
+                        0.04f,
+                        roof * 0.38f,
+                        roof * 0.68f,
+                        roof * 0.88f,
+                        roof
+                    },
+                    32,
+                    1.08f,
+                    color * 0.62f,
+                    width * 0.39f,
+                    0.82f);
+            }
+            else
+            {
+                float half = width * (amx40 ? 0.38f : 0.42f);
+                float front = amx40 ? 1.52f : 1.82f;
+                float rear = amx40 ? -1.88f : -2.30f;
+                Vector2[] plan =
+                {
+                    new Vector2(-0.30f, front),
+                    new Vector2(0.30f, front),
+                    new Vector2(half * 0.68f, front * 0.70f),
+                    new Vector2(half, 0.34f),
+                    new Vector2(half * 0.96f, rear * 0.62f),
+                    new Vector2(half * 0.72f, rear),
+                    new Vector2(-half * 0.72f, rear),
+                    new Vector2(-half * 0.96f, rear * 0.62f),
+                    new Vector2(-half, 0.34f),
+                    new Vector2(-half * 0.68f, front * 0.70f)
+                };
+                TankShapeFactory.PolyMultiLoftPart(
+                    "Painted-" + prefix + "-TurretShell",
+                    turret,
+                    plan,
+                    new[]
+                    {
+                        new TankShapeLoftRing(
+                            -0.08f,
+                            1.00f,
+                            Vector2.zero),
+                        new TankShapeLoftRing(
+                            roof * 0.42f,
+                            amx40 ? 0.94f : 0.91f,
+                            Vector2.zero),
+                        new TankShapeLoftRing(
+                            roof,
+                            amx40 ? 0.68f : 0.60f,
+                            new Vector2(0f, -0.10f))
+                    },
+                    color * 0.62f);
+            }
+
+            Transform gun = turret.Find("Gun");
+            if (gun == null) return;
+            Transform fittings =
+                TankDetailGeometry.GunFittingsRoot(
+                    gun,
+                    prefix + "-MainGunAssembly");
+            float length =
+                TankAuthoredDetails.ResolveGunLength(
+                    definition,
+                    amx30 ? 5.2f : 6.0f);
+            float radius =
+                TankAuthoredDetails.ResolveGunRadius(definition);
+            float start = amx30 ? 0.84f : 1.02f;
+            Transform sleeve = TankShapeFactory.CylinderPart(
+                "Painted-" + prefix + "-GunRootSleeve",
+                fittings,
+                radius * 1.55f,
+                radius * 1.40f,
+                start,
+                18,
+                TankShapeAxis.Z,
+                color * 0.48f);
+            sleeve.localPosition =
+                new Vector3(0f, 0f, start * 0.5f);
+            Transform tube = TankShapeFactory.CylinderPart(
+                "Painted-" + prefix + "-MainGunTube",
+                fittings,
+                radius,
+                radius * 0.94f,
+                Mathf.Max(0.2f, length - start),
+                24,
+                TankShapeAxis.Z,
+                color * 0.46f);
+            tube.localPosition =
+                new Vector3(0f, 0f, (start + length) * 0.5f);
+            Transform bore = TankShapeFactory.CylinderPart(
+                prefix + "-MuzzleBore",
+                fittings,
+                radius * 0.58f,
+                radius * 0.58f,
+                0.045f,
+                16,
+                TankShapeAxis.Z,
+                new Color(0.025f, 0.028f, 0.024f));
+            bore.localPosition =
+                new Vector3(0f, 0f, length - 0.01f);
         }
 
         private static void AddAmx30Roof(

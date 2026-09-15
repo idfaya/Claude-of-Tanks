@@ -29,6 +29,10 @@ namespace ClaudeOfTanks.Runtime
                 width,
                 height,
                 length);
+            HideRenderer(root.Find("Hull"));
+            HideRenderer(root.Find("UpperHull"));
+            HideRenderer(turret.Find("Turret"));
+            HideRenderer(turret.Find("Gun"));
             AddSmokeBanks(
                 turret,
                 definition,
@@ -57,6 +61,16 @@ namespace ClaudeOfTanks.Runtime
                 width,
                 height,
                 length);
+        }
+
+        private static void HideRenderer(Transform part)
+        {
+            Renderer renderer =
+                part == null
+                    ? null
+                    : part.GetComponent<Renderer>();
+            if (renderer != null)
+                renderer.enabled = false;
         }
 
         internal static void AddMachineGun(

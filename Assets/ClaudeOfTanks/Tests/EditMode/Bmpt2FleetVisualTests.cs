@@ -122,10 +122,10 @@ namespace ClaudeOfTanks.Tests
                     Count(view, "Bmpt2-FenderNotchBridge"),
                     Is.EqualTo(2));
                 Assert.That(
-                    Count(view, "Painted-Soviet-FuelDrum"),
+                    Count(view, "Painted-Bmpt2-FuelDrum"),
                     Is.EqualTo(2));
                 Assert.That(
-                    Count(view, "Soviet-UnditchingLog"),
+                    Count(view, "Bmpt2-UnditchingLog"),
                     Is.EqualTo(1));
                 Assert.That(
                     Find(view, "Turret")
@@ -205,12 +205,12 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(
                         bmpt2,
-                        "Painted-Soviet-BMPT-WeaponStation"),
+                        "Painted-BmptT90-WeaponStation"),
                     Is.EqualTo(0));
                 Assert.That(
                     Count(
                         bmptT90,
-                        "Painted-Soviet-BMPT-WeaponStation"),
+                        "Painted-BmptT90-WeaponStation"),
                     Is.EqualTo(1));
                 Assert.That(
                     Count(

@@ -60,7 +60,8 @@ namespace ClaudeOfTanks.Tests
                         ProductionIds[i] == "t80u" ||
                         ProductionIds[i] == "ua_t80bv" ||
                         ProductionIds[i] == "ua_t80u_kursk" ||
-                        ProductionIds[i] == "t72m1_jaguar")
+                        ProductionIds[i] == "t72m1_jaguar" ||
+                        ProductionIds[i] == "bmpt_t90")
                     {
                         Assert.That(genericParts, Is.EqualTo(0));
                         if (ProductionIds[i] == "t90a_vladimir")
@@ -69,6 +70,14 @@ namespace ClaudeOfTanks.Tests
                                 parts.Any(item =>
                                     item.name ==
                                     "T90AVladimir-PresentationRoot"),
+                                Is.True);
+                        }
+                        if (ProductionIds[i] == "bmpt_t90")
+                        {
+                            Assert.That(
+                                parts.Any(item =>
+                                    item.name ==
+                                    "Painted-BmptT90-WeaponStation"),
                                 Is.True);
                         }
                     }
@@ -241,7 +250,7 @@ namespace ClaudeOfTanks.Tests
                     .GetComponentsInChildren<Transform>()
                     .Where(item =>
                         item.name ==
-                            "Soviet-BMPT-Cannon")
+                            "BmptT90-Cannon")
                     .ToArray();
                 Assert.That(
                     cannons.Length,
@@ -260,20 +269,27 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(
                         view,
-                        "Painted-Soviet-BMPT-MissileTube"),
+                        "Painted-BmptT90-MissileTube"),
                     Is.EqualTo(8));
                 Assert.That(
                     Count(
                         view,
-                        "Painted-Soviet-BMPT-SmokeLauncher"),
+                        "Painted-BmptT90-SmokeLauncher"),
                     Is.EqualTo(14));
                 Assert.That(
                     Count(
                         view,
-                        "Painted-Soviet-BMPT-GrenadePod"),
+                        "Painted-BmptT90-GrenadePod"),
                     Is.EqualTo(2));
                 Assert.That(
                     Count(view, "MissilePod"),
+                    Is.EqualTo(0));
+                Assert.That(
+                    Count(view, "SideArmor"),
+                    Is.EqualTo(0));
+                Assert.That(
+                    CountPrefix(view, "Painted-Soviet-BMPT") +
+                    CountPrefix(view, "Soviet-BMPT"),
                     Is.EqualTo(0));
                 Renderer authoritativeGun = view.Root
                     .Find("TurretRoot/Gun")
@@ -361,6 +377,16 @@ namespace ClaudeOfTanks.Tests
                     item.name.StartsWith(prefix) &&
                     item.name.ToLowerInvariant()
                         .Contains(contains));
+        }
+
+        private static int CountPrefix(
+            TankView view,
+            string prefix)
+        {
+            return view.Root
+                .GetComponentsInChildren<Transform>()
+                .Count(item =>
+                    item.name.StartsWith(prefix));
         }
 
         private static Renderer FindRenderer(

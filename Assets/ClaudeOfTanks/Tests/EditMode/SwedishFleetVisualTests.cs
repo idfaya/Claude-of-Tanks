@@ -86,6 +86,36 @@ namespace ClaudeOfTanks.Tests
                 Assert.That(
                     Count(
                         udes,
+                        "Painted-Swedish-UDES03-HullLoft"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        a,
+                        "Painted-Swedish-Strv103A-HullLoft"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        b,
+                        "Painted-Swedish-Strv103B-HullLoft"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        udes,
+                        "Swedish-UDES03-FixedGunAssembly"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        a,
+                        "Swedish-Strv103A-FixedGunAssembly"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        b,
+                        "Swedish-Strv103B-FixedGunAssembly"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        udes,
                         "Painted-Swedish-UDES03-HydraulicRam"),
                     Is.EqualTo(2));
                 Assert.That(
@@ -149,6 +179,18 @@ namespace ClaudeOfTanks.Tests
                 foreach (TankView view in
                     new[] { udes, a, b })
                 {
+                    Assert.That(
+                        Visible(view, "Hull"),
+                        Is.False);
+                    Assert.That(
+                        Visible(view, "UpperHull"),
+                        Is.False);
+                    Assert.That(
+                        Visible(view, "Turret"),
+                        Is.False);
+                    Assert.That(
+                        Visible(view, "Gun"),
+                        Is.False);
                     Transform collar = Find(
                         view,
                         "Painted-Swedish-FixedGunCollar");
@@ -181,6 +223,25 @@ namespace ClaudeOfTanks.Tests
             TankView strv122 = Create(catalog, "strv122");
             try
             {
+                Assert.That(Visible(strv81, "Hull"), Is.False);
+                Assert.That(Visible(strv81, "UpperHull"), Is.False);
+                Assert.That(Visible(strv81, "Turret"), Is.False);
+                Assert.That(Visible(strv81, "Gun"), Is.False);
+                Assert.That(
+                    Count(
+                        strv81,
+                        "Painted-Swedish-Strv81-HullLoft"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        strv81,
+                        "Painted-Swedish-Strv81-CastTurretShell"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        strv81,
+                        "Painted-Swedish-Strv81-20PdrGunTube"),
+                    Is.EqualTo(1));
                 Assert.That(
                     Count(
                         strv81,
@@ -254,6 +315,43 @@ namespace ClaudeOfTanks.Tests
             TankView mkiv = Create(catalog, "cv90_mkiv");
             try
             {
+                foreach (TankView view in new[] { cv90, mkiv })
+                {
+                    Assert.That(Visible(view, "Hull"), Is.False);
+                    Assert.That(Visible(view, "UpperHull"), Is.False);
+                    Assert.That(Visible(view, "Turret"), Is.False);
+                    Assert.That(Visible(view, "Gun"), Is.False);
+                }
+                Assert.That(
+                    Count(
+                        cv90,
+                        "Painted-Swedish-CV90-MissionCell"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        cv90,
+                        "Painted-Swedish-CV90-TurretShell"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        cv90,
+                        "Painted-Swedish-CV90-MainGunTube"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        mkiv,
+                        "Painted-Swedish-CV90MkIV-MissionCell"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        mkiv,
+                        "Painted-Swedish-CV90MkIV-TurretShell"),
+                    Is.EqualTo(1));
+                Assert.That(
+                    Count(
+                        mkiv,
+                        "Painted-Swedish-CV90MkIV-MainGunTube"),
+                    Is.EqualTo(1));
                 Assert.That(
                     Count(cv90, "MissilePod"),
                     Is.EqualTo(0));
@@ -410,6 +508,16 @@ namespace ClaudeOfTanks.Tests
             return view.Root
                 .GetComponentsInChildren<Transform>()
                 .Count(item => item.name == name);
+        }
+
+        private static bool Visible(
+            TankView view,
+            string name)
+        {
+            Renderer renderer = view.Root
+                .GetComponentsInChildren<Renderer>(true)
+                .FirstOrDefault(item => item.name == name);
+            return renderer != null && renderer.enabled;
         }
 
         private static int CountPrefix(

@@ -85,6 +85,50 @@ namespace ClaudeOfTanks.Runtime
                 new Vector3(0.28f, 0.07f, 0.54f),
                 new Vector3(0.14f, 0.17f, 0.28f),
                 Gunmetal());
+            if (id == "strv81")
+            {
+                const float barrelLength = 6.132f;
+                const float barrelRadius = 0.082f;
+                Transform rootSleeve =
+                    TankShapeFactory.CylinderPart(
+                        "Painted-Swedish-Strv81-20PdrRootSleeve",
+                        fittings,
+                        0.145f,
+                        0.135f,
+                        0.72f,
+                        18,
+                        TankShapeAxis.Z,
+                        color * 0.46f);
+                rootSleeve.localPosition =
+                    new Vector3(0f, 0f, 0.78f);
+                Transform tube =
+                    TankShapeFactory.CylinderPart(
+                        "Painted-Swedish-Strv81-20PdrGunTube",
+                        fittings,
+                        barrelRadius,
+                        barrelRadius * 0.96f,
+                        barrelLength - 1.14f,
+                        24,
+                        TankShapeAxis.Z,
+                        color * 0.46f);
+                tube.localPosition =
+                    new Vector3(
+                        0f,
+                        0f,
+                        (1.14f + barrelLength) * 0.5f);
+                Transform bore =
+                    TankShapeFactory.CylinderPart(
+                        "Swedish-Strv81-20PdrMuzzleBore",
+                        fittings,
+                        0.050f,
+                        0.050f,
+                        0.045f,
+                        16,
+                        TankShapeAxis.Z,
+                        new Color(0.025f, 0.028f, 0.024f));
+                bore.localPosition =
+                    new Vector3(0f, 0f, barrelLength - 0.01f);
+            }
         }
 
         private static void AddCv90GunPlant(
@@ -158,6 +202,34 @@ namespace ClaudeOfTanks.Runtime
                     Gunmetal());
             collar.localRotation =
                 Quaternion.Euler(90f, 0f, 0f);
+            float barrelLength = mkiv ? 3.384f : 2.808f;
+            float barrelRadius = mkiv ? 0.074f : 0.058f;
+            float barrelStart = mkiv ? 1.26f : 1.06f;
+            Transform barrel = TankShapeFactory.CylinderPart(
+                "Painted-" + prefix + "-MainGunTube",
+                fittings,
+                barrelRadius,
+                barrelRadius * 0.94f,
+                barrelLength - barrelStart,
+                20,
+                TankShapeAxis.Z,
+                color * 0.46f);
+            barrel.localPosition =
+                new Vector3(
+                    0f,
+                    0f,
+                    (barrelStart + barrelLength) * 0.5f);
+            Transform bore = TankShapeFactory.CylinderPart(
+                prefix + "-MuzzleBore",
+                fittings,
+                barrelRadius * 0.58f,
+                barrelRadius * 0.58f,
+                0.045f,
+                16,
+                TankShapeAxis.Z,
+                new Color(0.025f, 0.028f, 0.024f));
+            bore.localPosition =
+                new Vector3(0f, 0f, barrelLength - 0.01f);
         }
 
         private static void AddRemoteWeaponStation(

@@ -27,6 +27,31 @@ namespace ClaudeOfTanks.Tests
                 TankView view = Create(catalog, id);
                 try
                 {
+                    string prefix = id == "carro45t"
+                        ? "Italian-Carro45T"
+                        : "Italian-Ariete";
+                    Assert.That(Visible(view, "Hull"), Is.False, id);
+                    Assert.That(Visible(view, "UpperHull"), Is.False, id);
+                    Assert.That(Visible(view, "Turret"), Is.False, id);
+                    Assert.That(Visible(view, "Gun"), Is.False, id);
+                    Assert.That(
+                        Count(
+                            view,
+                            "Painted-" + prefix + "-HullLoft"),
+                        Is.EqualTo(1),
+                        id);
+                    Assert.That(
+                        Count(
+                            view,
+                            "Painted-" + prefix + "-TurretShell"),
+                        Is.EqualTo(1),
+                        id);
+                    Assert.That(
+                        Count(
+                            view,
+                            "Painted-" + prefix + "-MainGunTube"),
+                        Is.EqualTo(1),
+                        id);
                     Assert.That(
                         Count(view, "SideArmor"),
                         Is.EqualTo(0),
@@ -413,6 +438,16 @@ namespace ClaudeOfTanks.Tests
                 .GetComponentsInChildren<Transform>()
                 .Count(item =>
                     item.name.StartsWith(prefix));
+        }
+
+        private static bool Visible(
+            TankView view,
+            string name)
+        {
+            Renderer renderer = view.Root
+                .GetComponentsInChildren<Renderer>(true)
+                .FirstOrDefault(item => item.name == name);
+            return renderer != null && renderer.enabled;
         }
 
         private static Transform Find(

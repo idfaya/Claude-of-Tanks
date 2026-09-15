@@ -40,8 +40,20 @@ namespace ClaudeOfTanks.Runtime
                 width,
                 height,
                 length);
+            if (OwnsIfvWeaponPackage(definition.id) ||
+                definition.id == "strv81")
+            {
+                HideRenderer(root.Find("Hull"));
+                HideRenderer(root.Find("UpperHull"));
+                HideRenderer(turret.Find("Turret"));
+                HideRenderer(turret.Find("Gun"));
+            }
             if (IsCasemate(definition.id))
             {
+                HideRenderer(root.Find("Hull"));
+                HideRenderer(root.Find("UpperHull"));
+                HideRenderer(turret.Find("Turret"));
+                HideRenderer(turret.Find("Gun"));
                 TankSwedishCasemateDetails.Build(
                     root,
                     definition,
@@ -67,6 +79,16 @@ namespace ClaudeOfTanks.Runtime
                 definition,
                 color,
                 width);
+        }
+
+        private static void HideRenderer(Transform part)
+        {
+            Renderer renderer =
+                part == null
+                    ? null
+                    : part.GetComponent<Renderer>();
+            if (renderer != null)
+                renderer.enabled = false;
         }
 
         internal static bool IsCasemate(

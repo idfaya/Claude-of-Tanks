@@ -124,6 +124,73 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void EveryCatalogVehicleReplacesGenericPrimaryRenderers()
+        {
+            ContentCatalog catalog = ContentCatalog.Load();
+            VehicleDefinition[] definitions = catalog.Vehicles;
+            for (int index = 0; index < definitions.Length; index++)
+            {
+                VehicleDefinition definition = definitions[index];
+                TankView view = TankView.Create(
+                    new TankState(
+                        "primary-" + definition.id,
+                        Team.Alpha,
+                        definition.ToTankSpec(),
+                        Float3.Zero,
+                        0f),
+                    definition,
+                    "factory",
+                    "forest",
+                    catalog);
+                try
+                {
+                    Renderer[] renderers = view.Root
+                        .GetComponentsInChildren<Renderer>(true);
+                    Assert.That(
+                        renderers.Count(item =>
+                            item.enabled &&
+                            (item.name == "Hull" ||
+                             item.name == "UpperHull" ||
+                             item.name == "Turret" ||
+                             item.name == "Gun" ||
+                             item.name == "SideArmor" ||
+                             item.name == "MissilePod")),
+                        Is.Zero,
+                        definition.id);
+                    Assert.That(
+                        renderers.Count(item =>
+                            item.enabled &&
+                            (item.name.StartsWith("Soviet-") ||
+                             item.name.StartsWith("Painted-Soviet-") ||
+                             item.name.StartsWith("Generic-") ||
+                             item.name.StartsWith("Painted-Generic-"))),
+                        Is.Zero,
+                        definition.id);
+                    if (TankPrimaryPresentationFactory.Supports(
+                        definition.id))
+                    {
+                        Assert.That(
+                            view.Root
+                                .GetComponentsInChildren<Transform>(true)
+                                .Count(item =>
+                                    item.name ==
+                                    "Painted-Primary-" +
+                                    definition.id +
+                                    "-HullLoft"),
+                            Is.EqualTo(1),
+                            definition.id);
+                    }
+                }
+                finally
+                {
+                    view.Destroy();
+                }
+            }
+
+            Assert.That(definitions, Has.Length.EqualTo(165));
+        }
+
+        [Test]
         public void AbramsProductionFamilyHasDistinctAuthoredEquipment()
         {
             string[] ids =

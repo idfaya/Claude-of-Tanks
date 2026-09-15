@@ -12,6 +12,13 @@ namespace ClaudeOfTanks.Runtime
             float height,
             float length)
         {
+            AddPrimaryHull(
+                root,
+                definition,
+                color,
+                width,
+                height,
+                length);
             AddRearServiceField(
                 root,
                 definition,
@@ -25,6 +32,69 @@ namespace ClaudeOfTanks.Runtime
                 color,
                 width,
                 length);
+        }
+
+        private static void AddPrimaryHull(
+            Transform root,
+            VehicleDefinition definition,
+            Color color,
+            float width,
+            float height,
+            float length)
+        {
+            bool k1 = definition.id == "k1a1";
+            string prefix = k1 ? "Korean-K1" : "Korean-K2";
+            float rear = -length * 0.49f;
+            float front = length * 0.51f;
+            float half = width * 0.47f;
+            float belly = height * 0.18f;
+            float deck = height * (k1 ? 0.57f : 0.61f);
+            TankHullLoftShapeFactory.Build(
+                "Painted-" + prefix + "-HullLoft",
+                root,
+                Curve(
+                    rear, deck - 0.18f,
+                    rear + length * 0.10f, deck,
+                    -length * 0.08f, deck,
+                    length * 0.20f, deck - 0.08f,
+                    front - length * 0.14f, deck - 0.30f,
+                    front, deck - 0.72f),
+                Curve(
+                    rear, belly + 0.18f,
+                    rear + length * 0.10f, belly,
+                    front - length * 0.14f, belly,
+                    front, belly + 0.17f),
+                Curve(
+                    rear, half * 0.68f,
+                    rear + length * 0.12f, half,
+                    front - length * 0.14f, half,
+                    front, half * 0.56f),
+                Curve(
+                    rear, half * 0.48f,
+                    rear + length * 0.12f, half * 0.72f,
+                    front - length * 0.14f, half * 0.70f,
+                    front, half * 0.44f),
+                Curve(
+                    rear, deck - 0.36f,
+                    rear + length * 0.12f, deck - 0.22f,
+                    front - length * 0.14f, deck - 0.31f,
+                    front, deck - 0.57f),
+                color * 0.66f);
+        }
+
+        private static TankHullProfilePoint[] Curve(
+            params float[] values)
+        {
+            TankHullProfilePoint[] curve =
+                new TankHullProfilePoint[values.Length / 2];
+            for (int index = 0; index < curve.Length; index++)
+            {
+                curve[index] =
+                    new TankHullProfilePoint(
+                        values[index * 2],
+                        values[index * 2 + 1]);
+            }
+            return curve;
         }
 
         private static void AddRearServiceField(

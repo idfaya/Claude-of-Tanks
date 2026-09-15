@@ -11,6 +11,9 @@ namespace ClaudeOfTanks.Runtime
             float width,
             float height)
         {
+            HideRenderer(root.Find("Hull"));
+            HideRenderer(root.Find("UpperHull"));
+            HideRenderer(turret.Find("Turret"));
             HideAuthoritativeGun(turret);
             AddStation(turret, color);
             AddCannons(turret);
@@ -29,8 +32,15 @@ namespace ClaudeOfTanks.Runtime
         {
             Transform gun = turret.Find("Gun");
             if (gun == null) return;
+            HideRenderer(gun);
+        }
+
+        private static void HideRenderer(Transform part)
+        {
             Renderer renderer =
-                gun.GetComponent<Renderer>();
+                part == null
+                    ? null
+                    : part.GetComponent<Renderer>();
             if (renderer != null)
                 renderer.enabled = false;
         }
@@ -40,21 +50,21 @@ namespace ClaudeOfTanks.Runtime
             Color color)
         {
             TankDetailGeometry.Part(
-                "Painted-Soviet-BMPT-Turntable",
+                "Painted-BmptT90-Turntable",
                 PrimitiveType.Cylinder,
                 turret,
                 new Vector3(0f, 0.06f, -0.06f),
                 new Vector3(1.04f, 0.14f, 1.04f),
                 color * 0.72f);
             TankDetailGeometry.Part(
-                "Painted-Soviet-BMPT-WeaponStation",
+                "Painted-BmptT90-WeaponStation",
                 PrimitiveType.Cube,
                 turret,
                 new Vector3(0f, 0.62f, 0.1f),
                 new Vector3(0.96f, 0.52f, 1.52f),
                 color * 0.76f);
             TankDetailGeometry.Part(
-                "Painted-Soviet-BMPT-RoofStep",
+                "Painted-BmptT90-RoofStep",
                 PrimitiveType.Cube,
                 turret,
                 new Vector3(0f, 0.92f, 0.06f),
@@ -72,7 +82,7 @@ namespace ClaudeOfTanks.Runtime
                 side += 2)
             {
                 TankDetailGeometry.Part(
-                    "Soviet-BMPT-Cannon",
+                    "BmptT90-Cannon",
                     PrimitiveType.Cube,
                     turret,
                     new Vector3(
@@ -89,7 +99,7 @@ namespace ClaudeOfTanks.Runtime
                         0.11f,
                         0.09f));
                 TankDetailGeometry.Part(
-                    "Soviet-BMPT-Muzzle",
+                    "BmptT90-Muzzle",
                     PrimitiveType.Cube,
                     turret,
                     new Vector3(
@@ -120,7 +130,7 @@ namespace ClaudeOfTanks.Runtime
                     web++)
                 {
                     TankDetailGeometry.Part(
-                        "Painted-Soviet-BMPT-RackWeb",
+                        "Painted-BmptT90-RackWeb",
                         PrimitiveType.Cube,
                         turret,
                         new Vector3(
@@ -145,7 +155,7 @@ namespace ClaudeOfTanks.Runtime
                     {
                         Transform missile =
                             TankDetailGeometry.Part(
-                                "Painted-Soviet-BMPT-MissileTube",
+                            "Painted-BmptT90-MissileTube",
                                 PrimitiveType.Cylinder,
                                 turret,
                                 new Vector3(
@@ -175,21 +185,21 @@ namespace ClaudeOfTanks.Runtime
             Color color)
         {
             TankDetailGeometry.Part(
-                "Painted-Soviet-BMPT-PanoramicPost",
+                "Painted-BmptT90-PanoramicPost",
                 PrimitiveType.Cube,
                 turret,
                 new Vector3(0.36f, 1.16f, -0.34f),
                 new Vector3(0.13f, 0.3f, 0.13f),
                 color * 0.66f);
             TankDetailGeometry.Part(
-                "Painted-Soviet-BMPT-PanoramicHead",
+                "Painted-BmptT90-PanoramicHead",
                 PrimitiveType.Cube,
                 turret,
                 new Vector3(0.36f, 1.37f, -0.33f),
                 new Vector3(0.3f, 0.2f, 0.28f),
                 color * 0.72f);
             TankDetailGeometry.Part(
-                "Soviet-BMPT-PanoramicLens",
+                "BmptT90-PanoramicLens",
                 PrimitiveType.Cube,
                 turret,
                 new Vector3(0.36f, 1.38f, -0.185f),
@@ -199,7 +209,7 @@ namespace ClaudeOfTanks.Runtime
                     0.07f,
                     0.075f));
             TankDetailGeometry.Part(
-                "Soviet-BMPT-MetMast",
+                "BmptT90-MetMast",
                 PrimitiveType.Cylinder,
                 turret,
                 new Vector3(-0.4f, 1.19f, -0.52f),
@@ -249,7 +259,7 @@ namespace ClaudeOfTanks.Runtime
             {
                 Transform launcher =
                     TankDetailGeometry.Part(
-                        "Painted-Soviet-BMPT-SmokeLauncher",
+                        "Painted-BmptT90-SmokeLauncher",
                         PrimitiveType.Cylinder,
                         turret,
                         new Vector3(
@@ -290,7 +300,7 @@ namespace ClaudeOfTanks.Runtime
                 side += 2)
             {
                 TankDetailGeometry.Part(
-                    "Painted-Soviet-BMPT-GrenadePod",
+                    "Painted-BmptT90-GrenadePod",
                     PrimitiveType.Cube,
                     root,
                     new Vector3(
@@ -304,7 +314,7 @@ namespace ClaudeOfTanks.Runtime
                     color * 0.68f);
                 Transform barrel =
                     TankDetailGeometry.Part(
-                        "Soviet-BMPT-GrenadeBarrel",
+                        "BmptT90-GrenadeBarrel",
                         PrimitiveType.Cylinder,
                         root,
                         new Vector3(

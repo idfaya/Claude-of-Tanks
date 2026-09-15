@@ -13,6 +13,12 @@ namespace ClaudeOfTanks.Runtime
             float roof =
                 TankDetailGeometry.TurretRoofY(
                     definition);
+            AddPrimaryTurretAndGun(
+                turret,
+                definition,
+                color,
+                width,
+                roof);
             if (definition.id == "carro45t")
             {
                 AddCarroRoof(
@@ -28,6 +34,102 @@ namespace ClaudeOfTanks.Runtime
                 color,
                 width,
                 roof);
+        }
+
+        private static void AddPrimaryTurretAndGun(
+            Transform turret,
+            VehicleDefinition definition,
+            Color color,
+            float width,
+            float roof)
+        {
+            bool carro = definition.id == "carro45t";
+            string prefix = carro
+                ? "Italian-Carro45T"
+                : "Italian-Ariete";
+            float half = width * (carro ? 0.37f : 0.42f);
+            float front = carro ? 1.45f : 1.78f;
+            float rear = carro ? -1.88f : -2.18f;
+            Vector2[] plan =
+            {
+                new Vector2(-0.30f, front),
+                new Vector2(0.30f, front),
+                new Vector2(half * 0.68f, front * 0.70f),
+                new Vector2(half, 0.34f),
+                new Vector2(half * 0.96f, rear * 0.62f),
+                new Vector2(half * 0.72f, rear),
+                new Vector2(-half * 0.72f, rear),
+                new Vector2(-half * 0.96f, rear * 0.62f),
+                new Vector2(-half, 0.34f),
+                new Vector2(-half * 0.68f, front * 0.70f)
+            };
+            TankShapeFactory.PolyMultiLoftPart(
+                "Painted-" + prefix + "-TurretShell",
+                turret,
+                plan,
+                new[]
+                {
+                    new TankShapeLoftRing(
+                        -0.08f,
+                        1.00f,
+                        Vector2.zero),
+                    new TankShapeLoftRing(
+                        roof * 0.42f,
+                        carro ? 0.95f : 0.92f,
+                        Vector2.zero),
+                    new TankShapeLoftRing(
+                        roof,
+                        carro ? 0.70f : 0.62f,
+                        new Vector2(0f, -0.10f))
+                },
+                color * 0.62f);
+
+            Transform gun = turret.Find("Gun");
+            if (gun == null) return;
+            Transform fittings =
+                TankDetailGeometry.GunFittingsRoot(
+                    gun,
+                    prefix + "-MainGunAssembly");
+            float length =
+                TankAuthoredDetails.ResolveGunLength(
+                    definition,
+                    carro ? 6.13f : 5.42f);
+            float radius =
+                TankAuthoredDetails.ResolveGunRadius(definition);
+            float start = carro ? 0.92f : 1.04f;
+            Transform sleeve = TankShapeFactory.CylinderPart(
+                "Painted-" + prefix + "-GunRootSleeve",
+                fittings,
+                radius * 1.55f,
+                radius * 1.40f,
+                start,
+                18,
+                TankShapeAxis.Z,
+                color * 0.48f);
+            sleeve.localPosition =
+                new Vector3(0f, 0f, start * 0.5f);
+            Transform tube = TankShapeFactory.CylinderPart(
+                "Painted-" + prefix + "-MainGunTube",
+                fittings,
+                radius,
+                radius * 0.94f,
+                Mathf.Max(0.2f, length - start),
+                24,
+                TankShapeAxis.Z,
+                color * 0.46f);
+            tube.localPosition =
+                new Vector3(0f, 0f, (start + length) * 0.5f);
+            Transform bore = TankShapeFactory.CylinderPart(
+                prefix + "-MuzzleBore",
+                fittings,
+                radius * 0.58f,
+                radius * 0.58f,
+                0.045f,
+                16,
+                TankShapeAxis.Z,
+                new Color(0.025f, 0.028f, 0.024f));
+            bore.localPosition =
+                new Vector3(0f, 0f, length - 0.01f);
         }
 
         private static void AddCarroRoof(

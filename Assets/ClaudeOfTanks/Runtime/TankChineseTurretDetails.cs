@@ -20,6 +20,12 @@ namespace ClaudeOfTanks.Runtime
                 TankDetailGeometry.TurretHalfWidth(
                     definition,
                     width * 0.35f);
+            TankChinesePrimaryDetails.BuildTurretAndGun(
+                turret,
+                definition,
+                color,
+                width,
+                roof);
             AddHatches(
                 turret,
                 definition.id,

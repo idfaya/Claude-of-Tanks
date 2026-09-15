@@ -46,6 +46,39 @@ namespace ClaudeOfTanks.Runtime
             Color color,
             float width)
         {
+            TankShapeFactory.LathePart(
+                "Painted-Swedish-Strv81-CastTurretShell",
+                turret,
+                new[]
+                {
+                    1.16f,
+                    1.30f,
+                    1.36f,
+                    1.24f,
+                    0.88f,
+                    0.42f
+                },
+                new[]
+                {
+                    -0.18f,
+                    0.02f,
+                    0.28f,
+                    0.52f,
+                    0.72f,
+                    0.82f
+                },
+                32,
+                1.10f,
+                color * 0.62f,
+                1.45f,
+                0.82f);
+            Transform bustle = TankShapeFactory.BoxPart(
+                "Painted-Swedish-Strv81-BustleShell",
+                turret,
+                new Vector3(2.05f, 0.48f, 1.02f),
+                color * 0.56f);
+            bustle.localPosition =
+                new Vector3(0f, 0.30f, -1.30f);
             float roof =
                 TankDetailGeometry.TurretRoofY(
                     definition);
@@ -198,6 +231,11 @@ namespace ClaudeOfTanks.Runtime
                 mkiv
                     ? "Swedish-CV90MkIV"
                     : "Swedish-CV90";
+            AddCv90TurretShell(
+                turret,
+                prefix,
+                color,
+                mkiv);
             float roof =
                 TankDetailGeometry.TurretRoofY(
                     definition);
@@ -268,6 +306,65 @@ namespace ClaudeOfTanks.Runtime
                     color,
                     width,
                     roof);
+        }
+
+        private static void AddCv90TurretShell(
+            Transform turret,
+            string prefix,
+            Color color,
+            bool mkiv)
+        {
+            Vector2[] plan = mkiv
+                ? new[]
+                {
+                    new Vector2(-0.28f, 1.82f),
+                    new Vector2(0.28f, 1.82f),
+                    new Vector2(0.90f, 1.27f),
+                    new Vector2(1.46f, 0.46f),
+                    new Vector2(1.42f, -1.18f),
+                    new Vector2(1.16f, -1.82f),
+                    new Vector2(0.72f, -2.08f),
+                    new Vector2(-0.72f, -2.08f),
+                    new Vector2(-1.16f, -1.82f),
+                    new Vector2(-1.42f, -1.18f),
+                    new Vector2(-1.46f, 0.46f),
+                    new Vector2(-0.90f, 1.27f)
+                }
+                : new[]
+                {
+                    new Vector2(-0.27f, 1.52f),
+                    new Vector2(0.27f, 1.52f),
+                    new Vector2(0.80f, 1.12f),
+                    new Vector2(1.14f, 0.44f),
+                    new Vector2(1.10f, -0.92f),
+                    new Vector2(0.90f, -1.56f),
+                    new Vector2(0.64f, -1.72f),
+                    new Vector2(-0.64f, -1.72f),
+                    new Vector2(-0.90f, -1.56f),
+                    new Vector2(-1.10f, -0.92f),
+                    new Vector2(-1.14f, 0.44f),
+                    new Vector2(-0.80f, 1.12f)
+                };
+            TankShapeFactory.PolyMultiLoftPart(
+                "Painted-" + prefix + "-TurretShell",
+                turret,
+                plan,
+                new[]
+                {
+                    new TankShapeLoftRing(
+                        0f,
+                        1.00f,
+                        Vector2.zero),
+                    new TankShapeLoftRing(
+                        mkiv ? 0.30f : 0.25f,
+                        mkiv ? 0.94f : 0.96f,
+                        Vector2.zero),
+                    new TankShapeLoftRing(
+                        mkiv ? 0.86f : 0.72f,
+                        mkiv ? 0.62f : 0.72f,
+                        Vector2.zero)
+                },
+                color * 0.64f);
         }
 
         private static void AddHatches(

@@ -29,6 +29,32 @@ namespace ClaudeOfTanks.Tests
                 TankView view = Create(catalog, id);
                 try
                 {
+                    string prefix = PrimaryPrefix(id);
+                    Assert.That(Visible(view, "Hull"), Is.False, id);
+                    Assert.That(Visible(view, "UpperHull"), Is.False, id);
+                    Assert.That(Visible(view, "Turret"), Is.False, id);
+                    Assert.That(Visible(view, "Gun"), Is.False, id);
+                    Assert.That(
+                        Count(
+                            view,
+                            "Painted-" + prefix + "-HullLoft"),
+                        Is.EqualTo(1),
+                        id);
+                    Assert.That(
+                        Count(
+                            view,
+                            "Painted-" + prefix +
+                            (id == "stb1" || id == "type74"
+                                ? "-CastTurretShell"
+                                : "-WedgeTurretShell")),
+                        Is.EqualTo(1),
+                        id);
+                    Assert.That(
+                        Count(
+                            view,
+                            "Painted-" + prefix + "-MainGunTube"),
+                        Is.EqualTo(1),
+                        id);
                     Assert.That(
                         Count(view, "SideArmor"),
                         Is.EqualTo(0),
@@ -420,6 +446,25 @@ namespace ClaudeOfTanks.Tests
             return view.Root
                 .GetComponentsInChildren<Transform>()
                 .Count(item => item.name == name);
+        }
+
+        private static bool Visible(
+            TankView view,
+            string name)
+        {
+            Renderer renderer = view.Root
+                .GetComponentsInChildren<Renderer>(true)
+                .FirstOrDefault(item => item.name == name);
+            return renderer != null && renderer.enabled;
+        }
+
+        private static string PrimaryPrefix(string id)
+        {
+            if (id == "stb1") return "Japanese-STB1";
+            if (id == "type74") return "Japanese-Type74";
+            if (id == "type90" || id == "type90a")
+                return "Japanese-Type90";
+            return "Japanese-Type10";
         }
 
         private static int CountPrefix(

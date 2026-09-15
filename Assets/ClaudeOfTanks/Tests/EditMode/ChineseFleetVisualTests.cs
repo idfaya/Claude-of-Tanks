@@ -28,6 +28,32 @@ namespace ClaudeOfTanks.Tests
                 TankView view = Create(catalog, id);
                 try
                 {
+                    string prefix = PrimaryPrefix(id);
+                    Assert.That(Visible(view, "Hull"), Is.False, id);
+                    Assert.That(Visible(view, "UpperHull"), Is.False, id);
+                    Assert.That(Visible(view, "Turret"), Is.False, id);
+                    Assert.That(Visible(view, "Gun"), Is.False, id);
+                    Assert.That(
+                        Count(
+                            view,
+                            "Painted-" + prefix + "-HullLoft"),
+                        Is.EqualTo(1),
+                        id);
+                    Assert.That(
+                        Count(
+                            view,
+                            "Painted-" + prefix +
+                            (id == "type59"
+                                ? "-CastTurretShell"
+                                : "-TurretShell")),
+                        Is.EqualTo(1),
+                        id);
+                    Assert.That(
+                        Count(
+                            view,
+                            "Painted-" + prefix + "-MainGunTube"),
+                        Is.EqualTo(1),
+                        id);
                     Assert.That(
                         Count(view, "SideArmor"),
                         Is.EqualTo(0),
@@ -392,6 +418,25 @@ namespace ClaudeOfTanks.Tests
                 .GetComponentsInChildren<Transform>()
                 .Count(item =>
                     item.name.StartsWith(prefix));
+        }
+
+        private static bool Visible(
+            TankView view,
+            string name)
+        {
+            Renderer renderer = view.Root
+                .GetComponentsInChildren<Renderer>(true)
+                .FirstOrDefault(item => item.name == name);
+            return renderer != null && renderer.enabled;
+        }
+
+        private static string PrimaryPrefix(string id)
+        {
+            if (id == "type59") return "Chinese-Type59";
+            if (id == "ztz85_iii") return "Chinese-ZTZ85III";
+            if (id == "type99a") return "Chinese-Type99A";
+            if (id == "ztz99a2") return "Chinese-ZTZ99A2";
+            return "Chinese-VT4A1";
         }
 
         private static Transform Find(

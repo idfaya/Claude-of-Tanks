@@ -24,6 +24,10 @@ namespace ClaudeOfTanks.Runtime
                 root,
                 definition,
                 color);
+            AddFixedGun(
+                root,
+                definition.id,
+                color);
             if (definition.id == "udes03")
             {
                 AddUdes(
@@ -48,6 +52,95 @@ namespace ClaudeOfTanks.Runtime
                     width,
                     roof,
                     length);
+        }
+
+        private static void AddFixedGun(
+            Transform root,
+            string id,
+            Color color)
+        {
+            string prefix = id == "udes03"
+                ? "Swedish-UDES03"
+                : id == "strv103"
+                    ? "Swedish-Strv103B"
+                    : "Swedish-Strv103A";
+            float axisY = id == "udes03" ? 1.43f : 1.59f;
+            float muzzleZ = id == "udes03"
+                ? 4.70f
+                : id == "strv103"
+                    ? 5.19f
+                    : 5.47f;
+            Transform assembly =
+                new GameObject(prefix + "-FixedGunAssembly")
+                    .transform;
+            assembly.SetParent(root, false);
+
+            AddGunSection(
+                prefix + "-MuzzleCollar",
+                assembly,
+                axisY,
+                muzzleZ - 0.15f,
+                muzzleZ,
+                id == "udes03" ? 0.102f : 0.105f,
+                color * 0.46f);
+            AddGunSection(
+                "Painted-" + prefix + "-ForwardTube",
+                assembly,
+                axisY,
+                id == "udes03" ? 3.02f : 3.55f,
+                muzzleZ - 0.15f,
+                id == "udes03" ? 0.082f : 0.090f,
+                color * 0.48f);
+            AddGunSection(
+                "Painted-" + prefix + "-MidTube",
+                assembly,
+                axisY,
+                id == "udes03" ? 1.92f : 2.30f,
+                id == "udes03" ? 3.02f : 3.55f,
+                id == "udes03" ? 0.090f : 0.098f,
+                color * 0.50f);
+            AddGunSection(
+                "Painted-" + prefix + "-RootTube",
+                assembly,
+                axisY,
+                id == "udes03" ? 0.72f : 1.10f,
+                id == "udes03" ? 1.92f : 2.30f,
+                id == "udes03" ? 0.116f : 0.116f,
+                color * 0.52f);
+            AddGunSection(
+                prefix + "-MuzzleBore",
+                assembly,
+                axisY,
+                muzzleZ - 0.025f,
+                muzzleZ + 0.025f,
+                id == "udes03" ? 0.065f : 0.070f,
+                new Color(0.025f, 0.028f, 0.024f));
+        }
+
+        private static void AddGunSection(
+            string name,
+            Transform parent,
+            float axisY,
+            float startZ,
+            float endZ,
+            float radius,
+            Color color)
+        {
+            Transform section =
+                TankShapeFactory.CylinderPart(
+                    name,
+                    parent,
+                    radius,
+                    radius,
+                    endZ - startZ,
+                    18,
+                    TankShapeAxis.Z,
+                    color);
+            section.localPosition =
+                new Vector3(
+                    0f,
+                    axisY,
+                    (startZ + endZ) * 0.5f);
         }
 
         private static void AddUdes(
