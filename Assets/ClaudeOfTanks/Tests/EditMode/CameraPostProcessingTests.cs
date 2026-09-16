@@ -170,6 +170,80 @@ namespace ClaudeOfTanks.Tests
             }
         }
 
+        [Test]
+        public void MapSkyDrivesExposureAndAerialProfile()
+        {
+            int originalQuality = QualitySettings.GetQualityLevel();
+            GameObject root = new GameObject(
+                "PostProcessingMapSkyTest",
+                typeof(Camera));
+            MemoryStore store = new MemoryStore();
+            RecordingTarget target =
+                new RecordingTarget { QualityLevelCount = 6 };
+            GameSettings settings = new GameSettings(store, target);
+            ContentCatalog catalog = ContentCatalog.Load();
+            try
+            {
+                CameraPostProcessing post =
+                    CameraPostProcessing.Ensure(
+                        root.GetComponent<Camera>(),
+                        settings);
+                post.ApplyMap(catalog.GetMap("desert"));
+
+                Assert.That(
+                    post.ActiveMapExposure,
+                    Is.EqualTo(0.90f).Within(0.001f));
+                Assert.That(
+                    post.ActiveAerialDensity,
+                    Is.LessThan(0.00145f));
+                Assert.That(
+                    post.ActiveBloomThreshold,
+                    Is.EqualTo(1.78f).Within(0.001f));
+                Assert.That(
+                    post.ActiveHighlightKnee,
+                    Is.LessThan(0.72f));
+                Assert.That(
+                    post.ActiveBrightVignetteKeep,
+                    Is.LessThan(0.52f));
+                Assert.That(
+                    post.ActiveHazeLuminanceCap,
+                    Is.LessThan(0.34f));
+
+                post.ApplyMap(catalog.GetMap("winter"));
+                Assert.That(
+                    post.ActiveMapExposure,
+                    Is.EqualTo(0.94f).Within(0.001f));
+                Assert.That(
+                    post.ActiveAerialHazeDensity,
+                    Is.GreaterThan(0.00082f));
+                Assert.That(
+                    post.ActiveHighlightKnee,
+                    Is.GreaterThan(post.ActiveMapExposure * 0.76f));
+
+                post.ApplyMap(null);
+                Assert.That(
+                    post.ActiveMapExposure,
+                    Is.EqualTo(1f).Within(0.001f));
+                Assert.That(
+                    post.ActiveAerialDensity,
+                    Is.EqualTo(0.00145f).Within(0.00001f));
+                Assert.That(
+                    post.ActiveHighlightKnee,
+                    Is.EqualTo(0.80f).Within(0.001f));
+                Assert.That(
+                    post.ActiveHazeLuminanceCap,
+                    Is.EqualTo(0.385f).Within(0.001f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+                QualitySettings.SetQualityLevel(
+                    originalQuality,
+                    false);
+                ScalableBufferManager.ResizeBuffers(1f, 1f);
+            }
+        }
+
         private static AdaptiveQualityAction Evaluate(
             AdaptiveQualityPolicy policy,
             float firstClock,

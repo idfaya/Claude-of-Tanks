@@ -42,6 +42,9 @@ namespace ClaudeOfTanks.Tests
             bool foundWindWeightedFoliage = false;
             bool foundRaisedTerrain = false;
             bool foundDepressedTerrain = false;
+            bool foundSplatTerrain = false;
+            bool foundSplatRoad = false;
+            bool foundSplatIce = false;
             for (int i = 0; i < catalog.Maps.Length; i++)
             {
                 MapDefinition definition = catalog.Maps[i];
@@ -49,6 +52,7 @@ namespace ClaudeOfTanks.Tests
                     definition,
                     buildingKinds,
                     recipeSignatures);
+                AssertVisualCatalogData(definition);
                 Assert.That(definition.unityVegetation, Is.Not.Null, definition.id);
                 Assert.That(
                     definition.unityVegetation.stands,
@@ -120,10 +124,90 @@ namespace ClaudeOfTanks.Tests
                         RenderSettings.fogMode,
                         Is.EqualTo(FogMode.ExponentialSquared),
                         definition.id);
+                    float expectedFogDensity = Mathf.Clamp(
+                        (definition.sky != null && definition.sky.fogDensity > 0f
+                            ? definition.sky.fogDensity
+                            : 0.00062f) * 0.55f,
+                        0.00012f,
+                        0.00058f);
+                    Assert.That(
+                        RenderSettings.fogDensity,
+                        Is.EqualTo(expectedFogDensity).Within(0.000001f),
+                        definition.id);
+                    float expectedReflectionIntensity = Mathf.Clamp(
+                        PositiveOrDefault(definition.sky.envIntensity, 0.2f) * 2.8f,
+                        0.18f,
+                        1.2f);
+                    Assert.That(
+                        RenderSettings.reflectionIntensity,
+                        Is.EqualTo(expectedReflectionIntensity).Within(0.0001f),
+                        definition.id);
+                    Assert.That(RenderSettings.skybox, Is.Not.Null, definition.id);
                     Assert.That(
                         RenderSettings.sun,
                         Is.SameAs(sun.GetComponent<Light>()),
                         definition.id);
+                    Assert.That(
+                        sun.GetComponent<Light>().intensity,
+                        Is.EqualTo(
+                            Mathf.Clamp(
+                                PositiveOrDefault(definition.sky.sunIntensity, 1f) *
+                                    0.72f *
+                                    Mathf.Clamp(
+                                        PositiveOrDefault(
+                                            definition.sky.postExposure,
+                                            1f),
+                                        0.82f,
+                                        1.04f),
+                                0.35f,
+                                3.4f))
+                            .Within(0.0001f),
+                        definition.id);
+                    AssertStandardSkyboxPresentation(
+                        RenderSettings.skybox,
+                        definition.sky,
+                        definition.id);
+                    Transform horizon = runtime.Root.Find("Horizon");
+                    Assert.That(horizon, Is.Not.Null, definition.id);
+                    Assert.That(horizon.Find("Horizon-Ridge"), Is.Not.Null, definition.id);
+                    AssertHorizonRidgePresentation(
+                        horizon.Find("Horizon-Ridge"),
+                        definition.horizon,
+                        definition.sky,
+                        definition.id);
+                    Assert.That(runtime.HorizonMeshCount, Is.GreaterThanOrEqualTo(1), definition.id);
+                    Assert.That(runtime.HorizonVertexCount, Is.GreaterThan(900), definition.id);
+                    if (definition.horizon.snowline > 0f || definition.horizon.snowHex != 0)
+                        Assert.That(horizon.Find("Horizon-Snowcap"), Is.Not.Null, definition.id);
+                    if (definition.horizon.treeline > 0f || definition.horizon.forestHex != 0)
+                        Assert.That(horizon.Find("Horizon-Treeline"), Is.Not.Null, definition.id);
+                    Transform clouds = runtime.Root.Find("CloudDecks");
+                    int expectedCloudDecks =
+                        (definition.sky.cloudOpacity > 0.01f ? 1 : 0) +
+                        (definition.sky.cloudOpacity2 > 0.01f ? 1 : 0);
+                    Assert.That(runtime.CloudDeckCount, Is.EqualTo(expectedCloudDecks), definition.id);
+                    if (expectedCloudDecks > 0)
+                    {
+                        Assert.That(clouds, Is.Not.Null, definition.id);
+                        if (definition.sky.cloudOpacity > 0.01f)
+                        {
+                            Assert.That(clouds.Find("CloudDeck-Cumulus"), Is.Not.Null, definition.id);
+                            AssertCloudDeckPresentation(
+                                clouds.Find("CloudDeck-Cumulus"),
+                                definition.sky,
+                                definition.id,
+                                false);
+                        }
+                        if (definition.sky.cloudOpacity2 > 0.01f)
+                        {
+                            Assert.That(clouds.Find("CloudDeck-Cirrus"), Is.Not.Null, definition.id);
+                            AssertCloudDeckPresentation(
+                                clouds.Find("CloudDeck-Cirrus"),
+                                definition.sky,
+                                definition.id,
+                                true);
+                        }
+                    }
                     Transform battlefield = runtime.Root.Find("Battlefield");
                     Assert.That(battlefield, Is.Not.Null, definition.id);
                     MeshFilter[] terrainMeshes = battlefield.GetComponentsInChildren<MeshFilter>();
@@ -133,6 +217,20 @@ namespace ClaudeOfTanks.Tests
                         definition.id);
                     Assert.That(runtime.TerrainVertexCount, Is.GreaterThan(16000), definition.id);
                     Assert.That(runtime.TerrainTriangleCount, Is.GreaterThan(30000), definition.id);
+                    AssertSplatMaterial(
+                        terrainMeshes[0].GetComponent<MeshRenderer>().sharedMaterial,
+                        definition.splat,
+                        definition.id,
+                        "Terrain");
+                    AssertTerrainDetailShader(
+                        terrainMeshes[0].GetComponent<MeshRenderer>().sharedMaterial,
+                        0f,
+                        definition.id + ":Terrain");
+                    AssertTerrainSplatTexture(
+                        terrainMeshes[0].GetComponent<MeshRenderer>().sharedMaterial,
+                        definition.splat,
+                        definition.id);
+                    foundSplatTerrain = true;
                     Assert.That(
                         battlefield.GetComponentsInChildren<Collider>(),
                         Is.Empty,
@@ -187,6 +285,26 @@ namespace ClaudeOfTanks.Tests
                     Assert.That(runtime.Root.Find("Surface-RoadCasing"), Is.Not.Null, definition.id);
                     Transform roads = runtime.Root.Find("Surface-Roads");
                     Assert.That(roads, Is.Not.Null, definition.id);
+                    Material roadMaterial = roads.GetComponent<MeshRenderer>().sharedMaterial;
+                    AssertSplatMaterial(
+                        roadMaterial,
+                        definition.splat,
+                        definition.id,
+                        "Road");
+                    AssertTerrainDetailShader(
+                        roadMaterial,
+                        2f,
+                        definition.id + ":Road");
+                    AssertSplatColor(
+                        roadMaterial,
+                        MapMaterialFactory.SplatRoadTintProperty,
+                        SplatTripleOrDefault(
+                            definition.splat.roadTint,
+                            1.08f,
+                            1.04f,
+                            0.96f),
+                        definition.id + ":roadTint");
+                    foundSplatRoad = true;
                     Vector3[] roadVertices =
                         roads.GetComponent<MeshFilter>().sharedMesh.vertices;
                     for (int roadVertex = 0; roadVertex < roadVertices.Length; roadVertex += 11)
@@ -240,6 +358,27 @@ namespace ClaudeOfTanks.Tests
                         Transform water = runtime.Root.Find(name);
                         Assert.That(water, Is.Not.Null, definition.id);
                         Assert.That(water.GetComponent<Collider>(), Is.Null, definition.id);
+                        Material waterMaterial =
+                            water.GetComponent<MeshRenderer>().sharedMaterial;
+                        AssertSplatMaterial(
+                            waterMaterial,
+                            definition.splat,
+                            definition.id,
+                            definition.unitySurface.frozenWater ? "Ice" : "Water");
+                        if (definition.unitySurface.frozenWater &&
+                            definition.splat.iceLake)
+                        {
+                            Assert.That(
+                                waterMaterial.GetFloat(
+                                    MapMaterialFactory.SplatIceDriftProperty),
+                                Is.EqualTo(
+                                    PositiveOrDefault(
+                                        definition.splat.iceDrift,
+                                        0.85f))
+                                    .Within(0.0001f),
+                                definition.id);
+                            foundSplatIce = true;
+                        }
                         mapsWithWater++;
                     }
                     if (definition.unitySurface.marshes.Length > 0)
@@ -416,8 +555,13 @@ namespace ClaudeOfTanks.Tests
             AssertMaterialRole(materialRoles, "Conifer");
             AssertMaterialRole(materialRoles, "Palm");
             AssertMaterialRole(materialRoles, "Birch");
+            AssertMaterialRole(materialRoles, "Horizon");
+            AssertMaterialRole(materialRoles, "Cloud");
             Assert.That(foundAlphaFoliage, Is.True);
             Assert.That(foundWindWeightedFoliage, Is.True);
+            Assert.That(foundSplatTerrain, Is.True);
+            Assert.That(foundSplatRoad, Is.True);
+            Assert.That(foundSplatIce, Is.True);
             AssertMaterialRole(normalMapRoles, "Terrain");
             AssertMaterialRole(normalMapRoles, "Road");
             AssertMaterialRole(normalMapRoles, "RoadCasing");
@@ -481,6 +625,44 @@ namespace ClaudeOfTanks.Tests
             AssertColor(map.unitySurface.waterColor, map.id + " water");
         }
 
+        private static void AssertVisualCatalogData(MapDefinition map)
+        {
+            Assert.That(map.horizon, Is.Not.Null, map.id);
+            Assert.That(map.horizon.baseHex, Is.Not.Zero, map.id);
+            Assert.That(
+                map.horizon.style,
+                Is.EqualTo("rolling")
+                    .Or.EqualTo("alpine")
+                    .Or.EqualTo("mesa")
+                    .Or.EqualTo("escarpment"),
+                map.id);
+            Assert.That(PositiveOrDefault(map.horizon.amp, 1f), Is.InRange(0.4f, 2.3f), map.id);
+            Assert.That(map.sky, Is.Not.Null, map.id);
+            Assert.That(map.sky.fogMix, Is.InRange(0.45f, 0.95f), map.id);
+            Assert.That(PositiveOrDefault(map.sky.envIntensity, 0.2f), Is.InRange(0.12f, 0.65f), map.id);
+            Assert.That(PositiveOrDefault(map.sky.hemiIntensity, 0.32f), Is.InRange(0.18f, 0.9f), map.id);
+            Assert.That(map.sky.cloudTintHex, Is.Not.Zero, map.id);
+            Assert.That(map.sky.cloudOpacity, Is.GreaterThanOrEqualTo(0f), map.id);
+            Assert.That(map.sky.cloudOpacity2, Is.GreaterThanOrEqualTo(0f), map.id);
+            Assert.That(map.shot, Is.Not.Null, map.id);
+            Assert.That(map.shot.pos, Has.Length.EqualTo(3), map.id);
+            Assert.That(map.shot.look, Has.Length.EqualTo(3), map.id);
+            Assert.That(map.splat, Is.Not.Null, map.id);
+            Assert.That(map.splat.tintA, Has.Length.EqualTo(3), map.id);
+            Assert.That(map.splat.tintB, Has.Length.EqualTo(3), map.id);
+            Assert.That(map.splat.tintC, Has.Length.EqualTo(3), map.id);
+            if (map.splat.roadTint != null)
+                Assert.That(map.splat.roadTint, Has.Length.EqualTo(3), map.id);
+            Assert.That(PositiveOrDefault(map.splat.microAmp, 1f), Is.InRange(0.2f, 1.6f), map.id);
+            Assert.That(PositiveOrDefault(map.splat.midRelief, 1f), Is.InRange(0.35f, 1.3f), map.id);
+            Assert.That(PositiveOrDefault(map.splat.midReliefFar, 480f), Is.InRange(240f, 900f), map.id);
+            Assert.That(map.minimap, Is.Not.Null, map.id);
+            Assert.That(map.minimap.@base, Has.Length.EqualTo(3), map.id);
+            Assert.That(map.minimap.hard, Has.Length.EqualTo(3), map.id);
+            Assert.That(map.minimap.soft, Has.Length.EqualTo(3), map.id);
+            Assert.That(map.minimap.roadFill, Is.Not.Empty, map.id);
+        }
+
         private static int DistinctBuildingKinds(
             MapDefinition map)
         {
@@ -503,6 +685,183 @@ namespace ClaudeOfTanks.Tests
             Assert.That(color.r, Is.InRange(0f, 1f), message);
             Assert.That(color.g, Is.InRange(0f, 1f), message);
             Assert.That(color.b, Is.InRange(0f, 1f), message);
+        }
+
+        private static void AssertSplatMaterial(
+            Material material,
+            MapSplat splat,
+            string mapId,
+            string role)
+        {
+            Assert.That(material, Is.Not.Null, mapId + ":" + role);
+            Assert.That(splat, Is.Not.Null, mapId + ":" + role);
+            Assert.That(material.name, Does.Contain("-splat"), mapId + ":" + role);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.SplatAppliedProperty),
+                Is.EqualTo(1f).Within(0.0001f),
+                mapId + ":" + role);
+            AssertSplatColor(
+                material,
+                MapMaterialFactory.SplatTintAProperty,
+                SplatTripleOrDefault(splat.tintA, 1.16f, 1.08f, 0.76f),
+                mapId + ":" + role + ":tintA");
+            AssertSplatColor(
+                material,
+                MapMaterialFactory.SplatTintBProperty,
+                SplatTripleOrDefault(splat.tintB, 0.78f, 0.90f, 0.72f),
+                mapId + ":" + role + ":tintB");
+            AssertSplatColor(
+                material,
+                MapMaterialFactory.SplatTintCProperty,
+                SplatTripleOrDefault(splat.tintC, 1.10f, 1.04f, 0.84f),
+                mapId + ":" + role + ":tintC");
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.SplatMicroAmpProperty),
+                Is.EqualTo(PositiveOrDefault(splat.microAmp, 1f)).Within(0.0001f),
+                mapId + ":" + role);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.SplatMidReliefProperty),
+                Is.EqualTo(PositiveOrDefault(splat.midRelief, 1f)).Within(0.0001f),
+                mapId + ":" + role);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.SplatMidReliefFarProperty),
+                Is.EqualTo(PositiveOrDefault(splat.midReliefFar, 480f)).Within(0.0001f),
+                mapId + ":" + role);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.SplatSandMacroProperty),
+                Is.EqualTo(Mathf.Clamp01(splat.sandMacro)).Within(0.0001f),
+                mapId + ":" + role);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.SplatRippleAmpProperty),
+                Is.EqualTo(Mathf.Clamp(splat.rippleAmp, 0f, 1.2f)).Within(0.0001f),
+                mapId + ":" + role);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.TerrainCloudShadeProperty),
+                Is.InRange(splat.iceLake ? 0.08f : 0.16f, splat.iceLake ? 0.11f : 0.26f),
+                mapId + ":" + role);
+        }
+
+        private static void AssertTerrainSplatTexture(
+            Material material,
+            MapSplat splat,
+            string mapId)
+        {
+            Texture2D texture = material.mainTexture as Texture2D;
+            Assert.That(texture, Is.Not.Null, mapId);
+            Assert.That(texture.width, Is.GreaterThanOrEqualTo(128), mapId);
+            Assert.That(texture.height, Is.GreaterThanOrEqualTo(128), mapId);
+            Color[] pixels = texture.GetPixels(0);
+            Assert.That(pixels, Is.Not.Empty, mapId);
+            float minLuminance = float.PositiveInfinity;
+            float maxLuminance = 0f;
+            float average = 0f;
+            Color first = pixels[0];
+            int distinct = 0;
+            for (int i = 0; i < pixels.Length; i++)
+            {
+                float luminance =
+                    pixels[i].r * 0.2126f +
+                    pixels[i].g * 0.7152f +
+                    pixels[i].b * 0.0722f;
+                minLuminance = Mathf.Min(minLuminance, luminance);
+                maxLuminance = Mathf.Max(maxLuminance, luminance);
+                average += luminance;
+                float delta =
+                    Mathf.Abs(pixels[i].r - first.r) +
+                    Mathf.Abs(pixels[i].g - first.g) +
+                    Mathf.Abs(pixels[i].b - first.b);
+                if (delta > 0.08f) distinct++;
+            }
+            average /= pixels.Length;
+            float range = maxLuminance - minLuminance;
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.TerrainDetailRangeProperty),
+                Is.EqualTo(range).Within(0.01f),
+                mapId);
+            Assert.That(range, Is.GreaterThan(0.09f), mapId);
+            Assert.That(distinct, Is.GreaterThan(pixels.Length / 12), mapId);
+            if (splat.sandMacro > 0.5f)
+            {
+                Assert.That(maxLuminance, Is.LessThan(0.95f), mapId);
+                Assert.That(
+                    range,
+                    Is.GreaterThan(splat.sandMacro > 0.85f ? 0.22f : 0.17f),
+                    mapId);
+                Assert.That(average, Is.LessThan(0.74f), mapId);
+            }
+        }
+
+        private static void AssertTerrainDetailShader(
+            Material material,
+            float roleCode,
+            string message)
+        {
+            Assert.That(material.shader.name, Is.EqualTo("ClaudeOfTanks/MapTerrainDetail"), message);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.TerrainShaderAppliedProperty),
+                Is.EqualTo(1f).Within(0.0001f),
+                message);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.TerrainRoleProperty),
+                Is.EqualTo(roleCode).Within(0.0001f),
+                message);
+            Assert.That(
+                material.HasProperty(MapMaterialFactory.SplatSandMacroProperty),
+                Is.True,
+                message);
+            Assert.That(
+                material.HasProperty(MapMaterialFactory.TerrainCloudShadeProperty),
+                Is.True,
+                message);
+        }
+
+        private static void AssertSplatColor(
+            Material material,
+            string property,
+            float[] expected,
+            string message)
+        {
+            Assert.That(expected, Has.Length.EqualTo(3), message);
+            Color actual = material.GetColor(property);
+            Assert.That(actual.r, Is.EqualTo(expected[0]).Within(0.0001f), message);
+            Assert.That(actual.g, Is.EqualTo(expected[1]).Within(0.0001f), message);
+            Assert.That(actual.b, Is.EqualTo(expected[2]).Within(0.0001f), message);
+        }
+
+        private static float[] SplatTripleOrDefault(
+            float[] values,
+            float r,
+            float g,
+            float b)
+        {
+            return values != null && values.Length >= 3
+                ? values
+                : new[] { r, g, b };
+        }
+
+        private static float PositiveOrDefault(float value, float fallback)
+        {
+            return value > 0f ? value : fallback;
+        }
+
+        private static Color HexColor(int value)
+        {
+            return new Color(
+                ((value >> 16) & 255) / 255f,
+                ((value >> 8) & 255) / 255f,
+                (value & 255) / 255f);
+        }
+
+        private static float Luminance(Color color)
+        {
+            return color.r * 0.2126f + color.g * 0.7152f + color.b * 0.0722f;
+        }
+
+        private static float ColorDistance(Color a, Color b)
+        {
+            return Mathf.Abs(a.r - b.r) +
+                Mathf.Abs(a.g - b.g) +
+                Mathf.Abs(a.b - b.b);
         }
 
         private static void CollectProceduralMaterialRoles(
@@ -609,6 +968,307 @@ namespace ClaudeOfTanks.Tests
             string role)
         {
             Assert.That(roles.Contains(role), Is.True, role);
+        }
+
+        private static void AssertHorizonRidgePresentation(
+            Transform ridge,
+            MapHorizon horizon,
+            MapSky sky,
+            string mapId)
+        {
+            Assert.That(ridge, Is.Not.Null, mapId);
+            MeshFilter filter = ridge.GetComponent<MeshFilter>();
+            Assert.That(filter, Is.Not.Null, mapId);
+            Mesh mesh = filter.sharedMesh;
+            Assert.That(mesh, Is.Not.Null, mapId);
+            Assert.That(mesh.vertexCount, Is.GreaterThan(900), mapId);
+            Color[] colors = mesh.colors;
+            Assert.That(colors, Has.Length.EqualTo(mesh.vertexCount), mapId);
+            float minY = float.PositiveInfinity;
+            float maxY = float.NegativeInfinity;
+            float minRadius = float.PositiveInfinity;
+            float maxRadius = 0f;
+            Vector3[] vertices = mesh.vertices;
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                minY = Mathf.Min(minY, vertices[i].y);
+                maxY = Mathf.Max(maxY, vertices[i].y);
+                float radius = new Vector2(vertices[i].x, vertices[i].z).magnitude;
+                minRadius = Mathf.Min(minRadius, radius);
+                maxRadius = Mathf.Max(maxRadius, radius);
+            }
+            Assert.That(maxY - minY, Is.GreaterThan(70f), mapId);
+            Assert.That(maxRadius - minRadius, Is.GreaterThan(300f), mapId);
+            if (horizon.style == "mesa")
+            {
+                Assert.That(
+                    mesh.vertexCount,
+                    Is.EqualTo(6 * (520 + 1)),
+                    mapId);
+                Assert.That(
+                    mesh.triangles.Length,
+                    Is.EqualTo((6 - 1) * 520 * 6),
+                    mapId);
+                Assert.That(
+                    maxY - minY,
+                    Is.LessThan(180f + PositiveOrDefault(horizon.amp, 1f) * 92f),
+                    mapId);
+                if (mapId == "desert")
+                    Assert.That(maxY - minY, Is.LessThan(285f), mapId);
+                Assert.That(maxRadius, Is.GreaterThan(1500f), mapId);
+                AssertMesaSkylineBreakup(mesh, mapId);
+            }
+            bool foundColorVariation = false;
+            float nearestFogDistance = float.PositiveInfinity;
+            Color fog = HexColor(sky != null && sky.fogTintHex != 0
+                ? sky.fogTintHex
+                : 0x8799a0);
+            Color first = colors[0];
+            for (int i = 1; i < colors.Length; i++)
+            {
+                float delta =
+                    Mathf.Abs(colors[i].r - first.r) +
+                    Mathf.Abs(colors[i].g - first.g) +
+                    Mathf.Abs(colors[i].b - first.b);
+                if (delta > 0.08f)
+                {
+                    foundColorVariation = true;
+                }
+                if (horizon.style == "mesa")
+                    nearestFogDistance = Mathf.Min(
+                        nearestFogDistance,
+                        ColorDistance(colors[i], fog));
+            }
+            Assert.That(foundColorVariation, Is.True, mapId);
+            if (horizon.style == "mesa")
+                Assert.That(
+                    nearestFogDistance,
+                    Is.LessThan(0.58f),
+                    mapId);
+            MeshRenderer renderer = ridge.GetComponent<MeshRenderer>();
+            Assert.That(renderer, Is.Not.Null, mapId);
+            Material material = renderer.sharedMaterial;
+            Assert.That(material, Is.Not.Null, mapId);
+            Assert.That(
+                material.shader.name,
+                Is.EqualTo("ClaudeOfTanks/MapHorizonDetail"),
+                mapId);
+            Assert.That(
+                material.HasProperty(MapMaterialFactory.HorizonBandingProperty),
+                Is.True,
+                mapId);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.HorizonBandingProperty),
+                Is.GreaterThan(0.01f),
+                mapId);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.HorizonDetailStrengthProperty),
+                Is.GreaterThan(0.3f),
+                mapId);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.HorizonStyleProperty),
+                Is.EqualTo(HorizonStyleCode(horizon.style)).Within(0.0001f),
+                mapId);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.HorizonMaxHeightProperty),
+                Is.GreaterThanOrEqualTo(maxY),
+                mapId);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.HorizonTextureRangeProperty),
+                Is.GreaterThan(0.025f),
+                mapId);
+            Assert.That(
+                material.mainTexture.name,
+                Does.StartWith("MapProcedural-Horizon-"),
+                mapId);
+        }
+
+        private static void AssertMesaSkylineBreakup(
+            Mesh mesh,
+            string mapId)
+        {
+            const int segments = 520;
+            const int stride = segments + 1;
+            Vector3[] vertices = mesh.vertices;
+            float minSkyline = float.PositiveInfinity;
+            float maxSkyline = float.NegativeInfinity;
+            float[] skyline = new float[segments];
+            for (int segment = 0; segment < segments; segment++)
+            {
+                float top = float.NegativeInfinity;
+                for (int row = 2; row < 6; row++)
+                {
+                    top = Mathf.Max(
+                        top,
+                        vertices[row * stride + segment].y);
+                }
+                skyline[segment] = top;
+                minSkyline = Mathf.Min(minSkyline, top);
+                maxSkyline = Mathf.Max(maxSkyline, top);
+            }
+
+            float threshold = Mathf.Lerp(minSkyline, maxSkyline, 0.58f);
+            int transitions = 0;
+            bool previousHigh = skyline[segments - 1] >= threshold;
+            for (int segment = 0; segment < segments; segment++)
+            {
+                bool high = skyline[segment] >= threshold;
+                if (high != previousHigh)
+                    transitions++;
+                previousHigh = high;
+            }
+
+            Assert.That(
+                maxSkyline - minSkyline,
+                Is.GreaterThan(32f),
+                mapId + ": skyline relief");
+            Assert.That(
+                transitions,
+                Is.GreaterThanOrEqualTo(4),
+                mapId + ": skyline table/butte breakup");
+        }
+
+        private static float HorizonStyleCode(string style)
+        {
+            return style == "alpine" ? 1f :
+                style == "mesa" ? 2f :
+                style == "escarpment" ? 3f :
+                0f;
+        }
+
+        private static void AssertCloudDeckPresentation(
+            Transform deck,
+            MapSky sky,
+            string mapId,
+            bool cirrus)
+        {
+            Assert.That(deck, Is.Not.Null, mapId);
+            MeshFilter filter = deck.GetComponent<MeshFilter>();
+            Assert.That(filter, Is.Not.Null, mapId + ":" + deck.name);
+            Mesh mesh = filter.sharedMesh;
+            Assert.That(mesh, Is.Not.Null, mapId + ":" + deck.name);
+            Assert.That(mesh.vertexCount, Is.EqualTo((96 + 1) * (18 + 1)), mapId);
+            Bounds bounds = mesh.bounds;
+            Assert.That(bounds.extents.x, Is.GreaterThan(1200f), mapId);
+            Assert.That(bounds.extents.z, Is.GreaterThan(1200f), mapId);
+            Assert.That(bounds.max.y, Is.GreaterThan(1280f), mapId);
+            Assert.That(bounds.min.y, Is.LessThan(0f), mapId);
+
+            MeshRenderer renderer = deck.GetComponent<MeshRenderer>();
+            Assert.That(renderer, Is.Not.Null, mapId + ":" + deck.name);
+            Material material = renderer.sharedMaterial;
+            Assert.That(material, Is.Not.Null, mapId + ":" + deck.name);
+            Assert.That(
+                material.shader.name,
+                Is.EqualTo("ClaudeOfTanks/MapCloudDeck"),
+                mapId + ":" + deck.name);
+            Assert.That(
+                material.renderQueue,
+                Is.EqualTo((int)UnityEngine.Rendering.RenderQueue.Transparent),
+                mapId + ":" + deck.name);
+
+            bool overcast = sky.cloudOpacity >= 0.95f &&
+                sky.cloudOpacity2 >= 0.85f &&
+                PositiveOrDefault(sky.turbidity, 4f) >= 5.4f;
+            float altitude = PositiveOrDefault(
+                sky.cloudAltM,
+                overcast ? 340f : 620f);
+            float uvMeters = PositiveOrDefault(
+                sky.cloudUvM,
+                overcast ? 2400f : 3200f);
+            float hazeK = PositiveOrDefault(
+                sky.cloudHazeK,
+                overcast ? 0.00015f : 0.00023f);
+            if (cirrus)
+            {
+                altitude = Mathf.Max(altitude * 1.72f, 980f);
+                uvMeters *= 1.75f;
+                hazeK *= 0.45f;
+            }
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.CloudAltitudeProperty),
+                Is.EqualTo(altitude).Within(0.0001f),
+                mapId + ":" + deck.name);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.CloudScaleProperty),
+                Is.EqualTo(uvMeters).Within(0.0001f),
+                mapId + ":" + deck.name);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.CloudHazeRateProperty),
+                Is.EqualTo(hazeK).Within(0.000001f),
+                mapId + ":" + deck.name);
+            Vector4 fade = material.GetVector(MapMaterialFactory.CloudYFadeProperty);
+            Assert.That(fade.x, Is.EqualTo(0.007f).Within(0.0001f), mapId);
+            Assert.That(fade.y, Is.EqualTo(0.034f).Within(0.0001f), mapId);
+            Assert.That(
+                material.GetFloat(MapMaterialFactory.CloudShadeStrengthProperty),
+                Is.EqualTo(cirrus ? 0.18f : 0.42f).Within(0.0001f),
+                mapId + ":" + deck.name);
+        }
+
+        private static void AssertStandardSkyboxPresentation(
+            Material skybox,
+            MapSky sky,
+            string mapId)
+        {
+            Assert.That(skybox, Is.Not.Null, mapId);
+            Assert.That(
+                skybox.shader.name,
+                Is.EqualTo("Skybox/Procedural"),
+                mapId);
+            Assert.That(
+                skybox.name,
+                Is.EqualTo("MapProceduralSkybox"),
+                mapId);
+            Assert.That(skybox.HasProperty("_SkyTint"), Is.True, mapId);
+            Assert.That(skybox.HasProperty("_GroundColor"), Is.True, mapId);
+            Assert.That(skybox.HasProperty("_Exposure"), Is.True, mapId);
+            Assert.That(skybox.HasProperty("_AtmosphereThickness"), Is.True, mapId);
+            Assert.That(skybox.HasProperty("_SunSize"), Is.True, mapId);
+            Assert.That(skybox.HasProperty("_SunSizeConvergence"), Is.True, mapId);
+            Assert.That(skybox.HasProperty("_SunDisk"), Is.True, mapId);
+            float expectedExposure = Mathf.Clamp(
+                0.96f * PositiveOrDefault(sky?.postExposure ?? 0f, 1f) +
+                    PositiveOrDefault(sky?.envIntensity ?? 0f, 0.2f) * 0.16f,
+                0.78f,
+                1.16f);
+            Assert.That(
+                skybox.GetFloat("_Exposure"),
+                Is.EqualTo(expectedExposure).Within(0.0001f),
+                mapId);
+            float density = sky != null ? sky.fogDensity : 0.00062f;
+            float turbidity = PositiveOrDefault(sky?.turbidity ?? 0f, 4f);
+            float rayleigh = PositiveOrDefault(sky?.rayleigh ?? 0f, 1.2f);
+            float mie = PositiveOrDefault(sky?.mieCoefficient ?? 0f, 0.006f);
+            float mieG = PositiveOrDefault(sky?.mieDirectionalG ?? 0f, 0.82f);
+            float expectedThickness = Mathf.Clamp(
+                Mathf.Lerp(
+                    0.34f,
+                    0.92f,
+                    Mathf.InverseLerp(0.0003f, 0.001f, density)) +
+                (turbidity - 4f) * 0.055f +
+                (rayleigh - 1.2f) * 0.075f,
+                0.24f,
+                1.22f);
+            Assert.That(
+                skybox.GetFloat("_AtmosphereThickness"),
+                Is.EqualTo(expectedThickness).Within(0.0001f),
+                mapId);
+            Assert.That(skybox.GetFloat("_SunDisk"), Is.EqualTo(2f).Within(0.0001f), mapId);
+            Assert.That(
+                skybox.GetFloat("_SunSize"),
+                Is.EqualTo(Mathf.Clamp(
+                    0.018f + mie * 4.2f + (mieG - 0.78f) * 0.045f,
+                    0.018f,
+                    0.075f)).Within(0.0001f),
+                mapId);
+            Assert.That(
+                skybox.GetFloat("_SunSizeConvergence"),
+                Is.EqualTo(Mathf.Clamp(
+                    2.4f + (mieG - 0.78f) * 8.0f + mie * 90f,
+                    2.0f,
+                    8.0f)).Within(0.0001f),
+                mapId);
         }
     }
 }

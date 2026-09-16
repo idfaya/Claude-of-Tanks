@@ -872,7 +872,8 @@ namespace ClaudeOfTanks.Runtime
         private void BuildEnvironment()
         {
             _mapRuntime?.Dispose();
-            _mapRuntime = MapRuntime.Create(_catalog.GetMap(mapId));
+            MapDefinition map = _catalog.GetMap(mapId);
+            _mapRuntime = MapRuntime.Create(map);
 
             _camera = Camera.main;
             if (_camera == null)
@@ -885,9 +886,14 @@ namespace ClaudeOfTanks.Runtime
 
             _camera.fieldOfView = 58f;
             _camera.nearClipPlane = 0.15f;
-            _camera.farClipPlane = 500f;
+            _camera.farClipPlane = 1400f;
+            _camera.clearFlags = CameraClearFlags.Skybox;
             _camera.backgroundColor = new Color(0.49f, 0.61f, 0.68f);
             _camera.transform.position = new Vector3(0f, 8f, -48f);
+            CameraPostProcessing.Ensure(
+                    _camera,
+                    GameSettings.Current)
+                .ApplyMap(map);
         }
 
         private static Float3 SpawnPosition(BattleState state, float x, float z)

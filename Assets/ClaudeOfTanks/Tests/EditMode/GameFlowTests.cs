@@ -61,6 +61,20 @@ namespace ClaudeOfTanks.Tests
                     Camera.main.GetComponent<CameraPostProcessing>(),
                     Is.SameAs(post));
                 Assert.That(
+                    Camera.main.farClipPlane,
+                    Is.GreaterThanOrEqualTo(1400f));
+                Assert.That(
+                    Camera.main.clearFlags,
+                    Is.EqualTo(CameraClearFlags.Skybox));
+                Assert.That(
+                    post.ActiveMapExposure,
+                    Is.EqualTo(
+                        ContentCatalog.Load()
+                            .GetMap(mapId)
+                            .sky
+                            .postExposure)
+                        .Within(0.001f));
+                Assert.That(
                     flow.ActiveBattle.Player.Combat.Equipment.RepairRate,
                     Is.EqualTo(1.25f));
                 Assert.That(Object.FindObjectsOfType<EventSystem>(), Has.Length.EqualTo(1));

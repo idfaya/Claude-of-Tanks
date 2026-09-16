@@ -400,11 +400,18 @@ namespace ClaudeOfTanks.Runtime
         public CatalogPoint turretPivot;
         public CatalogPoint gunPivot;
         public VehicleGunBarrel gunBarrel;
+        public VehicleArmorBodyContactPoints bodyContactPoints;
         public ArmorPlateDefinition[] hullPlates;
         public ArmorPlateDefinition[] turretPlates;
         public ArmorModuleDefinition[] modules;
         public ArmorCrewDefinition[] crew;
         public float boundingRadiusM;
+    }
+
+    [Serializable] public sealed class VehicleArmorBodyContactPoints
+    {
+        public float[] hull;
+        public float[] turret;
     }
 
     [Serializable] public sealed class VehicleGunBarrel
@@ -486,6 +493,10 @@ namespace ClaudeOfTanks.Runtime
         public string id;
         public string name;
         public string blurb;
+        public MapHorizon horizon;
+        public MapShot shot;
+        public MapSplat splat;
+        public MapMinimap minimap;
         public MapSky sky;
         public MapSpawns spawns;
         public MapTerrain terrain;
@@ -504,6 +515,81 @@ namespace ClaudeOfTanks.Runtime
         public float sunIntensity;
         public float sunElevationDeg;
         public float sunAzimuthDeg;
+        public float turbidity;
+        public float rayleigh;
+        public float mieCoefficient;
+        public float mieDirectionalG;
+        public float fogMix;
+        public float envIntensity;
+        public float hemiIntensity;
+        public float postExposure;
+        public float cloudOpacity;
+        public float cloudOpacity2;
+        public int cloudTintHex;
+        public float cloudAltM;
+        public float cloudHazeK;
+        public float cloudUvM;
+        public float cloudShadowAmp;
+    }
+
+    [Serializable] public sealed class MapHorizon
+    {
+        public int baseHex;
+        public float amp;
+        public string style;
+        public float snowline;
+        public float treeline;
+        public int treelineLayers;
+        public float banding;
+        public int rockHex;
+        public int snowHex;
+        public int forestHex;
+        public float haze;
+        public float grain;
+    }
+
+    [Serializable] public sealed class MapShot
+    {
+        public float[] pos;
+        public float[] look;
+    }
+
+    [Serializable] public sealed class MapSplat
+    {
+        public float[] tintA;
+        public float[] tintB;
+        public float[] tintC;
+        public float[] roadTint;
+        public float[] rippleDir;
+        public float[] iceSky;
+        public float fieldPatch;
+        public float microAmp;
+        public float midRelief;
+        public float midReliefFar;
+        public float mudRough;
+        public float rippleAmp;
+        public float roadTexMix;
+        public float sandMacro;
+        public float strata;
+        public float townWear;
+        public float iceDrift;
+        public float marshGloss;
+        public bool sandstone;
+        public bool iceLake;
+    }
+
+    [Serializable] public sealed class MapMinimap
+    {
+        public int[] @base;
+        public int[] hard;
+        public int[] soft;
+        public string buildingFill;
+        public string forest;
+        public string forestStroke;
+        public string roadCasing;
+        public string roadFill;
+        public string water;
+        public string waterStroke;
     }
 
     [Serializable] public sealed class MapPoint { public float x; public float z; }

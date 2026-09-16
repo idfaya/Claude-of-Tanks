@@ -22,6 +22,9 @@ namespace ClaudeOfTanks.Tests
                     "verdant",
                     null);
                 Assert.That(
+                    Camera.main.clearFlags,
+                    Is.EqualTo(CameraClearFlags.Skybox));
+                Assert.That(
                     studio.ActorCount,
                     Is.EqualTo(1));
                 studio.SetSelectedPose(

@@ -253,6 +253,10 @@ namespace ClaudeOfTanks.Runtime
                 MapSimulationAdapter
                     .BuildHeightField(
                         definition);
+            CameraPostProcessing.Ensure(
+                    _camera,
+                    GameSettings.Current)
+                .ApplyMap(definition);
             _mapId = mapId;
             for (int i = 0;
                 i < _actors.Count;
@@ -331,6 +335,9 @@ namespace ClaudeOfTanks.Runtime
         private void ConfigureCamera()
         {
             RenderSettings.fog = true;
+            _camera.nearClipPlane = 0.15f;
+            _camera.farClipPlane = 1400f;
+            _camera.clearFlags = CameraClearFlags.Skybox;
             SetCamera(22f, 8f, 35f, 42f);
         }
 

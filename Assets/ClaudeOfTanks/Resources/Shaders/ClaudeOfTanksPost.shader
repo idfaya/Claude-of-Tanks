@@ -26,9 +26,13 @@ Shader "Hidden/ClaudeOfTanks/Post"
         float _BloomThreshold;
         float _BloomStrength;
         float _Exposure;
+        float _MapExposure;
         float _Contrast;
         float _Saturation;
         float _Vignette;
+        float _BlackLift;
+        float _HighlightKnee;
+        float _BrightVignetteKeep;
         float _AoSampleCount;
         float _AoIntensity;
         float _AoRadiusM;
@@ -37,6 +41,7 @@ Shader "Hidden/ClaudeOfTanks/Post"
         float _AerialDensity;
         float _AerialHazeDensity;
         float _AerialStrength;
+        float _HazeLuminanceCap;
         half4 _FogColor;
         float3 _SunDirectionVS;
 
@@ -160,7 +165,7 @@ Shader "Hidden/ClaudeOfTanks/Post"
                     haze,
                     half3(0.2126h, 0.7152h, 0.0722h)),
                 0.0001h);
-            haze *= min(1.0h, 0.55h / hazeLuminance);
+            haze *= min(1.0h, _HazeLuminanceCap / hazeLuminance);
             float hazeDistance = max(depth - 85.0, 0.0);
             float hazeX =
                 hazeDistance * _AerialHazeDensity;
@@ -184,15 +189,42 @@ Shader "Hidden/ClaudeOfTanks/Post"
             scene *= ao;
             scene = ApplyAerial(scene, input.uv);
             half3 color = AcesFit(
-                (scene + bloom * _BloomStrength) * exp2(_Exposure));
+                (scene + bloom * _BloomStrength) *
+                _MapExposure *
+                exp2(_Exposure));
             half luminance = dot(
                 color,
                 half3(0.2126h, 0.7152h, 0.0722h));
+            color = max(color - _BlackLift, 0.0h);
+            luminance = dot(
+                color,
+                half3(0.2126h, 0.7152h, 0.0722h));
             color = lerp(luminance.xxx, color, _Saturation);
-            color = (color - 0.5h) * _Contrast + 0.5h;
+            half gain = _Contrast -
+                (_Contrast - 1.0h) *
+                smoothstep(0.52h, 0.90h, luminance);
+            gain = lerp(
+                1.0h,
+                gain,
+                smoothstep(0.045h, 0.30h, luminance));
+            color = (color - 0.33h) * gain + 0.33h;
+            half3 over = max(
+                color - _HighlightKnee,
+                0.0h);
+            color = min(color, _HighlightKnee) +
+                over /
+                (1.0h +
+                    over / max(1.0h - _HighlightKnee, 0.001h));
             float2 centered = input.uv * 2.0 - 1.0;
-            half vignette = 1.0h -
+            luminance = dot(
+                color,
+                half3(0.2126h, 0.7152h, 0.0722h));
+            half vignetteStrength =
                 _Vignette *
+                (1.0h - _BrightVignetteKeep *
+                    smoothstep(0.45h, 0.75h, luminance));
+            half vignette = 1.0h -
+                vignetteStrength *
                 smoothstep(0.28h, 1.15h, dot(centered, centered));
             return half4(saturate(color * vignette), 1.0h);
         }

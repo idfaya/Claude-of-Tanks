@@ -384,9 +384,14 @@ namespace ClaudeOfTanks.Runtime
             }
             _camera.fieldOfView = 58f;
             _camera.nearClipPlane = 0.15f;
-            _camera.farClipPlane = 500f;
+            _camera.farClipPlane = 1400f;
+            _camera.clearFlags = CameraClearFlags.Skybox;
             _camera.backgroundColor =
                 new Color(0.49f, 0.61f, 0.68f);
+            CameraPostProcessing.Ensure(
+                    _camera,
+                    GameSettings.Current)
+                .ApplyMap(_catalog.GetMap(_plan.MapId));
         }
 
         private void UpdateCameraControls()

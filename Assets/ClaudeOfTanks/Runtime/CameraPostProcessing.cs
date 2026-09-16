@@ -14,6 +14,7 @@ namespace ClaudeOfTanks.Runtime
         private Material _material;
         private readonly CameraPostBuffers _buffers =
             new CameraPostBuffers();
+        private MapSky _mapSky;
         private float _frameEmaMs;
         private float _sampleElapsed;
         private int _sampleFrames;
@@ -36,6 +37,18 @@ namespace ClaudeOfTanks.Runtime
         public bool AerialPerspectiveEnabled =>
             _material != null && RenderSettings.fog;
         public bool ShaderAvailable => _material != null;
+        public float ActiveMapExposure => CurrentProfile().MapExposure;
+        public float ActiveAerialDensity => CurrentProfile().AerialDensity;
+        public float ActiveAerialHazeDensity =>
+            CurrentProfile().AerialHazeDensity;
+        public float ActiveBloomThreshold =>
+            CurrentProfile().BloomThreshold;
+        public float ActiveHighlightKnee =>
+            CurrentProfile().HighlightKnee;
+        public float ActiveBrightVignetteKeep =>
+            CurrentProfile().BrightVignetteKeep;
+        public float ActiveHazeLuminanceCap =>
+            CurrentProfile().HazeLuminanceCap;
 
         public static CameraPostProcessing Ensure(
             Camera camera,
@@ -50,6 +63,11 @@ namespace ClaudeOfTanks.Runtime
                     .AddComponent<CameraPostProcessing>();
             effects.Configure(settings ?? GameSettings.Current);
             return effects;
+        }
+
+        public void ApplyMap(MapDefinition map)
+        {
+            _mapSky = map?.sky;
         }
 
         public void Configure(GameSettings settings)
@@ -280,7 +298,8 @@ namespace ClaudeOfTanks.Runtime
                 EffectiveQuality,
                 PerformanceTrim,
                 _settings != null &&
-                    _settings.HighContrast);
+                    _settings.HighContrast,
+                _mapSky);
         }
 
         private void ApplyMaterial(
@@ -293,9 +312,18 @@ namespace ClaudeOfTanks.Runtime
                 "_BloomStrength",
                 profile.BloomStrength);
             _material.SetFloat("_Exposure", profile.Exposure);
+            _material.SetFloat("_MapExposure", profile.MapExposure);
             _material.SetFloat("_Contrast", profile.Contrast);
             _material.SetFloat("_Saturation", profile.Saturation);
             _material.SetFloat("_Vignette", profile.Vignette);
+            _material.SetFloat("_BlackLift", profile.BlackLift);
+            _material.SetFloat("_HighlightKnee", profile.HighlightKnee);
+            _material.SetFloat(
+                "_BrightVignetteKeep",
+                profile.BrightVignetteKeep);
+            _material.SetFloat(
+                "_HazeLuminanceCap",
+                profile.HazeLuminanceCap);
             _material.SetFloat(
                 "_AoSampleCount",
                 profile.AoSamples);
@@ -323,17 +351,16 @@ namespace ClaudeOfTanks.Runtime
                         _camera.fieldOfView / 15f,
                         1.5f))
                 : 1f;
-            float sourceDensity = RenderSettings.fog
-                ? Mathf.Max(
-                    0.00035f,
-                    RenderSettings.fogDensity / 6f)
-                : 0f;
             _material.SetFloat(
                 "_AerialDensity",
-                sourceDensity * 1.8f * zoomScale);
+                RenderSettings.fog
+                    ? profile.AerialDensity * zoomScale
+                    : 0f);
             _material.SetFloat(
                 "_AerialHazeDensity",
-                sourceDensity * 1.15f * zoomScale);
+                RenderSettings.fog
+                    ? profile.AerialHazeDensity * zoomScale
+                    : 0f);
             _material.SetFloat(
                 "_AerialStrength",
                 RenderSettings.fog

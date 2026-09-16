@@ -106,6 +106,119 @@ namespace ClaudeOfTanks.Tests
         }
 
         [Test]
+        public void MinimapUsesMapPaletteForBackgroundAndFeatureLayers()
+        {
+            BattleHud hud = BattleHud.Create(() => { }, () => { });
+            MapDefinition map = new MapDefinition
+            {
+                id = "palette-test",
+                minimap = new MapMinimap
+                {
+                    @base = new[] { 10, 20, 30 },
+                    hard = new[] { 90, 100, 110 },
+                    soft = new[] { 5, 15, 25 },
+                    water = "rgba(110,130,150,0.5)",
+                    waterStroke = "rgba(210,220,230,1)",
+                    roadCasing = "rgba(200,10,20,1)",
+                    roadFill = "rgba(20,220,40,1)",
+                    buildingFill = "#f0c060"
+                },
+                terrain = new MapTerrain
+                {
+                    landforms = new LandformDefinition[0]
+                },
+                unitySurface = new MapSurface
+                {
+                    roads = new[]
+                    {
+                        new MapPolyline
+                        {
+                            points = new[]
+                            {
+                                new MapPoint { x = -200f, z = 150f },
+                                new MapPoint { x = 200f, z = 150f }
+                            }
+                        }
+                    },
+                    lakes = new[]
+                    {
+                        new MapDisc { x = -250f, z = -150f, r = 60f }
+                    },
+                    marshes = new MapDisc[0],
+                    groundColor = ColorDef(0.8f, 0.1f, 0.1f),
+                    hardColor = ColorDef(0.1f, 0.8f, 0.1f),
+                    softColor = ColorDef(0.1f, 0.1f, 0.8f),
+                    roadColor = ColorDef(0.8f, 0.8f, 0.8f),
+                    roadCasingColor = ColorDef(0.2f, 0.2f, 0.2f),
+                    waterColor = ColorDef(0.1f, 0.2f, 0.9f)
+                },
+                unityStructures = new MapStructures
+                {
+                    buildingColor = ColorDef(0.8f, 0.8f, 0.8f),
+                    buildings = new[]
+                    {
+                        new MapBuilding
+                        {
+                            x = 250f,
+                            z = -150f,
+                            w = 48f,
+                            d = 48f,
+                            h = 8f
+                        }
+                    },
+                    walls = new MapWall[0]
+                }
+            };
+
+            try
+            {
+                hud.SetMap(map);
+                Texture2D texture = (Texture2D)hud.transform
+                    .Find("Minimap/Map")
+                    .GetComponent<RawImage>()
+                    .texture;
+
+                AssertColor32Near(
+                    texture.GetPixel(5, 5),
+                    new Color32(10, 20, 30, 255),
+                    1,
+                    "base palette");
+                AssertColor32Near(
+                    texture.GetPixel(
+                        PixelX(-250f),
+                        PixelY(-150f)),
+                    new Color32(60, 75, 90, 255),
+                    2,
+                    "water palette alpha-composited over base");
+                AssertColor32Near(
+                    texture.GetPixel(
+                        PixelX(0f),
+                        PixelY(150f)),
+                    new Color32(20, 220, 40, 255),
+                    1,
+                    "road fill palette");
+                AssertColor32Near(
+                    texture.GetPixel(
+                        PixelX(0f),
+                        PixelY(150f) + 3),
+                    new Color32(200, 10, 20, 255),
+                    1,
+                    "road casing palette");
+                AssertColor32Near(
+                    texture.GetPixel(
+                        PixelX(250f),
+                        PixelY(-150f)),
+                    new Color32(70, 57, 31, 255),
+                    3,
+                    "building palette darkened like TS minimap");
+            }
+            finally
+            {
+                Object.DestroyImmediate(hud.gameObject);
+            }
+        }
+
+        [Test]
         public void EveryMapBuildsDistinctMinimapTexture()
         {
             ContentCatalog catalog = ContentCatalog.Load();
@@ -131,6 +244,38 @@ namespace ClaudeOfTanks.Tests
             {
                 Object.DestroyImmediate(hud.gameObject);
             }
+        }
+
+        private static MapColor ColorDef(float r, float g, float b)
+        {
+            return new MapColor { r = r, g = g, b = b };
+        }
+
+        private static int PixelX(float worldX)
+        {
+            return Mathf.RoundToInt(
+                (worldX / BattleMinimap.WorldSizeM + 0.5f) *
+                (BattleMinimap.TextureSize - 1));
+        }
+
+        private static int PixelY(float worldZ)
+        {
+            return Mathf.RoundToInt(
+                (worldZ / BattleMinimap.WorldSizeM + 0.5f) *
+                (BattleMinimap.TextureSize - 1));
+        }
+
+        private static void AssertColor32Near(
+            Color color,
+            Color32 expected,
+            int tolerance,
+            string label)
+        {
+            Color32 actual = color;
+            Assert.That(Mathf.Abs(actual.r - expected.r), Is.LessThanOrEqualTo(tolerance), label + " r");
+            Assert.That(Mathf.Abs(actual.g - expected.g), Is.LessThanOrEqualTo(tolerance), label + " g");
+            Assert.That(Mathf.Abs(actual.b - expected.b), Is.LessThanOrEqualTo(tolerance), label + " b");
+            Assert.That(Mathf.Abs(actual.a - expected.a), Is.LessThanOrEqualTo(tolerance), label + " a");
         }
 
         [Test]
